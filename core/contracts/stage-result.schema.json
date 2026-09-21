@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/stage-result.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "runId", "stage", "status", "exitCategory", "profile", "roots", "authorityHashes", "moduleResults", "findings", "coverage"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "runId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+    "stage": { "enum": ["bootstrap", "analysis", "pre", "post"] },
+    "status": { "enum": ["pass", "advisory", "fail", "error"] },
+    "exitCategory": { "enum": ["success", "invalid-input", "unsafe-path", "integrity-failure", "capability-denied", "adapter-failure", "prerequisite-missing", "findings-blocking", "state-conflict", "reset-refused", "internal-error"] },
+    "profile": { "type": "object", "additionalProperties": false, "required": ["id", "version", "sha256"], "properties": { "id": { "type": "string" }, "version": { "type": "string" }, "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } } },
+    "roots": { "$ref": "#/definitions/roots" },
+    "authorityHashes": { "type": "object", "minProperties": 1, "additionalProperties": { "type": "string", "pattern": "^[a-f0-9]{64}$" } },
+    "moduleResults": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["moduleId", "status", "evidencePath"], "properties": { "moduleId": { "type": "string" }, "status": { "enum": ["pass", "advisory", "fail", "error", "skipped"] }, "evidencePath": { "type": "string" } } } },
+    "findings": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["ruleId", "subject", "evidenceKind", "detectorId", "severity"], "properties": { "ruleId": { "type": "string" }, "subject": { "type": "string" }, "evidenceKind": { "type": "string" }, "detectorId": { "type": "string" }, "severity": { "enum": ["advisory", "blocking"] } } } },
+    "coverage": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["claimId", "matched", "minimum"], "properties": { "claimId": { "type": "string" }, "matched": { "type": "integer", "minimum": 0 }, "minimum": { "type": "integer", "minimum": 0 } } } }
+  },
+  "definitions": {
+    "roots": { "type": "object", "additionalProperties": false, "required": ["packageRoot", "targetRoot", "stateRoot", "evidenceRoot"], "properties": { "packageRoot": { "type": "string", "minLength": 1 }, "targetRoot": { "type": "string", "minLength": 1 }, "stateRoot": { "type": "string", "minLength": 1 }, "evidenceRoot": { "type": "string", "minLength": 1 } } }
+  }
+}

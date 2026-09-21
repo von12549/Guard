@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/genesis-record.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "seedSha", "packageHash", "contractsManifestHash", "deterministicTests", "nonInterferenceEvidence", "recovery", "acceptedBy"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "seedSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+    "packageHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "contractsManifestHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "deterministicTests": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["id", "resultHash"], "properties": { "id": { "type": "string" }, "resultHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" } } } },
+    "nonInterferenceEvidence": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "recovery": { "type": "object", "additionalProperties": false, "required": ["restoreSha", "instructionsHash"], "properties": { "restoreSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" }, "instructionsHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" } } },
+    "acceptedBy": { "type": "object", "additionalProperties": false, "required": ["authorityType", "authorityId", "candidateHostVerdictAllowed"], "properties": { "authorityType": { "enum": ["human-review", "external-governance"] }, "authorityId": { "type": "string", "minLength": 1 }, "candidateHostVerdictAllowed": { "const": false } } }
+  }
+}

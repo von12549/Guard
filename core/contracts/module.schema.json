@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/module.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "id", "version", "compatibleApi", "supportedPlatforms", "adapter", "prerequisites", "capabilities", "stages", "configSchema", "resultSchema", "dependencyLock"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "compatibleApi": { "const": "1.x" },
+    "supportedPlatforms": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["linux-x64", "win-x64", "osx-arm64"] } },
+    "adapter": {
+      "type": "object", "additionalProperties": false, "required": ["kind", "path", "sha256"],
+      "properties": { "kind": { "enum": ["dotnet", "powershell"] }, "path": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" }, "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } }
+    },
+    "prerequisites": { "type": "array", "uniqueItems": true, "items": { "type": "object", "additionalProperties": false, "required": ["runtime", "versionRange"], "properties": { "runtime": { "enum": ["dotnet", "pwsh", "node", "git"] }, "versionRange": { "type": "string", "minLength": 1 } } } },
+    "capabilities": {
+      "type": "object", "additionalProperties": false, "required": ["readRoots", "writeRoots", "processes", "network", "timeoutSeconds"],
+      "properties": {
+        "readRoots": { "type": "array", "uniqueItems": true, "items": { "enum": ["PackageRoot", "TargetRoot", "StateRoot", "EvidenceRoot"] } },
+        "writeRoots": { "type": "array", "uniqueItems": true, "items": { "enum": ["StateRoot", "EvidenceRoot"] } },
+        "processes": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9.-]+$" } },
+        "network": { "type": "boolean" },
+        "timeoutSeconds": { "type": "integer", "minimum": 1, "maximum": 3600 }
+      }
+    },
+    "stages": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["bootstrap", "analysis", "pre", "post"] } },
+    "configSchema": { "type": "string", "minLength": 1 },
+    "resultSchema": { "type": "string", "minLength": 1 },
+    "dependencyLock": { "type": "object", "additionalProperties": false, "required": ["path", "sha256"], "properties": { "path": { "type": "string", "minLength": 1 }, "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } } }
+  }
+}

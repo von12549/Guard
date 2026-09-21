@@ -1,0 +1,18 @@
+{
+  "formatVersion": 1,
+  "apiVersion": "1.0",
+  "files": [
+    { "path": "core/contracts/capability-matrix.schema.json", "sha256": "d5c9e5d5b4d48431fca890f6e13d3cd6efe1a0ea4bdcca67f73543ffbed7e71e" },
+    { "path": "core/contracts/cli-contract.json", "sha256": "65a6e4f0a77b2975884fbf2b1000ffabf1493323e9a3a951e948815a2a31f410" },
+    { "path": "core/contracts/cli-contract.schema.json", "sha256": "2686085e2af99f3c9edb5403f5ca2c73a13e50ddf942c91cc99c31092cdb50a6" },
+    { "path": "core/contracts/genesis-record.schema.json", "sha256": "d372bcca76ccfdb346e46733293d5dbd1a8d333c8dbb177bc52ce34d6eef66da" },
+    { "path": "core/contracts/module.schema.json", "sha256": "3b0d1d54b2bc150ef6e3c9be1b5c21d7e0540f8541f44e2f07deab60c51454a3" },
+    { "path": "core/contracts/plan-set.schema.json", "sha256": "b29456e3ca35da162a863747380d7cfedc001c93803d504572ccfb73818cc26e" },
+    { "path": "core/contracts/plan.schema.json", "sha256": "86aec6ec2f778f1c3f7d193634b6731fa7fbf73bcb9a804f9514a990bd967dbc" },
+    { "path": "core/contracts/plugin.schema.json", "sha256": "0c7d3a626aa7d37dc0c1a6314b15f8b72cc70d42feb143a8e85994f266249a0f" },
+    { "path": "core/contracts/profile.schema.json", "sha256": "dda22c455daf6ed9bf8e76292c62deec1fd2f76acadeab89f733c78fb70ec42f" },
+    { "path": "core/contracts/rule-execution-plan.schema.json", "sha256": "3c1b32b394fa6cefbe64630cd76bac0a787d8c50616c9f462e043ac26d2a5d6a" },
+    { "path": "core/contracts/stage-result.schema.json", "sha256": "7a6b0e839874beb34f692b474bfb7db17516f151b91912c94123b2d7cff92bcf" },
+    { "path": "core/contracts/state.schema.json", "sha256": "bf456b349ed71371f3e8d86f214fb619c9a8aeba6e2334ee3b67119cc32654d4" }
+  ]
+}

@@ -98,15 +98,19 @@ must not embed repository-relative IFX paths.
   `artifacts/guards/v4/p0a/summary.json`.
 - [x] **V4-P0.2** Prove the four-root contract, external-target equivalence and isolated CI state/evidence roots.
   Evidence: P0A in-repository/separated-package equivalence and path/capability negative suite.
-- [ ] **V4-P0.3** Freeze plugin, profile, module, Stage result, state and plan-set schemas.
-- [ ] **V4-P0.4** Define stable CLI commands and exit categories.
-- [ ] **V4-P0.5** Freeze the Architecture Conformance capability-matrix and rule-execution-plan schemas.
+- [x] **V4-P0.3** Freeze plugin, profile, module, Stage result, state and plan-set schemas. Evidence: P0B
+  strict schemas and hash-bound `core/contracts/contracts-manifest.json`.
+- [x] **V4-P0.4** Define stable CLI commands and exit categories. Evidence: P0B schema-valid
+  `core/contracts/cli-contract.json`; P0A `spike.run` remains explicitly experimental.
+- [x] **V4-P0.5** Freeze the Architecture Conformance capability-matrix and rule-execution-plan schemas.
+  Evidence: P0B positive, zero-match and missing-fixture contract tests.
 - [ ] **V4-P0.6** Prepare the exact proposal for `codex/v4-development-base`, the V4-only workflow and the finite
   V3 genesis-bootstrap/exit boundary; do not create or activate either without explicit authorization.
 - [x] **V4-P0.7** Record recovery point and current V3/V3_ifx non-interference checks. Recovery seed:
   `20c93d521728746e1c227654b32219d94fcdf6bb`; current V3 validation remains required before checkpoint commit.
-- [ ] **V4-P0.8** Define the genesis acceptance record that binds the reviewed seed commit, package/contract hashes,
+- [x] **V4-P0.8** Define the genesis acceptance record that binds the reviewed seed commit, package/contract hashes,
   deterministic synthetic tests and recovery instructions without allowing the candidate V4 host to trust itself.
+  Evidence: P0B `genesis-record.schema.json` and candidate-self-acceptance negative test.
 
 - [ ] **V4-P0.GATE** All v1 decisions are `ACCEPTED`; the host spike demonstrates structured results,
   path safety, capability denial and equivalent in-place/separated-target verdicts; the finite V3 bootstrap and

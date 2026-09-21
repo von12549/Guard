@@ -1,0 +1,28 @@
+{
+  "formatVersion": 1,
+  "executable": "v4-guards",
+  "apiVersion": "1.0",
+  "commands": [
+    { "id": "version", "syntax": "v4-guards version", "stability": "stable", "mutability": "read-only", "requiredRoots": [] },
+    { "id": "contract.validate", "syntax": "v4-guards contract validate --schema <id> --document <path>", "stability": "stable", "mutability": "read-only", "requiredRoots": ["PackageRoot"] },
+    { "id": "stage.run", "syntax": "v4-guards stage run --stage <bootstrap|analysis|pre|post> --package-root <path> --target-root <path> --state-root <path> --evidence-root <path> --profile <id>", "stability": "stable", "mutability": "state-write", "requiredRoots": ["PackageRoot", "TargetRoot", "StateRoot", "EvidenceRoot"] },
+    { "id": "reset.project", "syntax": "v4-guards reset project --mode <preview|apply> --state-root <path> --evidence-root <path> --project <id> [--accept-manifest-hash <sha256>]", "stability": "stable", "mutability": "accepted-apply", "requiredRoots": ["PackageRoot", "StateRoot", "EvidenceRoot"] },
+    { "id": "reset.factory", "syntax": "v4-guards reset factory --mode <preview|apply> --state-root <path> --evidence-root <path> [--accept-manifest-hash <sha256>]", "stability": "stable", "mutability": "accepted-apply", "requiredRoots": ["PackageRoot", "StateRoot", "EvidenceRoot"] },
+    { "id": "plan.validate", "syntax": "v4-guards plan validate --plan <path>", "stability": "stable", "mutability": "read-only", "requiredRoots": ["PackageRoot", "TargetRoot"] },
+    { "id": "plan.compose", "syntax": "v4-guards plan compose --plan <path>... --output <path>", "stability": "stable", "mutability": "state-write", "requiredRoots": ["PackageRoot", "TargetRoot", "EvidenceRoot"] },
+    { "id": "spike.run", "syntax": "v4-guards spike run --package-root <path> --target-root <path> --state-root <path> --evidence-root <path> --module synthetic-probe", "stability": "experimental", "mutability": "state-write", "requiredRoots": ["PackageRoot", "TargetRoot", "StateRoot", "EvidenceRoot"] }
+  ],
+  "exitCategories": [
+    { "id": "success", "code": 0 },
+    { "id": "invalid-input", "code": 10 },
+    { "id": "unsafe-path", "code": 11 },
+    { "id": "integrity-failure", "code": 12 },
+    { "id": "capability-denied", "code": 13 },
+    { "id": "adapter-failure", "code": 14 },
+    { "id": "prerequisite-missing", "code": 15 },
+    { "id": "findings-blocking", "code": 16 },
+    { "id": "state-conflict", "code": 17 },
+    { "id": "reset-refused", "code": 18 },
+    { "id": "internal-error", "code": 19 }
+  ]
+}

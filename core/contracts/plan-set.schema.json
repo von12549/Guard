@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/plan-set.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "id", "members", "derivedUnion", "compositionHash"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[0-9]{8}-[a-z0-9-]+$" },
+    "members": { "type": "array", "minItems": 2, "items": { "type": "object", "additionalProperties": false, "required": ["order", "planId", "path", "sha256", "dependsOn"], "properties": { "order": { "type": "integer", "minimum": 1 }, "planId": { "type": "string" }, "path": { "type": "string" }, "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }, "dependsOn": { "type": "array", "uniqueItems": true, "items": { "type": "string" } } } } },
+    "derivedUnion": { "type": "object", "additionalProperties": false, "required": ["plannedPaths", "areas", "risks", "decisions", "validationCommands", "boundaries"], "properties": { "plannedPaths": { "$ref": "#/definitions/nonemptyUnique" }, "areas": { "$ref": "#/definitions/nonemptyUnique" }, "risks": { "type": "array", "uniqueItems": true, "items": { "type": "string" } }, "decisions": { "type": "array", "uniqueItems": true, "items": { "type": "string" } }, "validationCommands": { "$ref": "#/definitions/nonemptyUnique" }, "boundaries": { "type": "array", "uniqueItems": true, "items": { "type": "string" } } } },
+    "compositionHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "definitions": { "nonemptyUnique": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } } }
+}
