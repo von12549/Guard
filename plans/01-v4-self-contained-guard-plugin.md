@@ -159,11 +159,11 @@ must not embed repository-relative IFX paths.
 
 - [x] **V4-P3.1** Implement uniform Bootstrap, Analysis, Pre and Post command/result contracts. (`20260922-v4-p3a-direct-stages`)
 - [x] **V4-P3.2** Make each Stage resolve its declared inputs directly and report missing prerequisites explicitly. (`20260922-v4-p3a-direct-stages`)
-- [ ] **V4-P3.3** Add optional visible dependency orchestration; no hidden earlier-stage execution.
+- [x] **V4-P3.3** Add optional visible dependency orchestration; no hidden earlier-stage execution. (`20260922-v4-p3b-stage-orchestration`)
 - [x] **V4-P3.4** Port only the generic V3 behavior needed by default/synthetic profiles. (`20260922-v4-p3a-direct-stages`)
 - [x] **V4-P3.5** Keep generated outputs under the project instance and artifact roots. (`20260922-v4-p3a-direct-stages`)
 
-- [ ] **V4-P3.GATE** Each Stage passes direct positive, negative and clean-reset execution in a synthetic repository.
+- [x] **V4-P3.GATE** Each Stage passes direct positive, negative and clean-reset execution in a synthetic repository. (`20260922-v4-p3b-stage-orchestration`)
 
 ### V4-P4 — Composite modules and synthetic profile
 

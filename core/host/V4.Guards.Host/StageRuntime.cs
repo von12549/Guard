@@ -26,7 +26,9 @@ internal static class StageRuntime
             var profile = LoadProfile(roots.PackageRoot, options.Profile);
             var binding = StateRuntime.BindForStage(roots.PackageRoot, roots.TargetRoot, roots.StateRoot, roots.EvidenceRoot, profile.Id);
             var runId = Guid.NewGuid().ToString("N");
-            context = new StageContext(runId, options.Stage, binding.ProjectId, roots, package, profile);
+            var requestedIndex = Array.IndexOf(StageNames, options.Stage);
+            var executionStages = options.WithDependencies ? StageNames[..(requestedIndex + 1)] : [options.Stage];
+            context = new StageContext(runId, options.Stage, executionStages, [], binding.ProjectId, roots, package, profile);
             var result = RunStage(context);
             WriteResult(context, result);
             WriteConsole(result, result.ExitCategory == "success");
@@ -72,12 +74,21 @@ internal static class StageRuntime
         if (args.Length < 2 || args[0] != "stage" || args[1] != "run")
             throw new StageException(10, "invalid-input", "Expected 'stage run'.");
         var values = new Dictionary<string, string>(StringComparer.Ordinal);
-        for (var index = 2; index < args.Length; index += 2)
+        var withDependencies = false;
+        for (var index = 2; index < args.Length;)
         {
+            if (args[index] == "--with-dependencies")
+            {
+                if (withDependencies) throw new StageException(10, "invalid-input", "Duplicate argument: --with-dependencies");
+                withDependencies = true;
+                index++;
+                continue;
+            }
             if (index + 1 >= args.Length || !args[index].StartsWith("--", StringComparison.Ordinal))
                 throw new StageException(10, "invalid-input", "Arguments must be --name value pairs.");
             if (!values.TryAdd(args[index][2..], args[index + 1]))
                 throw new StageException(10, "invalid-input", $"Duplicate argument: {args[index]}");
+            index += 2;
         }
 
         var known = new HashSet<string>(["stage", "package-root", "target-root", "state-root", "evidence-root", "profile"], StringComparer.Ordinal);
@@ -89,7 +100,7 @@ internal static class StageRuntime
         if (!StageNames.Contains(stage, StringComparer.Ordinal))
             throw new StageException(10, "invalid-input", "Stage must be bootstrap, analysis, pre or post.");
         return new StageOptions(stage, Required("package-root"), Required("target-root"), Required("state-root"),
-            Required("evidence-root"), Required("profile"));
+            Required("evidence-root"), Required("profile"), withDependencies);
     }
 
     private static StageRoots ResolveRoots(StageOptions options)
@@ -164,7 +175,6 @@ internal static class StageRuntime
 
     private static StageResult RunStage(StageContext context)
     {
-        var stageConfig = context.Profile.StageConfiguration![context.Stage];
         var authorityHashes = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["package"] = context.Package.PackageHash,
@@ -175,56 +185,60 @@ internal static class StageRuntime
         var moduleResults = new List<ModuleResult>();
         var findings = new List<Finding>();
         var coverage = new List<Coverage>();
-        if (!stageConfig.Enabled)
-            return Result(context, "pass", "success", authorityHashes, moduleResults, findings, coverage);
-
         var registry = ReadJson<RegistryDocument>(ResolveFileUnder(context.Roots.PackageRoot, "modules/registry.json", "module registry"), "module registry");
-        foreach (var moduleId in stageConfig.Modules ?? [])
+        var executedStages = context.AttemptedStages;
+        foreach (var executionStage in context.ExecutionStages)
         {
-            var entry = registry.Modules?.SingleOrDefault(item => item.Id == moduleId)
-                ?? throw new StageException(12, "integrity-failure", $"Profile module is not registered: {moduleId}");
-            var manifestPath = ResolveFileUnder(context.Roots.PackageRoot, entry.ManifestPath!, $"module {moduleId} manifest");
-            if (!string.Equals(HashFile(manifestPath), entry.ManifestSha256, StringComparison.Ordinal))
-                throw new StageException(12, "integrity-failure", $"Module manifest hash drift: {moduleId}");
-            var manifest = ReadJson<ModuleDocument>(manifestPath, $"module {moduleId}");
-            if (manifest.Id != moduleId || manifest.Stages is null || !manifest.Stages.Contains(context.Stage, StringComparer.Ordinal) || manifest.Adapter is null)
-                throw new StageException(12, "integrity-failure", $"Module does not support {context.Stage}: {moduleId}");
-            authorityHashes[$"module.{moduleId}"] = entry.ManifestSha256!;
-
-            var adapterPath = ResolveFileUnder(context.Roots.PackageRoot, manifest.Adapter.Path!, $"module {moduleId} adapter");
-            if (!string.Equals(HashFile(adapterPath), manifest.Adapter.Sha256, StringComparison.Ordinal))
-                throw new StageException(12, "integrity-failure", $"Adapter hash drift: {moduleId}");
-            authorityHashes[$"adapter.{moduleId}"] = manifest.Adapter.Sha256!;
-
-            var adapterResult = RunAdapter(context, manifest, adapterPath);
-            var evidenceRelative = $"runs/{context.RunId}/modules/{moduleId}.json";
-            WriteEvidence(context, evidenceRelative, JsonSerializer.Serialize(adapterResult, JsonOptions) + Environment.NewLine);
-            moduleResults.Add(new ModuleResult(moduleId, adapterResult.Status == "error" ? "error" : adapterResult.Status!, evidenceRelative));
-
-            if (adapterResult.ExitCategory == "prerequisite-missing")
+            executedStages.Add(executionStage);
+            var stageConfig = context.Profile.StageConfiguration![executionStage];
+            if (!stageConfig.Enabled) continue;
+            foreach (var moduleId in stageConfig.Modules ?? [])
             {
-                coverage.Add(new Coverage("SYNTHETIC.INPUT", 0, 1));
-                return Result(context, "error", "prerequisite-missing", authorityHashes, moduleResults, findings, coverage);
-            }
-            if (adapterResult.Status is not ("pass" or "fail") || adapterResult.Findings is null)
-                throw new StageException(14, "adapter-failure", $"Adapter result is invalid: {moduleId}");
+                var entry = registry.Modules?.SingleOrDefault(item => item.Id == moduleId)
+                    ?? throw new StageException(12, "integrity-failure", $"Profile module is not registered: {moduleId}");
+                var manifestPath = ResolveFileUnder(context.Roots.PackageRoot, entry.ManifestPath!, $"module {moduleId} manifest");
+                if (!string.Equals(HashFile(manifestPath), entry.ManifestSha256, StringComparison.Ordinal))
+                    throw new StageException(12, "integrity-failure", $"Module manifest hash drift: {moduleId}");
+                var manifest = ReadJson<ModuleDocument>(manifestPath, $"module {moduleId}");
+                if (manifest.Id != moduleId || manifest.Stages is null || !manifest.Stages.Contains(executionStage, StringComparer.Ordinal) || manifest.Adapter is null)
+                    throw new StageException(12, "integrity-failure", $"Module does not support {executionStage}: {moduleId}");
+                authorityHashes[$"module.{moduleId}"] = entry.ManifestSha256!;
 
-            foreach (var ruleId in adapterResult.Findings)
-                findings.Add(new Finding(ruleId, "input.txt", "source-syntax", moduleId, "blocking"));
-            coverage.Add(new Coverage("SYNTHETIC.INPUT", 1, 1));
+                var adapterPath = ResolveFileUnder(context.Roots.PackageRoot, manifest.Adapter.Path!, $"module {moduleId} adapter");
+                if (!string.Equals(HashFile(adapterPath), manifest.Adapter.Sha256, StringComparison.Ordinal))
+                    throw new StageException(12, "integrity-failure", $"Adapter hash drift: {moduleId}");
+                authorityHashes[$"adapter.{moduleId}"] = manifest.Adapter.Sha256!;
+
+                var adapterResult = RunAdapter(context, executionStage, manifest, adapterPath);
+                var evidenceRelative = $"runs/{context.RunId}/stages/{executionStage}/modules/{moduleId}.json";
+                WriteEvidence(context, evidenceRelative, JsonSerializer.Serialize(adapterResult, JsonOptions) + Environment.NewLine);
+                moduleResults.Add(new ModuleResult(moduleId, adapterResult.Status == "error" ? "error" : adapterResult.Status!, evidenceRelative));
+
+                if (adapterResult.ExitCategory == "prerequisite-missing")
+                {
+                    coverage.Add(new Coverage("SYNTHETIC.INPUT", 0, 1));
+                    return Result(context, "error", "prerequisite-missing", executedStages, authorityHashes, moduleResults, findings, coverage);
+                }
+                if (adapterResult.Status is not ("pass" or "fail") || adapterResult.Findings is null)
+                    throw new StageException(14, "adapter-failure", $"Adapter result is invalid: {moduleId}");
+
+                foreach (var ruleId in adapterResult.Findings)
+                    findings.Add(new Finding(ruleId, "input.txt", "source-syntax", moduleId, "blocking"));
+                coverage.Add(new Coverage("SYNTHETIC.INPUT", 1, 1));
+            }
+            if (findings.Count > 0)
+                return Result(context, "fail", "findings-blocking", executedStages, authorityHashes, moduleResults, findings, coverage);
         }
-        return findings.Count > 0
-            ? Result(context, "fail", "findings-blocking", authorityHashes, moduleResults, findings, coverage)
-            : Result(context, "pass", "success", authorityHashes, moduleResults, findings, coverage);
+        return Result(context, "pass", "success", executedStages, authorityHashes, moduleResults, findings, coverage);
     }
 
-    private static AdapterResult RunAdapter(StageContext context, ModuleDocument manifest, string adapterPath)
+    private static AdapterResult RunAdapter(StageContext context, string executionStage, ModuleDocument manifest, string adapterPath)
     {
         if (manifest.Adapter?.Kind != "powershell" || manifest.Capabilities is null || manifest.Capabilities.Network ||
             !(manifest.Capabilities.Processes ?? []).Contains("pwsh", StringComparer.Ordinal) || manifest.Capabilities.TimeoutSeconds < 1)
             throw new StageException(13, "capability-denied", $"Module capability grant is not executable: {manifest.Id}");
         var start = PowerShellStart(FindPowerShell(), adapterPath);
-        var input = JsonSerializer.Serialize(new { formatVersion = 1, stage = context.Stage, targetRoot = context.Roots.TargetRoot });
+        var input = JsonSerializer.Serialize(new { formatVersion = 1, stage = executionStage, targetRoot = context.Roots.TargetRoot });
         start.Environment["V4_STAGE_INPUT_JSON"] = input;
         var execution = RunProcess(start, manifest.Capabilities.TimeoutSeconds, $"module {manifest.Id}");
         if (execution.ExitCode != 0)
@@ -318,14 +332,14 @@ internal static class StageRuntime
         File.Move(temporary, destination, true);
     }
 
-    private static StageResult Result(StageContext context, string status, string category, Dictionary<string, string> hashes,
+    private static StageResult Result(StageContext context, string status, string category, List<string> executedStages, Dictionary<string, string> hashes,
         List<ModuleResult> modules, List<Finding> findings, List<Coverage> coverage) =>
-        new(1, context.RunId, context.Stage, status, category,
+        new(1, context.RunId, context.Stage, status, category, executedStages,
             new ProfileResult(context.Profile.Id, context.Profile.Version, context.Profile.Sha256!), context.Roots,
             hashes, modules, findings, coverage);
 
     private static StageResult ErrorResult(StageContext context, string category, string message) =>
-        Result(context, "error", category,
+        Result(context, "error", category, context.AttemptedStages.Count == 0 ? [context.Stage] : [.. context.AttemptedStages],
             new Dictionary<string, string>(StringComparer.Ordinal) { ["package"] = context.Package.PackageHash, ["profile"] = context.Profile.Sha256! },
             [], [new Finding("V4.RUNTIME", message, "runtime", "v4-host", "blocking")], []);
 
@@ -363,8 +377,8 @@ internal static class StageRuntime
         }
     }
 
-    private sealed record StageOptions(string Stage, string PackageRoot, string TargetRoot, string StateRoot, string EvidenceRoot, string Profile);
-    private sealed record StageContext(string RunId, string Stage, string ProjectId, StageRoots Roots, PackageValidation Package, ProfileDocument Profile);
+    private sealed record StageOptions(string Stage, string PackageRoot, string TargetRoot, string StateRoot, string EvidenceRoot, string Profile, bool WithDependencies);
+    private sealed record StageContext(string RunId, string Stage, string[] ExecutionStages, List<string> AttemptedStages, string ProjectId, StageRoots Roots, PackageValidation Package, ProfileDocument Profile);
     private sealed record ProcessResult(int ExitCode, string Output, string Error);
     private sealed record PackageValidation(int FormatVersion, string? Status, string PackageHash, string[]? Profiles, string[]? Modules);
     private sealed record ProfileDocument(int FormatVersion, string Id, string Version, Dictionary<string, StageConfiguration>? StageConfiguration, string? Sha256 = null);
@@ -380,7 +394,7 @@ internal static class StageRuntime
     private sealed record ModuleResult(string ModuleId, string Status, string EvidencePath);
     private sealed record Finding(string RuleId, string Subject, string EvidenceKind, string DetectorId, string Severity);
     private sealed record Coverage(string ClaimId, int Matched, int Minimum);
-    private sealed record StageResult(int FormatVersion, string RunId, string Stage, string Status, string ExitCategory,
+    private sealed record StageResult(int FormatVersion, string RunId, string Stage, string Status, string ExitCategory, List<string> ExecutedStages,
         ProfileResult Profile, StageRoots Roots, Dictionary<string, string> AuthorityHashes, List<ModuleResult> ModuleResults,
         List<Finding> Findings, List<Coverage> Coverage);
 
