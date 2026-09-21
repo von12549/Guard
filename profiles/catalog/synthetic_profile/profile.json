@@ -11,12 +11,23 @@
       "id": "synthetic-probe",
       "versionRange": ">=0.1.0 <1.0.0",
       "config": {}
+    },
+    {
+      "id": "architecture-conformance",
+      "versionRange": ">=0.1.0 <1.0.0",
+      "config": {
+        "enabledClaims": ["ARCH.PROJECT_REFERENCE", "ARCH.PACKAGE_REFERENCE", "ARCH.TARGET_FRAMEWORK", "ARCH.GRAPH_COMPLETENESS"],
+        "forbiddenProjectReferences": ["*Forbidden*.csproj"],
+        "forbiddenPackages": ["Forbidden.Package"],
+        "allowedTargetFrameworks": ["net10.0"],
+        "requireResolvedProjectReferences": true
+      }
     }
   ],
   "stageConfiguration": {
     "bootstrap": { "enabled": true, "modules": ["synthetic-probe"] },
     "analysis": { "enabled": true, "modules": ["synthetic-probe"] },
-    "pre": { "enabled": true, "modules": ["synthetic-probe"] },
+    "pre": { "enabled": true, "modules": ["synthetic-probe", "architecture-conformance"] },
     "post": { "enabled": true, "modules": ["synthetic-probe"] }
   },
   "rules": [],

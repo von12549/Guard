@@ -65,10 +65,10 @@ foreach ($expected in @(
 $genericText = (Get-ChildItem -LiteralPath $moduleRoot -Recurse -File | Sort-Object FullName | ForEach-Object { Get-Content -Raw -LiteralPath $_.FullName }) -join "`n"
 if ($genericText -match '(?i)(?:\bIFX\b|\bV3(?:_ifx)?\b|docs/guards/)') { $failures.Add('generic module contains a product identifier or reference runtime path') }
 
-$profiles = Get-ChildItem -LiteralPath (Join-Path $packageRoot 'profiles/catalog') -Recurse -Filter profile.json -File
-foreach ($profilePath in $profiles) {
-    $profile = Read $profilePath.FullName
-    if (@($profile.moduleSelections | ForEach-Object { $_.id }) -contains 'architecture-conformance') { $failures.Add("architecture module was selected before P4B: $($profile.id)") }
+$syntheticProfile = Read (Join-Path $packageRoot 'profiles/catalog/synthetic_profile/profile.json')
+if (@($syntheticProfile.moduleSelections | Where-Object id -CEQ 'architecture-conformance').Count -ne 1 -or
+    @($syntheticProfile.stageConfiguration.pre.modules) -notcontains 'architecture-conformance') {
+    $failures.Add('synthetic profile does not select Architecture Conformance for Pre')
 }
 
 $registry = Read (Join-Path $packageRoot 'modules/registry.json')
@@ -83,7 +83,7 @@ $copy = Join-Path $fixtureRoot 'package'; Copy-Item -LiteralPath $packageRoot -D
 $checkOutput = @(& pwsh -NoProfile -File (Join-Path $copy 'core/runtime/Test-V4Package.ps1') -PackageRoot $copy 2>&1) -join "`n"
 if ($LASTEXITCODE -eq 0 -or $checkOutput -notmatch 'module authority hash drift') { $failures.Add('package checker accepted architecture authority hash drift') }
 
-$input = @{ formatVersion = 1; stage = 'pre'; targetRoot = $repositoryRoot } | ConvertTo-Json -Compress
+$input = @{ formatVersion = 1; stage = 'pre'; targetRoot = $repositoryRoot; config = @{ enabledClaims=@('ARCH.PROJECT_REFERENCE'); forbiddenProjectReferences=@(); forbiddenPackages=@(); allowedTargetFrameworks=@('net10.0'); requireResolvedProjectReferences=$true } } | ConvertTo-Json -Compress
 $env:V4_STAGE_INPUT_JSON = $input
 try { $adapterJson = & pwsh -NoProfile -File (Join-Path $moduleRoot 'adapter.ps1'); $adapter = $adapterJson | ConvertFrom-Json }
 finally { Remove-Item Env:V4_STAGE_INPUT_JSON -ErrorAction SilentlyContinue }

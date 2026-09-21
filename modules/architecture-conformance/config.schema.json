@@ -4,10 +4,10 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "enabledClaims": {
-      "type": "array",
-      "uniqueItems": true,
-      "items": { "type": "string", "pattern": "^[A-Z0-9][A-Z0-9._-]+$" }
-    }
+    "enabledClaims": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["ARCH.PROJECT_REFERENCE", "ARCH.PACKAGE_REFERENCE", "ARCH.TARGET_FRAMEWORK", "ARCH.GRAPH_COMPLETENESS"] } },
+    "forbiddenProjectReferences": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "forbiddenPackages": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "allowedTargetFrameworks": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "requireResolvedProjectReferences": { "type": "boolean" }
   }
 }

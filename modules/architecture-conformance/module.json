@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "compatibleApi": "1.x",
   "supportedPlatforms": ["linux-x64", "win-x64", "osx-arm64"],
-  "adapter": { "kind": "powershell", "path": "modules/architecture-conformance/adapter.ps1", "sha256": "507d09a9cd3a54a28a480738b7bc280a196d1f138a7ee849d7b383c1b478ace0" },
+  "adapter": { "kind": "powershell", "path": "modules/architecture-conformance/adapter.ps1", "sha256": "7b84786c5798c6500d85c73f782716590263840f2f40f342eee9c0d5eca6e923" },
   "prerequisites": [
     { "runtime": "pwsh", "versionRange": ">=7.4" }
   ],

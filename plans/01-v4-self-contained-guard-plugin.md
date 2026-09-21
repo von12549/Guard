@@ -169,8 +169,8 @@ must not embed repository-relative IFX paths.
 
 - [x] **V4-P4.1** Package generic Stage Gate as a V4 module with declared capabilities and structured results. (`20260922-v4-p4a-architecture-authority`)
 - [x] **V4-P4.2** Build the LayerGuard provenance and capability matrix by architecture claim and evidence kind. (`20260922-v4-p4a-architecture-authority`)
-- [ ] **V4-P4.3** Implement the non-executing Project Model detector for declared project/package/framework
-  facts, ownership and graph completeness.
+- [x] **V4-P4.3** Implement the non-executing Project Model detector for declared project/package/framework
+  facts, ownership and graph completeness. (`20260922-v4-p4b-project-model`)
 - [ ] **V4-P4.4** Implement Roslyn syntax/semantic detectors for source imports, disabled branches,
   declarations, forbidden symbols/text and member/payload claims selected by the matrix.
 - [ ] **V4-P4.5** Implement the ArchUnitNET adapter for compiled dependency, implementation and

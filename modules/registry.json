@@ -4,7 +4,7 @@
     {
       "id": "architecture-conformance",
       "manifestPath": "modules/architecture-conformance/module.json",
-      "manifestSha256": "883c5c2959dc705a1ec565a42b73487c995e0a095bcb08030c2625fceafebb5b",
+      "manifestSha256": "48144cb95859b692c0d589b647b5046bae4a1c6307efb9886dc27b58b62e605f",
       "allowedCapabilities": {
         "readRoots": ["TargetRoot"],
         "writeRoots": [],

@@ -27,6 +27,7 @@ function New-Roots([string] $Name, [string] $Content = 'synthetic-ok', [switch] 
     $target = Join-Path $root 'target'; $state = Join-Path $root 'state'; $evidence = Join-Path $root 'evidence'
     foreach ($path in @($target,$state,$evidence)) { New-Item -ItemType Directory -Path $path -Force | Out-Null }
     if (-not $NoInput) { [IO.File]::WriteAllText((Join-Path $target 'input.txt'), "$Content`n", [Text.UTF8Encoding]::new($false)) }
+    [IO.File]::WriteAllText((Join-Path $target 'Synthetic.csproj'), '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup></Project>', [Text.UTF8Encoding]::new($false))
     [pscustomobject]@{ Root=$root; Target=$target; State=$state; Evidence=$evidence; TargetHash=(Hash-Tree $target) }
 }
 
@@ -90,7 +91,7 @@ $visibility = New-Roots 'visibility'
 $directPost = Assert-Stage 'direct Post visibility' $visibility (Invoke-Stage $visibility 'post') 0 'success' @('post')
 $dependentPost = Assert-Stage 'dependent Post visibility' $visibility (Invoke-Stage $visibility 'post' -WithDependencies) 0 'success' $stages
 if ($null -ne $directPost -and @($directPost.moduleResults).Count -ne 1) { $failures.Add('direct Post ran hidden earlier modules') }
-if ($null -ne $dependentPost -and @($dependentPost.moduleResults).Count -ne 4) { $failures.Add('dependent Post did not expose four module executions') }
+if ($null -ne $dependentPost -and @($dependentPost.moduleResults).Count -ne 5) { $failures.Add('dependent Post did not expose all selected module executions') }
 
 $dependencyFailure = New-Roots 'dependency-failure' 'synthetic-bad'
 $stopped = Assert-Stage 'dependency failure stop' $dependencyFailure (Invoke-Stage $dependencyFailure 'post' -WithDependencies) 16 'findings-blocking' @('bootstrap')

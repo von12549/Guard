@@ -209,22 +209,29 @@ internal static class StageRuntime
                     throw new StageException(12, "integrity-failure", $"Adapter hash drift: {moduleId}");
                 authorityHashes[$"adapter.{moduleId}"] = manifest.Adapter.Sha256!;
 
-                var adapterResult = RunAdapter(context, executionStage, manifest, adapterPath);
+                var adapterResult = RunAdapter(context, executionStage, moduleId, manifest, adapterPath);
                 var evidenceRelative = $"runs/{context.RunId}/stages/{executionStage}/modules/{moduleId}.json";
                 WriteEvidence(context, evidenceRelative, JsonSerializer.Serialize(adapterResult, JsonOptions) + Environment.NewLine);
                 moduleResults.Add(new ModuleResult(moduleId, adapterResult.Status == "error" ? "error" : adapterResult.Status!, evidenceRelative));
 
                 if (adapterResult.ExitCategory == "prerequisite-missing")
                 {
-                    coverage.Add(new Coverage("SYNTHETIC.INPUT", 0, 1));
+                    if (adapterResult.Coverage is { Length: > 0 }) coverage.AddRange(adapterResult.Coverage);
+                    else coverage.Add(new Coverage("SYNTHETIC.INPUT", 0, 1));
                     return Result(context, "error", "prerequisite-missing", executedStages, authorityHashes, moduleResults, findings, coverage);
                 }
-                if (adapterResult.Status is not ("pass" or "fail") || adapterResult.Findings is null)
+                if (adapterResult.Status is not ("pass" or "fail") || adapterResult.Findings.ValueKind != JsonValueKind.Array)
                     throw new StageException(14, "adapter-failure", $"Adapter result is invalid: {moduleId}");
 
-                foreach (var ruleId in adapterResult.Findings)
-                    findings.Add(new Finding(ruleId, "input.txt", "source-syntax", moduleId, "blocking"));
-                coverage.Add(new Coverage("SYNTHETIC.INPUT", 1, 1));
+                foreach (var item in adapterResult.Findings.EnumerateArray())
+                {
+                    if (item.ValueKind == JsonValueKind.String)
+                        findings.Add(new Finding(item.GetString()!, "input.txt", "source-syntax", moduleId, "blocking"));
+                    else
+                        findings.Add(item.Deserialize<Finding>(JsonOptions) ?? throw new StageException(14, "adapter-failure", $"Adapter finding is invalid: {moduleId}"));
+                }
+                if (adapterResult.Coverage is { Length: > 0 }) coverage.AddRange(adapterResult.Coverage);
+                else coverage.Add(new Coverage("SYNTHETIC.INPUT", 1, 1));
             }
             if (findings.Count > 0)
                 return Result(context, "fail", "findings-blocking", executedStages, authorityHashes, moduleResults, findings, coverage);
@@ -232,13 +239,15 @@ internal static class StageRuntime
         return Result(context, "pass", "success", executedStages, authorityHashes, moduleResults, findings, coverage);
     }
 
-    private static AdapterResult RunAdapter(StageContext context, string executionStage, ModuleDocument manifest, string adapterPath)
+    private static AdapterResult RunAdapter(StageContext context, string executionStage, string moduleId, ModuleDocument manifest, string adapterPath)
     {
         if (manifest.Adapter?.Kind != "powershell" || manifest.Capabilities is null || manifest.Capabilities.Network ||
             !(manifest.Capabilities.Processes ?? []).Contains("pwsh", StringComparer.Ordinal) || manifest.Capabilities.TimeoutSeconds < 1)
             throw new StageException(13, "capability-denied", $"Module capability grant is not executable: {manifest.Id}");
         var start = PowerShellStart(FindPowerShell(), adapterPath);
-        var input = JsonSerializer.Serialize(new { formatVersion = 1, stage = executionStage, targetRoot = context.Roots.TargetRoot });
+        var selection = context.Profile.ModuleSelections?.SingleOrDefault(item => item.Id == moduleId)
+            ?? throw new StageException(12, "integrity-failure", $"Profile configuration is missing for module: {moduleId}");
+        var input = JsonSerializer.Serialize(new { formatVersion = 1, stage = executionStage, targetRoot = context.Roots.TargetRoot, packageRoot = context.Roots.PackageRoot, config = selection.Config });
         start.Environment["V4_STAGE_INPUT_JSON"] = input;
         var execution = RunProcess(start, manifest.Capabilities.TimeoutSeconds, $"module {manifest.Id}");
         if (execution.ExitCode != 0)
@@ -381,14 +390,15 @@ internal static class StageRuntime
     private sealed record StageContext(string RunId, string Stage, string[] ExecutionStages, List<string> AttemptedStages, string ProjectId, StageRoots Roots, PackageValidation Package, ProfileDocument Profile);
     private sealed record ProcessResult(int ExitCode, string Output, string Error);
     private sealed record PackageValidation(int FormatVersion, string? Status, string PackageHash, string[]? Profiles, string[]? Modules);
-    private sealed record ProfileDocument(int FormatVersion, string Id, string Version, Dictionary<string, StageConfiguration>? StageConfiguration, string? Sha256 = null);
+    private sealed record ProfileDocument(int FormatVersion, string Id, string Version, ModuleSelection[]? ModuleSelections, Dictionary<string, StageConfiguration>? StageConfiguration, string? Sha256 = null);
+    private sealed record ModuleSelection(string Id, JsonElement Config);
     private sealed record StageConfiguration(bool Enabled, string[]? Modules);
     private sealed record RegistryDocument(int FormatVersion, RegistryEntry[]? Modules);
     private sealed record RegistryEntry(string Id, string? ManifestPath, string? ManifestSha256);
     private sealed record ModuleDocument(string? Id, AdapterDocument? Adapter, string[]? Stages, CapabilityDocument? Capabilities);
     private sealed record AdapterDocument(string? Kind, string? Path, string? Sha256);
     private sealed record CapabilityDocument(string[]? Processes, bool Network, int TimeoutSeconds);
-    private sealed record AdapterResult(int FormatVersion, string? Status, string? ExitCategory, string? Message, string[]? Findings);
+    private sealed record AdapterResult(int FormatVersion, string? Status, string? ExitCategory, string? Message, JsonElement Findings, Coverage[]? Coverage);
     private sealed record StageRoots(string PackageRoot, string TargetRoot, string StateRoot, string EvidenceRoot);
     private sealed record ProfileResult(string Id, string Version, string Sha256);
     private sealed record ModuleResult(string ModuleId, string Status, string EvidencePath);
