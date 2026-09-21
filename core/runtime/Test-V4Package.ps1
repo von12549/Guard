@@ -106,6 +106,12 @@ foreach ($entry in $registry.modules) {
     if ((File-Hash $lockPath) -cne $module.dependencyLock.sha256) { Fail "dependency lock hash drift: $($module.id)" }
     [void](Resolve-AuthorityPath $root $module.configSchema "module $($module.id) config schema" File)
     [void](Resolve-AuthorityPath $root $module.resultSchema "module $($module.id) result schema" File)
+    $authorityIds = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($authority in $module.authorities) {
+        if (-not $authorityIds.Add([string]$authority.id)) { Fail "module $($module.id) has duplicate authority ID: $($authority.id)" }
+        $authorityPath = Resolve-AuthorityPath $root $authority.path "module $($module.id) authority $($authority.id)" File
+        if ((File-Hash $authorityPath) -cne $authority.sha256) { Fail "module authority hash drift: $($module.id):$($authority.id)" }
+    }
     $modules[$module.id] = $module
     [void]$registeredDirectories.Add([string]$module.id)
 }

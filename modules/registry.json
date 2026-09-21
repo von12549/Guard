@@ -2,9 +2,21 @@
   "formatVersion": 1,
   "modules": [
     {
+      "id": "architecture-conformance",
+      "manifestPath": "modules/architecture-conformance/module.json",
+      "manifestSha256": "883c5c2959dc705a1ec565a42b73487c995e0a095bcb08030c2625fceafebb5b",
+      "allowedCapabilities": {
+        "readRoots": ["TargetRoot"],
+        "writeRoots": [],
+        "processes": ["pwsh"],
+        "network": false,
+        "maxTimeoutSeconds": 30
+      }
+    },
+    {
       "id": "synthetic-probe",
       "manifestPath": "modules/synthetic-probe/module.json",
-      "manifestSha256": "742d3f39f6e55a0b408d5e446ee351b3a874bcaf4d9a15f3cfa2a7c73c7c5262",
+      "manifestSha256": "93ed3b2e75db219d0185dcd420dc7e5bf9bc28a79760d88f6905fcdcf5b6513d",
       "allowedCapabilities": {
         "readRoots": ["TargetRoot"],
         "writeRoots": [],

@@ -28,10 +28,12 @@ function Invoke-Check([string] $Root) {
     [pscustomobject]@{ Code = $LASTEXITCODE; Output = $output.Trim() }
 }
 
-function Update-ManifestHash([string] $Root) {
+function Update-ManifestHash([string] $Root, [string] $ModuleId = 'synthetic-probe') {
     $registryPath = Join-Path $Root 'modules/registry.json'
     $registry = Get-Content -Raw $registryPath | ConvertFrom-Json -AsHashtable -Depth 100
-    $entry = $registry.modules[0]
+    $entry = @($registry.modules | Where-Object id -CEQ $ModuleId)
+    if ($entry.Count -ne 1) { throw "Registry entry not found: $ModuleId" }
+    $entry = $entry[0]
     $entry.manifestSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $Root $entry.manifestPath)).Hash.ToLowerInvariant()
     Write-Json $registryPath $registry
 }

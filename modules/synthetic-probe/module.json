@@ -25,5 +25,6 @@
   "dependencyLock": {
     "path": "modules/synthetic-probe/dependencies.lock.json",
     "sha256": "10aebb07e6318b42a22a825b59ccb3c11b7c756a59a85b19b113a96731741d09"
-  }
+  },
+  "authorities": []
 }

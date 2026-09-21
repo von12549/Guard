@@ -1,0 +1,22 @@
+{
+  "formatVersion": 1,
+  "id": "architecture-conformance",
+  "version": "0.1.0",
+  "compatibleApi": "1.x",
+  "supportedPlatforms": ["linux-x64", "win-x64", "osx-arm64"],
+  "adapter": { "kind": "powershell", "path": "modules/architecture-conformance/adapter.ps1", "sha256": "507d09a9cd3a54a28a480738b7bc280a196d1f138a7ee849d7b383c1b478ace0" },
+  "prerequisites": [
+    { "runtime": "pwsh", "versionRange": ">=7.4" }
+  ],
+  "stages": ["pre", "post"],
+  "capabilities": { "readRoots": ["TargetRoot"], "writeRoots": [], "processes": ["pwsh"], "network": false, "timeoutSeconds": 30 },
+  "configSchema": "modules/architecture-conformance/config.schema.json",
+  "resultSchema": "modules/architecture-conformance/result.schema.json",
+  "dependencyLock": { "path": "modules/architecture-conformance/dependencies.lock.json", "sha256": "b0e65c30995a1c79b0bf37f7962e06c231a5a5f6de85604d91c8755e951352b6" },
+  "authorities": [
+    { "id": "capability-matrix", "path": "modules/architecture-conformance/capability-matrix.json", "sha256": "23dc6e5dc499492a439bf8c7338796d0bfb1acaf94509d55f7894f912389520b" },
+    { "id": "rule-execution-plan", "path": "modules/architecture-conformance/rule-execution-plan.json", "sha256": "0425128c09162573e65e3b09b6e6832f3b436cccd36aa0d59cdf4a85d3ae7e3b" },
+    { "id": "fixture-catalog", "path": "modules/architecture-conformance/fixtures/manifest.json", "sha256": "94b9339432e7b08e213853f1dbe49bfd601f38a0139132903a9b2eaba39573a2" },
+    { "id": "module-result", "path": "modules/architecture-conformance/result.schema.json", "sha256": "4fa6d69e2050a4b1c104696fd53f50b67116f2e8072f0e160756a4e2c5dc5fb7" }
+  ]
+}
