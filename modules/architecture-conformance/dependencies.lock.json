@@ -1,5 +1,8 @@
 {
   "formatVersion": 1,
   "runtime": "pwsh",
-  "dependencies": []
+  "dependencies": [
+    { "id": "dotnet-sdk-roslyn", "versionRange": ">=10.0 <11.0", "source": "installed-sdk" },
+    { "id": "host-compatible-roslyn", "versionRange": ">=5.0", "source": "powershell-host" }
+  ]
 }
