@@ -3,6 +3,11 @@
   "runtime": "pwsh",
   "dependencies": [
     { "id": "dotnet-sdk-roslyn", "versionRange": ">=10.0 <11.0", "source": "installed-sdk" },
-    { "id": "host-compatible-roslyn", "versionRange": ">=5.0", "source": "powershell-host" }
+    { "id": "host-compatible-roslyn", "versionRange": ">=5.0", "source": "powershell-host" },
+    { "id": "TngTech.ArchUnitNET", "version": "0.13.4", "source": "nuget-global-packages", "sha512": "2XXCci6X7VpgVrfv4Ugjkmzvm/OUx0fPBiniXehL7iAM4E56z3MvfmIiOU8RCxDnG6PX7OJG65nm6YbW0fJyHg==" },
+    { "id": "CycleDetection", "version": "2.0.0", "source": "nuget-global-packages", "sha512": "B17MeeByzaoz26WWgV/UnFgmkPhV1AS9bjV0OE7XS2mccAFbkUt0RTxbKBtiN/CsbHwxQFBpGwpdxm6W2KuvEQ==" },
+    { "id": "JetBrains.Annotations", "version": "2026.2.0", "source": "nuget-global-packages", "sha512": "s1XOfrJmIZOk12oYmy89zIXwotbgI7gO+oq43M74xIJkssTy16fJe3fz5IurxqPsRl6P4Of/7iBx0y/ltMu9oQ==" },
+    { "id": "Mono.Cecil", "version": "0.11.6", "source": "nuget-global-packages", "sha512": "HFkyJGsjyfMXaQolzj4UFtFo2IWHEGPS9gTPmX7Z6Z1BvM3Q4i1L5uSl6nKdBr2SzFQ2htu9dasBmdtg4JEvtA==" },
+    { "id": "Newtonsoft.Json", "version": "13.0.4", "source": "nuget-global-packages", "sha512": "bR+v+E/yJ6g7GV2uXw2OrUSjYYfjLkOLC8JD4kCS23msLapnKtdJPBJA75fwHH++ErIffeIqzYITLxAur4KAXA==" }
   ]
 }

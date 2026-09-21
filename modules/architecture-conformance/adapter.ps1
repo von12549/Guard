@@ -15,10 +15,11 @@ $findingKeys = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordi
 $projectClaims = @('ARCH.PROJECT_REFERENCE','ARCH.PACKAGE_REFERENCE','ARCH.TARGET_FRAMEWORK','ARCH.GRAPH_COMPLETENESS')
 $syntaxClaims = @('ARCH.SOURCE_IMPORT','ARCH.DISABLED_BRANCH','ARCH.DECLARATION_PLACEMENT')
 $semanticClaims = @('ARCH.FORBIDDEN_SYMBOL','ARCH.MEMBER_PAYLOAD')
+$compiledClaims = @('ARCH.TYPE_DEPENDENCY','ARCH.IMPLEMENTATION_LOCATION','ARCH.ASSEMBLY_PLACEMENT')
 $activeClaims = if ($inputData.stage -eq 'pre') {
     @($enabled | Where-Object { $_ -in ($projectClaims + $syntaxClaims) })
 } else {
-    @($enabled | Where-Object { $_ -in $semanticClaims })
+    @($enabled | Where-Object { $_ -in ($semanticClaims + $compiledClaims) })
 }
 
 function Relative([string] $Path) { [IO.Path]::GetRelativePath($targetRoot, $Path).Replace('\','/') }
@@ -87,6 +88,58 @@ function Load-Roslyn {
         return $true
     }
     return $false
+}
+function Resolve-EvidencePath([string] $EvidenceRoot, [string] $Relative, [string] $Label) {
+    if ([string]::IsNullOrWhiteSpace($Relative) -or [IO.Path]::IsPathRooted($Relative)) { throw "$Label must be a relative path beneath EvidenceRoot." }
+    $segments = $Relative.Replace('\','/').Split('/', [StringSplitOptions]::RemoveEmptyEntries)
+    if ($segments.Count -eq 0 -or $segments -contains '..' -or $segments -contains '.') { throw "$Label contains an unsafe path segment: $Relative" }
+    $resolved = [IO.Path]::GetFullPath((Join-Path $EvidenceRoot ($segments -join [IO.Path]::DirectorySeparatorChar)))
+    $prefix = $EvidenceRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    if (-not $resolved.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) { throw "$Label escapes EvidenceRoot: $Relative" }
+    $probe = $resolved
+    while (-not (Test-Path -LiteralPath $probe) -and -not $probe.Equals($EvidenceRoot,[StringComparison]::OrdinalIgnoreCase)) { $probe = [IO.Path]::GetDirectoryName($probe) }
+    while (-not [string]::IsNullOrWhiteSpace($probe) -and ($probe.Equals($EvidenceRoot,[StringComparison]::OrdinalIgnoreCase) -or $probe.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase))) {
+        $item = Get-Item -LiteralPath $probe -Force
+        if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or $null -ne $item.LinkTarget) { throw "$Label crosses a link or reparse point: $probe" }
+        if ($probe.Equals($EvidenceRoot,[StringComparison]::OrdinalIgnoreCase)) { break }
+        $probe = [IO.Path]::GetDirectoryName($probe)
+    }
+    return $resolved
+}
+function Get-NuGetPackageRoot {
+    if (-not [string]::IsNullOrWhiteSpace($env:NUGET_PACKAGES)) { return [IO.Path]::GetFullPath($env:NUGET_PACKAGES) }
+    $userProfile = [Environment]::GetFolderPath([Environment+SpecialFolder]::UserProfile)
+    if (-not [string]::IsNullOrWhiteSpace($userProfile)) {
+        $defaultRoot = Join-Path $userProfile '.nuget/packages'
+        if ([IO.Directory]::Exists($defaultRoot)) { return [IO.Path]::GetFullPath($defaultRoot) }
+    }
+    if ($null -eq (Get-Command dotnet -ErrorAction SilentlyContinue)) { return $null }
+    foreach ($line in @(& dotnet nuget locals global-packages --list 2>&1)) {
+        if ([string]$line -match '^[^:]+:\s*(.+)$') { return [IO.Path]::GetFullPath($Matches[1].Trim()) }
+    }
+    return $null
+}
+function Load-ArchUnitNet {
+    $packagesRoot = Get-NuGetPackageRoot
+    if ([string]::IsNullOrWhiteSpace($packagesRoot)) { return $false }
+    $packages = @(
+        [ordered]@{ Id='cycledetection'; Version='2.0.0'; Sha512='B17MeeByzaoz26WWgV/UnFgmkPhV1AS9bjV0OE7XS2mccAFbkUt0RTxbKBtiN/CsbHwxQFBpGwpdxm6W2KuvEQ=='; Dlls=@('lib/netcoreapp2.0/StronglyConnectedComponents.dll') },
+        [ordered]@{ Id='jetbrains.annotations'; Version='2026.2.0'; Sha512='s1XOfrJmIZOk12oYmy89zIXwotbgI7gO+oq43M74xIJkssTy16fJe3fz5IurxqPsRl6P4Of/7iBx0y/ltMu9oQ=='; Dlls=@('lib/netstandard2.0/JetBrains.Annotations.dll') },
+        [ordered]@{ Id='mono.cecil'; Version='0.11.6'; Sha512='HFkyJGsjyfMXaQolzj4UFtFo2IWHEGPS9gTPmX7Z6Z1BvM3Q4i1L5uSl6nKdBr2SzFQ2htu9dasBmdtg4JEvtA=='; Dlls=@('lib/netstandard2.0/Mono.Cecil.dll','lib/netstandard2.0/Mono.Cecil.Rocks.dll','lib/netstandard2.0/Mono.Cecil.Pdb.dll','lib/netstandard2.0/Mono.Cecil.Mdb.dll') },
+        [ordered]@{ Id='newtonsoft.json'; Version='13.0.4'; Sha512='bR+v+E/yJ6g7GV2uXw2OrUSjYYfjLkOLC8JD4kCS23msLapnKtdJPBJA75fwHH++ErIffeIqzYITLxAur4KAXA=='; Dlls=@('lib/net6.0/Newtonsoft.Json.dll') },
+        [ordered]@{ Id='tngtech.archunitnet'; Version='0.13.4'; Sha512='2XXCci6X7VpgVrfv4Ugjkmzvm/OUx0fPBiniXehL7iAM4E56z3MvfmIiOU8RCxDnG6PX7OJG65nm6YbW0fJyHg=='; Dlls=@('lib/netstandard2.0/ArchUnitNET.dll') }
+    )
+    foreach ($package in $packages) {
+        $packageRoot = Join-Path (Join-Path $packagesRoot $package.Id) $package.Version
+        $hashPath = Join-Path $packageRoot "$($package.Id).$($package.Version).nupkg.sha512"
+        if (-not [IO.File]::Exists($hashPath) -or [IO.File]::ReadAllText($hashPath).Trim() -cne $package.Sha512) { return $false }
+        foreach ($relativeDll in $package.Dlls) {
+            $dllPath = Join-Path $packageRoot $relativeDll
+            if (-not [IO.File]::Exists($dllPath)) { return $false }
+            try { [void][Reflection.Assembly]::LoadFrom($dllPath) } catch { return $false }
+        }
+    }
+    return $true
 }
 
 $requestedProjectClaims = @($activeClaims | Where-Object { $_ -in $projectClaims })
@@ -245,6 +298,194 @@ if ($requestedSourceClaims.Count -gt 0) {
         }
     }
     Add-Coverage $requestedSourceClaims $sources.Count
+}
+
+$requestedCompiledClaims = @($activeClaims | Where-Object { $_ -in $compiledClaims })
+if ($requestedCompiledClaims.Count -gt 0) {
+    if (-not ($inputData.PSObject.Properties.Name -contains 'evidenceRoot') -or [string]::IsNullOrWhiteSpace([string]$inputData.evidenceRoot)) {
+        Add-Coverage $requestedCompiledClaims 0
+        Write-Result 'error' 'prerequisite-missing' 'EvidenceRoot is required for compiled architecture inspection.'
+        exit 0
+    }
+    $evidenceRoot = [IO.Path]::GetFullPath([string]$inputData.evidenceRoot)
+    if (-not [IO.Directory]::Exists($evidenceRoot)) {
+        Add-Coverage $requestedCompiledClaims 0
+        Write-Result 'error' 'prerequisite-missing' 'EvidenceRoot does not exist.'
+        exit 0
+    }
+    if (-not ($config.PSObject.Properties.Name -contains 'assemblyManifestPath')) {
+        Add-Coverage $requestedCompiledClaims 0
+        Write-Result 'error' 'prerequisite-missing' 'assemblyManifestPath is required for compiled architecture inspection.'
+        exit 0
+    }
+    try { $manifestPath = Resolve-EvidencePath $evidenceRoot ([string]$config.assemblyManifestPath) 'assemblyManifestPath' }
+    catch {
+        Add-Coverage $requestedCompiledClaims 0
+        Write-Result 'error' 'unsafe-path' $_.Exception.Message
+        exit 0
+    }
+    if (-not [IO.File]::Exists($manifestPath)) {
+        Add-Coverage $requestedCompiledClaims 0
+        Write-Result 'error' 'prerequisite-missing' 'The explicit assembly manifest is missing.'
+        exit 0
+    }
+    try { $assemblyManifest = [IO.File]::ReadAllText($manifestPath) | ConvertFrom-Json }
+    catch {
+        Add-Coverage $requestedCompiledClaims 0
+        Write-Result 'error' 'invalid-input' "The assembly manifest is invalid JSON: $($_.Exception.Message)"
+        exit 0
+    }
+    if ($assemblyManifest.formatVersion -ne 1 -or @($assemblyManifest.assemblies).Count -eq 0) {
+        Add-Coverage $requestedCompiledClaims 0
+        Write-Result 'error' 'invalid-input' 'The assembly manifest must declare formatVersion 1 and at least one assembly.'
+        exit 0
+    }
+    if (-not (Load-ArchUnitNet)) {
+        Add-Coverage $requestedCompiledClaims 0
+        Write-Result 'error' 'prerequisite-missing' 'The locked ArchUnitNET 0.13.4 dependency closure is unavailable or failed integrity validation.'
+        exit 0
+    }
+
+    $loadedAssemblies = [Collections.Generic.Dictionary[string,Reflection.Assembly]]::new([StringComparer]::Ordinal)
+    $seenPaths = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($entry in @($assemblyManifest.assemblies)) {
+        $name = [string]$entry.assemblyName
+        $relativePath = [string]$entry.path
+        $expectedHash = [string]$entry.sha256
+        if ([string]::IsNullOrWhiteSpace($name) -or $expectedHash -cnotmatch '^[a-f0-9]{64}$') {
+            Add-Coverage $requestedCompiledClaims 0
+            Write-Result 'error' 'invalid-input' 'Every assembly manifest entry requires assemblyName, path and lowercase SHA-256.'
+            exit 0
+        }
+        try { $assemblyPath = Resolve-EvidencePath $evidenceRoot $relativePath "assembly $name" }
+        catch {
+            Add-Coverage $requestedCompiledClaims 0
+            Write-Result 'error' 'unsafe-path' $_.Exception.Message
+            exit 0
+        }
+        if (-not $seenPaths.Add($assemblyPath) -or $loadedAssemblies.ContainsKey($name)) {
+            Add-Coverage $requestedCompiledClaims 0
+            Write-Result 'error' 'invalid-input' "Duplicate assembly identity or path: $name"
+            exit 0
+        }
+        if (-not [IO.File]::Exists($assemblyPath)) {
+            Add-Coverage $requestedCompiledClaims 0
+            Write-Result 'error' 'prerequisite-missing' "Expected assembly is missing: $relativePath"
+            exit 0
+        }
+        $actualHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $assemblyPath).Hash.ToLowerInvariant()
+        if ($actualHash -cne $expectedHash) {
+            Add-Coverage $requestedCompiledClaims 0
+            Write-Result 'error' 'integrity-failure' "Assembly hash mismatch: $relativePath"
+            exit 0
+        }
+        try {
+            $identity = [Reflection.AssemblyName]::GetAssemblyName($assemblyPath).Name
+            if ($identity -cne $name) { throw "expected $name, found $identity" }
+            $assembly = [Runtime.Loader.AssemblyLoadContext]::Default.LoadFromAssemblyPath($assemblyPath)
+            if (-not [IO.Path]::GetFullPath($assembly.Location).Equals($assemblyPath,[StringComparison]::OrdinalIgnoreCase)) { throw "loaded from $($assembly.Location)" }
+            $loadedAssemblies.Add($name,$assembly)
+        } catch {
+            Add-Coverage $requestedCompiledClaims 0
+            Write-Result 'error' 'integrity-failure' "Assembly identity/load failure for ${relativePath}: $($_.Exception.Message)"
+            exit 0
+        }
+    }
+
+    try {
+        $architecture = [ArchUnitNET.Loader.ArchLoader]::new().LoadAssemblies([Reflection.Assembly[]]@($loadedAssemblies.Values)).Build()
+        foreach ($assembly in $loadedAssemblies.Values) { [void]$assembly.GetTypes() }
+    } catch {
+        Add-Coverage $requestedCompiledClaims 0
+        Write-Result 'error' 'prerequisite-missing' "ArchUnitNET could not load the explicit assembly closure: $($_.Exception.Message)"
+        exit 0
+    }
+
+    if (Enabled 'ARCH.TYPE_DEPENDENCY') {
+        $matched = 0
+        $policies = @(Config-Array 'forbiddenTypeDependencies')
+        foreach ($policy in $policies) {
+            if (-not $loadedAssemblies.ContainsKey([string]$policy.sourceAssembly) -or -not $loadedAssemblies.ContainsKey([string]$policy.forbiddenAssembly)) {
+                Add-Finding 'ARCH.TYPE_DEPENDENCY' "missing declared assembly -> $($policy.sourceAssembly) / $($policy.forbiddenAssembly)" 'compiled-assembly' 'archunitnet'
+                continue
+            }
+            $sourceTypes = @($loadedAssemblies[[string]$policy.sourceAssembly].GetTypes() | Where-Object Namespace -ceq ([string]$policy.sourceNamespace))
+            $targetTypes = @($loadedAssemblies[[string]$policy.forbiddenAssembly].GetTypes() | Where-Object Namespace -ceq ([string]$policy.forbiddenNamespace))
+            $minimum = [int]$policy.minimumMatches
+            $pairMatches = [Math]::Min($sourceTypes.Count,$targetTypes.Count)
+            $matched += $pairMatches
+            if ($sourceTypes.Count -lt $minimum -or $targetTypes.Count -lt $minimum) {
+                Add-Finding 'ARCH.TYPE_DEPENDENCY' "$($policy.sourceAssembly):$($policy.sourceNamespace) -> $($policy.forbiddenAssembly):$($policy.forbiddenNamespace) [zero-match]" 'compiled-assembly' 'archunitnet'
+                continue
+            }
+            $sourceIdentity = $loadedAssemblies[[string]$policy.sourceAssembly].FullName
+            $targetIdentity = $loadedAssemblies[[string]$policy.forbiddenAssembly].FullName
+            $sourceProvider = [ArchUnitNET.Fluent.ArchRuleDefinition]::Types().That().ResideInNamespace([string]$policy.sourceNamespace).And().ResideInAssembly($sourceIdentity)
+            $targetProvider = [ArchUnitNET.Fluent.ArchRuleDefinition]::Types().That().ResideInNamespace([string]$policy.forbiddenNamespace).And().ResideInAssembly($targetIdentity)
+            $rule = $sourceProvider.Should().NotDependOnAny($targetProvider)
+            if (-not $rule.HasNoViolations($architecture)) {
+                Add-Finding 'ARCH.TYPE_DEPENDENCY' "$($policy.sourceAssembly):$($policy.sourceNamespace) -> $($policy.forbiddenAssembly):$($policy.forbiddenNamespace)" 'compiled-assembly' 'archunitnet'
+            }
+        }
+        if ($policies.Count -eq 0) { Add-Finding 'ARCH.TYPE_DEPENDENCY' '<zero configured rules>' 'compiled-assembly' 'archunitnet' }
+        Add-Coverage @('ARCH.TYPE_DEPENDENCY') $matched
+    }
+
+    if (Enabled 'ARCH.IMPLEMENTATION_LOCATION') {
+        $matched = 0
+        $policies = @(Config-Array 'implementationLocations')
+        foreach ($policy in $policies) {
+            if (-not $loadedAssemblies.ContainsKey([string]$policy.interfaceAssembly) -or -not $loadedAssemblies.ContainsKey([string]$policy.implementationAssembly)) {
+                Add-Finding 'ARCH.IMPLEMENTATION_LOCATION' "missing declared assembly -> $($policy.interfaceAssembly) / $($policy.implementationAssembly)" 'compiled-assembly' 'archunitnet'
+                continue
+            }
+            $interfaceType = $loadedAssemblies[[string]$policy.interfaceAssembly].GetType([string]$policy.interfaceType,$false,$false)
+            if ($null -eq $interfaceType -or -not $interfaceType.IsInterface) {
+                Add-Finding 'ARCH.IMPLEMENTATION_LOCATION' "$($policy.interfaceAssembly):$($policy.interfaceType) [zero-match]" 'compiled-assembly' 'archunitnet'
+                continue
+            }
+            $implementers = @($loadedAssemblies.Values | ForEach-Object GetTypes | Where-Object { $_.IsClass -and -not $_.IsAbstract -and $interfaceType.IsAssignableFrom($_) })
+            $matched += $implementers.Count
+            if ($implementers.Count -lt [int]$policy.minimumMatches) {
+                Add-Finding 'ARCH.IMPLEMENTATION_LOCATION' "$($policy.interfaceType) -> $($policy.implementationAssembly):$($policy.implementationNamespace) [zero-match]" 'compiled-assembly' 'archunitnet'
+                continue
+            }
+            $rule = [ArchUnitNET.Fluent.ArchRuleDefinition]::Classes().That().AreAssignableTo($interfaceType).Should().ResideInNamespace([string]$policy.implementationNamespace)
+            $wrong = @($implementers | Where-Object { $_.Assembly.GetName().Name -cne [string]$policy.implementationAssembly -or $_.Namespace -cne [string]$policy.implementationNamespace })
+            if ($wrong.Count -gt 0 -or -not $rule.HasNoViolations($architecture)) {
+                $subjects = if ($wrong.Count) { @($wrong.FullName) -join ', ' } else { [string]$policy.interfaceType }
+                Add-Finding 'ARCH.IMPLEMENTATION_LOCATION' "$subjects -> $($policy.implementationAssembly):$($policy.implementationNamespace)" 'compiled-assembly' 'archunitnet'
+            }
+        }
+        if ($policies.Count -eq 0) { Add-Finding 'ARCH.IMPLEMENTATION_LOCATION' '<zero configured rules>' 'compiled-assembly' 'archunitnet' }
+        Add-Coverage @('ARCH.IMPLEMENTATION_LOCATION') $matched
+    }
+
+    if (Enabled 'ARCH.ASSEMBLY_PLACEMENT') {
+        $matched = 0
+        $policies = @(Config-Array 'assemblyPlacements')
+        foreach ($policy in $policies) {
+            if (-not $loadedAssemblies.ContainsKey([string]$policy.assemblyName)) {
+                Add-Finding 'ARCH.ASSEMBLY_PLACEMENT' "missing declared assembly -> $($policy.assemblyName)" 'compiled-assembly' 'archunitnet'
+                continue
+            }
+            $types = @($loadedAssemblies[[string]$policy.assemblyName].GetTypes() | Where-Object { -not $_.IsNested -and -not [string]::IsNullOrWhiteSpace($_.Namespace) })
+            $matched += $types.Count
+            if ($types.Count -lt [int]$policy.minimumMatches) {
+                Add-Finding 'ARCH.ASSEMBLY_PLACEMENT' "$($policy.assemblyName):$($policy.requiredNamespace) [zero-match]" 'compiled-assembly' 'archunitnet'
+                continue
+            }
+            $assemblyIdentity = $loadedAssemblies[[string]$policy.assemblyName].FullName
+            $rule = [ArchUnitNET.Fluent.ArchRuleDefinition]::Types().That().ResideInAssembly($assemblyIdentity).Should().ResideInNamespace([string]$policy.requiredNamespace)
+            $wrong = @($types | Where-Object Namespace -cne ([string]$policy.requiredNamespace))
+            if ($wrong.Count -gt 0 -or -not $rule.HasNoViolations($architecture)) {
+                $subjects = if ($wrong.Count) { @($wrong.FullName) -join ', ' } else { [string]$policy.assemblyName }
+                Add-Finding 'ARCH.ASSEMBLY_PLACEMENT' "$subjects -> $($policy.requiredNamespace)" 'compiled-assembly' 'archunitnet'
+            }
+        }
+        if ($policies.Count -eq 0) { Add-Finding 'ARCH.ASSEMBLY_PLACEMENT' '<zero configured rules>' 'compiled-assembly' 'archunitnet' }
+        Add-Coverage @('ARCH.ASSEMBLY_PLACEMENT') $matched
+    }
 }
 
 $status = if ($findings.Count -eq 0) { 'pass' } else { 'fail' }

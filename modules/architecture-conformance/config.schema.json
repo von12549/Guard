@@ -4,7 +4,7 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "enabledClaims": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["ARCH.PROJECT_REFERENCE", "ARCH.PACKAGE_REFERENCE", "ARCH.TARGET_FRAMEWORK", "ARCH.GRAPH_COMPLETENESS", "ARCH.SOURCE_IMPORT", "ARCH.DISABLED_BRANCH", "ARCH.DECLARATION_PLACEMENT", "ARCH.FORBIDDEN_SYMBOL", "ARCH.MEMBER_PAYLOAD"] } },
+    "enabledClaims": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["ARCH.PROJECT_REFERENCE", "ARCH.PACKAGE_REFERENCE", "ARCH.TARGET_FRAMEWORK", "ARCH.GRAPH_COMPLETENESS", "ARCH.SOURCE_IMPORT", "ARCH.DISABLED_BRANCH", "ARCH.DECLARATION_PLACEMENT", "ARCH.FORBIDDEN_SYMBOL", "ARCH.MEMBER_PAYLOAD", "ARCH.TYPE_DEPENDENCY", "ARCH.IMPLEMENTATION_LOCATION", "ARCH.ASSEMBLY_PLACEMENT"] } },
     "forbiddenProjectReferences": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
     "forbiddenPackages": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
     "allowedTargetFrameworks": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
@@ -12,6 +12,44 @@
     "forbiddenImports": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
     "forbiddenDeclarationNamespaces": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
     "forbiddenSymbols": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
-    "forbiddenPayloadNamespaces": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+    "forbiddenPayloadNamespaces": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "assemblyManifestPath": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" },
+    "forbiddenTypeDependencies": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["sourceAssembly", "sourceNamespace", "forbiddenAssembly", "forbiddenNamespace", "minimumMatches"],
+        "properties": {
+          "sourceAssembly": { "type": "string", "minLength": 1 },
+          "sourceNamespace": { "type": "string", "minLength": 1 },
+          "forbiddenAssembly": { "type": "string", "minLength": 1 },
+          "forbiddenNamespace": { "type": "string", "minLength": 1 },
+          "minimumMatches": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "implementationLocations": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["interfaceAssembly", "interfaceType", "implementationAssembly", "implementationNamespace", "minimumMatches"],
+        "properties": {
+          "interfaceAssembly": { "type": "string", "minLength": 1 },
+          "interfaceType": { "type": "string", "minLength": 1 },
+          "implementationAssembly": { "type": "string", "minLength": 1 },
+          "implementationNamespace": { "type": "string", "minLength": 1 },
+          "minimumMatches": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "assemblyPlacements": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["assemblyName", "requiredNamespace", "minimumMatches"],
+        "properties": {
+          "assemblyName": { "type": "string", "minLength": 1 },
+          "requiredNamespace": { "type": "string", "minLength": 1 },
+          "minimumMatches": { "type": "integer", "minimum": 1 }
+        }
+      }
+    }
   }
 }

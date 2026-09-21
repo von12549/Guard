@@ -4,16 +4,16 @@
   "version": "0.1.0",
   "compatibleApi": "1.x",
   "supportedPlatforms": ["linux-x64", "win-x64", "osx-arm64"],
-  "adapter": { "kind": "powershell", "path": "modules/architecture-conformance/adapter.ps1", "sha256": "fafbfe6ef2b7030ec4651033d0d863b64aefe46fcba84713e4bc92251f664365" },
+  "adapter": { "kind": "powershell", "path": "modules/architecture-conformance/adapter.ps1", "sha256": "6b0818d87e488ce4c3b5a3251b57c9e0c40656004b1b39b3b666bbf9b85772f3" },
   "prerequisites": [
     { "runtime": "pwsh", "versionRange": ">=7.4" },
     { "runtime": "dotnet", "versionRange": ">=10.0 <11.0" }
   ],
   "stages": ["pre", "post"],
-  "capabilities": { "readRoots": ["TargetRoot"], "writeRoots": [], "processes": ["pwsh", "dotnet"], "network": false, "timeoutSeconds": 30 },
+  "capabilities": { "readRoots": ["TargetRoot", "EvidenceRoot"], "writeRoots": [], "processes": ["pwsh", "dotnet"], "network": false, "timeoutSeconds": 30 },
   "configSchema": "modules/architecture-conformance/config.schema.json",
   "resultSchema": "modules/architecture-conformance/result.schema.json",
-  "dependencyLock": { "path": "modules/architecture-conformance/dependencies.lock.json", "sha256": "d136fa78cc838d15e35f915decb4e8e47ed43cf82726d653c73f8945f1af1e3d" },
+  "dependencyLock": { "path": "modules/architecture-conformance/dependencies.lock.json", "sha256": "3ee21118cbc66f55a17487b7c02bd5407fe83c02d4a4600d1b16f7a83e998861" },
   "authorities": [
     { "id": "capability-matrix", "path": "modules/architecture-conformance/capability-matrix.json", "sha256": "23dc6e5dc499492a439bf8c7338796d0bfb1acaf94509d55f7894f912389520b" },
     { "id": "rule-execution-plan", "path": "modules/architecture-conformance/rule-execution-plan.json", "sha256": "0425128c09162573e65e3b09b6e6832f3b436cccd36aa0d59cdf4a85d3ae7e3b" },

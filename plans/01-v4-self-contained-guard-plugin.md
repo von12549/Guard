@@ -173,8 +173,8 @@ must not embed repository-relative IFX paths.
   facts, ownership and graph completeness. (`20260922-v4-p4b-project-model`)
 - [x] **V4-P4.4** Implement Roslyn syntax/semantic detectors for source imports, disabled branches,
   declarations, forbidden symbols/text and member/payload claims selected by the matrix. (`20260922-v4-p4c-roslyn-detectors`)
-- [ ] **V4-P4.5** Implement the ArchUnitNET adapter for compiled dependency, implementation and
-  assembly/namespace-placement claims; require explicit assemblies and non-zero matches.
+- [x] **V4-P4.5** Implement the ArchUnitNET adapter for compiled dependency, implementation and
+  assembly/namespace-placement claims; require explicit assemblies and non-zero matches. (`20260922-v4-p4d-archunitnet-adapter`)
 - [ ] **V4-P4.6** Implement the isolated Build Evidence Provider and bind its manifest, identities, hashes,
   target frameworks and freshness to the Post run.
 - [ ] **V4-P4.7** Implement the composite rule execution plan, layered finding identity, baseline, severity,

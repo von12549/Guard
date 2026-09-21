@@ -4,9 +4,9 @@
     {
       "id": "architecture-conformance",
       "manifestPath": "modules/architecture-conformance/module.json",
-      "manifestSha256": "f0d28c28e343d12fb62e1b31e85b212816acc7936a1b660dd930d2df9eb66c15",
+      "manifestSha256": "37b2d4ca4359fc1fd5f62fa256b74c0c868ca24a0ae3af02f5d7bb8fc543d59c",
       "allowedCapabilities": {
-        "readRoots": ["TargetRoot"],
+        "readRoots": ["TargetRoot", "EvidenceRoot"],
         "writeRoots": [],
         "processes": ["pwsh", "dotnet"],
         "network": false,
