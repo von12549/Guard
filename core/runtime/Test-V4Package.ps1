@@ -73,15 +73,32 @@ foreach ($entry in $contractManifest.files) {
 }
 
 $modulesRoot = Resolve-AuthorityPath $root $plugin.modulesCatalog 'modules catalog' Directory
+$registryPath = Resolve-AuthorityPath $root (Join-Path $plugin.modulesCatalog 'registry.json') 'module registry' File
+Assert-Schema $registryPath (Join-Path $contracts 'module-registry.schema.json') 'module registry'
+$registry = Read-Object $registryPath 'module registry'
 $modules = @{}
-foreach ($directory in @(Get-ChildItem -LiteralPath $modulesRoot -Directory -Force | Sort-Object Name)) {
-    $manifestPath = Join-Path $directory.FullName 'module.json'
-    if (-not [IO.File]::Exists($manifestPath)) { Fail "module directory has no module.json: $($directory.Name)" }
-    Assert-NoLinks $root $manifestPath 'module manifest'
-    Assert-Schema $manifestPath (Join-Path $contracts 'module.schema.json') "module $($directory.Name)"
-    $module = Read-Object $manifestPath "module $($directory.Name)"
-    if ($modules.ContainsKey($module.id)) { Fail "duplicate module ID: $($module.id)" }
-    if ($directory.Name -cne $module.id) { Fail "module directory/id mismatch: $($directory.Name)" }
+$registeredDirectories = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+foreach ($entry in $registry.modules) {
+    if ($modules.ContainsKey($entry.id)) { Fail "duplicate module registry ID: $($entry.id)" }
+    $expectedManifest = "$($plugin.modulesCatalog)/$($entry.id)/module.json"
+    if ([string]$entry.manifestPath -cne $expectedManifest) { Fail "module registry path is not canonical for $($entry.id)" }
+    $manifestPath = Resolve-AuthorityPath $root $entry.manifestPath "module $($entry.id) manifest" File
+    if ((File-Hash $manifestPath) -cne $entry.manifestSha256) { Fail "module manifest hash drift: $($entry.id)" }
+    Assert-Schema $manifestPath (Join-Path $contracts 'module.schema.json') "module $($entry.id)"
+    $module = Read-Object $manifestPath "module $($entry.id)"
+    if ($module.id -cne $entry.id) { Fail "module registry/manifest ID mismatch: $($entry.id)" }
+
+    foreach ($rootName in @($module.capabilities.readRoots)) {
+        if (@($entry.allowedCapabilities.readRoots) -notcontains $rootName) { Fail "module $($entry.id) exceeds registered read-root capability: $rootName" }
+    }
+    foreach ($rootName in @($module.capabilities.writeRoots)) {
+        if (@($entry.allowedCapabilities.writeRoots) -notcontains $rootName) { Fail "module $($entry.id) exceeds registered write-root capability: $rootName" }
+    }
+    foreach ($processName in @($module.capabilities.processes)) {
+        if (@($entry.allowedCapabilities.processes) -notcontains $processName) { Fail "module $($entry.id) exceeds registered process capability: $processName" }
+    }
+    if ($module.capabilities.network -and -not $entry.allowedCapabilities.network) { Fail "module $($entry.id) exceeds registered network capability" }
+    if ([int]$module.capabilities.timeoutSeconds -gt [int]$entry.allowedCapabilities.maxTimeoutSeconds) { Fail "module $($entry.id) exceeds registered timeout capability" }
 
     $adapterPath = Resolve-AuthorityPath $root $module.adapter.path "module $($module.id) adapter" File
     if ((File-Hash $adapterPath) -cne $module.adapter.sha256) { Fail "adapter hash drift: $($module.id)" }
@@ -90,6 +107,10 @@ foreach ($directory in @(Get-ChildItem -LiteralPath $modulesRoot -Directory -For
     [void](Resolve-AuthorityPath $root $module.configSchema "module $($module.id) config schema" File)
     [void](Resolve-AuthorityPath $root $module.resultSchema "module $($module.id) result schema" File)
     $modules[$module.id] = $module
+    [void]$registeredDirectories.Add([string]$module.id)
+}
+foreach ($directory in @(Get-ChildItem -LiteralPath $modulesRoot -Directory -Force | Sort-Object Name)) {
+    if (-not $registeredDirectories.Contains($directory.Name)) { Fail "undisclosed module directory: $($directory.Name)" }
 }
 
 $profilesRoot = Resolve-AuthorityPath $root $plugin.profilesCatalog 'profiles catalog' Directory

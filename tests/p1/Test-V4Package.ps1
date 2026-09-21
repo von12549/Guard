@@ -28,6 +28,15 @@ function Write-Json([string] $Path, $Value) {
     [IO.File]::WriteAllText($Path, ($Value | ConvertTo-Json -Depth 100) + "`n", [Text.UTF8Encoding]::new($false))
 }
 
+function Update-RegistryHash([string] $Root, [string] $ModuleId) {
+    $registryPath = Join-Path $Root 'modules/registry.json'
+    $registry = Get-Content -Raw $registryPath | ConvertFrom-Json -AsHashtable -Depth 100
+    $entry = @($registry.modules | Where-Object id -CEQ $ModuleId)
+    if ($entry.Count -ne 1) { throw "Registry entry not found: $ModuleId" }
+    $entry[0].manifestSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $Root $entry[0].manifestPath)).Hash.ToLowerInvariant()
+    Write-Json $registryPath $registry
+}
+
 function Expect-Failure([string] $Name, [scriptblock] $Mutation, [string] $Pattern) {
     $copy = New-Case $Name
     & $Mutation $copy
@@ -66,6 +75,9 @@ if ($mutableResult.Code -ne 0) {
 $empty = New-Case 'empty-package'
 Remove-Item -LiteralPath (Join-Path $empty 'modules/synthetic-probe') -Recurse -Force
 Remove-Item -LiteralPath (Join-Path $empty 'profiles/catalog/synthetic_profile') -Recurse -Force
+$emptyRegistryPath = Join-Path $empty 'modules/registry.json'
+$emptyRegistry = Get-Content -Raw $emptyRegistryPath | ConvertFrom-Json -AsHashtable -Depth 100
+$emptyRegistry.modules = @(); Write-Json $emptyRegistryPath $emptyRegistry
 $emptyResult = Invoke-Check $empty
 if ($emptyResult.Code -ne 0) { $failures.Add("empty package failed: $($emptyResult.Output)") }
 else {
@@ -107,7 +119,7 @@ Expect-Failure 'undeclared-module' {
 Expect-Failure 'target-root-write' {
     param($copy)
     $path = Join-Path $copy 'modules/synthetic-probe/module.json'; $json = Get-Content -Raw $path | ConvertFrom-Json -AsHashtable
-    $json.capabilities.writeRoots = @('TargetRoot'); Write-Json $path $json
+    $json.capabilities.writeRoots = @('TargetRoot'); Write-Json $path $json; Update-RegistryHash $copy 'synthetic-probe'
 } 'module synthetic-probe does not satisfy'
 
 Expect-Failure 'adapter-hash-drift' {

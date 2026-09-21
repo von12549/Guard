@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "modules": [
+    {
+      "id": "synthetic-probe",
+      "manifestPath": "modules/synthetic-probe/module.json",
+      "manifestSha256": "be52b6902ac48e5d4c51c17ae385f545e7ebe525f09b069a7b25bbd8a6b7b9f4",
+      "allowedCapabilities": {
+        "readRoots": ["TargetRoot"],
+        "writeRoots": [],
+        "processes": ["pwsh"],
+        "network": false,
+        "maxTimeoutSeconds": 30
+      }
+    }
+  ]
+}
