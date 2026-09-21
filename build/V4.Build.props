@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <V4BuildBaseline>p0</V4BuildBaseline>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>

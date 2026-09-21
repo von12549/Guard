@@ -1,0 +1,18 @@
+{
+  "formatVersion": 1,
+  "id": "synthetic-probe",
+  "version": "0.1.0",
+  "adapter": {
+    "kind": "powershell",
+    "path": "modules/synthetic-probe/adapter.ps1",
+    "sha256": "b6792bfe5c2e802beb797639a7a3a5486b971c19f3474331f3def5ac9f79f6fd"
+  },
+  "stages": ["analysis"],
+  "capabilities": {
+    "readRoots": ["TargetRoot"],
+    "writeRoots": [],
+    "processes": ["pwsh"],
+    "network": false
+  },
+  "resultSchema": "core/contracts/stage-result-spike.schema.json"
+}

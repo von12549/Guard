@@ -54,7 +54,7 @@ V4 v1 must prove:
 ## 4. Planned package shape
 
 ```text
-docs/guards/V4/                    # incubation location; final distribution boundary is deferred
+docs/guards/v4/                    # canonical incubation spelling; final distribution boundary is deferred
 ├─ plugin.json
 ├─ core/
 │  ├─ host/
@@ -93,15 +93,18 @@ must not embed repository-relative IFX paths.
 
 ### V4-P0 — Architecture spike and development-base bootstrap
 
-- [ ] **V4-P0.1** Prove the accepted .NET CLI host and PowerShell/.NET adapter boundary with one end-to-end synthetic
-  module; this is an implementation-risk spike, not a host-selection comparison.
-- [ ] **V4-P0.2** Prove the four-root contract, external-target equivalence and isolated CI state/evidence roots.
+- [x] **V4-P0.1** Prove the accepted .NET CLI host and PowerShell/.NET adapter boundary with one end-to-end synthetic
+  module; this is an implementation-risk spike, not a host-selection comparison. Evidence: P0A host spike and
+  `artifacts/guards/v4/p0a/summary.json`.
+- [x] **V4-P0.2** Prove the four-root contract, external-target equivalence and isolated CI state/evidence roots.
+  Evidence: P0A in-repository/separated-package equivalence and path/capability negative suite.
 - [ ] **V4-P0.3** Freeze plugin, profile, module, Stage result, state and plan-set schemas.
 - [ ] **V4-P0.4** Define stable CLI commands and exit categories.
 - [ ] **V4-P0.5** Freeze the Architecture Conformance capability-matrix and rule-execution-plan schemas.
 - [ ] **V4-P0.6** Prepare the exact proposal for `codex/v4-development-base`, the V4-only workflow and the finite
   V3 genesis-bootstrap/exit boundary; do not create or activate either without explicit authorization.
-- [ ] **V4-P0.7** Record recovery point and current V3/V3_ifx non-interference checks.
+- [x] **V4-P0.7** Record recovery point and current V3/V3_ifx non-interference checks. Recovery seed:
+  `20c93d521728746e1c227654b32219d94fcdf6bb`; current V3 validation remains required before checkpoint commit.
 - [ ] **V4-P0.8** Define the genesis acceptance record that binds the reviewed seed commit, package/contract hashes,
   deterministic synthetic tests and recovery instructions without allowing the candidate V4 host to trust itself.
 

@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "id", "version", "adapter", "stages", "capabilities", "resultSchema"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "sha256"],
+      "properties": {
+        "kind": { "const": "powershell" },
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "stages": { "const": ["analysis"] },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["readRoots", "writeRoots", "processes", "network"],
+      "properties": {
+        "readRoots": { "const": ["TargetRoot"] },
+        "writeRoots": { "const": [] },
+        "processes": { "const": ["pwsh"] },
+        "network": { "const": false }
+      }
+    },
+    "resultSchema": { "const": "core/contracts/stage-result-spike.schema.json" }
+  }
+}
