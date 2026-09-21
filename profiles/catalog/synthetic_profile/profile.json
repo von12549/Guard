@@ -1,0 +1,24 @@
+{
+  "formatVersion": 1,
+  "id": "synthetic_profile",
+  "version": "1.0.0",
+  "projectIdentity": {
+    "id": "synthetic",
+    "relativeRoots": ["."]
+  },
+  "moduleSelections": [
+    {
+      "id": "synthetic-probe",
+      "versionRange": ">=0.1.0 <1.0.0",
+      "config": {}
+    }
+  ],
+  "stageConfiguration": {
+    "bootstrap": { "enabled": false, "modules": [] },
+    "analysis": { "enabled": true, "modules": ["synthetic-probe"] },
+    "pre": { "enabled": false, "modules": [] },
+    "post": { "enabled": false, "modules": [] }
+  },
+  "rules": [],
+  "baselineRefs": []
+}

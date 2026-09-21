@@ -2,17 +2,28 @@
   "formatVersion": 1,
   "id": "synthetic-probe",
   "version": "0.1.0",
+  "compatibleApi": "1.x",
+  "supportedPlatforms": ["linux-x64", "win-x64", "osx-arm64"],
   "adapter": {
     "kind": "powershell",
     "path": "modules/synthetic-probe/adapter.ps1",
     "sha256": "b6792bfe5c2e802beb797639a7a3a5486b971c19f3474331f3def5ac9f79f6fd"
   },
+  "prerequisites": [
+    { "runtime": "pwsh", "versionRange": ">=7.4" }
+  ],
   "stages": ["analysis"],
   "capabilities": {
     "readRoots": ["TargetRoot"],
     "writeRoots": [],
     "processes": ["pwsh"],
-    "network": false
+    "network": false,
+    "timeoutSeconds": 30
   },
-  "resultSchema": "core/contracts/stage-result-spike.schema.json"
+  "configSchema": "modules/synthetic-probe/config.schema.json",
+  "resultSchema": "core/contracts/stage-result-spike.schema.json",
+  "dependencyLock": {
+    "path": "modules/synthetic-probe/dependencies.lock.json",
+    "sha256": "10aebb07e6318b42a22a825b59ccb3c11b7c756a59a85b19b113a96731741d09"
+  }
 }

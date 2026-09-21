@@ -122,12 +122,15 @@ must not embed repository-relative IFX paths.
 
 ### V4-P1 — Plugin skeleton and authority checker
 
-- [ ] **V4-P1.1** Create plugin manifest, authority roots and package checker.
-- [ ] **V4-P1.2** Add default and synthetic profile manifests.
+- [x] **V4-P1.1** Create plugin manifest, authority roots and package checker. Evidence: P1A
+  `plugin.json`, package checker and positive/negative package suite.
+- [x] **V4-P1.2** Add default and synthetic profile manifests. Evidence: P1A schema-valid
+  `default` and `synthetic_profile` catalogs plus the empty-package fixture.
 - [ ] **V4-P1.3** Add module registry, capability declarations and schema validation.
 - [ ] **V4-P1.4** Reject unknown fields, duplicate IDs, path escape, raw profile executables and undeclared module
   capabilities.
-- [ ] **V4-P1.5** Ensure state/artifacts are ignored and absent from package hashes.
+- [x] **V4-P1.5** Ensure state/artifacts are ignored and absent from package hashes. Evidence: P1A
+  ignore assertions and package-hash equivalence with mutable noise present.
 
 - [ ] **V4-P1.GATE** An empty plugin validates; malformed manifests and profile/module injection fail closed.
 
