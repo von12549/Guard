@@ -5,6 +5,7 @@
     { "path": "core/contracts/capability-matrix.schema.json", "sha256": "d5c9e5d5b4d48431fca890f6e13d3cd6efe1a0ea4bdcca67f73543ffbed7e71e" },
     { "path": "core/contracts/cli-contract.json", "sha256": "d25464b61fdb9197bac73dc325da1c3fc3a024e439a4057572c2f369351b44bd" },
     { "path": "core/contracts/cli-contract.schema.json", "sha256": "2686085e2af99f3c9edb5403f5ca2c73a13e50ddf942c91cc99c31092cdb50a6" },
+    { "path": "core/contracts/finding-baseline.schema.json", "sha256": "d913d965cfa7197ecf718288ef65b101835923c149832b3a4e44f0d15faa0507" },
     { "path": "core/contracts/genesis-record.schema.json", "sha256": "d372bcca76ccfdb346e46733293d5dbd1a8d333c8dbb177bc52ce34d6eef66da" },
     { "path": "core/contracts/module-registry.schema.json", "sha256": "4b9532bc83552b28826cab24e77e1e8d683c69e57d17828f7e68f5271a08d16b" },
     { "path": "core/contracts/module.schema.json", "sha256": "78e24ceb7b7716f893602cf163e055033dab1872d171a9bc89fdd50c7413bfd7" },

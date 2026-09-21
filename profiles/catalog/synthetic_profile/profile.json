@@ -2,25 +2,58 @@
   "formatVersion": 1,
   "id": "synthetic_profile",
   "version": "1.0.0",
-  "projectIdentity": {
-    "id": "synthetic",
-    "relativeRoots": ["."]
-  },
+  "projectIdentity": { "id": "synthetic", "relativeRoots": ["."] },
   "moduleSelections": [
+    { "id": "synthetic-probe", "versionRange": ">=0.1.0 <1.0.0", "config": {} },
     {
-      "id": "synthetic-probe",
+      "id": "build-evidence-provider",
       "versionRange": ">=0.1.0 <1.0.0",
-      "config": {}
+      "config": {
+        "configuration": "Debug",
+        "targetFramework": "net10.0",
+        "manifestPath": "projects/{projectId}/build/current/assembly-manifest.json",
+        "projects": [
+          { "projectPath": "Contracts/Synthetic.Contracts.csproj", "assemblyName": "Synthetic.Contracts" },
+          { "projectPath": "Application/Synthetic.Application.csproj", "assemblyName": "Synthetic.Application" }
+        ]
+      }
     },
     {
       "id": "architecture-conformance",
       "versionRange": ">=0.1.0 <1.0.0",
       "config": {
-        "enabledClaims": ["ARCH.PROJECT_REFERENCE", "ARCH.PACKAGE_REFERENCE", "ARCH.TARGET_FRAMEWORK", "ARCH.GRAPH_COMPLETENESS"],
+        "enabledClaims": [
+          "ARCH.PROJECT_REFERENCE", "ARCH.PACKAGE_REFERENCE", "ARCH.TARGET_FRAMEWORK", "ARCH.GRAPH_COMPLETENESS",
+          "ARCH.SOURCE_IMPORT", "ARCH.DISABLED_BRANCH", "ARCH.DECLARATION_PLACEMENT",
+          "ARCH.FORBIDDEN_SYMBOL", "ARCH.MEMBER_PAYLOAD",
+          "ARCH.TYPE_DEPENDENCY", "ARCH.IMPLEMENTATION_LOCATION", "ARCH.ASSEMBLY_PLACEMENT"
+        ],
         "forbiddenProjectReferences": ["*Forbidden*.csproj"],
         "forbiddenPackages": ["Forbidden.Package"],
         "allowedTargetFrameworks": ["net10.0"],
-        "requireResolvedProjectReferences": true
+        "requireResolvedProjectReferences": true,
+        "forbiddenImports": ["Synthetic.ForbiddenImport"],
+        "forbiddenDeclarationNamespaces": ["Synthetic.ForbiddenPlacement"],
+        "forbiddenSymbols": ["Synthetic.ForbiddenApi.Calls.Use()"],
+        "forbiddenPayloadNamespaces": ["Synthetic.ForbiddenPayload"],
+        "assemblyManifestPath": "projects/{projectId}/build/current/assembly-manifest.json",
+        "requireFreshBuildEvidence": true,
+        "maximumEvidenceAgeSeconds": 600,
+        "expectedBuildConfiguration": "Debug",
+        "expectedTargetFramework": "net10.0",
+        "expectedAssemblySources": [
+          { "assemblyName": "Synthetic.Contracts", "sourceProject": "Contracts/Synthetic.Contracts.csproj" },
+          { "assemblyName": "Synthetic.Application", "sourceProject": "Application/Synthetic.Application.csproj" }
+        ],
+        "forbiddenTypeDependencies": [
+          { "sourceAssembly": "Synthetic.Application", "sourceNamespace": "Synthetic.Application.Allowed", "forbiddenAssembly": "Synthetic.Contracts", "forbiddenNamespace": "Synthetic.ForbiddenTypes", "minimumMatches": 1 }
+        ],
+        "implementationLocations": [
+          { "interfaceAssembly": "Synthetic.Contracts", "interfaceType": "Synthetic.Contracts.IPort", "implementationAssembly": "Synthetic.Application", "implementationNamespace": "Synthetic.Application.Allowed", "minimumMatches": 1 }
+        ],
+        "assemblyPlacements": [
+          { "assemblyName": "Synthetic.Application", "requiredNamespace": "Synthetic.Application.Allowed", "minimumMatches": 1 }
+        ]
       }
     }
   ],
@@ -28,8 +61,12 @@
     "bootstrap": { "enabled": true, "modules": ["synthetic-probe"] },
     "analysis": { "enabled": true, "modules": ["synthetic-probe"] },
     "pre": { "enabled": true, "modules": ["synthetic-probe", "architecture-conformance"] },
-    "post": { "enabled": true, "modules": ["synthetic-probe"] }
+    "post": { "enabled": true, "modules": ["synthetic-probe", "build-evidence-provider", "architecture-conformance"] }
   },
-  "rules": [],
-  "baselineRefs": []
+  "rules": [
+    "ARCH.PROJECT_REFERENCE", "ARCH.PACKAGE_REFERENCE", "ARCH.TARGET_FRAMEWORK", "ARCH.GRAPH_COMPLETENESS",
+    "ARCH.SOURCE_IMPORT", "ARCH.DISABLED_BRANCH", "ARCH.DECLARATION_PLACEMENT", "ARCH.FORBIDDEN_SYMBOL",
+    "ARCH.MEMBER_PAYLOAD", "ARCH.TYPE_DEPENDENCY", "ARCH.IMPLEMENTATION_LOCATION", "ARCH.ASSEMBLY_PLACEMENT"
+  ],
+  "baselineRefs": ["baselines/none.json"]
 }

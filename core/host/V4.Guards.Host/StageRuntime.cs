@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -165,7 +166,7 @@ internal static class StageRuntime
             if (profile.FormatVersion != 1 || profile.Id != profileId || string.IsNullOrWhiteSpace(profile.Version) ||
                 profile.StageConfiguration is null || !StageNames.All(profile.StageConfiguration.ContainsKey))
                 throw new JsonException("Profile identity or Stage configuration is invalid.");
-            return profile with { Sha256 = HashFile(path) };
+            return profile with { Sha256 = HashFile(path), ProfileDirectory = Path.GetDirectoryName(path) };
         }
         catch (Exception ex) when (ex is JsonException or IOException)
         {
@@ -184,7 +185,9 @@ internal static class StageRuntime
         };
         var moduleResults = new List<ModuleResult>();
         var findings = new List<Finding>();
+        var findingKeys = new HashSet<string>(StringComparer.Ordinal);
         var coverage = new List<Coverage>();
+        var baselineKeys = LoadBaselines(context, authorityHashes);
         var registry = ReadJson<RegistryDocument>(ResolveFileUnder(context.Roots.PackageRoot, "modules/registry.json", "module registry"), "module registry");
         var executedStages = context.AttemptedStages;
         foreach (var executionStage in context.ExecutionStages)
@@ -203,50 +206,186 @@ internal static class StageRuntime
                 if (manifest.Id != moduleId || manifest.Stages is null || !manifest.Stages.Contains(executionStage, StringComparer.Ordinal) || manifest.Adapter is null)
                     throw new StageException(12, "integrity-failure", $"Module does not support {executionStage}: {moduleId}");
                 authorityHashes[$"module.{moduleId}"] = entry.ManifestSha256!;
+                ValidateModuleEnvironment(manifest);
 
                 var adapterPath = ResolveFileUnder(context.Roots.PackageRoot, manifest.Adapter.Path!, $"module {moduleId} adapter");
                 if (!string.Equals(HashFile(adapterPath), manifest.Adapter.Sha256, StringComparison.Ordinal))
                     throw new StageException(12, "integrity-failure", $"Adapter hash drift: {moduleId}");
                 authorityHashes[$"adapter.{moduleId}"] = manifest.Adapter.Sha256!;
 
-                var adapterResult = RunAdapter(context, executionStage, moduleId, manifest, adapterPath);
+                var selection = context.Profile.ModuleSelections?.SingleOrDefault(item => item.Id == moduleId)
+                    ?? throw new StageException(12, "integrity-failure", $"Profile configuration is missing for module: {moduleId}");
+                var adapterResult = RunAdapter(context, executionStage, manifest, adapterPath, selection);
                 var evidenceRelative = $"runs/{context.RunId}/stages/{executionStage}/modules/{moduleId}.json";
                 WriteEvidence(context, evidenceRelative, JsonSerializer.Serialize(adapterResult, JsonOptions) + Environment.NewLine);
                 moduleResults.Add(new ModuleResult(moduleId, adapterResult.Status == "error" ? "error" : adapterResult.Status!, evidenceRelative));
 
-                if (adapterResult.ExitCategory == "prerequisite-missing")
+                if (adapterResult.Coverage is { Length: > 0 }) coverage.AddRange(adapterResult.Coverage);
+                if (adapterResult.Status == "error")
                 {
-                    if (adapterResult.Coverage is { Length: > 0 }) coverage.AddRange(adapterResult.Coverage);
-                    else coverage.Add(new Coverage("SYNTHETIC.INPUT", 0, 1));
-                    return Result(context, "error", "prerequisite-missing", executedStages, authorityHashes, moduleResults, findings, coverage);
+                    if (adapterResult.Coverage is not { Length: > 0 })
+                        coverage.Add(new Coverage(moduleId == "synthetic-probe" ? "SYNTHETIC.INPUT" : $"MODULE.{moduleId.ToUpperInvariant().Replace('-', '_')}", 0, 1));
+                    var category = AdapterErrorCategory(adapterResult.ExitCategory);
+                    AddFinding(findings, findingKeys, baselineKeys,
+                        new Finding($"V4.MODULE.{moduleId.ToUpperInvariant().Replace('-', '_')}", adapterResult.Message ?? $"Module {moduleId} failed.", "runtime", moduleId, "blocking"));
+                    return Result(context, "error", category, executedStages, authorityHashes, moduleResults, findings, coverage);
                 }
                 if (adapterResult.Status is not ("pass" or "fail") || adapterResult.Findings.ValueKind != JsonValueKind.Array)
                     throw new StageException(14, "adapter-failure", $"Adapter result is invalid: {moduleId}");
 
+                var rulePlan = LoadRulePlan(context, executionStage, manifest, selection, authorityHashes);
+                if (rulePlan is not null && ((adapterResult.Status == "pass" && adapterResult.ExitCategory != "success") ||
+                    (adapterResult.Status == "fail" && (adapterResult.ExitCategory != "findings-blocking" || adapterResult.Findings.GetArrayLength() == 0))))
+                    throw new StageException(14, "adapter-failure", $"Adapter status/category pair is invalid: {moduleId}");
                 foreach (var item in adapterResult.Findings.EnumerateArray())
                 {
                     if (item.ValueKind == JsonValueKind.String)
-                        findings.Add(new Finding(item.GetString()!, "input.txt", "source-syntax", moduleId, "blocking"));
+                        AddFinding(findings, findingKeys, baselineKeys, new Finding(item.GetString()!, "input.txt", "source-syntax", moduleId, "blocking"));
                     else
-                        findings.Add(item.Deserialize<Finding>(JsonOptions) ?? throw new StageException(14, "adapter-failure", $"Adapter finding is invalid: {moduleId}"));
+                    {
+                        var finding = item.Deserialize<Finding>(JsonOptions) ?? throw new StageException(14, "adapter-failure", $"Adapter finding is invalid: {moduleId}");
+                        if (rulePlan is not null)
+                        {
+                            if (!rulePlan.TryGetValue(finding.RuleId, out var rule) ||
+                                !(rule.Detectors ?? []).Contains(finding.DetectorId, StringComparer.Ordinal) ||
+                                !(rule.EvidenceKinds ?? []).Contains(finding.EvidenceKind, StringComparer.Ordinal))
+                                throw new StageException(14, "adapter-failure", $"Finding is not authorized by the rule execution plan: {finding.RuleId}");
+                            finding = finding with { Severity = rule.Severity! };
+                        }
+                        AddFinding(findings, findingKeys, baselineKeys, finding);
+                    }
                 }
-                if (adapterResult.Coverage is { Length: > 0 }) coverage.AddRange(adapterResult.Coverage);
-                else coverage.Add(new Coverage("SYNTHETIC.INPUT", 1, 1));
+                if (adapterResult.Coverage is not { Length: > 0 }) coverage.Add(new Coverage("SYNTHETIC.INPUT", 1, 1));
+                if (rulePlan is not null)
+                {
+                    foreach (var rule in rulePlan.Values)
+                    {
+                        var entries = coverage.Where(item => item.ClaimId == rule.ClaimId).ToArray();
+                        var matched = entries.Sum(item => item.Matched);
+                        if (entries.Length != 1 || matched < rule.MinimumMatches)
+                            AddFinding(findings, findingKeys, baselineKeys,
+                                new Finding(rule.RuleId!, $"{rule.ClaimId}: matched {matched}, minimum {rule.MinimumMatches}", "coverage", "v4-host", rule.Severity!));
+                    }
+                }
             }
-            if (findings.Count > 0)
+            if (findings.Any(item => item.Severity == "blocking"))
                 return Result(context, "fail", "findings-blocking", executedStages, authorityHashes, moduleResults, findings, coverage);
         }
-        return Result(context, "pass", "success", executedStages, authorityHashes, moduleResults, findings, coverage);
+        return Result(context, findings.Count > 0 ? "advisory" : "pass", "success", executedStages, authorityHashes, moduleResults, findings, coverage);
     }
 
-    private static AdapterResult RunAdapter(StageContext context, string executionStage, string moduleId, ModuleDocument manifest, string adapterPath)
+    private static HashSet<string> LoadBaselines(StageContext context, Dictionary<string, string> authorityHashes)
+    {
+        var keys = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var reference in context.Profile.BaselineRefs ?? [])
+        {
+            var path = ResolveFileUnder(context.Profile.ProfileDirectory!, reference, $"profile baseline {reference}");
+            var baseline = ReadJson<FindingBaseline>(path, $"profile baseline {reference}");
+            if (baseline.FormatVersion != 1 || baseline.Findings is null)
+                throw new StageException(12, "integrity-failure", $"Profile baseline is invalid: {reference}");
+            authorityHashes[$"baseline.{reference.Replace('/', '.').Replace('\\', '.')}"] = HashFile(path);
+            foreach (var finding in baseline.Findings)
+            {
+                if (string.IsNullOrWhiteSpace(finding.RuleId) || string.IsNullOrWhiteSpace(finding.Subject) ||
+                    string.IsNullOrWhiteSpace(finding.EvidenceKind) || string.IsNullOrWhiteSpace(finding.DetectorId) ||
+                    !keys.Add(FindingKey(finding.RuleId, finding.Subject, finding.EvidenceKind, finding.DetectorId)))
+                    throw new StageException(12, "integrity-failure", $"Profile baseline has an invalid or duplicate finding: {reference}");
+            }
+        }
+        return keys;
+    }
+
+    private static Dictionary<string, RulePlanEntry>? LoadRulePlan(StageContext context, string stage, ModuleDocument manifest,
+        ModuleSelection selection, Dictionary<string, string> authorityHashes)
+    {
+        var authority = manifest.Authorities?.SingleOrDefault(item => item.Id == "rule-execution-plan");
+        if (authority is null) return null;
+        var path = ResolveFileUnder(context.Roots.PackageRoot, authority.Path!, $"module {manifest.Id} rule execution plan");
+        if (!string.Equals(HashFile(path), authority.Sha256, StringComparison.Ordinal))
+            throw new StageException(12, "integrity-failure", $"Rule execution plan hash drift: {manifest.Id}");
+        authorityHashes[$"authority.{manifest.Id}.rule-execution-plan"] = authority.Sha256!;
+        var plan = ReadJson<RuleExecutionPlan>(path, $"module {manifest.Id} rule execution plan");
+        if (plan.FormatVersion != 1 || plan.ModuleId != manifest.Id || plan.Rules is null)
+            throw new StageException(12, "integrity-failure", $"Rule execution plan identity is invalid: {manifest.Id}");
+        var enabledClaims = new HashSet<string>(StringComparer.Ordinal);
+        if (selection.Config.TryGetProperty("enabledClaims", out var configuredClaims) && configuredClaims.ValueKind == JsonValueKind.Array)
+            foreach (var claim in configuredClaims.EnumerateArray()) if (claim.ValueKind == JsonValueKind.String) enabledClaims.Add(claim.GetString()!);
+        var selectedRules = new HashSet<string>(context.Profile.Rules ?? [], StringComparer.Ordinal);
+        var result = new Dictionary<string, RulePlanEntry>(StringComparer.Ordinal);
+        foreach (var rule in plan.Rules.Where(item => item.Stage == stage && enabledClaims.Contains(item.ClaimId!) && selectedRules.Contains(item.RuleId!)))
+        {
+            if (string.IsNullOrWhiteSpace(rule.RuleId) || string.IsNullOrWhiteSpace(rule.ClaimId) || rule.MinimumMatches < 1 ||
+                string.IsNullOrWhiteSpace(rule.Severity) || !result.TryAdd(rule.RuleId, rule))
+                throw new StageException(12, "integrity-failure", $"Rule execution plan has an invalid or duplicate rule: {manifest.Id}");
+        }
+        if (enabledClaims.Any(claim => plan.Rules.Any(rule => rule.Stage == stage && rule.ClaimId == claim) &&
+            !result.Values.Any(rule => rule.ClaimId == claim)))
+            throw new StageException(12, "integrity-failure", $"Profile rules do not select every enabled {stage} claim: {manifest.Id}");
+        return result;
+    }
+
+    private static void AddFinding(List<Finding> findings, HashSet<string> findingKeys, HashSet<string> baselineKeys, Finding finding)
+    {
+        if (string.IsNullOrWhiteSpace(finding.RuleId) || string.IsNullOrWhiteSpace(finding.Subject) ||
+            string.IsNullOrWhiteSpace(finding.EvidenceKind) || string.IsNullOrWhiteSpace(finding.DetectorId))
+            throw new StageException(14, "adapter-failure", "A finding has an incomplete layered identity.");
+        var key = FindingKey(finding.RuleId, finding.Subject, finding.EvidenceKind, finding.DetectorId);
+        if (!findingKeys.Add(key)) return;
+        findings.Add(baselineKeys.Contains(key) ? finding with { Severity = "advisory" } : finding);
+    }
+
+    private static string FindingKey(string ruleId, string subject, string evidenceKind, string detectorId) =>
+        $"{ruleId}\n{subject}\n{evidenceKind}\n{detectorId}";
+
+    private static string AdapterErrorCategory(string? category) => category switch
+    {
+        "invalid-input" or "unsafe-path" or "integrity-failure" or "capability-denied" or "adapter-failure" or
+        "prerequisite-missing" or "state-conflict" or "internal-error" => category,
+        _ => "adapter-failure"
+    };
+
+    private static void ValidateModuleEnvironment(ModuleDocument manifest)
+    {
+        var platform = CurrentPlatform();
+        if (manifest.SupportedPlatforms is null || !manifest.SupportedPlatforms.Contains(platform, StringComparer.Ordinal))
+            throw new StageException(15, "prerequisite-missing", $"Module {manifest.Id} does not support platform {platform}.");
+        foreach (var prerequisite in manifest.Prerequisites ?? [])
+        {
+            if (string.IsNullOrWhiteSpace(prerequisite.Runtime) || FindExecutable(prerequisite.Runtime) is null)
+                throw new StageException(15, "prerequisite-missing", $"Module {manifest.Id} runtime is unavailable: {prerequisite.Runtime}");
+        }
+    }
+
+    private static string CurrentPlatform()
+    {
+        var architecture = RuntimeInformation.OSArchitecture switch
+        {
+            Architecture.X64 => "x64",
+            Architecture.Arm64 => "arm64",
+            _ => RuntimeInformation.OSArchitecture.ToString().ToLowerInvariant()
+        };
+        var system = OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsLinux() ? "linux" : OperatingSystem.IsMacOS() ? "osx" : "unknown";
+        return $"{system}-{architecture}";
+    }
+
+    private static string? FindExecutable(string runtime)
+    {
+        var name = OperatingSystem.IsWindows() ? $"{runtime}.exe" : runtime;
+        foreach (var directory in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator))
+        {
+            if (string.IsNullOrWhiteSpace(directory)) continue;
+            var candidate = Path.Combine(directory.Trim('"'), name);
+            if (File.Exists(candidate)) return Path.GetFullPath(candidate);
+        }
+        return null;
+    }
+
+    private static AdapterResult RunAdapter(StageContext context, string executionStage, ModuleDocument manifest, string adapterPath, ModuleSelection selection)
     {
         if (manifest.Adapter?.Kind != "powershell" || manifest.Capabilities is null || manifest.Capabilities.Network ||
             !(manifest.Capabilities.Processes ?? []).Contains("pwsh", StringComparer.Ordinal) || manifest.Capabilities.TimeoutSeconds < 1)
             throw new StageException(13, "capability-denied", $"Module capability grant is not executable: {manifest.Id}");
         var start = PowerShellStart(FindPowerShell(), adapterPath);
-        var selection = context.Profile.ModuleSelections?.SingleOrDefault(item => item.Id == moduleId)
-            ?? throw new StageException(12, "integrity-failure", $"Profile configuration is missing for module: {moduleId}");
         var input = JsonSerializer.Serialize(new
         {
             formatVersion = 1,
@@ -401,15 +540,25 @@ internal static class StageRuntime
     private sealed record StageContext(string RunId, string Stage, string[] ExecutionStages, List<string> AttemptedStages, string ProjectId, StageRoots Roots, PackageValidation Package, ProfileDocument Profile);
     private sealed record ProcessResult(int ExitCode, string Output, string Error);
     private sealed record PackageValidation(int FormatVersion, string? Status, string PackageHash, string[]? Profiles, string[]? Modules);
-    private sealed record ProfileDocument(int FormatVersion, string Id, string Version, ModuleSelection[]? ModuleSelections, Dictionary<string, StageConfiguration>? StageConfiguration, string? Sha256 = null);
+    private sealed record ProfileDocument(int FormatVersion, string Id, string Version, ModuleSelection[]? ModuleSelections,
+        Dictionary<string, StageConfiguration>? StageConfiguration, string[]? Rules, string[]? BaselineRefs,
+        string? Sha256 = null, string? ProfileDirectory = null);
     private sealed record ModuleSelection(string Id, JsonElement Config);
     private sealed record StageConfiguration(bool Enabled, string[]? Modules);
     private sealed record RegistryDocument(int FormatVersion, RegistryEntry[]? Modules);
     private sealed record RegistryEntry(string Id, string? ManifestPath, string? ManifestSha256);
-    private sealed record ModuleDocument(string? Id, AdapterDocument? Adapter, string[]? Stages, CapabilityDocument? Capabilities);
+    private sealed record ModuleDocument(string? Id, string[]? SupportedPlatforms, PrerequisiteDocument[]? Prerequisites,
+        AdapterDocument? Adapter, string[]? Stages, CapabilityDocument? Capabilities, AuthorityDocument[]? Authorities);
     private sealed record AdapterDocument(string? Kind, string? Path, string? Sha256);
+    private sealed record PrerequisiteDocument(string? Runtime, string? VersionRange);
+    private sealed record AuthorityDocument(string? Id, string? Path, string? Sha256);
     private sealed record CapabilityDocument(string[]? Processes, bool Network, int TimeoutSeconds);
     private sealed record AdapterResult(int FormatVersion, string? Status, string? ExitCategory, string? Message, JsonElement Findings, Coverage[]? Coverage);
+    private sealed record RuleExecutionPlan(int FormatVersion, string? ModuleId, string? MatrixSha256, RulePlanEntry[]? Rules);
+    private sealed record RulePlanEntry(string? RuleId, string? ClaimId, string? Stage, string[]? Detectors,
+        string[]? EvidenceKinds, string? Severity, string? Baseline, int MinimumMatches);
+    private sealed record FindingBaseline(int FormatVersion, BaselineFinding[]? Findings);
+    private sealed record BaselineFinding(string? RuleId, string? Subject, string? EvidenceKind, string? DetectorId);
     private sealed record StageRoots(string PackageRoot, string TargetRoot, string StateRoot, string EvidenceRoot);
     private sealed record ProfileResult(string Id, string Version, string Sha256);
     private sealed record ModuleResult(string ModuleId, string Status, string EvidencePath);

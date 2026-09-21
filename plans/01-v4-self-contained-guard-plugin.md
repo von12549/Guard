@@ -177,16 +177,16 @@ must not embed repository-relative IFX paths.
   assembly/namespace-placement claims; require explicit assemblies and non-zero matches. (`20260922-v4-p4d-archunitnet-adapter`)
 - [x] **V4-P4.6** Implement the isolated Build Evidence Provider and bind its manifest, identities, hashes,
   target frameworks and freshness to the Post run. (`20260922-v4-p4e-build-evidence-provider`)
-- [ ] **V4-P4.7** Implement the composite rule execution plan, layered finding identity, baseline, severity,
+- [x] **V4-P4.7** Implement the composite rule execution plan, layered finding identity, baseline, severity,
   coverage and aggregate verdict in the V4 host.
-- [ ] **V4-P4.8** Exercise module selection, configuration, result aggregation and deliberate violating
+- [x] **V4-P4.8** Exercise module selection, configuration, result aggregation and deliberate violating
   fixtures through `synthetic_profile`.
-- [ ] **V4-P4.9** Compare V4 and the frozen V3 reference by architecture claim without making V3/LayerGuard
+- [x] **V4-P4.9** Compare V4 and the frozen V3 reference by architecture claim without making V3/LayerGuard
   a V4 runtime dependency.
-- [ ] **V4-P4.10** Prove module failure, stale/missing/zero-match evidence, missing runtime and unsupported
+- [x] **V4-P4.10** Prove module failure, stale/missing/zero-match evidence, missing runtime and unsupported
   platform are structured blocking outcomes.
 
-- [ ] **V4-P4.GATE** Generic modules contain no IFX identifier or V3/V3_ifx runtime path; every blocking
+- [x] **V4-P4.GATE** Generic modules contain no IFX identifier or V3/V3_ifx runtime path; every blocking
   architecture claim has clean, violating and missing-input evidence, and in-place/separated execution
   produces equivalent verdicts.
 

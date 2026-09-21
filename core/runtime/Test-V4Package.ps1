@@ -147,6 +147,10 @@ foreach ($directory in @(Get-ChildItem -LiteralPath $profilesRoot -Directory -Fo
             if (@($modules[$moduleId].stages) -notcontains $stageName) { Fail "module $moduleId does not support stage $stageName" }
         }
     }
+    foreach ($baselineRef in @($profile.baselineRefs)) {
+        $baselinePath = Resolve-AuthorityPath $directory.FullName ([string]$baselineRef) "profile $($profile.id) baseline" File
+        Assert-Schema $baselinePath (Join-Path $contracts 'finding-baseline.schema.json') "profile $($profile.id) baseline"
+    }
     $profiles[$profile.id] = $profile
 }
 

@@ -10,6 +10,7 @@ $moduleRoot = Join-Path $packageRoot 'modules/architecture-conformance'
 $matrixPath = Join-Path $moduleRoot 'capability-matrix.json'
 $planPath = Join-Path $moduleRoot 'rule-execution-plan.json'
 $manifestPath = Join-Path $moduleRoot 'module.json'
+$parityPath = Join-Path $PSScriptRoot 'reference/v3-architecture-claims.json'
 $failures = [Collections.Generic.List[string]]::new()
 
 function Hash([string] $Path) { (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant() }
@@ -67,8 +68,23 @@ if ($genericText -match '(?i)(?:\bIFX\b|\bV3(?:_ifx)?\b|docs/guards/)') { $failu
 
 $syntheticProfile = Read (Join-Path $packageRoot 'profiles/catalog/synthetic_profile/profile.json')
 if (@($syntheticProfile.moduleSelections | Where-Object id -CEQ 'architecture-conformance').Count -ne 1 -or
-    @($syntheticProfile.stageConfiguration.pre.modules) -notcontains 'architecture-conformance') {
-    $failures.Add('synthetic profile does not select Architecture Conformance for Pre')
+    @($syntheticProfile.moduleSelections | Where-Object id -CEQ 'build-evidence-provider').Count -ne 1 -or
+    (@($syntheticProfile.stageConfiguration.post.modules) -join ',') -cne 'synthetic-probe,build-evidence-provider,architecture-conformance' -or
+    (@($syntheticProfile.rules | Sort-Object) -join ',') -cne (@($matrixClaims) -join ',') -or
+    (@($syntheticProfile.baselineRefs) -join ',') -cne 'baselines/none.json') {
+    $failures.Add('synthetic profile does not select the complete composite Architecture Conformance path')
+}
+
+$parity = Read $parityPath
+if ($parity.formatVersion -ne 1 -or $parity.runtimeDependencyAllowed -ne $false -or
+    (@($parity.claims.claimId | Sort-Object) -join ',') -cne ($matrixClaims -join ',')) { $failures.Add('frozen reference does not map all twelve claims') }
+foreach ($claim in $claims) {
+    $reference = @($parity.claims | Where-Object claimId -CEQ $claim.claimId)
+    if ($reference.Count -ne 1 -or $reference[0].parityRule -cne $claim.parityRule) { $failures.Add("frozen reference parity drift: $($claim.claimId)") }
+}
+foreach ($source in $parity.sources) {
+    $sourcePath = Join-Path $repositoryRoot $source.path
+    if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf) -or (Hash $sourcePath) -cne $source.sha256) { $failures.Add("frozen reference source drift: $($source.path)") }
 }
 
 $registry = Read (Join-Path $packageRoot 'modules/registry.json')

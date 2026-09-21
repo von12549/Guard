@@ -129,10 +129,16 @@ Expect-Failure 'adapter-hash-drift' {
     [IO.File]::AppendAllText((Join-Path $copy 'modules/synthetic-probe/adapter.ps1'), "`n# drift`n", [Text.UTF8Encoding]::new($false))
 } 'adapter hash drift'
 
+Expect-Failure 'invalid-baseline' {
+    param($copy)
+    $path = Join-Path $copy 'profiles/catalog/synthetic_profile/baselines/none.json'; $json = Get-Content -Raw $path | ConvertFrom-Json -AsHashtable
+    $json.unexpected = $true; Write-Json $path $json
+} 'profile synthetic_profile baseline does not satisfy'
+
 foreach ($path in @('docs/guards/v4/state/probe.json','docs/guards/v4/.work/probe.json','docs/guards/v4/artifacts/probe.json')) {
     & git -C $repoRoot check-ignore -q -- $path
     if ($LASTEXITCODE -ne 0) { $failures.Add("mutable path is not ignored: $path") }
 }
 
 if ($failures.Count -gt 0) { throw ($failures -join "`n") }
-Write-Host 'V4 P1A package tests passed: schema-valid authorities, empty package, mutable exclusion and seven fail-closed negatives.'
+Write-Host 'V4 P1A package tests passed: schema-valid authorities, empty package, mutable exclusion and eight fail-closed negatives.'

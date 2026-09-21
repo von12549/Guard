@@ -19,7 +19,10 @@ function New-Roots([string] $Name, [string] $ProjectXml) {
     $root=Join-Path $runRoot $Name; $target=Join-Path $root 'target'; $state=Join-Path $root 'state'; $evidence=Join-Path $root 'evidence'
     foreach($path in @($target,$state,$evidence)){ New-Item -ItemType Directory -Path $path -Force | Out-Null }
     [IO.File]::WriteAllText((Join-Path $target 'input.txt'),"synthetic-ok`n",[Text.UTF8Encoding]::new($false))
-    if($ProjectXml){ [IO.File]::WriteAllText((Join-Path $target 'Sample.csproj'),$ProjectXml,[Text.UTF8Encoding]::new($false)) }
+    if($ProjectXml){
+        [IO.File]::WriteAllText((Join-Path $target 'Sample.csproj'),$ProjectXml,[Text.UTF8Encoding]::new($false))
+        [IO.File]::WriteAllText((Join-Path $target 'Sample.cs'),'namespace Synthetic.ProjectModel { public sealed class Sample { } }',[Text.UTF8Encoding]::new($false))
+    }
     [pscustomobject]@{Target=$target;State=$state;Evidence=$evidence;Before=(Hash-Tree $target)}
 }
 function Run($Roots) {
@@ -44,7 +47,8 @@ try{& dotnet restore $project --configfile (Join-Path $buildRoot 'NuGet.config')
 $clean=New-Roots 'clean' '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup></Project>'
 $cleanResult=Result 'clean' $clean (Run $clean) 0 'success'
 if($null -ne $cleanResult){
-    $claims=@($cleanResult.coverage|Where-Object claimId -like 'ARCH.*')
+    $projectClaims=@('ARCH.PROJECT_REFERENCE','ARCH.PACKAGE_REFERENCE','ARCH.TARGET_FRAMEWORK','ARCH.GRAPH_COMPLETENESS')
+    $claims=@($cleanResult.coverage|Where-Object claimId -in $projectClaims)
     if(@($cleanResult.moduleResults).Count -ne 2 -or $claims.Count -ne 4 -or @($claims|Where-Object matched -lt 1).Count -ne 0){$failures.Add('clean result lost module aggregation or non-zero Project Model coverage')}
 }
 

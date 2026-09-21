@@ -27,7 +27,11 @@ function New-Roots([string] $Name, [string] $Content = 'synthetic-ok', [switch] 
     $target = Join-Path $root 'target'; $state = Join-Path $root 'state'; $evidence = Join-Path $root 'evidence'
     foreach ($path in @($target,$state,$evidence)) { New-Item -ItemType Directory -Path $path -Force | Out-Null }
     if (-not $NoInput) { [IO.File]::WriteAllText((Join-Path $target 'input.txt'), "$Content`n", [Text.UTF8Encoding]::new($false)) }
-    [IO.File]::WriteAllText((Join-Path $target 'Synthetic.csproj'), '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup></Project>', [Text.UTF8Encoding]::new($false))
+    foreach ($directory in @('Contracts','Application')) { New-Item -ItemType Directory -Path (Join-Path $target $directory) -Force | Out-Null }
+    [IO.File]::WriteAllText((Join-Path $target 'Contracts/Synthetic.Contracts.csproj'), '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>Synthetic.Contracts</AssemblyName></PropertyGroup></Project>', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $target 'Contracts/Contracts.cs'), 'namespace Synthetic.Contracts { public interface IPort { } } namespace Synthetic.ForbiddenTypes { public sealed class ForbiddenType { } } namespace Synthetic.ForbiddenApi { public static class Calls { public static void Use() { } } } namespace Synthetic.ForbiddenPayload { public sealed class Payload { } } namespace Synthetic.ForbiddenImport { public sealed class Marker { } }', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $target 'Application/Synthetic.Application.csproj'), '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>Synthetic.Application</AssemblyName></PropertyGroup><ItemGroup><ProjectReference Include="../Contracts/Synthetic.Contracts.csproj" /></ItemGroup></Project>', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $target 'Application/Application.cs'), 'namespace Synthetic.Application.Allowed { public sealed class Port : Synthetic.Contracts.IPort { } }', [Text.UTF8Encoding]::new($false))
     [pscustomobject]@{ Root = $root; Target = $target; State = $state; Evidence = $evidence; TargetHash = (Hash-Tree $target) }
 }
 
@@ -76,7 +80,7 @@ $packageBefore = Hash-Tree $packageRoot
 $direct = New-Roots 'direct'
 foreach ($stage in @('bootstrap','analysis','pre','post')) {
     $result = Assert-Run "direct $stage" $direct (Invoke-Stage $direct $stage) 0 'success'
-    $expectedModules = if ($stage -eq 'pre') { 2 } else { 1 }
+    $expectedModules = if ($stage -eq 'pre') { 2 } elseif ($stage -eq 'post') { 3 } else { 1 }
     if ($null -ne $result -and ($result.stage -cne $stage -or $result.status -cne 'pass' -or @($result.moduleResults).Count -ne $expectedModules)) {
         $failures.Add("direct ${stage}: uniform result identity is invalid")
     }

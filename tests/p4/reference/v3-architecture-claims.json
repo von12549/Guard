@@ -1,0 +1,23 @@
+{
+  "formatVersion": 1,
+  "frozenAtCommit": "8955be86cb5b8e268ccc1307a891dab35b4f36f0",
+  "runtimeDependencyAllowed": false,
+  "sources": [
+    { "path": "docs/guards/V3_ifx/stages/post/policy/layerguard.json", "sha256": "b89172e667a3e5c51b4d065cc325a99ea293aa2696a548980c8125d9c0323fb5" },
+    { "path": "docs/guards/V3_ifx/stages/post/gates/architecture/dotnet/src/LayerGuard.Ifx/IfxArchitectureConformance.cs", "sha256": "78de8f459deb47b032faf2b217a53b94c241cd4534713150c65fff464b4d8c45" }
+  ],
+  "claims": [
+    { "claimId": "ARCH.PROJECT_REFERENCE", "referenceSemantics": "forbidden declared project edge", "parityRule": "Same forbidden edge identity and blocking category." },
+    { "claimId": "ARCH.PACKAGE_REFERENCE", "referenceSemantics": "forbidden declared package edge", "parityRule": "Same forbidden package identity and blocking category." },
+    { "claimId": "ARCH.TARGET_FRAMEWORK", "referenceSemantics": "disallowed declared target framework", "parityRule": "Same declared framework identity and blocking category." },
+    { "claimId": "ARCH.GRAPH_COMPLETENESS", "referenceSemantics": "missing or unresolved declared project", "parityRule": "Same missing or unresolved project identity and blocking category." },
+    { "claimId": "ARCH.SOURCE_IMPORT", "referenceSemantics": "forbidden source import", "parityRule": "Same import subject and blocking category." },
+    { "claimId": "ARCH.DISABLED_BRANCH", "referenceSemantics": "disabled source branch", "parityRule": "Same disabled branch location and blocking category." },
+    { "claimId": "ARCH.DECLARATION_PLACEMENT", "referenceSemantics": "declaration in forbidden namespace", "parityRule": "Same declaration identity and blocking category." },
+    { "claimId": "ARCH.FORBIDDEN_SYMBOL", "referenceSemantics": "bound forbidden symbol use", "parityRule": "Same bound symbol identity and blocking category." },
+    { "claimId": "ARCH.MEMBER_PAYLOAD", "referenceSemantics": "forbidden public member payload", "parityRule": "Same member/payload identity and blocking category." },
+    { "claimId": "ARCH.TYPE_DEPENDENCY", "referenceSemantics": "compiled forbidden type dependency", "parityRule": "Same source/forbidden type pair and non-zero blocking evidence." },
+    { "claimId": "ARCH.IMPLEMENTATION_LOCATION", "referenceSemantics": "compiled implementation outside allowed location", "parityRule": "Same interface/implementation pair and non-zero blocking evidence." },
+    { "claimId": "ARCH.ASSEMBLY_PLACEMENT", "referenceSemantics": "compiled type outside allowed assembly namespace", "parityRule": "Same assembly/namespace subject and non-zero blocking evidence." }
+  ]
+}
