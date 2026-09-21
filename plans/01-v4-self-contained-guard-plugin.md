@@ -1,8 +1,8 @@
 # V4 v1 — self-contained guard plugin
 
-Status: `DRAFT — architecture planning only; implementation not authorized`
+Status: `IMPLEMENTATION — local V4 development authorized; workflow/ruleset/remote activation not authorized`
 
-Intended base: future `codex/v4-development-base`
+Development base: local `codex/v4-development-base`
 
 Decision authority: `00-architecture-decision-set.md`
 Deferred scope: `TODO.md`
@@ -104,17 +104,21 @@ must not embed repository-relative IFX paths.
   `core/contracts/cli-contract.json`; P0A `spike.run` remains explicitly experimental.
 - [x] **V4-P0.5** Freeze the Architecture Conformance capability-matrix and rule-execution-plan schemas.
   Evidence: P0B positive, zero-match and missing-fixture contract tests.
-- [ ] **V4-P0.6** Prepare the exact proposal for `codex/v4-development-base`, the V4-only workflow and the finite
-  V3 genesis-bootstrap/exit boundary; do not create or activate either without explicit authorization.
+- [x] **V4-P0.6** Prepare the exact proposal for `codex/v4-development-base`, the V4-only workflow and the finite
+  V3 genesis-bootstrap/exit boundary. Evidence: P0C transition-state proposal, inactive workflow specimen and
+  proposal test. The local branch was explicitly authorized; workflow/ruleset/remote activation was not performed.
 - [x] **V4-P0.7** Record recovery point and current V3/V3_ifx non-interference checks. Recovery seed:
   `20c93d521728746e1c227654b32219d94fcdf6bb`; current V3 validation remains required before checkpoint commit.
 - [x] **V4-P0.8** Define the genesis acceptance record that binds the reviewed seed commit, package/contract hashes,
   deterministic synthetic tests and recovery instructions without allowing the candidate V4 host to trust itself.
   Evidence: P0B `genesis-record.schema.json` and candidate-self-acceptance negative test.
 
-- [ ] **V4-P0.GATE** All v1 decisions are `ACCEPTED`; the host spike demonstrates structured results,
+- [x] **V4-P0.GATE** All v1 decisions are `ACCEPTED`; the host spike demonstrates structured results,
   path safety, capability denial and equivalent in-place/separated-target verdicts; the finite V3 bootstrap and
   the exact transition to base-owned V4 governance are reviewable and fail closed.
+  Evidence: P0A host boundary suite, P0B contract suite and P0C genesis/autonomy proposal suite. Completing this
+  architecture gate does not activate V4 governance; autonomy begins only after the separately authorized P6
+  workflow/ruleset transaction.
 
 ### V4-P1 — Plugin skeleton and authority checker
 
