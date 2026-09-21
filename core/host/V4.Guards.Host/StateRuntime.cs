@@ -47,6 +47,26 @@ internal static class StateRuntime
         RequireOnly(values, "package-root", "target-root", "state-root", "evidence-root", "profile");
         var roots = ResolveRoots(values, true);
         var profile = Required(values, "profile");
+        var outcome = BindResolved(roots, profile);
+        return new { formatVersion = 1, status = "pass", command = "state.bind", outcome.ProjectId, outcome.Created, recoveredTransactions = outcome.Recovered, roots };
+    }
+
+    internal static StageBinding BindForStage(string packageRoot, string targetRoot, string stateRoot, string evidenceRoot, string profile)
+    {
+        var values = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["package-root"] = packageRoot,
+            ["target-root"] = targetRoot,
+            ["state-root"] = stateRoot,
+            ["evidence-root"] = evidenceRoot
+        };
+        var roots = ResolveRoots(values, true);
+        var outcome = BindResolved(roots, profile);
+        return new StageBinding(outcome.ProjectId, roots.PackageRoot, roots.TargetRoot!, roots.StateRoot, roots.EvidenceRoot);
+    }
+
+    private static BindingOutcome BindResolved(StateRoots roots, string profile)
+    {
         if (!Regex.IsMatch(profile, "^[a-z][a-z0-9_-]*$", RegexOptions.CultureInvariant))
             throw new StateException(10, "invalid-input", "Profile ID is invalid.");
 
@@ -67,12 +87,12 @@ internal static class StateRuntime
             SaveState(roots.StateRoot, state);
             created = true;
         }
-        else if (!PathEquals(existing.TargetCanonicalPath, roots.TargetRoot!) || existing.TargetIdentityHash != identityHash)
+        else if (!PathEquals(existing.TargetCanonicalPath, roots.TargetRoot!) || existing.TargetIdentityHash != identityHash || existing.ProfileId != profile)
         {
-            throw new StateException(17, "state-conflict", "Project identity collision or canonical target drift.");
+            throw new StateException(17, "state-conflict", "Project identity, canonical target or profile binding drift.");
         }
 
-        return new { formatVersion = 1, status = "pass", command = "state.bind", projectId, created, recoveredTransactions = recovered, roots };
+        return new BindingOutcome(projectId, created, recovered);
     }
 
     private static object Put(Dictionary<string, string> values)
@@ -438,6 +458,8 @@ internal static class StateRuntime
         return recovered;
     }
 
+    internal sealed record StageBinding(string ProjectId, string PackageRoot, string TargetRoot, string StateRoot, string EvidenceRoot);
+    private sealed record BindingOutcome(string ProjectId, bool Created, int Recovered);
     private sealed record StateRoots(string PackageRoot, string? TargetRoot, string StateRoot, string EvidenceRoot);
     private sealed record StateDocument(int FormatVersion, List<ProjectInstance> ProjectInstances, List<TransactionSummary> Transactions, List<ResetReceipt> ResetReceipts);
     private sealed record ProjectInstance(string Id, string TargetCanonicalPath, string TargetIdentityHash, string ProfileId, string[] ClaimedStatePaths, string[] ClaimedEvidencePaths);
@@ -447,7 +469,7 @@ internal static class StateRuntime
     private sealed record ResetManifestCore(int FormatVersion, string Mode, string? ProjectId, List<ResetEntry> Entries, string BeforeHash, string ExpectedAfterHash);
     private sealed record ResetManifest(int FormatVersion, string Mode, string? ProjectId, List<ResetEntry> Entries, string BeforeHash, string ExpectedAfterHash, string ManifestHash);
     private sealed record TransactionJournal(int FormatVersion, string Id, string Kind, string Status, string? ProjectId, string DestinationPath, string TempPath, string PayloadHash);
-    private sealed class StateException(int code, string category, string message) : Exception(message)
+    internal sealed class StateException(int code, string category, string message) : Exception(message)
     {
         public int Code { get; } = code;
         public string Category { get; } = category;

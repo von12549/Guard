@@ -14,10 +14,10 @@
     }
   ],
   "stageConfiguration": {
-    "bootstrap": { "enabled": false, "modules": [] },
+    "bootstrap": { "enabled": true, "modules": ["synthetic-probe"] },
     "analysis": { "enabled": true, "modules": ["synthetic-probe"] },
-    "pre": { "enabled": false, "modules": [] },
-    "post": { "enabled": false, "modules": [] }
+    "pre": { "enabled": true, "modules": ["synthetic-probe"] },
+    "post": { "enabled": true, "modules": ["synthetic-probe"] }
   },
   "rules": [],
   "baselineRefs": []

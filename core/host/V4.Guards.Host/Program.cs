@@ -18,6 +18,7 @@ internal static class Program
     public static int Main(string[] args)
     {
         if (args.Length > 0 && args[0] is "state" or "reset") return StateRuntime.Execute(args);
+        if (args.Length > 0 && args[0] == "stage") return StageRuntime.Execute(args);
 
         RootSet? roots = null;
         string? adapterHash = null;
@@ -154,7 +155,7 @@ internal static class Program
         var adapter = manifest.Adapter;
         if (manifest.FormatVersion != 1 || manifest.Id != moduleId || adapter?.Kind != "powershell" ||
             string.IsNullOrWhiteSpace(adapter.Path) || string.IsNullOrWhiteSpace(adapter.Sha256) ||
-            manifest.Stages is null || !manifest.Stages.SequenceEqual(new[] { "analysis" }, StringComparer.Ordinal))
+            manifest.Stages is null || !manifest.Stages.Contains("analysis", StringComparer.Ordinal))
             throw new SpikeException(ExitCode.InvalidInput, "invalid-input", "Module identity, adapter kind or stage is invalid.");
 
         var capabilities = manifest.Capabilities;

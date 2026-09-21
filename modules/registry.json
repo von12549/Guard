@@ -4,7 +4,7 @@
     {
       "id": "synthetic-probe",
       "manifestPath": "modules/synthetic-probe/module.json",
-      "manifestSha256": "be52b6902ac48e5d4c51c17ae385f545e7ebe525f09b069a7b25bbd8a6b7b9f4",
+      "manifestSha256": "742d3f39f6e55a0b408d5e446ee351b3a874bcaf4d9a15f3cfa2a7c73c7c5262",
       "allowedCapabilities": {
         "readRoots": ["TargetRoot"],
         "writeRoots": [],
