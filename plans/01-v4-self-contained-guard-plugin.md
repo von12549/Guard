@@ -142,14 +142,18 @@ must not embed repository-relative IFX paths.
   deterministic, idempotent multi-target binding and overlap/path negative tests.
 - [x] **V4-P2.2** Implement atomic state writes and incomplete-transaction recovery. Evidence: P2A
   prepared/applied journals, same-directory replacement, recovery positive and hash-drift refusal.
-- [ ] **V4-P2.3** Implement project-reset and factory-reset Preview/Apply.
-- [ ] **V4-P2.4** Keep project reset and factory reset inside V4-owned mutable roots; target mutation uses a separate
-  receipted Preview/Apply contract.
-- [ ] **V4-P2.5** Refuse authority deletion, target-root deletion, symlink/reparse traversal, worktree/gitlink deletion
-  and unclaimed paths.
-- [ ] **V4-P2.6** Record before/after manifests and prove reset idempotency.
+- [x] **V4-P2.3** Implement project-reset and factory-reset Preview/Apply. Evidence: P2B stable reset
+  commands, strict reset manifest and scoped positive tests.
+- [x] **V4-P2.4** Keep project reset and factory reset inside V4-owned mutable roots; target mutation uses a separate
+  receipted Preview/Apply contract. Evidence: P2B claim-only deletion and PackageRoot/TargetRoot invariance.
+- [x] **V4-P2.5** Refuse authority deletion, target-root deletion, symlink/reparse traversal, worktree/gitlink deletion
+  and unclaimed paths. Evidence: P2B authority-overlap, `.git`, junction/symlink, race and unclaimed-path negatives.
+- [x] **V4-P2.6** Record before/after manifests and prove reset idempotency. Evidence: P2B accepted-hash receipts,
+  state-schema validation and repeated project/factory Apply tests.
 
-- [ ] **V4-P2.GATE** Destructive negative suite passes on Linux and Windows; reset cannot escape V4 mutable roots.
+- [x] **V4-P2.GATE** Destructive negative suite passes on Linux and Windows; reset cannot escape V4 mutable roots.
+  Evidence: the same P2A/P2B suites pass locally on Windows and in the .NET 10 + PowerShell 7.5 Ubuntu
+  validation container, exercising Windows junction and Linux symbolic-link refusal respectively.
 
 ### V4-P3 — Independent Stage runtime
 

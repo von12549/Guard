@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/reset-manifest.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "mode", "projectId", "entries", "beforeHash", "expectedAfterHash", "manifestHash"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "mode": { "enum": ["project", "factory"] },
+    "projectId": { "type": ["string", "null"], "pattern": "^[a-f0-9]{32}$" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["root", "path", "type", "sha256"],
+        "properties": {
+          "root": { "enum": ["state", "evidence"] },
+          "path": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" },
+          "type": { "enum": ["file", "directory"] },
+          "sha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" }
+        }
+      }
+    },
+    "beforeHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "expectedAfterHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "manifestHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

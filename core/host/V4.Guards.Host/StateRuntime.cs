@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace V4.Guards.Host;
@@ -11,18 +10,17 @@ internal static class StateRuntime
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        WriteIndented = true
     };
 
     public static int Execute(string[] args)
     {
         try
         {
-            if (args.Length < 2 || args[0] != "state")
-                throw new StateException(10, "invalid-input", "Expected a state command.");
+            if (args.Length < 2 || args[0] is not ("state" or "reset"))
+                throw new StateException(10, "invalid-input", "Expected a state or reset command.");
             var values = ParsePairs(args, 2);
-            var result = args[1] switch
+            var result = args[0] == "reset" ? Reset(args[1], values) : args[1] switch
             {
                 "bind" => Bind(values),
                 "put" => Put(values),
@@ -106,6 +104,148 @@ internal static class StateRuntime
         return new { formatVersion = 1, status = "pass", command = "state.recover", recoveredTransactions = recovered };
     }
 
+    private static object Reset(string scope, Dictionary<string, string> values)
+    {
+        if (scope is not ("project" or "factory")) throw new StateException(10, "invalid-input", "Reset scope must be project or factory.");
+        RejectUnknown(values, "mode", "package-root", "state-root", "evidence-root", "project", "accept-manifest-hash");
+        var mode = Required(values, "mode");
+        if (mode is not ("preview" or "apply")) throw new StateException(10, "invalid-input", "Reset mode must be preview or apply.");
+        var roots = ResolveRoots(values, false);
+        RecoverPrepared(roots.StateRoot);
+        var state = LoadState(roots.StateRoot);
+        var projectId = scope == "project" ? Required(values, "project") : null;
+        if (projectId is not null && !Regex.IsMatch(projectId, "^[a-f0-9]{32}$", RegexOptions.CultureInvariant))
+            throw new StateException(10, "invalid-input", "Project ID is invalid.");
+
+        if (mode == "preview")
+        {
+            if (values.ContainsKey("accept-manifest-hash")) throw new StateException(10, "invalid-input", "Preview does not accept a manifest hash.");
+            var manifest = BuildResetManifest(scope, projectId, roots, state);
+            var previewPath = Path.Combine(roots.EvidenceRoot, ".reset", "previews", $"{manifest.ManifestHash}.json");
+            WriteEvidenceAtomic(roots.EvidenceRoot, previewPath, JsonSerializer.Serialize(manifest, JsonOptions) + Environment.NewLine);
+            return new { formatVersion = 1, status = "pass", command = $"reset.{scope}.preview", manifestHash = manifest.ManifestHash, manifestPath = previewPath, entries = manifest.Entries.Count, beforeHash = manifest.BeforeHash, expectedAfterHash = manifest.ExpectedAfterHash };
+        }
+
+        var acceptedHash = Required(values, "accept-manifest-hash");
+        if (!Regex.IsMatch(acceptedHash, "^[a-f0-9]{64}$", RegexOptions.CultureInvariant))
+            throw new StateException(10, "invalid-input", "Accepted manifest hash is invalid.");
+        var existingReceipt = state.ResetReceipts.SingleOrDefault(receipt => receipt.AcceptedManifestHash == acceptedHash && receipt.Mode == scope);
+        if (existingReceipt is not null)
+            return new { formatVersion = 1, status = "pass", command = $"reset.{scope}.apply", manifestHash = acceptedHash, receiptId = existingReceipt.Id, idempotent = true };
+
+        var previewFile = Path.Combine(roots.EvidenceRoot, ".reset", "previews", $"{acceptedHash}.json");
+        if (!File.Exists(previewFile)) throw new StateException(18, "reset-refused", "Accepted reset preview does not exist.");
+        EnsureNoLinks(roots.EvidenceRoot, previewFile, "reset preview");
+        ResetManifest accepted;
+        try { accepted = JsonSerializer.Deserialize<ResetManifest>(File.ReadAllText(previewFile), JsonOptions) ?? throw new JsonException("Preview is empty."); }
+        catch (Exception ex) { throw new StateException(18, "reset-refused", $"Reset preview is invalid: {ex.Message}"); }
+        if (accepted.ManifestHash != acceptedHash || accepted.Mode != scope || accepted.ProjectId != projectId)
+            throw new StateException(18, "reset-refused", "Reset preview identity does not match the apply request.");
+
+        var current = BuildResetManifest(scope, projectId, roots, state);
+        if (current.ManifestHash != acceptedHash)
+            throw new StateException(18, "reset-refused", "Reset claims changed after preview; create and accept a new preview.");
+        DeleteResetEntries(current, roots);
+
+        var affectedIds = scope == "project" ? [projectId!] : state.ProjectInstances.Select(item => item.Id).ToArray();
+        state.ProjectInstances.RemoveAll(item => affectedIds.Contains(item.Id, StringComparer.Ordinal));
+        var receiptId = acceptedHash[..32];
+        state.Transactions.Add(new TransactionSummary(receiptId, scope == "project" ? "project-reset" : "factory-reset", "applied", acceptedHash, projectId));
+        state.ResetReceipts.Add(new ResetReceipt(receiptId, scope, acceptedHash, current.BeforeHash, current.ExpectedAfterHash));
+        SaveState(roots.StateRoot, state);
+
+        var receiptPath = Path.Combine(roots.EvidenceRoot, ".reset", "receipts", $"{acceptedHash}.json");
+        var receiptDocument = new { formatVersion = 1, id = receiptId, mode = scope, projectId, acceptedManifestHash = acceptedHash, beforeHash = current.BeforeHash, afterHash = current.ExpectedAfterHash, deletedEntries = current.Entries.Count };
+        WriteEvidenceAtomic(roots.EvidenceRoot, receiptPath, JsonSerializer.Serialize(receiptDocument, JsonOptions) + Environment.NewLine);
+        return new { formatVersion = 1, status = "pass", command = $"reset.{scope}.apply", manifestHash = acceptedHash, receiptId, receiptPath, idempotent = false, deletedEntries = current.Entries.Count };
+    }
+
+    private static ResetManifest BuildResetManifest(string mode, string? projectId, StateRoots roots, StateDocument state)
+    {
+        var instances = mode == "project"
+            ? state.ProjectInstances.Where(item => item.Id == projectId).ToArray()
+            : state.ProjectInstances.ToArray();
+        if (mode == "project" && instances.Length != 1) throw new StateException(18, "reset-refused", "Project is not bound.");
+        var entries = new List<ResetEntry>();
+        foreach (var instance in instances)
+        {
+            foreach (var claim in instance.ClaimedStatePaths) CollectClaim(entries, "state", roots.StateRoot, claim, instance.Id);
+            foreach (var claim in instance.ClaimedEvidencePaths) CollectClaim(entries, "evidence", roots.EvidenceRoot, claim, instance.Id);
+        }
+        entries = entries.OrderBy(entry => entry.Root, StringComparer.Ordinal).ThenBy(entry => entry.Path, StringComparer.Ordinal).ThenBy(entry => entry.Type, StringComparer.Ordinal).ToList();
+        var identity = string.Join("\n", entries.Select(entry => $"{entry.Root}|{entry.Path}|{entry.Type}|{entry.Sha256}"));
+        var beforeHash = HashText(identity);
+        var expectedAfterHash = HashText(string.Empty);
+        var core = new ResetManifestCore(1, mode, projectId, entries, beforeHash, expectedAfterHash);
+        var manifestHash = HashText(JsonSerializer.Serialize(core, JsonOptions));
+        return new ResetManifest(core.FormatVersion, core.Mode, core.ProjectId, core.Entries, core.BeforeHash, core.ExpectedAfterHash, manifestHash);
+    }
+
+    private static void CollectClaim(List<ResetEntry> entries, string rootName, string root, string claim, string projectId)
+    {
+        var normalized = NormalizeRelative(claim, "reset claim");
+        if (normalized != $"projects/{projectId}") throw new StateException(18, "reset-refused", $"Reset claim is not the canonical project claim: {claim}");
+        var full = ResolveForWrite(root, normalized, "reset claim");
+        if (!Directory.Exists(full)) throw new StateException(18, "reset-refused", $"Claimed reset root is missing: {rootName}:{normalized}");
+        CollectDirectory(entries, rootName, root, new DirectoryInfo(full));
+    }
+
+    private static void CollectDirectory(List<ResetEntry> entries, string rootName, string root, DirectoryInfo directory)
+    {
+        RejectResetLinkOrGit(directory);
+        var relative = Path.GetRelativePath(root, directory.FullName).Replace('\\', '/');
+        entries.Add(new ResetEntry(rootName, relative, "directory", null));
+        foreach (var item in directory.EnumerateFileSystemInfos().OrderBy(item => item.Name, StringComparer.Ordinal))
+        {
+            RejectResetLinkOrGit(item);
+            if (item is DirectoryInfo child) CollectDirectory(entries, rootName, root, child);
+            else
+            {
+                var file = (FileInfo)item;
+                entries.Add(new ResetEntry(rootName, Path.GetRelativePath(root, file.FullName).Replace('\\', '/'), "file", HashBytes(File.ReadAllBytes(file.FullName))));
+            }
+        }
+    }
+
+    private static void RejectResetLinkOrGit(FileSystemInfo item)
+    {
+        if ((item.Attributes & FileAttributes.ReparsePoint) != 0 || item.LinkTarget is not null)
+            throw new StateException(11, "unsafe-path", $"Reset refuses a link or reparse point: {item.FullName}");
+        if (item.Name.Equals(".git", StringComparison.OrdinalIgnoreCase))
+            throw new StateException(18, "reset-refused", $"Reset refuses a worktree or gitlink marker: {item.FullName}");
+    }
+
+    private static void DeleteResetEntries(ResetManifest manifest, StateRoots roots)
+    {
+        foreach (var entry in manifest.Entries.Where(entry => entry.Type == "file"))
+        {
+            var root = entry.Root == "state" ? roots.StateRoot : roots.EvidenceRoot;
+            var full = ResolveForWrite(root, NormalizeRelative(entry.Path, "reset entry"), "reset entry");
+            if (!File.Exists(full) || HashBytes(File.ReadAllBytes(full)) != entry.Sha256) throw new StateException(18, "reset-refused", $"Reset file changed: {entry.Root}:{entry.Path}");
+            RejectResetLinkOrGit(new FileInfo(full));
+            File.Delete(full);
+        }
+        foreach (var entry in manifest.Entries.Where(entry => entry.Type == "directory").OrderByDescending(entry => entry.Path.Length))
+        {
+            var root = entry.Root == "state" ? roots.StateRoot : roots.EvidenceRoot;
+            var full = ResolveForWrite(root, NormalizeRelative(entry.Path, "reset entry"), "reset entry");
+            if (!Directory.Exists(full)) throw new StateException(18, "reset-refused", $"Reset directory changed: {entry.Root}:{entry.Path}");
+            RejectResetLinkOrGit(new DirectoryInfo(full));
+            if (Directory.EnumerateFileSystemEntries(full).Any()) throw new StateException(18, "reset-refused", $"Reset directory contains an unmanifested path: {entry.Root}:{entry.Path}");
+            Directory.Delete(full);
+        }
+    }
+
+    private static void WriteEvidenceAtomic(string evidenceRoot, string destination, string content)
+    {
+        if (!IsUnder(destination, evidenceRoot)) throw new StateException(11, "unsafe-path", "Evidence destination escapes EvidenceRoot.");
+        Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+        EnsureNoLinks(evidenceRoot, Path.GetDirectoryName(destination)!, "reset evidence");
+        var temp = Path.Combine(Path.GetDirectoryName(destination)!, $".{Guid.NewGuid():N}.tmp");
+        File.WriteAllText(temp, content, new UTF8Encoding(false));
+        File.Move(temp, destination, true);
+    }
+
     private static Dictionary<string, string> ParsePairs(string[] args, int start)
     {
         var values = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -125,6 +265,13 @@ internal static class StateRuntime
         var unknown = values.Keys.FirstOrDefault(key => !known.Contains(key));
         if (unknown is not null) throw new StateException(10, "invalid-input", $"Unknown argument: --{unknown}");
         foreach (var name in names) Required(values, name);
+    }
+
+    private static void RejectUnknown(Dictionary<string, string> values, params string[] names)
+    {
+        var known = new HashSet<string>(names, StringComparer.Ordinal);
+        var unknown = values.Keys.FirstOrDefault(key => !known.Contains(key));
+        if (unknown is not null) throw new StateException(10, "invalid-input", $"Unknown argument: --{unknown}");
     }
 
     private static string Required(Dictionary<string, string> values, string name) =>
@@ -296,6 +443,9 @@ internal static class StateRuntime
     private sealed record ProjectInstance(string Id, string TargetCanonicalPath, string TargetIdentityHash, string ProfileId, string[] ClaimedStatePaths, string[] ClaimedEvidencePaths);
     private sealed record TransactionSummary(string Id, string Kind, string Status, string ManifestHash, string? ProjectId);
     private sealed record ResetReceipt(string Id, string Mode, string AcceptedManifestHash, string BeforeHash, string AfterHash);
+    private sealed record ResetEntry(string Root, string Path, string Type, string? Sha256);
+    private sealed record ResetManifestCore(int FormatVersion, string Mode, string? ProjectId, List<ResetEntry> Entries, string BeforeHash, string ExpectedAfterHash);
+    private sealed record ResetManifest(int FormatVersion, string Mode, string? ProjectId, List<ResetEntry> Entries, string BeforeHash, string ExpectedAfterHash, string ManifestHash);
     private sealed record TransactionJournal(int FormatVersion, string Id, string Kind, string Status, string? ProjectId, string DestinationPath, string TempPath, string PayloadHash);
     private sealed class StateException(int code, string category, string message) : Exception(message)
     {
