@@ -1,0 +1,32 @@
+# V4 planning
+
+This directory is the planning authority for the V4 guard plugin. V4 is a new product boundary, not a
+V3 sub-plan and not an IFX application component.
+
+Current documents:
+
+| Document | Role | Status |
+| --- | --- | --- |
+| [00-architecture-decision-set.md](00-architecture-decision-set.md) | Product, trust, state, profile, stage, CI and planning decisions | Accepted v1 core; deferred roadmap items |
+| [01-v4-self-contained-guard-plugin.md](01-v4-self-contained-guard-plugin.md) | V4 v1 implementation roadmap | Draft; implementation not authorized |
+| [02-runtime-architecture.md](02-runtime-architecture.md) | Runtime, roots, detector composition, evidence and trust diagrams | Accepted planning view |
+| [TODO.md](TODO.md) | Explicit deferred scope and revisit gates | Active backlog |
+
+Status meanings:
+
+- `ACCEPTED`: part of the V4 v1 architecture unless a later recorded decision supersedes it.
+- `PROPOSED`: must be resolved by the named prototype or review gate before dependent implementation.
+- `DEFERRED`: excluded from V4 v1 and tracked in `TODO.md`.
+- `REJECTED`: considered and not selected; retained to prevent accidental reintroduction.
+
+V4 implementation checkpoints will receive their own formal Plan pair. This directory does not relax
+the current V3 trusted-base or protected-change rules, and no document here authorizes a branch,
+workflow, ruleset, push, pull request, merge or remote operation.
+
+The active system remains `docs/guards/V3` plus the dependent `docs/guards/V3_ifx` overlay until an
+independent V4 promotion plan proves coexistence, parity, rollback and activation.
+
+V4 genesis uses the minimum existing V3 governance needed to validate its formal Plan, exact additive
+diff, non-interference and recovery boundary. After a separately accepted seed establishes
+`codex/v4-development-base`, V4 development is governed by its own base-owned contracts and checks;
+V3 is neither a V4 runtime dependency nor its ongoing feature gate.

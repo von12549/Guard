@@ -1,0 +1,102 @@
+# V4 deferred roadmap
+
+This file is the authority for work deliberately excluded from V4 v1. A checked item requires a
+separate reviewed decision and formal Plan; appearing here is not implementation authorization.
+
+## Deferred profiles and adoption
+
+- [ ] **V4-TODO-001 — `ifx_profile` practice**
+
+  Revisit after V4-P8. Package current IFX project map, toolchain, policies, baselines and selected
+  specialized gates through the published profile/extension API. Treat any required V4 core change as
+  an explicit compatibility decision. Do not make V4 v1 release depend on this practice.
+
+- [ ] **V4-TODO-002 — IFX parallel parity**
+
+  Revisit after V4-TODO-001. Run V3/V3_ifx and V4+`ifx_profile` against the same fixed corpus and real
+  repository commit. Compare blocking verdicts, failure categories, reports, policy hashes, runtime
+  prerequisites and every Architecture Conformance claim/evidence kind without activating V4. Include
+  clean, deliberate-violation, missing-input and zero-match controls.
+
+- [ ] **V4-TODO-003 — IFX cutover and rollback**
+
+  Revisit only after parity and a Windows full certification. Define trusted-base activation, GitHub
+  required contexts, Architecture Conformance detector-family cutover, recovery, one-time compatibility
+  bridges and exact rollback. Remote changes need separate authorization.
+
+- [ ] **V4-TODO-004 — V3/V3_ifx freeze or retirement**
+
+  Revisit only after a stable V4 IFX cutover. Decide whether the old packages remain frozen historical
+  sources or are removed through protected deletion. LayerGuard-derived source removal is the last
+  migration action. Preserve Plan 06 evidence either way and close Plan 06 §20 only after this item.
+
+## Deferred user experience
+
+- [ ] **V4-TODO-005 — Lightweight Web UI**
+
+  Revisit after CLI, JSON Schema, Stage result and state transaction contracts are stable. The UI must
+  call the same API/CLI and may not directly edit authority files. Initial scope: profile selection,
+  config forms, Stage execution, report viewing and reset Preview/Apply.
+
+- [ ] **V4-TODO-006 — Multi-project dashboard**
+
+  Revisit after project-instance identity and concurrency are proven. Cover parallel runs, cancellation,
+  log streaming and isolated project state without creating a remote control plane by accident.
+
+## Deferred distribution and ecosystem
+
+- [ ] **V4-TODO-007 — Fully bundled runtimes**
+
+  Revisit after v1 portability measurements. Evaluate .NET self-contained publishing and the cost of
+  bundling or replacing PowerShell/Node dependencies across supported OS/architecture combinations.
+
+- [ ] **V4-TODO-008 — Standalone V4 repository**
+
+  Revisit before the first external stable release. Extract V4 from the IFX incubation repository or
+  record why a monorepo distribution remains preferable. Preserve provenance and deterministic history.
+
+- [ ] **V4-TODO-009 — Profile/module marketplace and signatures**
+
+  Revisit after local install/uninstall/version compatibility is stable. Define discovery, download,
+  signatures, revocation, trust roots, offline behavior and capability review before allowing remote
+  extension installation.
+
+- [ ] **V4-TODO-010 — Automatic update and downgrade policy**
+
+  Revisit with standalone distribution. Updates must be staged, verified and rollback-capable;
+  incompatible downgrade and schema rollback fail closed.
+
+## Deferred CI and governance
+
+- [ ] **V4-TODO-011 — Remote V4 ruleset activation**
+
+  Revisit after repeated success of the V4 development workflow and final check-name freeze. Creating
+  or editing GitHub rulesets remains a separately authorized remote operation.
+
+- [ ] **V4-TODO-012 — Windows full-run frequency review**
+
+  Revisit after real V4 run-duration data exists. Ordinary CI remains Linux-first with conditional
+  Windows smoke; increase or reduce full cadence only with evidence and without weakening release
+  certification.
+
+- [ ] **V4-TODO-013 — Plan-set limits and parallel agent policy**
+
+  Revisit after real multi-plan PRs. Decide member-count/size limits, shared-path policy and whether
+  independent member plans may be authored concurrently. Authorization and activation boundaries may
+  never be collapsed for convenience.
+
+## Explicitly not deferred
+
+The following belong to V4 v1 and must not be moved here to shorten implementation:
+
+- authority/state separation;
+- path-confined reset with Preview and explicit acceptance;
+- default and synthetic profiles;
+- independent Bootstrap/Analysis/Pre/Post execution;
+- module capability and hash declarations;
+- deterministic package/isolation tests;
+- Linux complete coverage, conditional Windows smoke and milestone Windows full certification;
+- trusted-base promotion and head-self-judgment prevention.
+- composite Architecture Conformance with Project Model, Roslyn and ArchUnitNET evidence layers;
+- capability-matrix parity and non-vacuous architecture fixtures;
+- isolated, explicit and fresh build evidence for compiled architecture checks.
