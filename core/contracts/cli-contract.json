@@ -10,6 +10,9 @@
     { "id": "reset.factory", "syntax": "v4-guards reset factory --mode <preview|apply> --state-root <path> --evidence-root <path> [--accept-manifest-hash <sha256>]", "stability": "stable", "mutability": "accepted-apply", "requiredRoots": ["PackageRoot", "StateRoot", "EvidenceRoot"] },
     { "id": "plan.validate", "syntax": "v4-guards plan validate --plan <path>", "stability": "stable", "mutability": "read-only", "requiredRoots": ["PackageRoot", "TargetRoot"] },
     { "id": "plan.compose", "syntax": "v4-guards plan compose --plan <path>... --output <path>", "stability": "stable", "mutability": "state-write", "requiredRoots": ["PackageRoot", "TargetRoot", "EvidenceRoot"] },
+    { "id": "state.bind", "syntax": "v4-guards state bind --package-root <path> --target-root <path> --state-root <path> --evidence-root <path> --profile <id>", "stability": "experimental", "mutability": "state-write", "requiredRoots": ["PackageRoot", "TargetRoot", "StateRoot", "EvidenceRoot"] },
+    { "id": "state.put", "syntax": "v4-guards state put --package-root <path> --state-root <path> --evidence-root <path> --project <id> --relative-path <path> --content <text>", "stability": "experimental", "mutability": "state-write", "requiredRoots": ["PackageRoot", "StateRoot", "EvidenceRoot"] },
+    { "id": "state.recover", "syntax": "v4-guards state recover --package-root <path> --state-root <path> --evidence-root <path>", "stability": "experimental", "mutability": "state-write", "requiredRoots": ["PackageRoot", "StateRoot", "EvidenceRoot"] },
     { "id": "spike.run", "syntax": "v4-guards spike run --package-root <path> --target-root <path> --state-root <path> --evidence-root <path> --module synthetic-probe", "stability": "experimental", "mutability": "state-write", "requiredRoots": ["PackageRoot", "TargetRoot", "StateRoot", "EvidenceRoot"] }
   ],
   "exitCategories": [

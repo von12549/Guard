@@ -138,8 +138,10 @@ must not embed repository-relative IFX paths.
 
 ### V4-P2 — State store, transactions and reset
 
-- [ ] **V4-P2.1** Establish project instance identity and canonical target-root binding.
-- [ ] **V4-P2.2** Implement atomic state writes and incomplete-transaction recovery.
+- [x] **V4-P2.1** Establish project instance identity and canonical target-root binding. Evidence: P2A
+  deterministic, idempotent multi-target binding and overlap/path negative tests.
+- [x] **V4-P2.2** Implement atomic state writes and incomplete-transaction recovery. Evidence: P2A
+  prepared/applied journals, same-directory replacement, recovery positive and hash-drift refusal.
 - [ ] **V4-P2.3** Implement project-reset and factory-reset Preview/Apply.
 - [ ] **V4-P2.4** Keep project reset and factory reset inside V4-owned mutable roots; target mutation uses a separate
   receipted Preview/Apply contract.

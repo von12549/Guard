@@ -17,6 +17,8 @@ internal static class Program
 
     public static int Main(string[] args)
     {
+        if (args.Length > 0 && args[0] == "state") return StateRuntime.Execute(args);
+
         RootSet? roots = null;
         string? adapterHash = null;
         try

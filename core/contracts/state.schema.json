@@ -6,8 +6,59 @@
   "required": ["formatVersion", "projectInstances", "transactions", "resetReceipts"],
   "properties": {
     "formatVersion": { "const": 1 },
-    "projectInstances": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["id", "targetCanonicalPath", "targetIdentityHash", "profileId"], "properties": { "id": { "type": "string", "pattern": "^[a-f0-9]{32}$" }, "targetCanonicalPath": { "type": "string", "minLength": 1 }, "targetIdentityHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }, "profileId": { "type": "string" } } } },
-    "transactions": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["id", "kind", "status", "manifestHash"], "properties": { "id": { "type": "string", "pattern": "^[a-f0-9]{32}$" }, "kind": { "enum": ["state-write", "project-reset", "factory-reset", "target-mutation"] }, "status": { "enum": ["prepared", "applied", "rolled-back", "incomplete"] }, "manifestHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" } } } },
-    "resetReceipts": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["id", "mode", "acceptedManifestHash", "beforeHash", "afterHash"], "properties": { "id": { "type": "string", "pattern": "^[a-f0-9]{32}$" }, "mode": { "enum": ["project", "factory"] }, "acceptedManifestHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }, "beforeHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }, "afterHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" } } } }
+    "projectInstances": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "targetCanonicalPath", "targetIdentityHash", "profileId", "claimedStatePaths", "claimedEvidencePaths"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+          "targetCanonicalPath": { "type": "string", "minLength": 1 },
+          "targetIdentityHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "profileId": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+          "claimedStatePaths": { "$ref": "#/definitions/claimedPaths" },
+          "claimedEvidencePaths": { "$ref": "#/definitions/claimedPaths" }
+        }
+      }
+    },
+    "transactions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "status", "manifestHash"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+          "kind": { "enum": ["state-document", "state-write", "project-reset", "factory-reset", "target-mutation"] },
+          "status": { "enum": ["prepared", "applied", "rolled-back", "incomplete"] },
+          "manifestHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "projectId": { "type": ["string", "null"], "pattern": "^[a-f0-9]{32}$" }
+        }
+      }
+    },
+    "resetReceipts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "mode", "acceptedManifestHash", "beforeHash", "afterHash"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+          "mode": { "enum": ["project", "factory"] },
+          "acceptedManifestHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "beforeHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "afterHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "claimedPaths": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" }
+    }
   }
 }
