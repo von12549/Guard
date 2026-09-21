@@ -247,7 +247,18 @@ internal static class StageRuntime
         var start = PowerShellStart(FindPowerShell(), adapterPath);
         var selection = context.Profile.ModuleSelections?.SingleOrDefault(item => item.Id == moduleId)
             ?? throw new StageException(12, "integrity-failure", $"Profile configuration is missing for module: {moduleId}");
-        var input = JsonSerializer.Serialize(new { formatVersion = 1, stage = executionStage, targetRoot = context.Roots.TargetRoot, packageRoot = context.Roots.PackageRoot, config = selection.Config });
+        var input = JsonSerializer.Serialize(new
+        {
+            formatVersion = 1,
+            stage = executionStage,
+            targetRoot = context.Roots.TargetRoot,
+            packageRoot = context.Roots.PackageRoot,
+            stateRoot = context.Roots.StateRoot,
+            evidenceRoot = context.Roots.EvidenceRoot,
+            projectId = context.ProjectId,
+            runId = context.RunId,
+            config = selection.Config
+        });
         start.Environment["V4_STAGE_INPUT_JSON"] = input;
         var execution = RunProcess(start, manifest.Capabilities.TimeoutSeconds, $"module {manifest.Id}");
         if (execution.ExitCode != 0)

@@ -1,0 +1,20 @@
+{
+  "formatVersion": 1,
+  "id": "build-evidence-provider",
+  "version": "0.1.0",
+  "compatibleApi": "1.x",
+  "supportedPlatforms": ["linux-x64", "win-x64", "osx-arm64"],
+  "adapter": { "kind": "powershell", "path": "modules/build-evidence-provider/adapter.ps1", "sha256": "9338b45b94399962e4383f5b7576a4cf9529b825738ca08a4340a7cae623d886" },
+  "prerequisites": [
+    { "runtime": "pwsh", "versionRange": ">=7.4" },
+    { "runtime": "dotnet", "versionRange": ">=10.0 <11.0" }
+  ],
+  "stages": ["post"],
+  "capabilities": { "readRoots": ["PackageRoot", "TargetRoot"], "writeRoots": ["StateRoot", "EvidenceRoot"], "processes": ["pwsh", "dotnet"], "network": false, "timeoutSeconds": 300 },
+  "configSchema": "modules/build-evidence-provider/config.schema.json",
+  "resultSchema": "modules/build-evidence-provider/result.schema.json",
+  "dependencyLock": { "path": "modules/build-evidence-provider/dependencies.lock.json", "sha256": "60c35ff6eb2a5c92f6d6460709a468f166cfdf4a5c2db9a195c5f14d431486fb" },
+  "authorities": [
+    { "id": "build-manifest", "path": "modules/build-evidence-provider/build-manifest.schema.json", "sha256": "4ae8a9d78311f161a9f3736a1db0d7c1f3b82f63c420c486613d489545f84211" }
+  ]
+}

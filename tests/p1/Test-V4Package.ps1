@@ -54,7 +54,7 @@ if ($positive.Code -ne 0) {
     $positiveDocument = $null
 } else {
     $positiveDocument = $positive.Output | ConvertFrom-Json
-    if ($positiveDocument.status -ne 'pass' -or $positiveDocument.profiles.Count -ne 2 -or $positiveDocument.modules.Count -ne 2) {
+    if ($positiveDocument.status -ne 'pass' -or $positiveDocument.profiles.Count -ne 2 -or $positiveDocument.modules.Count -ne 3) {
         $failures.Add('positive package result identity is incorrect')
     }
 }
@@ -75,6 +75,7 @@ if ($mutableResult.Code -ne 0) {
 $empty = New-Case 'empty-package'
 Remove-Item -LiteralPath (Join-Path $empty 'modules/synthetic-probe') -Recurse -Force
 Remove-Item -LiteralPath (Join-Path $empty 'modules/architecture-conformance') -Recurse -Force
+Remove-Item -LiteralPath (Join-Path $empty 'modules/build-evidence-provider') -Recurse -Force
 Remove-Item -LiteralPath (Join-Path $empty 'profiles/catalog/synthetic_profile') -Recurse -Force
 $emptyRegistryPath = Join-Path $empty 'modules/registry.json'
 $emptyRegistry = Get-Content -Raw $emptyRegistryPath | ConvertFrom-Json -AsHashtable -Depth 100

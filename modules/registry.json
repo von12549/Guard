@@ -4,13 +4,25 @@
     {
       "id": "architecture-conformance",
       "manifestPath": "modules/architecture-conformance/module.json",
-      "manifestSha256": "37b2d4ca4359fc1fd5f62fa256b74c0c868ca24a0ae3af02f5d7bb8fc543d59c",
+      "manifestSha256": "6bb2601a34483af8bea5ab489ca5fa105a2d14c13686052f2d2f62210fa11aa1",
       "allowedCapabilities": {
-        "readRoots": ["TargetRoot", "EvidenceRoot"],
+        "readRoots": ["TargetRoot", "StateRoot", "EvidenceRoot"],
         "writeRoots": [],
         "processes": ["pwsh", "dotnet"],
         "network": false,
         "maxTimeoutSeconds": 30
+      }
+    },
+    {
+      "id": "build-evidence-provider",
+      "manifestPath": "modules/build-evidence-provider/module.json",
+      "manifestSha256": "5e79c289a304a32c6a0a4101a03d79217b24da6c30cf233eed2dfa3751c53bb2",
+      "allowedCapabilities": {
+        "readRoots": ["PackageRoot", "TargetRoot"],
+        "writeRoots": ["StateRoot", "EvidenceRoot"],
+        "processes": ["pwsh", "dotnet"],
+        "network": false,
+        "maxTimeoutSeconds": 300
       }
     },
     {

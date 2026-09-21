@@ -14,6 +14,20 @@
     "forbiddenSymbols": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
     "forbiddenPayloadNamespaces": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
     "assemblyManifestPath": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" },
+    "requireFreshBuildEvidence": { "type": "boolean" },
+    "maximumEvidenceAgeSeconds": { "type": "integer", "minimum": 1, "maximum": 3600 },
+    "expectedBuildConfiguration": { "enum": ["Debug", "Release"] },
+    "expectedTargetFramework": { "type": "string", "pattern": "^net[0-9]+\\.[0-9]+$" },
+    "expectedAssemblySources": {
+      "type": "array", "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["assemblyName", "sourceProject"],
+        "properties": {
+          "assemblyName": { "type": "string", "minLength": 1 },
+          "sourceProject": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+\\.csproj$" }
+        }
+      }
+    },
     "forbiddenTypeDependencies": {
       "type": "array", "items": {
         "type": "object", "additionalProperties": false,

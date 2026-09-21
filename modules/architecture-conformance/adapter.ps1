@@ -141,6 +141,19 @@ function Load-ArchUnitNet {
     }
     return $true
 }
+function Target-Snapshot([string] $Root) {
+    $lines = [Collections.Generic.List[string]]::new()
+    foreach ($file in Get-ChildItem -LiteralPath $Root -Recurse -File -Force | Sort-Object FullName) {
+        $relative = Relative $file.FullName
+        $parts = $relative.Split('/', [StringSplitOptions]::RemoveEmptyEntries)
+        if (@($parts | Where-Object { $_ -in @('.git','bin','obj','artifacts') }).Count -gt 0) { continue }
+        if (($file.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or $null -ne $file.LinkTarget) { throw "Target snapshot crosses a link: $relative" }
+        $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $file.FullName).Hash.ToLowerInvariant()
+        $lines.Add("$relative`:$hash")
+    }
+    $bytes = [Text.Encoding]::UTF8.GetBytes(($lines -join "`n"))
+    return [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes)).ToLowerInvariant()
+}
 
 $requestedProjectClaims = @($activeClaims | Where-Object { $_ -in $projectClaims })
 if ($requestedProjectClaims.Count -gt 0) {
@@ -318,7 +331,10 @@ if ($requestedCompiledClaims.Count -gt 0) {
         Write-Result 'error' 'prerequisite-missing' 'assemblyManifestPath is required for compiled architecture inspection.'
         exit 0
     }
-    try { $manifestPath = Resolve-EvidencePath $evidenceRoot ([string]$config.assemblyManifestPath) 'assemblyManifestPath' }
+    $manifestRelative = ([string]$config.assemblyManifestPath)
+    if ($inputData.PSObject.Properties.Name -contains 'projectId') { $manifestRelative = $manifestRelative.Replace('{projectId}',[string]$inputData.projectId) }
+    if ($inputData.PSObject.Properties.Name -contains 'runId') { $manifestRelative = $manifestRelative.Replace('{runId}',[string]$inputData.runId) }
+    try { $manifestPath = Resolve-EvidencePath $evidenceRoot $manifestRelative 'assemblyManifestPath' }
     catch {
         Add-Coverage $requestedCompiledClaims 0
         Write-Result 'error' 'unsafe-path' $_.Exception.Message
@@ -340,6 +356,55 @@ if ($requestedCompiledClaims.Count -gt 0) {
         Write-Result 'error' 'invalid-input' 'The assembly manifest must declare formatVersion 1 and at least one assembly.'
         exit 0
     }
+    $requireFresh = ($config.PSObject.Properties.Name -contains 'requireFreshBuildEvidence') -and [bool]$config.requireFreshBuildEvidence
+    if ($requireFresh) {
+        if (-not ($inputData.PSObject.Properties.Name -contains 'stateRoot') -or -not ($inputData.PSObject.Properties.Name -contains 'projectId') -or -not ($inputData.PSObject.Properties.Name -contains 'runId')) {
+            Add-Coverage $requestedCompiledClaims 0
+            Write-Result 'error' 'prerequisite-missing' 'Fresh build evidence requires StateRoot, projectId and runId.'
+            exit 0
+        }
+        $requiredManifestFields = @('runId','projectId','createdUtc','configuration','targetFramework','targetSnapshotSha256')
+        if (@($requiredManifestFields | Where-Object { $assemblyManifest.PSObject.Properties.Name -notcontains $_ }).Count -gt 0) {
+            Add-Coverage $requestedCompiledClaims 0
+            Write-Result 'error' 'integrity-failure' 'The build manifest is missing freshness bindings.'
+            exit 0
+        }
+        try { $created = [DateTimeOffset]::Parse([string]$assemblyManifest.createdUtc,[Globalization.CultureInfo]::InvariantCulture,[Globalization.DateTimeStyles]::RoundtripKind) }
+        catch {
+            Add-Coverage $requestedCompiledClaims 0
+            Write-Result 'error' 'integrity-failure' 'The build manifest timestamp is not a valid round-trip timestamp.'
+            exit 0
+        }
+        $maximumAge = if ($config.PSObject.Properties.Name -contains 'maximumEvidenceAgeSeconds') { [int]$config.maximumEvidenceAgeSeconds } else { 600 }
+        if ($assemblyManifest.runId -cne [string]$inputData.runId -or $assemblyManifest.projectId -cne [string]$inputData.projectId -or
+            $created -gt [DateTimeOffset]::UtcNow.AddMinutes(1) -or
+            ([DateTimeOffset]::UtcNow - $created).TotalSeconds -gt $maximumAge -or
+            (($config.PSObject.Properties.Name -contains 'expectedBuildConfiguration') -and $assemblyManifest.configuration -cne [string]$config.expectedBuildConfiguration) -or
+            (($config.PSObject.Properties.Name -contains 'expectedTargetFramework') -and $assemblyManifest.targetFramework -cne [string]$config.expectedTargetFramework)) {
+            Add-Coverage $requestedCompiledClaims 0
+            Write-Result 'error' 'integrity-failure' 'The build manifest run, project, time, configuration or target-framework binding is stale.'
+            exit 0
+        }
+        try { $currentSnapshot = Target-Snapshot $targetRoot }
+        catch {
+            Add-Coverage $requestedCompiledClaims 0
+            Write-Result 'error' 'unsafe-path' $_.Exception.Message
+            exit 0
+        }
+        if ($assemblyManifest.targetSnapshotSha256 -cne $currentSnapshot) {
+            Add-Coverage $requestedCompiledClaims 0
+            Write-Result 'error' 'integrity-failure' 'TargetRoot changed after build evidence was produced.'
+            exit 0
+        }
+        foreach ($expected in @(Config-Array 'expectedAssemblySources')) {
+            $entry = @($assemblyManifest.assemblies | Where-Object { $_.assemblyName -ceq [string]$expected.assemblyName -and $_.sourceProject -ceq [string]$expected.sourceProject })
+            if ($entry.Count -ne 1) {
+                Add-Coverage $requestedCompiledClaims 0
+                Write-Result 'error' 'integrity-failure' "Expected assembly/source binding is missing: $($expected.assemblyName) -> $($expected.sourceProject)"
+                exit 0
+            }
+        }
+    }
     if (-not (Load-ArchUnitNet)) {
         Add-Coverage $requestedCompiledClaims 0
         Write-Result 'error' 'prerequisite-missing' 'The locked ArchUnitNET 0.13.4 dependency closure is unavailable or failed integrity validation.'
@@ -350,14 +415,23 @@ if ($requestedCompiledClaims.Count -gt 0) {
     $seenPaths = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
     foreach ($entry in @($assemblyManifest.assemblies)) {
         $name = [string]$entry.assemblyName
-        $relativePath = [string]$entry.path
+        $usesState = $entry.PSObject.Properties.Name -contains 'statePath'
+        $relativePath = if ($usesState) { [string]$entry.statePath } else { [string]$entry.path }
         $expectedHash = [string]$entry.sha256
         if ([string]::IsNullOrWhiteSpace($name) -or $expectedHash -cnotmatch '^[a-f0-9]{64}$') {
             Add-Coverage $requestedCompiledClaims 0
             Write-Result 'error' 'invalid-input' 'Every assembly manifest entry requires assemblyName, path and lowercase SHA-256.'
             exit 0
         }
-        try { $assemblyPath = Resolve-EvidencePath $evidenceRoot $relativePath "assembly $name" }
+        $assemblyRoot = if ($usesState) {
+            if (-not ($inputData.PSObject.Properties.Name -contains 'stateRoot')) { $null } else { [IO.Path]::GetFullPath([string]$inputData.stateRoot) }
+        } else { $evidenceRoot }
+        if ([string]::IsNullOrWhiteSpace($assemblyRoot)) {
+            Add-Coverage $requestedCompiledClaims 0
+            Write-Result 'error' 'prerequisite-missing' 'StateRoot is required for state-owned assembly evidence.'
+            exit 0
+        }
+        try { $assemblyPath = Resolve-EvidencePath $assemblyRoot $relativePath "assembly $name" }
         catch {
             Add-Coverage $requestedCompiledClaims 0
             Write-Result 'error' 'unsafe-path' $_.Exception.Message
@@ -377,6 +451,12 @@ if ($requestedCompiledClaims.Count -gt 0) {
         if ($actualHash -cne $expectedHash) {
             Add-Coverage $requestedCompiledClaims 0
             Write-Result 'error' 'integrity-failure' "Assembly hash mismatch: $relativePath"
+            exit 0
+        }
+        if ($requireFresh -and (($entry.PSObject.Properties.Name -notcontains 'configuration') -or ($entry.PSObject.Properties.Name -notcontains 'targetFramework') -or ($entry.PSObject.Properties.Name -notcontains 'sourceProject') -or
+            $entry.configuration -cne $assemblyManifest.configuration -or $entry.targetFramework -cne $assemblyManifest.targetFramework)) {
+            Add-Coverage $requestedCompiledClaims 0
+            Write-Result 'error' 'integrity-failure' "Assembly build binding mismatch: $relativePath"
             exit 0
         }
         try {
