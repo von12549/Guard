@@ -1,11 +1,36 @@
 # V4 runtime architecture
 
-Status: implemented local V4 v1 candidate; publication and remote activation not authorized
+Status: V4 v1 published; V4-P9 UI boundary accepted but not implemented; remote activation not authorized
 
 Decision authority: `00-architecture-decision-set.md`
 
 This document is the maintained architecture view for V4 v1. It shows ownership and data flow; it
 does not grant authority to create the development branch, runtime, workflow or remote configuration.
+
+## Lightweight Web UI topology
+
+```mermaid
+flowchart LR
+    Browser[Local browser - presentation only] -->|loopback session| Companion[V4 Web Companion]
+    Companion -->|allowlisted structured calls| Public[V4 public CLI and query contracts]
+    Public --> Host[V4 .NET Host - sole execution and verdict authority]
+    Host --> Package[PackageRoot - immutable]
+    Host --> Target[TargetRoot - read-only]
+    Host --> State[StateRoot - V4-owned mutable]
+    Host --> Evidence[EvidenceRoot - V4-owned mutable]
+    Companion -. no direct authority edits .-> Package
+    Companion -. no direct target mutation .-> Target
+```
+
+The companion is a separately packaged local integration, not another guard engine. It serves immutable
+assets on loopback, accepts only schema-bound operations and renders host-produced results. It cannot
+define commands, execute arbitrary programs, interpret a verdict independently or infer a target from
+the package or process working directory. V4-P9 first release supports one active Target context and
+does not create a multi-project or remote control plane.
+
+Plan presentation has two explicit modes. V4-native Plans use the V4 Plan and Plan-set contracts.
+Current V3-formal historical Markdown/JSON pairs may be shown read-only through a labelled compatibility
+projection; presentation does not convert them into V4-native authorities.
 
 ## System and root boundaries
 

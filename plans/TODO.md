@@ -34,9 +34,29 @@ separate reviewed decision and formal Plan; appearing here is not implementation
 
 - [ ] **V4-TODO-005 — Lightweight Web UI**
 
-  Revisit after CLI, JSON Schema, Stage result and state transaction contracts are stable. The UI must
-  call the same API/CLI and may not directly edit authority files. Initial scope: profile selection,
-  config forms, Stage execution, report viewing and reset Preview/Apply.
+  Revisit gate met after V4 Guards 1.0.0 stabilized the CLI, JSON Schema, Stage result and state
+  transaction contracts. V4-AD-017 is accepted and the work is promoted to V4-P9 by
+  `20260922-v4-p9-lightweight-web-ui-planning`; this item remains unchecked until V4-P9.GATE passes.
+  The UI is only an observation window and button panel over allowlisted V4 public contracts. It defines
+  no guard capability or verdict, executes nothing outside `v4-guards`, does not directly edit authority
+  files and cannot turn an empty/no-op profile into a successful coverage claim.
+
+### V4-P9 first-release exclusions memo
+
+The following are deliberately excluded from the first Lightweight Web UI release. Each requires a
+later reviewed decision and exact Plan; listing it here is not implementation authorization.
+
+- editing installed Profile or other package authorities;
+- directly editing or saving Plan authorities in `TargetRoot`;
+- any Target mutation or generated Target file adoption;
+- Git commit, push, pull-request or merge operations;
+- GitHub workflow, required-check or ruleset activation;
+- Reset Apply (Reset Preview may be considered only after the read/query boundary is stable);
+- multi-project dashboard, aggregation or parallel project execution;
+- live terminal, arbitrary command input or raw CLI argument forwarding;
+- non-loopback or remote Web UI access;
+- automatic Profile/module discovery, download or installation;
+- IFX-specific Profile, policy, cutover or operational actions.
 
 - [ ] **V4-TODO-006 — Multi-project dashboard**
 

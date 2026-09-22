@@ -1,9 +1,9 @@
 # V4 architecture decision set
 
-Status: architecture discussion baseline
+Status: accepted V4 v1 baseline with post-v1 V4-P9 UI boundary
 
 Date: 2026-09-21
-Implementation authorization: none
+Implementation authorization: V4-P9 planning only; UI implementation remains separately authorized
 
 Architecture view: [02-runtime-architecture.md](02-runtime-architecture.md)
 
@@ -27,7 +27,7 @@ Architecture view: [02-runtime-architecture.md](02-runtime-architecture.md)
 | V4-AD-014 | V4 incubates on `codex/v4-development-base` as inactive additive code | ACCEPTED |
 | V4-AD-015 | CI promotion continues to use a trusted base; head never judges itself | ACCEPTED |
 | V4-AD-016 | .NET CLI host plus PowerShell/.NET module adapters | ACCEPTED |
-| V4-AD-017 | Web UI starts only after stable CLI/config/report contracts | DEFERRED |
+| V4-AD-017 | Lightweight Web UI is a non-authoritative local surface over V4 public contracts | ACCEPTED |
 | V4-AD-018 | Fully bundled runtimes and zero-prerequisite distribution | DEFERRED |
 | V4-AD-019 | Standalone repository extraction before external stable release | DEFERRED |
 | V4-AD-020 | V3/V3_ifx activation cutover and retirement | DEFERRED |
@@ -49,10 +49,10 @@ Architecture view: [02-runtime-architecture.md](02-runtime-architecture.md)
 
 ## Implementation readiness
 
-No unresolved architecture decision blocks V4-P0. Exact schema fields, internal class boundaries,
-package versions and the implementation library used to read or evaluate project models are P0/P4
-contract-and-prototype outputs governed by the accepted decisions above, not open product choices.
-Deferred decisions remain outside v1 and do not block its implementation.
+No unresolved architecture decision blocks the released V4 v1 core. V4-AD-017 is now the accepted
+boundary for planning V4-P9; it does not authorize P9 implementation. Exact P9 query schemas, process
+interfaces and presentation technology are checkpoint outputs governed by that boundary. Remaining
+deferred decisions stay outside v1 and V4-P9 unless a later reviewed decision says otherwise.
 
 ## V4-AD-001 — Product boundary
 
@@ -221,10 +221,38 @@ global state or infer the target from their own location. Thin PowerShell and sh
 the CLI; they are not alternative policy engines. V1 may require a declared host .NET runtime. Fully
 bundled runtimes remain deferred by V4-AD-018.
 
+## V4-AD-017 — Lightweight Web UI boundary
+
+The post-v1 Lightweight Web UI is an observation window and button panel over V4. It defines no guard
+capability, command, profile, policy, rule, baseline, finding or verdict. The released V4 host remains
+the only execution and decision authority.
+
+The UI calls only allowlisted, structured public V4 commands and future schema-versioned read/query
+contracts. Browser input cannot select an arbitrary executable, provide shell text, inject raw command
+arguments or bypass the host to execute a Stage. The UI may present host-produced results but cannot
+reinterpret an error, empty profile or missing coverage as a successful guard verdict.
+
+The initial topology is a separately packaged local Web Companion serving immutable assets on a
+loopback-only endpoint. Keeping presentation outside the core host avoids turning HTTP, Markdown and UI
+dependencies into policy authorities. The companion is package-verified, but it remains subordinate to
+the CLI and cannot become a second engine or remote control plane.
+
+`PackageRoot` stays immutable and host-selected. `TargetRoot` stays read-only. All UI-originated mutable
+data remains below explicit V4-owned `StateRoot` and `EvidenceRoot` paths. Plan viewing is read-only:
+V4-native Plans retain V4 validation semantics, while current V3-formal historical pairs are clearly
+labelled compatibility views and do not acquire V4-native authority.
+
+The first release is limited to one active Target context, installed-profile selection, manual and
+visible Stage execution, structured result/evidence viewing and Plan viewing. Authority editing, Plan
+editing, target mutation, Reset Apply, Git/PR actions, remote activation, multi-project parallelism,
+terminals, remote access, automatic extension installation and IFX-specific behavior remain excluded.
+The exact exclusions and revisit boundaries are maintained in `TODO.md`.
+
 ## Deferred decisions
 
-V4-AD-017 through V4-AD-020 are excluded from v1 and tracked in `TODO.md`. Deferral is not implicit
-approval: each item requires its own decision update and Plan before implementation.
+V4-AD-018 through V4-AD-020 remain excluded from v1 and tracked in `TODO.md`. Deferral is not implicit
+approval: each item requires its own decision update and Plan before implementation. V4-AD-017 is a
+post-v1 accepted boundary whose implementation is divided into separately authorized V4-P9 checkpoints.
 
 ## V4-AD-021 — Four-root execution contract
 
