@@ -1,11 +1,11 @@
 {
   "formatVersion": 1,
-  "pluginVersion": "1.0.0",
+  "pluginVersion": "1.1.0",
   "apiVersion": "1.0",
   "files": [
     { "path": "core/contracts/cli-contract.json", "role": "cli", "sha256": "083cc8d1e246c0db17f3b37791d292c1c202e869425b3299ccf90715bf4723e5" },
     { "path": "core/contracts/cli-contract.schema.json", "role": "cli", "sha256": "2686085e2af99f3c9edb5403f5ca2c73a13e50ddf942c91cc99c31092cdb50a6" },
-    { "path": "plugin.json", "role": "configuration", "sha256": "c32c3bc82cda9d04858605c893cb9730bfcb0b16035d10e6bbbac5d1f1b2bfa4" },
+    { "path": "plugin.json", "role": "configuration", "sha256": "94d97a5c402b6d72fe8753005c09433c0afe9a830ec2d4eb96159542aba60927" },
     { "path": "core/contracts/plugin.schema.json", "role": "configuration", "sha256": "0c7d3a626aa7d37dc0c1a6314b15f8b72cc70d42feb143a8e85994f266249a0f" },
     { "path": "core/contracts/profile.schema.json", "role": "configuration", "sha256": "dda22c455daf6ed9bf8e76292c62deec1fd2f76acadeab89f733c78fb70ec42f" },
     { "path": "core/contracts/module.schema.json", "role": "configuration", "sha256": "78e24ceb7b7716f893602cf163e055033dab1872d171a9bc89fdd50c7413bfd7" },

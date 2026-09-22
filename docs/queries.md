@@ -1,7 +1,6 @@
 # V4 read/query contracts
 
-Status: V4-P9.2 implemented; experimental read-only API. The released V4 1.0.0 stable CLI contract
-is unchanged.
+Status: shipped in V4 1.1.0 as an experimental read-only API. The stable CLI/API version remains 1.0.
 
 The V4 Host owns every projection. A caller supplies explicit roots, the Host validates PackageRoot
 and the registered query contract, validates any state or Stage-result authority it reads, constructs

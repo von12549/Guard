@@ -166,9 +166,11 @@ foreach ($directory in @(Get-ChildItem -LiteralPath $profilesRoot -Directory -Fo
 if (-not $profiles.ContainsKey($plugin.defaultProfile)) { Fail "default profile is not installed: $($plugin.defaultProfile)" }
 
 $authorityFiles = [Collections.Generic.List[object]]::new()
+$readmePath = Resolve-AuthorityPath $root 'README.md' 'package README' File
 $authorityRoots = @('build','core','docs','integrations','modules','profiles','restore','stages')
 $files = [Collections.Generic.List[IO.FileInfo]]::new()
 $files.Add((Get-Item -LiteralPath $pluginPath))
+$files.Add((Get-Item -LiteralPath $readmePath))
 foreach ($name in $authorityRoots) {
     $path = Join-Path $root $name
     if ([IO.Directory]::Exists($path)) {

@@ -63,6 +63,9 @@ if ($positive.Code -ne 0) {
     if ($positiveDocument.status -ne 'pass' -or $positiveDocument.profiles.Count -ne 2 -or $positiveDocument.modules.Count -ne 3) {
         $failures.Add('positive package result identity is incorrect')
     }
+    if (@($positiveDocument.authorityFiles | Where-Object path -CEQ 'README.md').Count -ne 1) {
+        $failures.Add('root README is not exact package authority')
+    }
 }
 
 $mutable = New-Case 'mutable-exclusion'
@@ -76,6 +79,15 @@ if ($mutableResult.Code -ne 0) {
     $failures.Add("mutable-root exclusion failed: $($mutableResult.Output)")
 } elseif ($null -ne $positiveDocument -and ($mutableResult.Output | ConvertFrom-Json).packageHash -cne $positiveDocument.packageHash) {
     $failures.Add('mutable V4 data changed the package hash')
+}
+
+$readmeDrift = New-Case 'readme-hash-binding'
+[IO.File]::AppendAllText((Join-Path $readmeDrift 'README.md'), "`nREADME drift probe`n", [Text.UTF8Encoding]::new($false))
+$readmeDriftResult = Invoke-Check $readmeDrift
+if ($readmeDriftResult.Code -ne 0) {
+    $failures.Add("README hash-binding probe failed: $($readmeDriftResult.Output)")
+} elseif ($null -ne $positiveDocument -and ($readmeDriftResult.Output | ConvertFrom-Json).packageHash -ceq $positiveDocument.packageHash) {
+    $failures.Add('root README bytes did not change the package hash')
 }
 
 $empty = New-Case 'empty-package'
@@ -100,6 +112,11 @@ Expect-Failure 'unknown-plugin-field' {
     $path = Join-Path $copy 'plugin.json'; $json = Get-Content -Raw $path | ConvertFrom-Json -AsHashtable
     $json.unexpected = $true; Write-Json $path $json
 } 'plugin manifest does not satisfy'
+
+Expect-Failure 'missing-package-readme' {
+    param($copy)
+    Remove-Item -LiteralPath (Join-Path $copy 'README.md') -Force
+} 'package README is missing'
 
 Expect-Failure 'duplicate-profile-id' {
     param($copy)
@@ -147,4 +164,4 @@ foreach ($path in @('docs/guards/v4/state/probe.json','docs/guards/v4/.work/prob
 }
 
 if ($failures.Count -gt 0) { throw ($failures -join "`n") }
-Write-Host 'V4 P1A package tests passed: schema-valid authorities, empty package, mutable exclusion and eight fail-closed negatives.'
+Write-Host 'V4 P1A package tests passed: required root README, schema-valid authorities, empty package, mutable exclusion and nine fail-closed negatives.'

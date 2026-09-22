@@ -1,9 +1,11 @@
-# V4 v1 candidate certification
+# V4 1.x candidate certification
 
-V4 P8 certifies a local candidate; it does not publish a release or activate repository controls.
+The V4 certification pipeline certifies a local candidate; it does not publish a release or activate
+repository controls.
 
-The release candidate version is `1.0.0`. V1 declares and certifies `linux-x64` and `win-x64` only;
-macOS support is not declared.
+The current release candidate version is `1.1.0`. It includes the completed P9 Web Companion and the
+hash-bound root project README while preserving stable API version `1.0`. V4 declares and certifies
+`linux-x64` and `win-x64` only; macOS support is not declared.
 
 The certification boundary requires:
 
@@ -20,12 +22,14 @@ The Windows full selection includes the Windows-only Trusted Base behavioral sui
 all approved Linux tests. Tests not selected for a platform cannot silently count toward that platform's
 coverage.
 
-The P9.5 extension certifies that the offline archive includes a deterministic Companion whose UI
+The 1.1.0/P9 extension certifies that the offline archive includes a deterministic Companion whose UI
 assets are embedded in its hash-bound assembly, that installed operation remains confined to the V4
 root model, and that command-injection, path-escape, Markdown-XSS, hostile-parent and lifecycle
-negatives pass on Linux and Windows. It does not revise the previously published V4 1.0.0 release or
-authorize a new publication.
+negatives pass on Linux and Windows. It also requires `README.md` as package authority and proves that
+the README is present in the archive and installed payload. The previous V4 1.0.0 release remains an
+immutable historical release.
 `Invoke-V4V1Certification.ps1` accepts only matching passing platform reports and the exact deterministic
 archive. Its record fixes `releaseAuthorized`, `activeIfxCutover` and `ifxProfileIncluded` to `false`.
 
-Publishing, tagging, workflow/ruleset activation and IFX adoption each require separate authorization.
+Publishing/tagging and IFX adoption use separate exact Plans. Workflow/ruleset activation remains a
+separately authorized operation.

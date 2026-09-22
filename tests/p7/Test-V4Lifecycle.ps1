@@ -13,6 +13,7 @@ $companionProject = Join-Path $packageRoot 'integrations/web/V4.Guards.WebCompan
 $builder = Join-Path $packageRoot 'core/distribution/New-V4Distribution.ps1'
 $installer = Join-Path $packageRoot 'core/distribution/Install-V4Distribution.ps1'
 $sourceCommit = (git -C $repoRoot rev-parse HEAD).Trim().ToLowerInvariant()
+$plugin = Get-Content -Raw (Join-Path $packageRoot 'plugin.json') | ConvertFrom-Json
 $failures = [Collections.Generic.List[string]]::new()
 
 function Run-Script([string] $Script, [string[]] $Arguments) {
@@ -48,7 +49,7 @@ $distribution = Run-Script $builder @('-PackageRoot',$packageRoot,'-HostRoot',(J
 if ($distribution.Code -ne 0) { throw "Lifecycle distribution failed: $($distribution.Output)" }
 $archive = ($distribution.Output | ConvertFrom-Json).archivePath
 $hostile = Join-Path $runRoot 'hostile-parent'
-$installRoot = Join-Path $hostile 'installed/v4-guards-1.0.0'
+$installRoot = Join-Path $hostile "installed/v4-guards-$($plugin.version)"
 $receiptPath = Join-Path $hostile 'receipts/install.json'
 $targetRoot = Join-Path $runRoot 'external-target'
 $stateRoot = Join-Path $runRoot 'mutable/state'
@@ -67,6 +68,7 @@ try {
     $install = Run-Script $installer @('-Mode','Install','-ArchivePath',$archive,'-InstallRoot',$installRoot,'-ReceiptPath',$receiptPath)
     if ($install.Code -ne 0) { $failures.Add("install failed: $($install.Output)") }
     if (-not (Test-Json -LiteralPath $receiptPath -SchemaFile (Join-Path $packageRoot 'core/contracts/install-receipt.schema.json') -ErrorAction SilentlyContinue)) { $failures.Add('install receipt violates schema') }
+    if (-not (Test-Path -LiteralPath (Join-Path $installRoot 'package/README.md') -PathType Leaf)) { $failures.Add('installed package is missing the root README') }
     $installedHash = if (Test-Path $installRoot) { Tree-Hash $installRoot } else { '' }
 
     $mismatch = Run-Script (Join-Path $installRoot 'package/core/distribution/Invoke-V4Installed.ps1') @('-PackageRoot',(Join-Path $installRoot 'package'),'-Profile','default','-PrerequisiteReportPath',(Join-Path $evidenceRoot 'mismatch-prerequisites.json'),'-HostArgumentsJson',(@('stage','run','--stage','analysis','--package-root',(Join-Path $installRoot 'package'),'--target-root',$targetRoot,'--state-root',$stateRoot,'--evidence-root',$evidenceRoot,'--profile','synthetic_profile') | ConvertTo-Json -Compress))
