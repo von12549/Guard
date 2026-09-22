@@ -51,6 +51,13 @@ $fixtures = [ordered]@{
     'v1-certification' = [ordered]@{ formatVersion=1; id='v4-guards-v1-candidate'; version='1.0.0'; status='candidate'; sourceCommit=$commit; packageHash=$hash; archiveSha256=$hash; contractsManifestSha256=$hash; compatibilityBaselineSha256=$hash; platformReports=@([ordered]@{platform='linux';coverage='complete';path='platform/linux.json';sha256=$hash;testCount=1},[ordered]@{platform='windows';coverage='full';path='platform/windows.json';sha256=$hash;testCount=1});acceptance=@('P8.1-platforms','P8.2-lifecycle','P8.3-supply-chain','P8.4-compatibility-recovery','P8.5-v4-native-architecture');releaseAuthorized=$false;activeIfxCutover=$false;ifxProfileIncluded=$false;architectureRuntimeDependencies=@('pwsh','dotnet','roslyn','archunitnet') }
 }
 
+$fixtures['project-query'] = [ordered]@{ formatVersion=1; status='pass'; query='project'; authority='v4-host'; project=[ordered]@{ projectId=('c'*32); targetRoot='C:/target'; targetIdentityHash=$hash; bound=$false; profileId=$null; stateDocumentStatus='missing' }; roots=[ordered]@{ packageRoot='C:/package'; targetRoot='C:/target'; stateRoot='C:/state'; evidenceRoot='C:/evidence' } }
+$fixtures['profile-catalog-query'] = [ordered]@{ formatVersion=1; status='pass'; query='profiles'; authority='v4-host'; profiles=@([ordered]@{ id='synthetic_profile'; version='1.0.0'; sha256=$hash; projectIdentityId='synthetic'; selectedModules=@('synthetic-probe'); stages=@('bootstrap','analysis','pre','post' | ForEach-Object { [ordered]@{ stage=$_; enabled=$true; modules=@('synthetic-probe') } }) }) }
+$fixtures['prerequisite-query'] = [ordered]@{ formatVersion=1; status='pass'; query='doctor'; authority='v4-host'; report=(Clone $fixtures['prerequisite-report']) }
+$fixtures['run-catalog-query'] = [ordered]@{ formatVersion=1; status='pass'; query='runs'; authority='v4-host'; projectId=('c'*32); runs=@([ordered]@{ runId=('d'*32); stage='analysis'; status='pass'; exitCategory='success'; profileId='synthetic_profile'; profileVersion='1.0.0'; resultSha256=$hash; executedStages=@('analysis'); findingCount=0; coverageCount=1 }) }
+$fixtures['evidence-query'] = [ordered]@{ formatVersion=1; status='pass'; query='evidence'; authority='v4-host'; projectId=('c'*32); runId=('c'*32); resultSha256=$hash; stageResult=(Clone $fixtures['stage-result']); files=@([ordered]@{ path='runs/example/stage-result.json'; kind='stage-result'; sha256=$hash; size=1 }) }
+$fixtures['plan-catalog-query'] = [ordered]@{ formatVersion=1; status='pass'; query='plans'; authority='v4-host'; planRoot='plans'; plans=@([ordered]@{ id='20260922-synthetic'; title='Synthetic'; kind='v4-native'; presentationMode='native-contract'; validation='v4-plan-valid'; jsonPath='plans/20260922-synthetic.plan.json'; markdownPath='plans/20260922-synthetic.md'; jsonSha256=$hash; markdownSha256=$hash }) }
+
 foreach ($entry in $fixtures.GetEnumerator()) {
     Valid $entry.Key $entry.Value
     $unknown = Clone $entry.Value
@@ -90,6 +97,18 @@ $selfAccepted = Clone $fixtures['genesis-record']
 $selfAccepted.acceptedBy.candidateHostVerdictAllowed = $true
 Invalid 'candidate self-accepted genesis' 'genesis-record' $selfAccepted
 
+$mixedPlanView = Clone $fixtures['plan-catalog-query']
+$mixedPlanView.plans[0].presentationMode = 'historical-read-only'
+Invalid 'mixed native and historical Plan presentation' 'plan-catalog-query' $mixedPlanView
+
+$looseDoctor = Clone $fixtures['prerequisite-query']
+$looseDoctor.report['unexpected'] = $true
+Invalid 'doctor nested report unknown field' 'prerequisite-query' $looseDoctor
+
+$looseEvidence = Clone $fixtures['evidence-query']
+$looseEvidence.stageResult['unexpected'] = $true
+Invalid 'evidence nested Stage result unknown field' 'evidence-query' $looseEvidence
+
 $cliPath = Join-Path $contractRoot 'cli-contract.json'
 $cli = Get-Content -Raw $cliPath | ConvertFrom-Json -AsHashtable -Depth 30
 Valid 'cli-contract' $cli
@@ -110,7 +129,19 @@ $exitMap = @($cli.exitCategories | Sort-Object code | ForEach-Object { "$($_.id)
 $expectedExitMap = @('success=0','invalid-input=10','unsafe-path=11','integrity-failure=12','capability-denied=13','adapter-failure=14','prerequisite-missing=15','findings-blocking=16','state-conflict=17','reset-refused=18','internal-error=19')
 if (($exitMap -join ',') -cne ($expectedExitMap -join ',')) { $failures.Add('Stable exit category mapping drifted') }
 
-$schemaNames = @('capability-matrix','ci-artifact-manifest','ci-contract','cli-contract','compatibility-baseline','distribution-manifest','finding-baseline','genesis-record','install-receipt','module-registry','module','plan-set','plan','platform-certification','plugin','prerequisite-report','profile','recovery-artifact','reset-manifest','rule-execution-plan','runtime-requirements','stage-result','state','v1-certification')
+$queryPath = Join-Path $contractRoot 'query-contract.json'
+$query = Get-Content -Raw $queryPath | ConvertFrom-Json -AsHashtable -Depth 30
+Valid 'query-contract' $query
+$queryCommands = @($query.commands | ForEach-Object id)
+$expectedQueryCommands = @('query.project','query.profiles','query.doctor','query.runs','query.evidence','query.plans')
+if (($queryCommands -join ',') -cne ($expectedQueryCommands -join ',')) { $failures.Add('Experimental query command identities drifted') }
+if (@($query.commands | Where-Object { $_.stability -cne 'experimental' -or $_.mutability -cne 'read-only' }).Count -ne 0) {
+    $failures.Add('A query command is not experimental and read-only')
+}
+$expectedQuerySchemas = @('project-query','profile-catalog-query','prerequisite-query','run-catalog-query','evidence-query','plan-catalog-query')
+if ((@($query.commands | ForEach-Object resultSchema) -join ',') -cne ($expectedQuerySchemas -join ',')) { $failures.Add('Query result schema mapping drifted') }
+
+$schemaNames = @('capability-matrix','ci-artifact-manifest','ci-contract','cli-contract','compatibility-baseline','distribution-manifest','evidence-query','finding-baseline','genesis-record','install-receipt','module-registry','module','plan-catalog-query','plan-set','plan','platform-certification','plugin','prerequisite-query','prerequisite-report','profile-catalog-query','profile','project-query','query-contract','recovery-artifact','reset-manifest','rule-execution-plan','run-catalog-query','runtime-requirements','stage-result','state','v1-certification')
 foreach ($name in $schemaNames) {
     $schema = Get-Content -Raw (Schema $name) | ConvertFrom-Json -AsHashtable -Depth 50
     if ($schema.'$schema' -ne 'http://json-schema.org/draft-07/schema#' -or $schema.additionalProperties -ne $false -or -not $schema.ContainsKey('$id')) {
@@ -118,7 +149,7 @@ foreach ($name in $schemaNames) {
     }
 }
 
-$expectedManifestPaths = @($schemaNames | ForEach-Object { "core/contracts/$_.schema.json" }) + @('core/contracts/cli-contract.json') | Sort-Object
+$expectedManifestPaths = @($schemaNames | ForEach-Object { "core/contracts/$_.schema.json" }) + @('core/contracts/cli-contract.json','core/contracts/query-contract.json') | Sort-Object
 $manifest = Get-Content -Raw (Join-Path $contractRoot 'contracts-manifest.json') | ConvertFrom-Json -AsHashtable -Depth 20
 $manifestPaths = @($manifest.files | ForEach-Object path | Sort-Object)
 if (($manifestPaths -join ',') -cne ($expectedManifestPaths -join ',')) { $failures.Add('Contract manifest path set is not exact') }
@@ -130,4 +161,4 @@ foreach ($entry in $manifest.files) {
 }
 
 if ($failures.Count -gt 0) { throw ($failures -join "`n") }
-Write-Host "V4 P0B contract tests passed: $($schemaNames.Count) schemas, $($cli.commands.Count) commands, $($manifest.files.Count) bound contracts."
+Write-Host "V4 P0B contract tests passed: $($schemaNames.Count) schemas, $($cli.commands.Count) stable CLI entries, $($query.commands.Count) experimental read queries, $($manifest.files.Count) bound contracts."

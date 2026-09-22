@@ -52,25 +52,7 @@ internal static class ContractRuntime
             if (!File.Exists(documentPath))
                 throw new ContractException(10, "invalid-input", "Document does not exist.");
 
-            var relativeSchema = $"core/contracts/{schemaId}.schema.json";
-            var manifestPath = ResolveFileUnder(packageRoot, "core/contracts/contracts-manifest.json", "contracts manifest");
-            using var manifest = JsonDocument.Parse(File.ReadAllText(manifestPath));
-            var entries = manifest.RootElement.GetProperty("files").EnumerateArray()
-                .Where(entry => entry.GetProperty("path").GetString() == relativeSchema).ToArray();
-            if (entries.Length != 1)
-                throw new ContractException(10, "invalid-input", $"Schema is not registered: {schemaId}");
-
-            var schemaPath = ResolveFileUnder(packageRoot, relativeSchema, "schema");
-            var expectedHash = entries[0].GetProperty("sha256").GetString();
-            var actualHash = Hash(schemaPath);
-            if (!string.Equals(expectedHash, actualHash, StringComparison.Ordinal))
-                throw new ContractException(12, "integrity-failure", $"Registered schema hash drift: {schemaId}");
-
-            var validation = ValidateWithPowerShell(documentPath, schemaPath);
-            if (validation.ExitCode == 1)
-                throw new ContractException(16, "findings-blocking", $"Document does not satisfy schema {schemaId}.");
-            if (validation.ExitCode != 0)
-                throw new ContractException(14, "adapter-failure", $"Schema validation failed: {validation.Error}");
+            var actualHash = ValidateRegisteredDocument(packageRoot, schemaId, documentPath);
 
             Console.WriteLine(JsonSerializer.Serialize(new
             {
@@ -95,6 +77,36 @@ internal static class ContractRuntime
         {
             return Error(19, "internal-error", ex.Message);
         }
+    }
+
+    internal static string ValidateRegisteredDocument(string packageRoot, string schemaId, string documentPath)
+    {
+        if (!Regex.IsMatch(schemaId, "^[a-z][a-z0-9-]*$", RegexOptions.CultureInvariant))
+            throw new ContractException(10, "invalid-input", "Schema ID is invalid.");
+        var document = Path.GetFullPath(documentPath);
+        if (!File.Exists(document))
+            throw new ContractException(10, "invalid-input", "Document does not exist.");
+
+        var relativeSchema = $"core/contracts/{schemaId}.schema.json";
+        var manifestPath = ResolveFileUnder(packageRoot, "core/contracts/contracts-manifest.json", "contracts manifest");
+        using var manifest = JsonDocument.Parse(File.ReadAllText(manifestPath));
+        var entries = manifest.RootElement.GetProperty("files").EnumerateArray()
+            .Where(entry => entry.GetProperty("path").GetString() == relativeSchema).ToArray();
+        if (entries.Length != 1)
+            throw new ContractException(10, "invalid-input", $"Schema is not registered: {schemaId}");
+
+        var schemaPath = ResolveFileUnder(packageRoot, relativeSchema, "schema");
+        var expectedHash = entries[0].GetProperty("sha256").GetString();
+        var actualHash = Hash(schemaPath);
+        if (!string.Equals(expectedHash, actualHash, StringComparison.Ordinal))
+            throw new ContractException(12, "integrity-failure", $"Registered schema hash drift: {schemaId}");
+
+        var validation = ValidateWithPowerShell(document, schemaPath);
+        if (validation.ExitCode == 1)
+            throw new ContractException(16, "findings-blocking", $"Document does not satisfy schema {schemaId}.");
+        if (validation.ExitCode != 0)
+            throw new ContractException(14, "adapter-failure", $"Schema validation failed: {validation.Error}");
+        return actualHash;
     }
 
     private static (int ExitCode, string Error) ValidateWithPowerShell(string documentPath, string schemaPath)
@@ -199,7 +211,7 @@ internal static class ContractRuntime
         return code;
     }
 
-    private sealed class ContractException(int code, string category, string message) : Exception(message)
+    internal sealed class ContractException(int code, string category, string message) : Exception(message)
     {
         public int Code { get; } = code;
         public string Category { get; } = category;

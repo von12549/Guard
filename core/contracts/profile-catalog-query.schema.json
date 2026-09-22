@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/profile-catalog-query.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "status", "query", "authority", "profiles"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "const": "pass" },
+    "query": { "const": "profiles" },
+    "authority": { "const": "v4-host" },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "version", "sha256", "projectIdentityId", "selectedModules", "stages"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+          "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "projectIdentityId": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+          "selectedModules": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9-]+$" } },
+          "stages": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["stage", "enabled", "modules"],
+              "properties": {
+                "stage": { "enum": ["bootstrap", "analysis", "pre", "post"] },
+                "enabled": { "type": "boolean" },
+                "modules": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9-]+$" } }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # V4 runtime architecture
 
-Status: V4 v1 published; V4-P9.1 local Companion spike implemented; P9.2+ and remote activation not authorized
+Status: V4 v1 published; V4-P9.2 read/query contracts implemented; P9.3+ and remote activation not authorized
 
 Decision authority: `00-architecture-decision-set.md`
 
@@ -40,7 +40,24 @@ The Companion starts the existing `v4-guards.dll` with shell execution disabled 
 `ArgumentList` for the stable `stage run` command. It returns the Host JSON and exit code unchanged;
 the presentation labels that value as the Host result. Windows-native and pinned Linux tests prove one
 synthetic Target-to-result flow, PackageRoot/TargetRoot immutability, mutable-root separation and input
-injection refusal. These spike endpoints are not the durable read/query contracts planned for P9.2.
+injection refusal. These spike endpoints remain separate from the durable read/query contracts added
+in P9.2.
+
+### P9.2 implemented read/query boundary
+
+The Host now exposes six experimental, schema-versioned, read-only projections: project binding,
+installed Profiles, prerequisites, runs, evidence and Plans. The separate `query-contract.json`
+registers exact syntax, roots and result schemas without changing the V4 1.0.0 stable CLI contract.
+Every query first validates PackageRoot and its registered query contract. State and Stage results are
+validated against their registered authority schemas before projection, and the generated response is
+validated before it is emitted.
+
+Queries use deterministic IDs, SHA-256 hashes, counts and relative paths rather than file timestamps.
+They write no data beneath the four V4 roots. The prerequisite projection preserves a validated report
+without treating it as a Stage verdict. Plan discovery delegates V4-native validation to the Plan
+runtime; structurally valid V3-formal pairs remain explicitly labelled historical read-only
+compatibility views. Windows and pinned, network-disabled Linux tests prove root byte invariance and
+fail-closed overlap, traversal and evidence-tamper behavior.
 
 Plan presentation has two explicit modes. V4-native Plans use the V4 Plan and Plan-set contracts.
 Current V3-formal historical Markdown/JSON pairs may be shown read-only through a labelled compatibility

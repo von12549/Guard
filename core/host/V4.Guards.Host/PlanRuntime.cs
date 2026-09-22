@@ -105,6 +105,23 @@ internal static class PlanRuntime
         }
     }
 
+    internal static void VerifyPlanContractForQuery(string packageRoot) => VerifyPlanContract(packageRoot);
+
+    internal static bool TryReadNativePlan(string targetRoot, string relativePath, out NativePlanProjection? projection)
+    {
+        try
+        {
+            var member = LoadPlan(targetRoot, relativePath);
+            projection = new NativePlanProjection(member.Plan.Id, member.Plan.Title, member.RelativePath, member.Sha256);
+            return true;
+        }
+        catch (PlanException)
+        {
+            projection = null;
+            return false;
+        }
+    }
+
     private static Arguments ParseArguments(string[] args)
     {
         if (args.Length < 2 || args[0] != "plan" || args[1] is not ("validate" or "compose"))
@@ -395,6 +412,7 @@ internal static class PlanRuntime
     private sealed record DerivedUnion(string[] PlannedPaths, string[] Areas, string[] Risks, string[] Decisions,
         string[] ValidationCommands, string[] Boundaries);
     private sealed record PlanSetDocument(int FormatVersion, string Id, PlanSetMember[] Members, DerivedUnion DerivedUnion, string CompositionHash);
+    internal sealed record NativePlanProjection(string Id, string Title, string Path, string Sha256);
     private sealed class PlanException(int code, string category, string message) : Exception(message)
     {
         public int Code { get; } = code;
