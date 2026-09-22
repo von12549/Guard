@@ -3,7 +3,7 @@
   "$id": "https://ifx.local/v4/web/session.schema.json",
   "type": "object",
   "additionalProperties": false,
-  "required": ["formatVersion", "status", "authority", "allowedCommand", "allowedStages", "allowedProfiles", "activeProjectId", "targetCount", "roots"],
+  "required": ["formatVersion", "status", "authority", "allowedCommand", "allowedStages", "allowedQueries", "allowedProfiles", "activeProjectId", "targetCount", "roots"],
   "properties": {
     "formatVersion": { "const": 1 },
     "status": { "const": "ready" },
@@ -12,6 +12,10 @@
     "allowedStages": {
       "type": "array",
       "const": ["bootstrap", "analysis", "pre", "post"]
+    },
+    "allowedQueries": {
+      "type": "array",
+      "const": ["query.runs", "query.evidence", "query.plans"]
     },
     "allowedProfiles": {
       "type": "array",

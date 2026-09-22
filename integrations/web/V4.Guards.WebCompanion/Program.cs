@@ -13,9 +13,14 @@ namespace V4.Guards.WebCompanion;
 internal static class Program
 {
     private const string SessionCookie = "v4-companion-session";
+    private const int MaxPlanFileBytes = 1_048_576;
     private static readonly string[] AllowedStages = ["bootstrap", "analysis", "pre", "post"];
+    private static readonly string[] AllowedQueries = ["query.runs", "query.evidence", "query.plans"];
     private static readonly Regex ProfilePattern = new("^[a-z][a-z0-9_-]*$", RegexOptions.CultureInvariant);
     private static readonly Regex ProjectIdPattern = new("^[a-f0-9]{32}$", RegexOptions.CultureInvariant);
+    private static readonly Regex RunIdPattern = new("^[a-f0-9]{32}$", RegexOptions.CultureInvariant);
+    private static readonly Regex PlanIdPattern = new("^[0-9]{8}-[a-z0-9-]+$", RegexOptions.CultureInvariant);
+    private static readonly UTF8Encoding StrictUtf8 = new(false, true);
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -90,6 +95,7 @@ internal static class Program
                         authority = "v4-host",
                         allowedCommand = "stage.run",
                         allowedStages = AllowedStages,
+                        allowedQueries = AllowedQueries,
                         allowedProfiles = workspace.Profiles.Select(profile => profile.Id).ToArray(),
                         activeProjectId = workspace.ActiveProjectId,
                         targetCount = workspace.Targets.Length,
@@ -129,6 +135,81 @@ internal static class Program
                         "query", "doctor", "--package-root", options.PackageRoot, "--profile", profile
                     ], context.RequestAborted);
                     return Results.Json(report, JsonOptions);
+                }
+                catch (HostInvocationException ex)
+                {
+                    return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 502);
+                }
+            });
+
+            app.MapGet("/api/v1/runs", async (HttpContext context) =>
+            {
+                if (!IsAuthorizedRead(context, sessionSecret))
+                    return Results.Json(Error("session-refused", "A loopback session is required."), JsonOptions, statusCode: 403);
+                try
+                {
+                    var workspace = await BuildWorkspace(options, workspaceState, context.RequestAborted);
+                    var active = workspace.Targets.Single(target => target.Active);
+                    return Results.Json(await QueryRuns(options, active.ProjectId, context.RequestAborted), JsonOptions);
+                }
+                catch (HostInvocationException ex)
+                {
+                    return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 502);
+                }
+            });
+
+            app.MapGet("/api/v1/evidence/{runId}", async (HttpContext context, string runId) =>
+            {
+                if (!IsAuthorizedRead(context, sessionSecret))
+                    return Results.Json(Error("session-refused", "A loopback session is required."), JsonOptions, statusCode: 403);
+                if (!RunIdPattern.IsMatch(runId))
+                    return Results.Json(Error("invalid-input", "Run ID is invalid."), JsonOptions, statusCode: 400);
+                try
+                {
+                    var workspace = await BuildWorkspace(options, workspaceState, context.RequestAborted);
+                    var active = workspace.Targets.Single(target => target.Active);
+                    return Results.Json(await QueryEvidence(options, active.ProjectId, runId, context.RequestAborted), JsonOptions);
+                }
+                catch (HostInvocationException ex)
+                {
+                    return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 502);
+                }
+            });
+
+            app.MapGet("/api/v1/plans", async (HttpContext context) =>
+            {
+                if (!IsAuthorizedRead(context, sessionSecret))
+                    return Results.Json(Error("session-refused", "A loopback session is required."), JsonOptions, statusCode: 403);
+                try
+                {
+                    var workspace = await BuildWorkspace(options, workspaceState, context.RequestAborted);
+                    var active = workspace.Targets.Single(target => target.Active);
+                    return Results.Json(await QueryPlans(options, active.TargetRoot, context.RequestAborted), JsonOptions);
+                }
+                catch (HostInvocationException ex)
+                {
+                    return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 502);
+                }
+            });
+
+            app.MapGet("/api/v1/plans/{planId}", async (HttpContext context, string planId) =>
+            {
+                if (!IsAuthorizedRead(context, sessionSecret))
+                    return Results.Json(Error("session-refused", "A loopback session is required."), JsonOptions, statusCode: 403);
+                if (!PlanIdPattern.IsMatch(planId))
+                    return Results.Json(Error("invalid-input", "Plan ID is invalid."), JsonOptions, statusCode: 400);
+                try
+                {
+                    var workspace = await BuildWorkspace(options, workspaceState, context.RequestAborted);
+                    var active = workspace.Targets.Single(target => target.Active);
+                    var catalog = Deserialize<PlanCatalogProjection>(
+                        await QueryPlans(options, active.TargetRoot, context.RequestAborted), "Plan catalog query");
+                    var matches = catalog.Plans.Where(plan => string.Equals(plan.Id, planId, StringComparison.Ordinal)).ToArray();
+                    if (matches.Length == 0)
+                        return Results.Json(Error("plan-not-found", "Plan ID is not in the active Target catalog."), JsonOptions, statusCode: 404);
+                    if (matches.Length != 1)
+                        throw new HostInvocationException("host-output-invalid", "The Host Plan catalog contains a duplicate Plan ID.");
+                    return Results.Json(await ReadPlanDetail(active.TargetRoot, matches[0], context.RequestAborted), JsonOptions);
                 }
                 catch (HostInvocationException ex)
                 {
@@ -298,6 +379,87 @@ internal static class Program
             "query", "profiles", "--package-root", options.PackageRoot
         ], cancellationToken);
         return Deserialize<ProfileCatalogProjection>(result, "profile catalog query");
+    }
+
+    private static Task<JsonElement> QueryRuns(CompanionOptions options, string projectId, CancellationToken cancellationToken) =>
+        InvokeHostQuery(options,
+        [
+            "query", "runs", "--package-root", options.PackageRoot, "--state-root", options.StateRoot,
+            "--evidence-root", options.EvidenceRoot, "--project", projectId
+        ], cancellationToken);
+
+    private static Task<JsonElement> QueryEvidence(CompanionOptions options, string projectId, string runId,
+        CancellationToken cancellationToken) => InvokeHostQuery(options,
+        [
+            "query", "evidence", "--package-root", options.PackageRoot, "--state-root", options.StateRoot,
+            "--evidence-root", options.EvidenceRoot, "--project", projectId, "--run", runId
+        ], cancellationToken);
+
+    private static Task<JsonElement> QueryPlans(CompanionOptions options, string targetRoot, CancellationToken cancellationToken) =>
+        InvokeHostQuery(options,
+        [
+            "query", "plans", "--package-root", options.PackageRoot, "--target-root", targetRoot,
+            "--plan-root", options.PlanRoot
+        ], cancellationToken);
+
+    private static async Task<PlanDetailDocument> ReadPlanDetail(string targetRoot, PlanCatalogItem plan,
+        CancellationToken cancellationToken)
+    {
+        var markdownBytes = await ReadProjectedPlanFile(targetRoot, plan.MarkdownPath, plan.MarkdownSha256,
+            "Plan Markdown", cancellationToken);
+        var jsonBytes = await ReadProjectedPlanFile(targetRoot, plan.JsonPath, plan.JsonSha256,
+            "Plan JSON", cancellationToken);
+        string markdown;
+        string json;
+        try
+        {
+            markdown = StrictUtf8.GetString(markdownBytes);
+            json = StrictUtf8.GetString(jsonBytes);
+        }
+        catch (DecoderFallbackException ex)
+        {
+            throw new HostInvocationException("plan-content-invalid", $"Plan content is not strict UTF-8: {ex.Message}");
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(json, new JsonDocumentOptions
+            {
+                AllowTrailingCommas = false,
+                CommentHandling = JsonCommentHandling.Disallow,
+                MaxDepth = 100
+            });
+            if (document.RootElement.ValueKind != JsonValueKind.Object)
+                throw new JsonException("Plan JSON must be an object.");
+            return new PlanDetailDocument(1, "pass", "v4-host", plan, markdown, document.RootElement.Clone());
+        }
+        catch (JsonException ex)
+        {
+            throw new HostInvocationException("plan-content-invalid", $"Plan JSON is invalid: {ex.Message}");
+        }
+    }
+
+    private static async Task<byte[]> ReadProjectedPlanFile(string targetRoot, string relativePath, string expectedHash,
+        string label, CancellationToken cancellationToken)
+    {
+        var segments = relativePath.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+        if (string.IsNullOrWhiteSpace(relativePath) || Path.IsPathRooted(relativePath) || segments.Length == 0 ||
+            segments.Any(segment => segment is "." or ".." || segment.Contains(':', StringComparison.Ordinal)))
+            throw new HostInvocationException("unsafe-path", $"{label} path is not a safe Target-relative path.");
+        var fullPath = Path.GetFullPath(Path.Combine(targetRoot, relativePath));
+        if (!IsUnder(fullPath, targetRoot) || !File.Exists(fullPath))
+            throw new HostInvocationException("unsafe-path", $"{label} is outside the active Target or missing.");
+        EnsureNoLinks(targetRoot, fullPath, label);
+        var info = new FileInfo(fullPath);
+        if (info.Length > MaxPlanFileBytes)
+            throw new HostInvocationException("plan-content-invalid", $"{label} exceeds the {MaxPlanFileBytes}-byte presentation limit.");
+        var bytes = await File.ReadAllBytesAsync(fullPath, cancellationToken);
+        if (bytes.Length > MaxPlanFileBytes)
+            throw new HostInvocationException("plan-content-invalid", $"{label} exceeded the presentation limit while it was read.");
+        var actualHash = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
+        if (!string.Equals(actualHash, expectedHash, StringComparison.Ordinal))
+            throw new HostInvocationException("integrity-failure", $"{label} no longer matches the Host-projected SHA-256.");
+        return bytes;
     }
 
     private static T Deserialize<T>(JsonElement value, string label)
@@ -475,6 +637,25 @@ internal static class Program
     private static bool PathEquals(string left, string right) => string.Equals(Path.GetFullPath(left), Path.GetFullPath(right),
         OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
 
+    private static bool IsUnder(string path, string root)
+    {
+        var relative = Path.GetRelativePath(root, path);
+        return relative == "." || (!Path.IsPathRooted(relative) && relative != ".." &&
+            !relative.StartsWith($"..{Path.DirectorySeparatorChar}", StringComparison.Ordinal));
+    }
+
+    private static void EnsureNoLinks(string root, string path, string label)
+    {
+        FileSystemInfo? current = File.Exists(path) ? new FileInfo(path) : new DirectoryInfo(path);
+        while (current is not null && IsUnder(current.FullName, root))
+        {
+            if ((current.Attributes & FileAttributes.ReparsePoint) != 0 || current.LinkTarget is not null)
+                throw new HostInvocationException("unsafe-path", $"{label} crosses a link or reparse point: {current.FullName}");
+            if (PathEquals(current.FullName, root)) break;
+            current = current is FileInfo file ? file.Directory : ((DirectoryInfo)current).Parent;
+        }
+    }
+
     private sealed record StageRequest(string Stage, string Profile, bool WithDependencies);
     private sealed record WorkspaceSelection(string ProjectId);
     private sealed record HostExecution(int ExitCode, JsonElement Result);
@@ -485,6 +666,11 @@ internal static class Program
     private sealed record ProfileProjection(string Id, string Version, string Sha256, string ProjectIdentityId,
         string[] SelectedModules, ProfileStageProjection[] Stages);
     private sealed record ProfileStageProjection(string Stage, bool Enabled, string[] Modules);
+    private sealed record PlanCatalogProjection(PlanCatalogItem[] Plans);
+    private sealed record PlanCatalogItem(string Id, string Title, string Kind, string PresentationMode,
+        string Validation, string JsonPath, string MarkdownPath, string JsonSha256, string MarkdownSha256);
+    private sealed record PlanDetailDocument(int FormatVersion, string Status, string Authority, PlanCatalogItem Plan,
+        string Markdown, JsonElement Document);
     private sealed record WorkspaceTarget(string ProjectId, string TargetRoot, string TargetIdentityHash, bool Bound,
         string? ProfileId, string StateDocumentStatus, bool Active);
     private sealed record WorkspaceDocument(int FormatVersion, string Status, string Authority, string Concurrency,
@@ -549,7 +735,7 @@ internal static class Program
     }
 
     private sealed record CompanionOptions(string PackageRoot, string[] TargetRoots, string StateRoot,
-        string EvidenceRoot, string HostPath, string DotnetHost, int Port)
+        string EvidenceRoot, string PlanRoot, string HostPath, string DotnetHost, int Port)
     {
         public static CompanionOptions Parse(string[] args)
         {
@@ -564,7 +750,7 @@ internal static class Program
                 else if (!values.TryAdd(name, args[index + 1]))
                     throw new CompanionException(10, "invalid-input", "Startup arguments must be unique except --target-root.");
             }
-            var known = new HashSet<string>(["package-root", "state-root", "evidence-root", "host", "port"], StringComparer.Ordinal);
+            var known = new HashSet<string>(["package-root", "state-root", "evidence-root", "plan-root", "host", "port"], StringComparer.Ordinal);
             var unknown = values.Keys.FirstOrDefault(value => !known.Contains(value));
             if (unknown is not null) throw new CompanionException(10, "invalid-input", $"Unknown startup argument: --{unknown}");
             string Required(string name) => values.TryGetValue(name, out var value) && !string.IsNullOrWhiteSpace(value)
@@ -591,13 +777,27 @@ internal static class Program
             }
             if (Overlaps(stateRoot, evidenceRoot)) throw new CompanionException(11, "unsafe-path", "StateRoot and EvidenceRoot overlap.");
 
+            var planRoot = ResolveRelativePath(values.TryGetValue("plan-root", out var configuredPlanRoot)
+                ? configuredPlanRoot : "plans", "Plan root");
+
             var hostPath = ResolveFile(Required("host"), "V4 Host");
             if (!string.Equals(Path.GetFileName(hostPath), "v4-guards.dll", StringComparison.Ordinal))
                 throw new CompanionException(10, "invalid-input", "The Host must be v4-guards.dll.");
             var dotnetHost = Environment.ProcessPath;
             if (string.IsNullOrWhiteSpace(dotnetHost) || !File.Exists(dotnetHost))
                 throw new CompanionException(15, "prerequisite-missing", "The current dotnet host path is unavailable.");
-            return new CompanionOptions(packageRoot, targetRoots, stateRoot, evidenceRoot, hostPath, Path.GetFullPath(dotnetHost), port);
+            return new CompanionOptions(packageRoot, targetRoots, stateRoot, evidenceRoot, planRoot, hostPath,
+                Path.GetFullPath(dotnetHost), port);
+        }
+
+        private static string ResolveRelativePath(string value, string label)
+        {
+            if (string.IsNullOrWhiteSpace(value) || Path.IsPathRooted(value))
+                throw new CompanionException(11, "unsafe-path", $"{label} must be a non-empty relative path.");
+            var segments = value.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length == 0 || segments.Any(segment => segment is "." or ".." || segment.Contains(':', StringComparison.Ordinal)))
+                throw new CompanionException(11, "unsafe-path", $"{label} contains an unsafe segment.");
+            return string.Join('/', segments);
         }
 
         private static string ResolveDirectory(string value, string label)

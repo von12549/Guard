@@ -96,6 +96,59 @@
 }</pre>
       </section>
     </div>
+
+    <section class="inspection-deck" aria-labelledby="inspection-title">
+      <header class="inspection-header">
+        <div class="section-heading">
+          <h2 id="inspection-title">Evidence and Plan Center</h2>
+          <p>Read-only projections from the active Target and the V4 Host.</p>
+        </div>
+        <p class="inspection-boundary">IDs in. Host-vetted content out. No browser paths.</p>
+      </header>
+
+      <div class="inspection-layout">
+        <aside class="inspection-index" aria-label="Inspection index">
+          <div class="inspection-tabs" role="tablist" aria-label="Inspection source">
+            <button id="runs-tab" class="inspection-tab selected" type="button" role="tab" aria-selected="true">Runs</button>
+            <button id="plans-tab" class="inspection-tab" type="button" role="tab" aria-selected="false">Plans</button>
+          </div>
+          <p id="index-caption" class="index-caption">Host run catalog</p>
+          <div id="inspection-list" class="inspection-list" aria-live="polite">
+            <p class="placeholder">Connect to load evidence.</p>
+          </div>
+        </aside>
+
+        <article class="inspection-document" aria-labelledby="document-title">
+          <div class="document-heading">
+            <div>
+              <p id="document-kicker" class="document-kicker">No selection</p>
+              <h3 id="document-title">Choose a run or Plan</h3>
+            </div>
+            <span id="document-status" class="document-status">Waiting</span>
+          </div>
+          <div id="document-body" class="document-body">
+            <p class="empty-guidance">Run a Stage or open the Plan catalog to inspect Host-owned records.</p>
+          </div>
+        </article>
+
+        <aside class="proof-rail" aria-labelledby="proof-title">
+          <div class="proof-heading">
+            <h3 id="proof-title">Integrity record</h3>
+            <p id="proof-caption">Hashes and raw JSON remain read-only.</p>
+          </div>
+          <div id="proof-body" class="proof-body">
+            <p class="placeholder">Nothing selected.</p>
+          </div>
+          <details class="raw-disclosure">
+            <summary>Raw JSON</summary>
+            <pre id="inspection-json" tabindex="0">{
+  "authority": "v4-host",
+  "status": "waiting"
+}</pre>
+          </details>
+        </aside>
+      </div>
+    </section>
   </main>
 </body>
 </html>

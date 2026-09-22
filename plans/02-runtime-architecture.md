@@ -1,6 +1,6 @@
 # V4 runtime architecture
 
-Status: V4 v1 published; V4-P9.3 workspace and Stage Runner implemented; P9.4+ and remote activation not authorized
+Status: V4 v1 published; V4-P9.4 evidence and Plan Center implemented; P9.5 and remote activation not authorized
 
 Decision authority: `00-architecture-decision-set.md`
 
@@ -81,9 +81,24 @@ authority. The workspace selection itself is process-local and writes no new sta
 network-disabled Linux suites prove two-Target selection, active-Target execution, dependency visibility,
 concurrency refusal, injection refusal and root confinement.
 
-Plan presentation has two explicit modes. V4-native Plans use the V4 Plan and Plan-set contracts.
-Current V3-formal historical Markdown/JSON pairs may be shown read-only through a labelled compatibility
-projection; presentation does not convert them into V4-native authorities.
+### P9.4 implemented evidence and Plan presentation boundary
+
+The evidence desk accepts no evidence paths. It asks the Host for the active project's run catalog,
+then selects evidence by a validated Host run ID. The complete `query evidence` projection is returned
+unchanged and rendered as Host status, findings, coverage, module results, evidence-file metadata,
+authority hashes and raw JSON. Presentation comparisons such as matched versus minimum do not create a
+second aggregate status or override the Host verdict.
+
+The trusted launcher fixes one relative Plan root for all registered Targets before listening; the
+browser selects only a validated Plan ID. The Companion first obtains the active Target's Host Plan
+catalog, resolves only the selected Host-projected pair, repeats containment/link checks, caps each file
+at 1 MiB, decodes strict UTF-8 and requires byte hashes to match the Host projection. Markdown is built
+with text-only DOM nodes, so source HTML, links, images, scripts and event attributes remain inert.
+
+Plan presentation has two explicit modes. V4-native Plans use `native-contract` and `v4-plan-valid`.
+Current V3-formal historical Markdown/JSON pairs use `historical-read-only` and
+`v3-compatibility-view`; presentation does not convert them into V4-native authorities. The viewer
+writes no state and provides no edit, Target mutation, reset, Git or remote path.
 
 ## System and root boundaries
 

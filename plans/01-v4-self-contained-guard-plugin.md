@@ -1,6 +1,6 @@
 # V4 v1 — self-contained guard plugin
 
-Status: `V1 RELEASED — V4-P9.3 workspace and Stage Runner implemented; P9.4+ and remote activation not authorized`
+Status: `V1 RELEASED — V4-P9.4 evidence and Plan Center implemented; P9.5 and remote activation not authorized`
 
 Development base: `codex/v4-development-base`
 
@@ -285,8 +285,9 @@ repository-relative IFX paths.
 - [x] **V4-P9.3** Implement one-active-Target workspace selection and the manual Stage Runner, including
   profile/module readiness, visible dependency execution and serialized UI-originated runs.
   (`20260922-v4-p9c-workspace-stage-runner`)
-- [ ] **V4-P9.4** Implement structured result/evidence viewing and a read-only Plan Center that clearly
+- [x] **V4-P9.4** Implement structured result/evidence viewing and a read-only Plan Center that clearly
   separates V4-native Plans from current V3-formal historical Plan pairs.
+  (`20260922-v4-p9d-evidence-plan-center`)
 - [ ] **V4-P9.5** Package immutable offline UI assets and pass command-injection, path-escape,
   Markdown-XSS, hostile-parent, deterministic lifecycle, Linux complete and Windows full checks.
 
