@@ -59,6 +59,8 @@ $contracts = Resolve-AuthorityPath $root 'core/contracts' 'contracts directory' 
 $pluginPath = Resolve-AuthorityPath $root 'plugin.json' 'plugin manifest' File
 Assert-Schema $pluginPath (Join-Path $contracts 'plugin.schema.json') 'plugin manifest'
 $plugin = Read-Object $pluginPath 'plugin manifest'
+$runtimeRequirementsPath = Resolve-AuthorityPath $root 'core/distribution/runtime-requirements.json' 'runtime requirements' File
+Assert-Schema $runtimeRequirementsPath (Join-Path $contracts 'runtime-requirements.schema.json') 'runtime requirements'
 
 $contractManifestPath = Resolve-AuthorityPath $root $plugin.contractsManifest 'contracts manifest' File
 $contractManifest = Read-Object $contractManifestPath 'contracts manifest'
@@ -157,7 +159,7 @@ foreach ($directory in @(Get-ChildItem -LiteralPath $profilesRoot -Directory -Fo
 if (-not $profiles.ContainsKey($plugin.defaultProfile)) { Fail "default profile is not installed: $($plugin.defaultProfile)" }
 
 $authorityFiles = [Collections.Generic.List[object]]::new()
-$authorityRoots = @('build','core','integrations','modules','profiles','restore','stages')
+$authorityRoots = @('build','core','docs','integrations','modules','profiles','restore','stages')
 $files = [Collections.Generic.List[IO.FileInfo]]::new()
 $files.Add((Get-Item -LiteralPath $pluginPath))
 foreach ($name in $authorityRoots) {

@@ -231,13 +231,13 @@ must not embed repository-relative IFX paths.
 
 ### V4-P7 — Packaging, isolation and documentation
 
-- [ ] **V4-P7.1** Produce a deterministic versioned V4 archive with source/provenance manifest and hashes.
-- [ ] **V4-P7.2** Install into a clean isolated directory without IFX or repository parent configuration.
-- [ ] **V4-P7.3** Validate declared host prerequisites before execution.
-- [ ] **V4-P7.4** Publish generated command/config documentation from schemas.
-- [ ] **V4-P7.5** Verify package, install, run, reset, uninstall and reinstall lifecycle.
+- [x] **V4-P7.1** Produce a deterministic versioned V4 archive with source/provenance manifest and hashes. (`20260922-v4-p7-packaging-lifecycle`)
+- [x] **V4-P7.2** Install into a clean isolated directory without IFX or repository parent configuration. (`20260922-v4-p7-packaging-lifecycle`)
+- [x] **V4-P7.3** Validate declared host prerequisites before execution. (`20260922-v4-p7-packaging-lifecycle`)
+- [x] **V4-P7.4** Publish generated command/config documentation from schemas. (`20260922-v4-p7-packaging-lifecycle`)
+- [x] **V4-P7.5** Verify package, install, run, reset, uninstall and reinstall lifecycle. (`20260922-v4-p7-packaging-lifecycle`)
 
-- [ ] **V4-P7.GATE** Identical inputs produce identical package contents; hostile parent configuration has no effect.
+- [x] **V4-P7.GATE** Identical inputs produce identical package contents; hostile parent configuration has no effect. (`20260922-v4-p7-packaging-lifecycle`)
 
 ### V4-P8 — V1 certification
 
