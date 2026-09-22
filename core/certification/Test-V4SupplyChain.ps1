@@ -15,6 +15,7 @@ $package = ($packageOutput -join "`n") | ConvertFrom-Json
 $nugetConfig = Get-Content -Raw -LiteralPath (Join-Path $root 'build/NuGet.config')
 if ($nugetConfig -notmatch '<clear\s*/>' -or $nugetConfig -match '<add\s+key=') { throw 'V4 NuGet.config must remain offline with no package source.' }
 if ((Get-Content -Raw -LiteralPath (Join-Path $root 'core/host/V4.Guards.Host/V4.Guards.Host.csproj')) -match '<PackageReference') { throw 'V4 host must not acquire an undeclared NuGet package.' }
+if ((Get-Content -Raw -LiteralPath (Join-Path $root 'integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj')) -match '<PackageReference') { throw 'V4 Web Companion must not acquire an undeclared NuGet package.' }
 
 $packageCache = if ($env:NUGET_PACKAGES) { [IO.Path]::GetFullPath($env:NUGET_PACKAGES) } else { Join-Path ([Environment]::GetFolderPath([Environment+SpecialFolder]::UserProfile)) '.nuget/packages' }
 $locks = [Collections.Generic.List[object]]::new()
@@ -36,7 +37,7 @@ foreach ($entry in (Read-Json (Join-Path $root 'modules/registry.json')).modules
     $locks.Add([ordered]@{ moduleId=[string]$entry.id; path=[string]$module.dependencyLock.path; sha256=Hash $lockPath; dependencyCount=@($lock.dependencies).Count })
 }
 
-$runtimeRoots = @('core/host','core/runtime','core/distribution','modules','profiles','build')
+$runtimeRoots = @('core/host','core/runtime','core/distribution','integrations/web','modules','profiles','build')
 $forbidden = [Regex]::new('(?i)(docs[\\/]guards[\\/]V3|V3_ifx|LayerGuard|IFX\.Migration|ifx_profile)')
 $matches = [Collections.Generic.List[string]]::new()
 foreach ($relativeRoot in $runtimeRoots) {

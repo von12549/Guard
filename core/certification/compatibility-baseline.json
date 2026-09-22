@@ -15,7 +15,7 @@
     { "path": "core/contracts/state.schema.json", "role": "report", "sha256": "0ec1c8f29c266c7b38f4ca49b1b57c4143266563164bbb497362fddf9dfc9dc9" },
     { "path": "core/contracts/reset-manifest.schema.json", "role": "report", "sha256": "1d875f89e6375eaf0c8274724905fc8ce3bfe4f309d6c2017edfdfbe90a16134" },
     { "path": "core/contracts/prerequisite-report.schema.json", "role": "report", "sha256": "b5bd9dfa40fcd85abd8410321f572e858444b8087b83caf0715eab33edbc630a" },
-    { "path": "core/contracts/distribution-manifest.schema.json", "role": "report", "sha256": "d1d28c385bf21e15d8f74b3e02b073b9eec951eb081a92f63adcdd6a08736e04" },
+    { "path": "core/contracts/distribution-manifest.schema.json", "role": "report", "sha256": "2663f64d18799bc5de645130d1b591ecc747a8620e12c67cdc6fdc8261facb74" },
     { "path": "core/contracts/plan.schema.json", "role": "configuration", "sha256": "86aec6ec2f778f1c3f7d193634b6731fa7fbf73bcb9a804f9514a990bd967dbc" },
     { "path": "core/contracts/plan-set.schema.json", "role": "configuration", "sha256": "b29456e3ca35da162a863747380d7cfedc001c93803d504572ccfb73818cc26e" },
     { "path": "core/contracts/platform-certification.schema.json", "role": "report", "sha256": "dbf597cce6fe65187eda2daece10109576a6e12eca20dfbb1ce254335ac7f92d" },

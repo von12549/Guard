@@ -12,12 +12,13 @@
     "source": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["commit", "packageHash", "contractsManifestSha256", "hostSha256"],
+      "required": ["commit", "packageHash", "contractsManifestSha256", "hostSha256", "companionSha256"],
       "properties": {
         "commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
         "packageHash": { "$ref": "#/definitions/sha256" },
         "contractsManifestSha256": { "$ref": "#/definitions/sha256" },
-        "hostSha256": { "$ref": "#/definitions/sha256" }
+        "hostSha256": { "$ref": "#/definitions/sha256" },
+        "companionSha256": { "$ref": "#/definitions/sha256" }
       }
     },
     "files": {
@@ -28,8 +29,8 @@
         "additionalProperties": false,
         "required": ["path", "kind", "sha256", "size"],
         "properties": {
-          "path": { "type": "string", "pattern": "^(?:package|host)/(?!.*(?:^|/)\\.\\.(?:/|$)).+$" },
-          "kind": { "enum": ["package", "host"] },
+          "path": { "type": "string", "pattern": "^(?:package|host|companion)/(?!.*(?:^|/)\\.\\.(?:/|$)).+$" },
+          "kind": { "enum": ["package", "host", "companion"] },
           "sha256": { "$ref": "#/definitions/sha256" },
           "size": { "type": "integer", "minimum": 0 }
         }

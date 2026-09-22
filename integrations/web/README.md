@@ -3,7 +3,8 @@
 The Web Companion is a local presentation and manual-control integration over the released V4 Host.
 It is not a guard engine, policy authority or verdict producer.
 
-P9.4 supports one active Target at a time with read-only evidence and Plan inspection:
+P9.5 packages the P9.4 one-active-Target workspace, evidence desk and Plan Center as an offline,
+installable Companion:
 
 ```text
 trusted launcher adds one or more TargetRoot values
@@ -53,7 +54,25 @@ scripts and event attributes are never interpreted.
 V4-native Plans remain `native-contract` / `v4-plan-valid`. Current V3-formal pairs remain labelled
 `historical-read-only` / `v3-compatibility-view`; presenting them does not grant V4 authority.
 
+The reviewed `index.html`, `app.js` and `styles.css` sources are embedded resources in
+`v4-web-companion.dll`. A runtime build or installed distribution contains no loose `wwwroot`; the
+loopback endpoints serve the embedded bytes with the same CSP and `no-store` policy. The deterministic
+distribution includes the Companion DLL, dependency/runtime metadata and integration schemas under
+`companion/`. Its distribution manifest binds every file and records the Companion entry-assembly
+SHA-256 alongside the Host and package provenance.
+
+`core/distribution/Invoke-V4InstalledWebCompanion.ps1` launches only the shipped Companion and Host
+from an installed distribution. It resolves the declared .NET prerequisite, fixes PackageRoot and the
+Host DLL itself, accepts a JSON string array containing only TargetRoot, StateRoot, EvidenceRoot,
+PlanRoot and port options, and never invokes a command shell. Attempts to override Host or PackageRoot
+are refused.
+
+P9.5 is part of the exact hash-approved Linux-complete and Windows-full test set. Its installed
+lifecycle proves deterministic independent builds and archives, byte-identical embedded asset
+responses, hostile-parent isolation, command/path/XSS refusal, receipt drift detection, verified
+uninstall and identical reinstall.
+
 `PackageRoot` and every `TargetRoot` are read-only. Host writes remain below the explicit shared
 `StateRoot` and `EvidenceRoot`. The Companion provides no browser path input, terminal, raw arguments,
 authority or Plan editing, Target mutation, Reset Apply, Git/PR action, remote access or activation.
-P9.5 packaging and certification work remains separately authorized.
+P9.GATE and every remote action remain separately authorized.

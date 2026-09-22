@@ -8,6 +8,7 @@ $packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $repoRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))
 $runRoot = Join-Path $repoRoot 'artifacts/guards/v4/p7-distribution'
 $project = Join-Path $packageRoot 'core/host/V4.Guards.Host/V4.Guards.Host.csproj'
+$companionProject = Join-Path $packageRoot 'integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj'
 $buildRoot = Join-Path $packageRoot 'build'
 $builder = Join-Path $packageRoot 'core/distribution/New-V4Distribution.ps1'
 $installer = Join-Path $packageRoot 'core/distribution/Install-V4Distribution.ps1'
@@ -30,12 +31,17 @@ try {
     if ($LASTEXITCODE) { throw 'P7 distribution restore failed.' }
     & dotnet build $project --no-restore --configuration Release --artifacts-path $buildArtifacts -nologo @properties
     if ($LASTEXITCODE) { throw 'P7 distribution build failed.' }
+    & dotnet restore $companionProject --configfile (Join-Path $buildRoot 'NuGet.config') --artifacts-path $buildArtifacts -nologo @properties
+    if ($LASTEXITCODE) { throw 'P7 Companion restore failed.' }
+    & dotnet build $companionProject --no-restore --configuration Release --artifacts-path $buildArtifacts -nologo @properties
+    if ($LASTEXITCODE) { throw 'P7 Companion build failed.' }
 } finally { Pop-Location }
 $hostRoot = Join-Path $buildArtifacts 'bin/V4.Guards.Host/release'
+$companionRoot = Join-Path $buildArtifacts 'bin/V4.Guards.WebCompanion/release'
 
 $outA = Join-Path $runRoot 'out-a'; $outB = Join-Path $runRoot 'out-b'
-$a = Run $builder @('-PackageRoot',$packageRoot,'-HostRoot',$hostRoot,'-OutputDirectory',$outA,'-SourceCommit',$sourceCommit)
-$b = Run $builder @('-PackageRoot',$packageRoot,'-HostRoot',$hostRoot,'-OutputDirectory',$outB,'-SourceCommit',$sourceCommit)
+$a = Run $builder @('-PackageRoot',$packageRoot,'-HostRoot',$hostRoot,'-CompanionRoot',$companionRoot,'-OutputDirectory',$outA,'-SourceCommit',$sourceCommit)
+$b = Run $builder @('-PackageRoot',$packageRoot,'-HostRoot',$hostRoot,'-CompanionRoot',$companionRoot,'-OutputDirectory',$outB,'-SourceCommit',$sourceCommit)
 if ($a.Code -ne 0) { $failures.Add("first distribution failed: $($a.Output)") }
 if ($b.Code -ne 0) { $failures.Add("second distribution failed: $($b.Output)") }
 if ($a.Code -eq 0 -and $b.Code -eq 0) {
@@ -53,6 +59,12 @@ if ($a.Code -eq 0 -and $b.Code -eq 0) {
             if (-not (Test-Json -Json $text -SchemaFile (Join-Path $packageRoot 'core/contracts/distribution-manifest.schema.json') -ErrorAction SilentlyContinue)) { $failures.Add('archive manifest violates schema') }
             $manifest=$text|ConvertFrom-Json
             if ($manifest.source.commit -cne $sourceCommit -or $manifest.source.packageHash -cne $resultA.packageHash) { $failures.Add('archive provenance is not bound') }
+            $companionEntry = @($manifest.files | Where-Object path -eq 'companion/v4-web-companion.dll')
+            if ($companionEntry.Count -ne 1 -or $companionEntry[0].kind -cne 'companion' -or
+                $manifest.source.companionSha256 -cne $companionEntry[0].sha256) { $failures.Add('archive Companion provenance is not bound') }
+            if (@($manifest.files | Where-Object { $_.path -match '^companion/.*/wwwroot/' -or $_.path -match '^companion/wwwroot/' }).Count -ne 0) {
+                $failures.Add('archive contains loose Companion wwwroot assets')
+            }
         }
     } finally { $zip.Dispose() }
 

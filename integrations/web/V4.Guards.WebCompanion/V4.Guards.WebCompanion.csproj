@@ -8,8 +8,14 @@
     <RootNamespace>V4.Guards.WebCompanion</RootNamespace>
     <Version>0.1.0</Version>
     <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\..\..\..\..'))=/_/</PathMap>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Content Update="wwwroot\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Remove="wwwroot\**\*" />
+    <EmbeddedResource Include="wwwroot\index.html" LogicalName="V4.Guards.WebCompanion.UI.index.html" />
+    <EmbeddedResource Include="wwwroot\app.js" LogicalName="V4.Guards.WebCompanion.UI.app.js" />
+    <EmbeddedResource Include="wwwroot\styles.css" LogicalName="V4.Guards.WebCompanion.UI.styles.css" />
   </ItemGroup>
 </Project>

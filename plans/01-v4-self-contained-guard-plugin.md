@@ -1,6 +1,6 @@
 # V4 v1 — self-contained guard plugin
 
-Status: `V1 RELEASED — V4-P9.4 evidence and Plan Center implemented; P9.5 and remote activation not authorized`
+Status: `V1 RELEASED — V4-P9.5 offline Web Companion distribution implemented; P9.GATE and remote activation not authorized`
 
 Development base: `codex/v4-development-base`
 
@@ -288,8 +288,9 @@ repository-relative IFX paths.
 - [x] **V4-P9.4** Implement structured result/evidence viewing and a read-only Plan Center that clearly
   separates V4-native Plans from current V3-formal historical Plan pairs.
   (`20260922-v4-p9d-evidence-plan-center`)
-- [ ] **V4-P9.5** Package immutable offline UI assets and pass command-injection, path-escape,
+- [x] **V4-P9.5** Package immutable offline UI assets and pass command-injection, path-escape,
   Markdown-XSS, hostile-parent, deterministic lifecycle, Linux complete and Windows full checks.
+  (`20260922-v4-p9e-offline-ui-certification`)
 
 - [ ] **V4-P9.GATE** The UI remains only an observation/control surface over V4 public contracts, adds
   no policy or execution bypass, writes only V4-owned mutable roots and includes none of the first-release

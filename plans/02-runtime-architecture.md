@@ -1,6 +1,6 @@
 # V4 runtime architecture
 
-Status: V4 v1 published; V4-P9.4 evidence and Plan Center implemented; P9.5 and remote activation not authorized
+Status: V4 v1 published; V4-P9.5 offline Web Companion distribution implemented; P9.GATE and remote activation not authorized
 
 Decision authority: `00-architecture-decision-set.md`
 
@@ -99,6 +99,24 @@ Plan presentation has two explicit modes. V4-native Plans use `native-contract` 
 Current V3-formal historical Markdown/JSON pairs use `historical-read-only` and
 `v3-compatibility-view`; presentation does not convert them into V4-native authorities. The viewer
 writes no state and provides no edit, Target mutation, reset, Git or remote path.
+
+### P9.5 implemented offline distribution boundary
+
+The three reviewed UI source files are embedded directly into the deterministic Companion assembly.
+The loopback server maps only `/`, `/index.html`, `/app.js` and `/styles.css` to those fixed resources;
+the runtime output has no loose `wwwroot` that a hostile parent or working directory can replace.
+
+The versioned V4 distribution now has three hash-bound payloads: immutable PackageRoot, the Host and
+the Web Companion. `distribution-manifest.json` records the Companion entry-assembly hash and exact
+`companion/*` files; the external install receipt binds those bytes through install, drift-refusing
+uninstall and identical reinstall. The installed launcher fixes the shipped PackageRoot and Host path,
+allows only Companion root/Plan/port options as an argument array, checks the declared .NET prerequisite
+and uses no command shell.
+
+Every P9 test is included in the exact CI test inventory for Linux complete and Windows full. The P9.5
+lifecycle additionally covers two independent deterministic builds/archives, installed embedded-asset
+bytes, hostile parent configuration, authority override, path escape, Markdown execution sinks and
+Companion assembly drift. This packaging boundary does not complete P9.GATE or authorize remote use.
 
 ## System and root boundaries
 

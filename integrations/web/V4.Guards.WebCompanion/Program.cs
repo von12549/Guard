@@ -6,7 +6,6 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
-using Microsoft.AspNetCore.StaticFiles;
 
 namespace V4.Guards.WebCompanion;
 
@@ -35,13 +34,13 @@ internal static class Program
             var options = CompanionOptions.Parse(args);
             var workspaceState = new WorkspaceState(options.TargetRoots[0]);
             var sessionSecret = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
+            var uiAssets = LoadUiAssets();
             using var runGate = new SemaphoreSlim(1, 1);
 
             var builder = WebApplication.CreateBuilder(new WebApplicationOptions
             {
                 Args = [],
-                ContentRootPath = AppContext.BaseDirectory,
-                WebRootPath = "wwwroot"
+                ContentRootPath = AppContext.BaseDirectory
             });
             builder.Logging.ClearProviders();
             builder.WebHost.ConfigureKestrel(server =>
@@ -68,11 +67,10 @@ internal static class Program
                 await next();
             });
 
-            app.UseDefaultFiles();
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                OnPrepareResponse = context => context.Context.Response.Headers.CacheControl = "no-store"
-            });
+            app.MapGet("/", () => Results.Bytes(uiAssets["index.html"].Bytes, uiAssets["index.html"].ContentType));
+            app.MapGet("/index.html", () => Results.Bytes(uiAssets["index.html"].Bytes, uiAssets["index.html"].ContentType));
+            app.MapGet("/app.js", () => Results.Bytes(uiAssets["app.js"].Bytes, uiAssets["app.js"].ContentType));
+            app.MapGet("/styles.css", () => Results.Bytes(uiAssets["styles.css"].Bytes, uiAssets["styles.css"].ContentType));
 
             app.MapGet("/api/v1/session", async (HttpContext context) =>
             {
@@ -489,6 +487,27 @@ internal static class Program
         return leftBytes.Length == rightBytes.Length && CryptographicOperations.FixedTimeEquals(leftBytes, rightBytes);
     }
 
+    private static IReadOnlyDictionary<string, UiAsset> LoadUiAssets()
+    {
+        var assembly = typeof(Program).Assembly;
+        var definitions = new[]
+        {
+            new { Name = "index.html", Resource = "V4.Guards.WebCompanion.UI.index.html", ContentType = "text/html; charset=utf-8" },
+            new { Name = "app.js", Resource = "V4.Guards.WebCompanion.UI.app.js", ContentType = "text/javascript; charset=utf-8" },
+            new { Name = "styles.css", Resource = "V4.Guards.WebCompanion.UI.styles.css", ContentType = "text/css; charset=utf-8" }
+        };
+        var assets = new Dictionary<string, UiAsset>(StringComparer.Ordinal);
+        foreach (var definition in definitions)
+        {
+            using var stream = assembly.GetManifestResourceStream(definition.Resource)
+                ?? throw new CompanionException(12, "integrity-failure", $"Embedded UI asset is missing: {definition.Name}");
+            using var buffer = new MemoryStream();
+            stream.CopyTo(buffer);
+            assets.Add(definition.Name, new UiAsset(buffer.ToArray(), definition.ContentType));
+        }
+        return assets;
+    }
+
     private static async Task<StageRequest> ReadStageRequest(HttpRequest request, CancellationToken cancellationToken)
     {
         using var document = await ReadRequestObject(request, cancellationToken);
@@ -733,6 +752,8 @@ internal static class Program
         public int ExitCode { get; } = exitCode;
         public string Category { get; } = category;
     }
+
+    private sealed record UiAsset(byte[] Bytes, string ContentType);
 
     private sealed record CompanionOptions(string PackageRoot, string[] TargetRoots, string StateRoot,
         string EvidenceRoot, string PlanRoot, string HostPath, string DotnetHost, int Port)

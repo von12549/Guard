@@ -2,6 +2,7 @@
 param(
     [Parameter(Mandatory)][string] $PackageRoot,
     [Parameter(Mandatory)][string] $HostRoot,
+    [Parameter(Mandatory)][string] $CompanionRoot,
     [Parameter(Mandatory)][string] $OutputDirectory,
     [Parameter(Mandatory)][ValidatePattern('^[a-fA-F0-9]{40}$')][string] $SourceCommit
 )
@@ -21,8 +22,11 @@ function Write-Json([string] $Path, $Value) {
 
 $package = [IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath($PackageRoot))
 $hostDirectory = [IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath($HostRoot))
+$companionDirectory = [IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath($CompanionRoot))
 $output = [IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath($OutputDirectory))
-if (-not [IO.Directory]::Exists($package) -or -not [IO.Directory]::Exists($hostDirectory)) { throw 'PackageRoot and HostRoot must exist.' }
+if (-not [IO.Directory]::Exists($package) -or -not [IO.Directory]::Exists($hostDirectory) -or -not [IO.Directory]::Exists($companionDirectory)) {
+    throw 'PackageRoot, HostRoot and CompanionRoot must exist.'
+}
 if (Is-Under $output $package) { throw 'OutputDirectory must be outside immutable PackageRoot.' }
 [void][IO.Directory]::CreateDirectory($output)
 
@@ -40,6 +44,16 @@ if (-not [IO.File]::Exists($hostDll)) { throw 'HostRoot does not contain v4-guar
 $hostFiles = @(Get-ChildItem -LiteralPath $hostDirectory -File -Recurse -Force | Where-Object { $_.Extension -in @('.dll','.json') } | Sort-Object FullName)
 if (@($hostFiles | Where-Object Name -eq 'v4-guards.runtimeconfig.json').Count -ne 1 -or @($hostFiles | Where-Object Name -eq 'v4-guards.deps.json').Count -ne 1) {
     throw 'HostRoot must contain v4-guards.deps.json and v4-guards.runtimeconfig.json.'
+}
+$companionDll = Join-Path $companionDirectory 'v4-web-companion.dll'
+if (-not [IO.File]::Exists($companionDll)) { throw 'CompanionRoot does not contain v4-web-companion.dll.' }
+$companionFiles = @(Get-ChildItem -LiteralPath $companionDirectory -File -Recurse -Force | Where-Object { $_.Extension -in @('.dll','.json') } | Sort-Object FullName)
+if (@($companionFiles | Where-Object Name -eq 'v4-web-companion.runtimeconfig.json').Count -ne 1 -or
+    @($companionFiles | Where-Object Name -eq 'v4-web-companion.deps.json').Count -ne 1) {
+    throw 'CompanionRoot must contain v4-web-companion.deps.json and v4-web-companion.runtimeconfig.json.'
+}
+if (@($companionFiles | Where-Object { $_.FullName -match '[\\/]wwwroot[\\/]' }).Count -ne 0) {
+    throw 'CompanionRoot must not contain loose wwwroot assets.'
 }
 
 $staging = Join-Path $output ('.v4-dist-' + [Guid]::NewGuid().ToString('N'))
@@ -62,12 +76,20 @@ try {
         [IO.File]::Copy($file.FullName, $destination, $false)
         $files.Add([ordered]@{ path="host/$relative"; kind='host'; sha256=Hash $destination; size=$file.Length })
     }
+    foreach ($file in $companionFiles) {
+        $relative = [IO.Path]::GetRelativePath($companionDirectory, $file.FullName).Replace('\','/')
+        $destination = Join-Path $payloadRoot ("companion/$relative")
+        [void][IO.Directory]::CreateDirectory((Split-Path -Parent $destination))
+        [IO.File]::Copy($file.FullName, $destination, $false)
+        $files.Add([ordered]@{ path="companion/$relative"; kind='companion'; sha256=Hash $destination; size=$file.Length })
+    }
     $manifest = [ordered]@{
         formatVersion=1; id='v4-guards'; version=[string]$plugin.version; rootDirectory=$rootName
         source=[ordered]@{
             commit=$SourceCommit.ToLowerInvariant(); packageHash=[string]$packageResult.packageHash
             contractsManifestSha256=Hash (Join-Path $package 'core/contracts/contracts-manifest.json')
             hostSha256=Hash $hostDll
+            companionSha256=Hash $companionDll
         }
         files=@($files | Sort-Object path)
     }

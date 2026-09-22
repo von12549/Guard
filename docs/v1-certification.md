@@ -14,10 +14,17 @@ The certification boundary requires:
 - no `ifx_profile`, active V4 workflow, IFX cutover or V3/LayerGuard runtime dependency; and
 - a generated recovery artifact bound to the reviewed P7 source checkpoint.
 
-`Invoke-V4PlatformCertification.ps1` refuses an OS mismatch and runs the exact hash-approved suite.
+`Invoke-V4PlatformCertification.ps1` refuses an OS mismatch and runs the exact hash-approved suite,
+including the P9 Web Companion query, workspace, evidence/Plan and offline distribution checks.
 The Windows full selection includes the Windows-only Trusted Base behavioral suite; Linux complete covers
 all approved Linux tests. Tests not selected for a platform cannot silently count toward that platform's
 coverage.
+
+The P9.5 extension certifies that the offline archive includes a deterministic Companion whose UI
+assets are embedded in its hash-bound assembly, that installed operation remains confined to the V4
+root model, and that command-injection, path-escape, Markdown-XSS, hostile-parent and lifecycle
+negatives pass on Linux and Windows. It does not revise the previously published V4 1.0.0 release or
+authorize a new publication.
 `Invoke-V4V1Certification.ps1` accepts only matching passing platform reports and the exact deterministic
 archive. Its record fixes `releaseAuthorized`, `activeIfxCutover` and `ifxProfileIncluded` to `false`.
 

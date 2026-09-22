@@ -9,6 +9,7 @@ $repoRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))
 $runRoot = Join-Path $repoRoot 'artifacts/guards/v4/p7-lifecycle'
 $buildRoot = Join-Path $packageRoot 'build'
 $project = Join-Path $packageRoot 'core/host/V4.Guards.Host/V4.Guards.Host.csproj'
+$companionProject = Join-Path $packageRoot 'integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj'
 $builder = Join-Path $packageRoot 'core/distribution/New-V4Distribution.ps1'
 $installer = Join-Path $packageRoot 'core/distribution/Install-V4Distribution.ps1'
 $sourceCommit = (git -C $repoRoot rev-parse HEAD).Trim().ToLowerInvariant()
@@ -37,9 +38,13 @@ try {
     if ($LASTEXITCODE) { throw 'P7 lifecycle restore failed.' }
     & dotnet build $project --no-restore --configuration Release --artifacts-path $buildArtifacts -nologo @properties
     if ($LASTEXITCODE) { throw 'P7 lifecycle build failed.' }
+    & dotnet restore $companionProject --configfile (Join-Path $buildRoot 'NuGet.config') --artifacts-path $buildArtifacts -nologo @properties
+    if ($LASTEXITCODE) { throw 'P7 lifecycle Companion restore failed.' }
+    & dotnet build $companionProject --no-restore --configuration Release --artifacts-path $buildArtifacts -nologo @properties
+    if ($LASTEXITCODE) { throw 'P7 lifecycle Companion build failed.' }
 } finally { Pop-Location }
 
-$distribution = Run-Script $builder @('-PackageRoot',$packageRoot,'-HostRoot',(Join-Path $buildArtifacts 'bin/V4.Guards.Host/release'),'-OutputDirectory',(Join-Path $runRoot 'distribution'),'-SourceCommit',$sourceCommit)
+$distribution = Run-Script $builder @('-PackageRoot',$packageRoot,'-HostRoot',(Join-Path $buildArtifacts 'bin/V4.Guards.Host/release'),'-CompanionRoot',(Join-Path $buildArtifacts 'bin/V4.Guards.WebCompanion/release'),'-OutputDirectory',(Join-Path $runRoot 'distribution'),'-SourceCommit',$sourceCommit)
 if ($distribution.Code -ne 0) { throw "Lifecycle distribution failed: $($distribution.Output)" }
 $archive = ($distribution.Output | ConvertFrom-Json).archivePath
 $hostile = Join-Path $runRoot 'hostile-parent'

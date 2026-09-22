@@ -8,7 +8,7 @@
     { "path": "core/contracts/cli-contract.json", "sha256": "083cc8d1e246c0db17f3b37791d292c1c202e869425b3299ccf90715bf4723e5" },
     { "path": "core/contracts/cli-contract.schema.json", "sha256": "2686085e2af99f3c9edb5403f5ca2c73a13e50ddf942c91cc99c31092cdb50a6" },
     { "path": "core/contracts/compatibility-baseline.schema.json", "sha256": "acb63b6da9c767c11eee515d37ffb51f41ed43446e48ccd83fe94286ed123a1a" },
-    { "path": "core/contracts/distribution-manifest.schema.json", "sha256": "d1d28c385bf21e15d8f74b3e02b073b9eec951eb081a92f63adcdd6a08736e04" },
+    { "path": "core/contracts/distribution-manifest.schema.json", "sha256": "2663f64d18799bc5de645130d1b591ecc747a8620e12c67cdc6fdc8261facb74" },
     { "path": "core/contracts/evidence-query.schema.json", "sha256": "39ff5f1b30dd295ecc524f82bb18efc3ea9a4c3233ef38aff2bbd7fa6964f758" },
     { "path": "core/contracts/finding-baseline.schema.json", "sha256": "d913d965cfa7197ecf718288ef65b101835923c149832b3a4e44f0d15faa0507" },
     { "path": "core/contracts/genesis-record.schema.json", "sha256": "d372bcca76ccfdb346e46733293d5dbd1a8d333c8dbb177bc52ce34d6eef66da" },
