@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/web/workspace.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "status", "authority", "concurrency", "activeProjectId", "targets", "profiles"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "const": "pass" },
+    "authority": { "const": "v4-host" },
+    "concurrency": { "const": "one-active-target-one-active-run" },
+    "activeProjectId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["projectId", "targetRoot", "targetIdentityHash", "bound", "profileId", "stateDocumentStatus", "active"],
+        "properties": {
+          "projectId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+          "targetRoot": { "type": "string", "minLength": 1 },
+          "targetIdentityHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "bound": { "type": "boolean" },
+          "profileId": { "type": ["string", "null"], "pattern": "^[a-z][a-z0-9_-]*$" },
+          "stateDocumentStatus": { "enum": ["missing", "valid"] },
+          "active": { "type": "boolean" }
+        }
+      }
+    },
+    "profiles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "version", "sha256", "projectIdentityId", "selectedModules", "stages"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+          "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "projectIdentityId": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+          "selectedModules": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9-]+$" } },
+          "stages": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["stage", "enabled", "modules"],
+              "properties": {
+                "stage": { "enum": ["bootstrap", "analysis", "pre", "post"] },
+                "enabled": { "type": "boolean" },
+                "modules": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9-]+$" } }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

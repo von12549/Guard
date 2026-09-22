@@ -1,6 +1,6 @@
 # V4 runtime architecture
 
-Status: V4 v1 published; V4-P9.2 read/query contracts implemented; P9.3+ and remote activation not authorized
+Status: V4 v1 published; V4-P9.3 workspace and Stage Runner implemented; P9.4+ and remote activation not authorized
 
 Decision authority: `00-architecture-decision-set.md`
 
@@ -58,6 +58,28 @@ without treating it as a Stage verdict. Plan discovery delegates V4-native valid
 runtime; structurally valid V3-formal pairs remain explicitly labelled historical read-only
 compatibility views. Windows and pinned, network-disabled Linux tests prove root byte invariance and
 fail-closed overlap, traversal and evidence-tamper behavior.
+
+### P9.3 implemented workspace and Stage Runner boundary
+
+The Companion accepts one or more trusted `TargetRoot` startup arguments and asks the Host for each
+project identity. The browser never submits a path: it switches the single in-memory active Target by
+an exact Host-derived project ID. Registered Targets must be unique and non-overlapping. StateRoot and
+EvidenceRoot remain explicit shared mutable roots, while PackageRoot and every TargetRoot remain
+read-only.
+
+The workspace obtains installed Profile, module and per-Stage configuration from `query profiles` and
+runtime status from `query doctor`. Disabled Stages and uninstalled Profiles fail before execution.
+The selected Stage and optional ordered dependency chain are visible in the UI; execution still uses
+only the Host `stage run` contract and returns its JSON and exit code without reinterpretation.
+
+Target switching and UI-originated runs share one non-blocking run gate. A switch or second run while
+execution is active receives `409 run-active`, so the Companion cannot create parallel project
+contexts or Stage processes. Host-derived Profile and registered-Target projections are cached only for
+the Companion process lifetime to make Target selection immediate; a completed Stage causes the affected
+Target projection to be refreshed from the Host. The cache is presentation state, never execution
+authority. The workspace selection itself is process-local and writes no new state. Windows and pinned,
+network-disabled Linux suites prove two-Target selection, active-Target execution, dependency visibility,
+concurrency refusal, injection refusal and root confinement.
 
 Plan presentation has two explicit modes. V4-native Plans use the V4 Plan and Plan-set contracts.
 Current V3-formal historical Markdown/JSON pairs may be shown read-only through a labelled compatibility

@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://ifx.local/v4/web-spike/session.schema.json",
+  "$id": "https://ifx.local/v4/web/session.schema.json",
   "type": "object",
   "additionalProperties": false,
-  "required": ["formatVersion", "status", "authority", "allowedCommand", "allowedStages", "allowedProfiles", "roots"],
+  "required": ["formatVersion", "status", "authority", "allowedCommand", "allowedStages", "allowedProfiles", "activeProjectId", "targetCount", "roots"],
   "properties": {
     "formatVersion": { "const": 1 },
     "status": { "const": "ready" },
@@ -15,8 +15,12 @@
     },
     "allowedProfiles": {
       "type": "array",
-      "const": ["synthetic_profile"]
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" }
     },
+    "activeProjectId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+    "targetCount": { "type": "integer", "minimum": 1 },
     "roots": {
       "type": "array",
       "minItems": 4,

@@ -1,6 +1,6 @@
 # V4 v1 — self-contained guard plugin
 
-Status: `V1 RELEASED — V4-P9.2 read/query contracts implemented; P9.3+ and remote activation not authorized`
+Status: `V1 RELEASED — V4-P9.3 workspace and Stage Runner implemented; P9.4+ and remote activation not authorized`
 
 Development base: `codex/v4-development-base`
 
@@ -282,8 +282,9 @@ repository-relative IFX paths.
 - [x] **V4-P9.2** Add schema-versioned read/query contracts for project, profile, prerequisite, run,
   evidence and Plan catalog projections without exposing host internals as UI authority.
   (`20260922-v4-p9b-read-query-contracts`)
-- [ ] **V4-P9.3** Implement one-active-Target workspace selection and the manual Stage Runner, including
+- [x] **V4-P9.3** Implement one-active-Target workspace selection and the manual Stage Runner, including
   profile/module readiness, visible dependency execution and serialized UI-originated runs.
+  (`20260922-v4-p9c-workspace-stage-runner`)
 - [ ] **V4-P9.4** Implement structured result/evidence viewing and a read-only Plan Center that clearly
   separates V4-native Plans from current V3-formal historical Plan pairs.
 - [ ] **V4-P9.5** Package immutable offline UI assets and pass command-injection, path-escape,
@@ -293,9 +294,9 @@ repository-relative IFX paths.
   no policy or execution bypass, writes only V4-owned mutable roots and includes none of the first-release
   exclusions recorded under V4-TODO-005.
 
-V4-P9.3 through V4-P9.5 each require a separate exact Plan pair and explicit checkpoint
-authorization. Completing V4-P9.0 through V4-P9.2 does not authorize later source, dependency,
-package or remote changes.
+V4-P9.4 and V4-P9.5 each require a separate exact Plan pair and explicit checkpoint authorization.
+Completing V4-P9.0 through V4-P9.3 does not authorize later source, dependency, package or remote
+changes.
 
 ## 6. PR and CI strategy
 

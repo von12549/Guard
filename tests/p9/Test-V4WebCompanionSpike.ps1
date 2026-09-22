@@ -109,7 +109,8 @@ try {
     Build-Project $hostProject $hostOutput
     Build-Project $companionProject $companionOutput
 
-    foreach ($schema in @('session.schema.json','stage-run-request.schema.json','stage-run-response.schema.json')) {
+    foreach ($schema in @('session.schema.json','stage-run-request.schema.json','stage-run-response.schema.json',
+        'workspace.schema.json','workspace-select-request.schema.json','workspace-select-response.schema.json')) {
         $schemaPath = Join-Path $packageRoot "integrations/web/V4.Guards.WebCompanion/contracts/$schema"
         try { Get-Content -Raw -LiteralPath $schemaPath | ConvertFrom-Json | Out-Null }
         catch { Fail "Spike schema is not valid JSON: ${schema}: $($_.Exception.Message)" }

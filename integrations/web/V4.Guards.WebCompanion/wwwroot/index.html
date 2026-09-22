@@ -12,61 +12,77 @@
   <main class="console-shell">
     <header class="masthead">
       <div class="product-mark" aria-hidden="true">V4</div>
-      <div>
+      <div class="title-block">
         <h1>Guard console</h1>
-        <p>Local observation and control surface</p>
+        <p>One active Target. One Host-owned verdict.</p>
       </div>
       <div class="connection" id="connection" role="status">
         <span class="connection-light"></span>
-        Connecting to local Host
+        <span>Connecting to local Host</span>
       </div>
     </header>
 
-    <section class="workspace" aria-labelledby="workspace-title">
-      <div class="control-rail">
+    <div class="workspace-grid">
+      <aside class="target-rail" aria-labelledby="targets-title">
         <div class="section-heading">
-          <h2 id="workspace-title">Run a synthetic Stage</h2>
-          <p>The V4 Host owns execution and the final verdict.</p>
+          <h2 id="targets-title">Target workspace</h2>
+          <p>Trusted roots added when the Companion starts.</p>
+        </div>
+        <div id="targets" class="target-list" aria-live="polite">
+          <p class="placeholder">Loading Host project identities…</p>
+        </div>
+        <div class="active-boundary">
+          <span>Active Target is read-only</span>
+          <code id="active-target">Waiting for workspace</code>
+        </div>
+      </aside>
+
+      <section class="runner" aria-labelledby="runner-title">
+        <div class="section-heading runner-heading">
+          <div>
+            <h2 id="runner-title">Manual Stage Runner</h2>
+            <p>The V4 Host owns execution and the final verdict.</p>
+          </div>
+          <span class="serial-badge">Runs serialize</span>
         </div>
 
         <form id="stage-form">
-          <label for="stage">Stage</label>
-          <select id="stage" name="stage">
-            <option value="bootstrap">Bootstrap</option>
-            <option value="analysis" selected>Analysis</option>
-            <option value="pre">Pre</option>
-            <option value="post">Post</option>
-          </select>
+          <div class="profile-row">
+            <div>
+              <label for="profile">Installed profile</label>
+              <select id="profile" name="profile" disabled>
+                <option>Loading profiles…</option>
+              </select>
+            </div>
+            <div class="readiness" id="readiness" role="status">
+              <span class="readiness-state">Checking runtime</span>
+              <span class="readiness-detail">Host prerequisite projection pending</span>
+            </div>
+          </div>
 
-          <label for="profile">Installed profile</label>
-          <select id="profile" name="profile">
-            <option value="synthetic_profile">synthetic_profile</option>
-          </select>
+          <fieldset>
+            <legend>Choose a Stage</legend>
+            <ol id="stage-track" class="stage-track"></ol>
+          </fieldset>
 
-          <label class="check-row" for="dependencies">
-            <input id="dependencies" name="dependencies" type="checkbox">
-            <span>Run visible dependencies</span>
-          </label>
+          <div class="run-options">
+            <label class="check-row" for="dependencies">
+              <input id="dependencies" name="dependencies" type="checkbox">
+              <span>Run visible dependencies first</span>
+            </label>
+            <div class="execution-chain">
+              <span>Execution chain</span>
+              <strong id="execution-chain">Analysis</strong>
+            </div>
+          </div>
 
-          <button id="run-button" type="submit" disabled>Run Stage</button>
+          <button id="run-button" type="submit" disabled>Run Analysis</button>
         </form>
 
-        <p class="boundary-note">
-          No shell, raw arguments, target writes, authority editing or remote access.
-        </p>
-      </div>
+        <p class="boundary-note">No browser paths, shell text, raw arguments, Target writes, authority edits, reset, Git or remote access.</p>
+      </section>
 
-      <div class="root-track" aria-labelledby="roots-title">
-        <div class="section-heading compact">
-          <h2 id="roots-title">Four-root boundary</h2>
-          <p>Fixed before this browser session starts.</p>
-        </div>
-        <ol id="roots" class="roots-list" aria-live="polite">
-          <li class="root-placeholder">Waiting for the Companion…</li>
-        </ol>
-      </div>
-
-      <div class="result-plane" aria-labelledby="result-title">
+      <section class="result-plane" aria-labelledby="result-title">
         <div class="result-header">
           <div class="section-heading compact">
             <h2 id="result-title">Host result</h2>
@@ -78,8 +94,8 @@
   "authority": "v4-host",
   "status": "waiting"
 }</pre>
-      </div>
-    </section>
+      </section>
+    </div>
   </main>
 </body>
 </html>

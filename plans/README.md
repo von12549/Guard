@@ -8,8 +8,8 @@ Current documents:
 | Document | Role | Status |
 | --- | --- | --- |
 | [00-architecture-decision-set.md](00-architecture-decision-set.md) | Product, trust, state, profile, stage, CI and planning decisions | Accepted v1 core and V4-P9 UI boundary; remaining roadmap items deferred |
-| [01-v4-self-contained-guard-plugin.md](01-v4-self-contained-guard-plugin.md) | V4 implementation roadmap | P0–P8 released as 1.0.0; P9.2 read/query contracts implemented; P9.3+ pending |
-| [02-runtime-architecture.md](02-runtime-architecture.md) | Runtime, roots, detector composition, evidence, UI and trust diagrams | Published v1 architecture plus implemented P9.1/P9.2 boundaries |
+| [01-v4-self-contained-guard-plugin.md](01-v4-self-contained-guard-plugin.md) | V4 implementation roadmap | P0–P8 released as 1.0.0; P9.3 workspace/Runner implemented; P9.4+ pending |
+| [02-runtime-architecture.md](02-runtime-architecture.md) | Runtime, roots, detector composition, evidence, UI and trust diagrams | Published v1 architecture plus implemented P9.1–P9.3 boundaries |
 | [03-genesis-bootstrap-and-autonomy.md](03-genesis-bootstrap-and-autonomy.md) | Finite V3 genesis and V4 autonomy transition | Dormant G1; activation not authorized |
 | [04-layerguard-provenance.md](04-layerguard-provenance.md) | Architecture-rule provenance and clean-room boundary | Accepted provenance record |
 | [TODO.md](TODO.md) | Explicit deferred scope, P9 first-release exclusions and revisit gates | Active backlog |
