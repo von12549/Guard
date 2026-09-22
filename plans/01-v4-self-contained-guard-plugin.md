@@ -244,7 +244,7 @@ repository-relative IFX paths.
 - [x] **V4-P8.3** Run supply-chain, dependency-lock and package-content checks. (`20260922-v4-p8-v1-certification`)
 - [x] **V4-P8.4** Freeze CLI/config/report compatibility baseline and recovery artifact. (`20260922-v4-p8-v1-certification`)
 - [x] **V4-P8.5** Confirm V4-native Architecture Conformance requires no V3/LayerGuard runtime path. (`20260922-v4-p8-v1-certification`)
-- [ ] **V4-P8.6** Publish V4 v1 only after a separate release authorization.
+- [x] **V4-P8.6** Publish V4 v1 only after a separate release authorization.
   Release-readiness closure audit (`20260922-v4-p8-release-readiness-closure`): **PASS** on the
   implemented candidate commit `c7d2b0865d7b2195d176b538801f93bf6bbc5eb0`. Package and bundled
   modules are version `1.0.0`; declared/certified platforms are `linux-x64` and `win-x64` only. Stable
@@ -254,8 +254,20 @@ repository-relative IFX paths.
   `52c900ff4050826fdd41042d955777c2bff92705f10272b49ac2dea969b91706`. Formal Pre, exact Diff from
   the prior P8 checkpoint, V3 Validate and isolated IFX package validation pass. The candidate record
   still states `releaseAuthorized: false`, `activeIfxCutover: false` and `ifxProfileIncluded: false`.
-  P8.6 remains unchecked and requires a new explicit authorization; this audit does not authorize
-  publication, tagging, push, workflow/ruleset activation or IFX cutover.
+  This candidate record is preserved as pre-authorization evidence and was not rewritten after publication.
+  The separate authorization was subsequently granted and executed under
+  `20260922-v4-p8-release-publication`.
+
+  Release publication audit (`20260922-v4-p8-release-publication`): **PASS**. The remote branch and the
+  peeled annotated tag `v4-guards-v1.0.0` both identify certified candidate
+  `2186d0510cbcb3eddaf3dc56ff239f6558b9b115`. GitHub Release `V4 Guards 1.0.0` was published at
+  `2026-09-22T06:49:29Z` as a final release:
+  `https://github.com/von12549/IFX/releases/tag/v4-guards-v1.0.0`. The uploaded archive is 607880 bytes
+  with GitHub digest `sha256:56d49220ef055bfdb2c15777133e7c08bf86bdb34902ba4a905181757f5fd6b8`;
+  its 86-byte sidecar has digest
+  `sha256:3949ba1edb07a9ba8e2a20ac56f7cb8a935020ab61ffb50cf3b13117fdcb063b`.
+  Publication did not activate a workflow/ruleset, grant G2 autonomy, add `ifx_profile`, perform IFX
+  cutover or declare macOS support.
 
 - [x] **V4-P8.GATE** V4 v1 meets §3 without `ifx_profile` or any active IFX cutover; Plan 06 §20
   remains open until the deferred IFX parity/cutover/retirement work completes.
