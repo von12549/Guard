@@ -1,6 +1,6 @@
 # V4 runtime architecture
 
-Status: accepted planning view; implementation not authorized
+Status: implemented local V4 v1 candidate; publication and remote activation not authorized
 
 Decision authority: `00-architecture-decision-set.md`
 

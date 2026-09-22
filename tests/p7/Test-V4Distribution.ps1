@@ -60,7 +60,7 @@ if ($a.Code -eq 0 -and $b.Code -eq 0) {
     $zip = [IO.Compression.ZipFile]::Open($tampered,[IO.Compression.ZipArchiveMode]::Update)
     try {
         $entry = @($zip.Entries | Where-Object { $_.FullName -like '*/package/plugin.json' })[0]
-        $entry.Delete(); $replacement=$zip.CreateEntry('v4-guards-0.1.0/package/plugin.json',[IO.Compression.CompressionLevel]::NoCompression)
+        $entry.Delete(); $replacement=$zip.CreateEntry('v4-guards-1.0.0/package/plugin.json',[IO.Compression.CompressionLevel]::NoCompression)
         $writer=[IO.StreamWriter]::new($replacement.Open(),[Text.UTF8Encoding]::new($false)); try{$writer.Write('{"tampered":true}')}finally{$writer.Dispose()}
     } finally { $zip.Dispose() }
     $tamperRun = Run $installer @('-Mode','Install','-ArchivePath',$tampered,'-InstallRoot',(Join-Path $runRoot 'tampered-install'),'-ReceiptPath',(Join-Path $runRoot 'tampered-receipt.json'))

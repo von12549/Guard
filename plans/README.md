@@ -8,8 +8,10 @@ Current documents:
 | Document | Role | Status |
 | --- | --- | --- |
 | [00-architecture-decision-set.md](00-architecture-decision-set.md) | Product, trust, state, profile, stage, CI and planning decisions | Accepted v1 core; deferred roadmap items |
-| [01-v4-self-contained-guard-plugin.md](01-v4-self-contained-guard-plugin.md) | V4 v1 implementation roadmap | Draft; implementation not authorized |
-| [02-runtime-architecture.md](02-runtime-architecture.md) | Runtime, roots, detector composition, evidence and trust diagrams | Accepted planning view |
+| [01-v4-self-contained-guard-plugin.md](01-v4-self-contained-guard-plugin.md) | V4 v1 implementation roadmap | P0–P8.5 implemented; P8.6 release authorization pending |
+| [02-runtime-architecture.md](02-runtime-architecture.md) | Runtime, roots, detector composition, evidence and trust diagrams | Implemented local candidate architecture |
+| [03-genesis-bootstrap-and-autonomy.md](03-genesis-bootstrap-and-autonomy.md) | Finite V3 genesis and V4 autonomy transition | Dormant G1; activation not authorized |
+| [04-layerguard-provenance.md](04-layerguard-provenance.md) | Architecture-rule provenance and clean-room boundary | Accepted provenance record |
 | [TODO.md](TODO.md) | Explicit deferred scope and revisit gates | Active backlog |
 
 Status meanings:
@@ -19,7 +21,7 @@ Status meanings:
 - `DEFERRED`: excluded from V4 v1 and tracked in `TODO.md`.
 - `REJECTED`: considered and not selected; retained to prevent accidental reintroduction.
 
-V4 implementation checkpoints will receive their own formal Plan pair. This directory does not relax
+V4 implementation checkpoints have their own formal Plan pairs. This directory does not relax
 the current V3 trusted-base or protected-change rules, and no document here authorizes a branch,
 workflow, ruleset, push, pull request, merge or remote operation.
 

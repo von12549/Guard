@@ -4,10 +4,10 @@
   "version": "1.0.0",
   "projectIdentity": { "id": "synthetic", "relativeRoots": ["."] },
   "moduleSelections": [
-    { "id": "synthetic-probe", "versionRange": ">=0.1.0 <1.0.0", "config": {} },
+    { "id": "synthetic-probe", "versionRange": ">=1.0.0 <2.0.0", "config": {} },
     {
       "id": "build-evidence-provider",
-      "versionRange": ">=0.1.0 <1.0.0",
+      "versionRange": ">=1.0.0 <2.0.0",
       "config": {
         "configuration": "Debug",
         "targetFramework": "net10.0",
@@ -20,7 +20,7 @@
     },
     {
       "id": "architecture-conformance",
-      "versionRange": ">=0.1.0 <1.0.0",
+      "versionRange": ">=1.0.0 <2.0.0",
       "config": {
         "enabledClaims": [
           "ARCH.PROJECT_REFERENCE", "ARCH.PACKAGE_REFERENCE", "ARCH.TARGET_FRAMEWORK", "ARCH.GRAPH_COMPLETENESS",

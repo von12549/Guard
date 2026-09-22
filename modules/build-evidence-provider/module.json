@@ -1,9 +1,9 @@
 {
   "formatVersion": 1,
   "id": "build-evidence-provider",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "compatibleApi": "1.x",
-  "supportedPlatforms": ["linux-x64", "win-x64", "osx-arm64"],
+  "supportedPlatforms": ["linux-x64", "win-x64"],
   "adapter": { "kind": "powershell", "path": "modules/build-evidence-provider/adapter.ps1", "sha256": "9338b45b94399962e4383f5b7576a4cf9529b825738ca08a4340a7cae623d886" },
   "prerequisites": [
     { "runtime": "pwsh", "versionRange": ">=7.4" },

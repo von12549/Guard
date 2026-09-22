@@ -17,6 +17,8 @@ internal static class Program
 
     public static int Main(string[] args)
     {
+        if (args.Length > 0 && args[0] == "version") return ContractRuntime.Version(args);
+        if (args.Length > 0 && args[0] == "contract") return ContractRuntime.Execute(args);
         if (args.Length > 0 && args[0] is "state" or "reset") return StateRuntime.Execute(args);
         if (args.Length > 0 && args[0] == "stage") return StageRuntime.Execute(args);
         if (args.Length > 0 && args[0] == "plan") return PlanRuntime.Execute(args);

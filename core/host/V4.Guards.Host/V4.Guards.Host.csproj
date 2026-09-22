@@ -6,5 +6,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>v4-guards</AssemblyName>
     <RootNamespace>V4.Guards.Host</RootNamespace>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
 </Project>

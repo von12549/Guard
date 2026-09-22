@@ -57,6 +57,6 @@ Generated from package schemas and module manifests. Do not edit by hand.
 
 | Module | Version | Platforms | Prerequisites | Stages |
 | --- | --- | --- | --- | --- |
-| `architecture-conformance` | 0.1.0 | linux-x64, win-x64, osx-arm64 | pwsh >=7.4; dotnet >=10.0 <11.0 | pre, post |
-| `build-evidence-provider` | 0.1.0 | linux-x64, win-x64, osx-arm64 | pwsh >=7.4; dotnet >=10.0 <11.0 | post |
-| `synthetic-probe` | 0.1.0 | linux-x64, win-x64, osx-arm64 | pwsh >=7.4 | bootstrap, analysis, pre, post |
+| `architecture-conformance` | 1.0.0 | linux-x64, win-x64 | pwsh >=7.4; dotnet >=10.0 <11.0 | pre, post |
+| `build-evidence-provider` | 1.0.0 | linux-x64, win-x64 | pwsh >=7.4; dotnet >=10.0 <11.0 | post |
+| `synthetic-probe` | 1.0.0 | linux-x64, win-x64 | pwsh >=7.4 | bootstrap, analysis, pre, post |

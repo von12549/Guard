@@ -51,43 +51,41 @@ V4 v1 must prove:
 7. a plan-set composes multiple compatible member plans without weakening exact diff accounting; and
 8. CI uses Linux for complete normal coverage and Windows only under the accepted selection contract.
 
-## 4. Planned package shape
+## 4. Implemented package shape
 
 ```text
-docs/guards/v4/                    # canonical incubation spelling; final distribution boundary is deferred
+docs/guards/v4/                    # canonical source package; distribution is versioned independently
 ├─ plugin.json
+├─ build/
 ├─ core/
 │  ├─ host/
 │  ├─ contracts/
-│  └─ runtime/
-├─ stages/
-│  ├─ bootstrap/
-│  ├─ analysis/
-│  ├─ pre/
-│  └─ post/
+│  ├─ runtime/
+│  ├─ distribution/
+│  └─ certification/
 ├─ modules/
-│  ├─ architecture-conformance/
-│  │  ├─ project-model/
-│  │  ├─ roslyn/
-│  │  ├─ archunitnet/
-│  │  └─ build-evidence/
-│  └─ stage-gate/
+│  ├─ registry.json
+│  ├─ synthetic-probe/
+│  ├─ build-evidence-provider/
+│  └─ architecture-conformance/
 ├─ profiles/
 │  └─ catalog/
 │     ├─ default/
 │     └─ synthetic_profile/
 ├─ integrations/
 │  ├─ git/
-│  ├─ github/
-│  └─ agents/
-├─ restore/
+│  └─ github/
 ├─ tests/
-├─ state/                          # ignored mutable root
-└─ artifacts/                      # ignored mutable root
+├─ docs/
+└─ plans/
 ```
 
-The exact incubation path and final standalone distribution path are different concerns. V1 packaging
-must not embed repository-relative IFX paths.
+Bootstrap, Analysis, Pre and Post are Host orchestration modes rather than package directories. Project
+Model, Roslyn and ArchUnitNET detectors are one stable `architecture-conformance` module identity, while
+isolated compilation is owned by `build-evidence-provider`. Mutable StateRoot and EvidenceRoot are
+explicit external inputs and never live beneath immutable PackageRoot or read-only TargetRoot. The source
+path and final standalone distribution path remain different concerns; V1 packaging does not embed
+repository-relative IFX paths.
 
 ## 5. Workstreams and checkpoints
 

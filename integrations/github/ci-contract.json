@@ -20,7 +20,7 @@
     "docs/guards/v4/tests/p8/**"
   ],
   "approvedTests": [
-    { "path": "docs/guards/v4/tests/p0/Test-V4Contracts.ps1", "sha256": "1d6437994d6cb2a0af2ced771d9cb833844a5d03886f08ab8bc7715e539cf0f3", "linux": true, "windowsSmoke": true, "windowsFull": true },
+    { "path": "docs/guards/v4/tests/p0/Test-V4Contracts.ps1", "sha256": "e15a48d431ed4d12dd52fdc14dbc210a17c14a100228e3dc809a04531eb26b42", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "docs/guards/v4/tests/p0/Test-V4GenesisProposal.ps1", "sha256": "8e47bca44b95d01a225bf45b96b553ed512a8e5b96d5b35daf92f572127b6a44", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "docs/guards/v4/tests/p0/Test-V4HostSpike.ps1", "sha256": "8659f6bbc94929418bde24f6041236f0c6358bae8551b021a7b0dac110cf19ea", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "docs/guards/v4/tests/p1/Test-V4Package.ps1", "sha256": "9ed0408354efddbbf65cb9be370e39d4c903cfb0629fda762b39628291b20950", "linux": true, "windowsSmoke": true, "windowsFull": true },
@@ -38,14 +38,15 @@
     { "path": "docs/guards/v4/tests/p5/Test-V4PlanDiff.ps1", "sha256": "d4c0d6c457707a64104510ae823a2fe746a29fd5d7ee30b9fe3d4096592efcfc", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "docs/guards/v4/tests/p5/Test-V4PlanRuntime.ps1", "sha256": "ea4505080c0490f28d491b90f2464f4a314fe1892b841253390e7504d0ccd806", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "docs/guards/v4/tests/p6/Test-V4ChangeClassifier.ps1", "sha256": "cdf405ddc0c489c9aa551f691a893feca8be8ab588c1e84049bac34843edf1fa", "linux": true, "windowsSmoke": true, "windowsFull": true },
-    { "path": "docs/guards/v4/tests/p6/Test-V4TrustedBase.ps1", "sha256": "71fe3c7f4648a6d02b73de2d55c21afd114ad8bfe0a1ff8e7cf4b30b9604b35d", "linux": false, "windowsSmoke": false, "windowsFull": false },
+    { "path": "docs/guards/v4/tests/p6/Test-V4TrustedBase.ps1", "sha256": "71fe3c7f4648a6d02b73de2d55c21afd114ad8bfe0a1ff8e7cf4b30b9604b35d", "linux": false, "windowsSmoke": false, "windowsFull": true },
     { "path": "docs/guards/v4/tests/p6/Test-V4WorkflowContract.ps1", "sha256": "4c6e4006f136cdbe413c9e6e2daf98387381efc2970ff8bc7278949d94ef2e25", "linux": true, "windowsSmoke": true, "windowsFull": true },
-    { "path": "docs/guards/v4/tests/p7/Test-V4Distribution.ps1", "sha256": "270c3deb04450f0c07b22c297d7fc4d873a2313382eb7a91faaef9c10a5e9f2a", "linux": true, "windowsSmoke": true, "windowsFull": true },
+    { "path": "docs/guards/v4/tests/p7/Test-V4Distribution.ps1", "sha256": "3639480ff2421d1eebc655c29cd51cf3c2ab7af109e016ab50134f12a5795908", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "docs/guards/v4/tests/p7/Test-V4Documentation.ps1", "sha256": "7842c8c2b3d1118888af50a9a0e89f709681ca43da167f0b8e8ece327dca6142", "linux": true, "windowsSmoke": false, "windowsFull": true },
-    { "path": "docs/guards/v4/tests/p7/Test-V4Lifecycle.ps1", "sha256": "b081883a2eccb05437d2bf98a8b4abcd500967554d84edcdc9296fe7ec6e96ad", "linux": true, "windowsSmoke": true, "windowsFull": true },
+    { "path": "docs/guards/v4/tests/p7/Test-V4Lifecycle.ps1", "sha256": "9d12a1f271c4332ba322e9ab0c200db1901bc52746d631b15b98f4ca9ad25dd0", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "docs/guards/v4/tests/p8/Test-V4CompatibilityBaseline.ps1", "sha256": "7e8407c450b44e8d6af2cb98c42d92d9e382561a29b4e6c5859a90cdaee39564", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "docs/guards/v4/tests/p8/Test-V4SupplyChain.ps1", "sha256": "14d242478bf8b23d11a0281ae5455bef359fc754ecb0108bdff3b9e12adf2788", "linux": true, "windowsSmoke": true, "windowsFull": true },
-    { "path": "docs/guards/v4/tests/p8/Test-V4V1Acceptance.ps1", "sha256": "0f8df149fce6e80f1b6039548f13478383ba62e6368175baec28143ed4248322", "linux": true, "windowsSmoke": true, "windowsFull": true }
+    { "path": "docs/guards/v4/tests/p8/Test-V4V1Acceptance.ps1", "sha256": "0f8df149fce6e80f1b6039548f13478383ba62e6368175baec28143ed4248322", "linux": true, "windowsSmoke": true, "windowsFull": true },
+    { "path": "docs/guards/v4/tests/p8/Test-V4StableCli.ps1", "sha256": "e6780e740dfe92de96b62c50bc13031e459b856a1030affdb4f7013b7ade2674", "linux": true, "windowsSmoke": true, "windowsFull": true }
   ],
   "artifact": { "name": "v4-ci-artifact", "manifestPath": "manifest.json", "packagePath": "package", "hostPath": "host/v4-guards.dll" },
   "excludedSuites": ["ifx-solution", "ifx-frontend", "ifx-database", "v3-package-candidate"]

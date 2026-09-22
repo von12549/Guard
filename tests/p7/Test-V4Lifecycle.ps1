@@ -43,7 +43,7 @@ $distribution = Run-Script $builder @('-PackageRoot',$packageRoot,'-HostRoot',(J
 if ($distribution.Code -ne 0) { throw "Lifecycle distribution failed: $($distribution.Output)" }
 $archive = ($distribution.Output | ConvertFrom-Json).archivePath
 $hostile = Join-Path $runRoot 'hostile-parent'
-$installRoot = Join-Path $hostile 'installed/v4-guards-0.1.0'
+$installRoot = Join-Path $hostile 'installed/v4-guards-1.0.0'
 $receiptPath = Join-Path $hostile 'receipts/install.json'
 $targetRoot = Join-Path $runRoot 'external-target'
 $stateRoot = Join-Path $runRoot 'mutable/state'
