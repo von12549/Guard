@@ -245,6 +245,17 @@ repository-relative IFX paths.
 - [x] **V4-P8.4** Freeze CLI/config/report compatibility baseline and recovery artifact. (`20260922-v4-p8-v1-certification`)
 - [x] **V4-P8.5** Confirm V4-native Architecture Conformance requires no V3/LayerGuard runtime path. (`20260922-v4-p8-v1-certification`)
 - [ ] **V4-P8.6** Publish V4 v1 only after a separate release authorization.
+  Release-readiness closure audit (`20260922-v4-p8-release-readiness-closure`): **PASS** on the
+  implemented candidate commit `c7d2b0865d7b2195d176b538801f93bf6bbc5eb0`. Package and bundled
+  modules are version `1.0.0`; declared/certified platforms are `linux-x64` and `win-x64` only. Stable
+  `version` and `contract validate` behavior, PackageRoot-complete reset syntax, generated docs,
+  contract/module/compatibility hashes and negative cases pass. Native Linux complete is 26/26;
+  native Windows full is 27/27 and includes Trusted Base. Package hash is
+  `52c900ff4050826fdd41042d955777c2bff92705f10272b49ac2dea969b91706`. Formal Pre, exact Diff from
+  the prior P8 checkpoint, V3 Validate and isolated IFX package validation pass. The candidate record
+  still states `releaseAuthorized: false`, `activeIfxCutover: false` and `ifxProfileIncluded: false`.
+  P8.6 remains unchecked and requires a new explicit authorization; this audit does not authorize
+  publication, tagging, push, workflow/ruleset activation or IFX cutover.
 
 - [x] **V4-P8.GATE** V4 v1 meets §3 without `ifx_profile` or any active IFX cutover; Plan 06 §20
   remains open until the deferred IFX parity/cutover/retirement work completes.
