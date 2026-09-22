@@ -1,6 +1,6 @@
 # V4 v1 — self-contained guard plugin
 
-Status: `V1 RELEASED — V4-P9 Lightweight Web UI implemented and gate-audited; remote activation not authorized`
+Status: `V1.1 RELEASED — V4-P9 Lightweight Web UI packaged; remote activation not authorized`
 
 Development base: `codex/v4-development-base`
 
@@ -299,6 +299,20 @@ repository-relative IFX paths.
 Every V4-P9 checkpoint used a separate exact Plan pair and explicit authorization. Completing
 V4-P9.GATE does not authorize later source, dependency, package, pull-request, merge, activation or
 other remote changes.
+
+### V4 1.1.0 publication
+
+V4 Guards 1.1.0 was certified from commit
+`a81a12e0d1f476c563497f961fe41fccc53edfb6`, package hash
+`cfea69e151f4edcccb51c16f91ce3c1d2651bcdf89323ea133fdff8f37615802`. Windows-full passed 32/32
+and network-disabled Linux-complete passed 31/31. The annotated tag `v4-guards-v1.1.0` peels to that
+commit, and final GitHub Release `V4 Guards 1.1.0` was published at
+`https://github.com/von12549/IFX/releases/tag/v4-guards-v1.1.0` with archive digest
+`sha256:d7d3b1ef7f70bab3153c4d1253b8a1e6db2bdea13645fe6597d36c29432c9fbd`.
+
+The exact publication evidence is recorded by `20260923-v4-v1-1-release-publication`. Version 1.1.0
+is the fixed initial baseline for the separately planned V4-TODO-001/002/003 IFX Profile validation
+program. This publication does not activate a workflow/ruleset or authorize IFX cutover.
 
 ## 6. PR and CI strategy
 
