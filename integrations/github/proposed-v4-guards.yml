@@ -1,4 +1,4 @@
-# INACTIVE SPECIMEN. The proposed future active path is .github/workflows/v4-guards.yml.
+# INACTIVE SPECIMEN. The separately authorized future active path is .github/workflows/v4-guards.yml.
 name: V4 Guardrails
 
 on:
@@ -7,15 +7,14 @@ on:
     paths:
       - docs/guards/v4/**
       - docs/guards/plans/**
-      - .github/workflows/v4-guards.yml
   workflow_dispatch:
     inputs:
       windowsCoverage:
-        description: Windows coverage selected in addition to the base-owned classifier
+        description: Explicit certification coverage
         required: true
-        default: auto
+        default: full
         type: choice
-        options: [auto, smoke, full]
+        options: [full]
 
 permissions:
   contents: read
@@ -29,11 +28,46 @@ jobs:
     name: v4-contract
     runs-on: ubuntu-latest
     outputs:
-      windows-required: ${{ steps.scope.outputs.windows-required }}
+      windows-required: ${{ steps.contract.outputs.windows-required }}
+      windows-coverage: ${{ steps.contract.outputs.windows-coverage }}
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Materialize the previously trusted V4 base outside the target
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+        run: |
+          git worktree add --detach "$env:RUNNER_TEMP/v4-base" $env:BASE_SHA
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Validate root Plan, exact diff and Windows selection from the trusted base
+        id: contract
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          $arguments = @('-Mode','Contract','-HeadRoot',$env:GITHUB_WORKSPACE,'-BaseSha',$env:BASE_SHA,'-HeadSha',$env:HEAD_SHA,'-EvidenceRoot',"$env:RUNNER_TEMP/v4-contract-evidence",'-GitHubOutput',$env:GITHUB_OUTPUT)
+          if ($env:EVENT_NAME -eq 'workflow_dispatch') { $arguments += @('-Certification','-RequestedWindowsCoverage','full') }
+          pwsh -NoProfile -File "$env:RUNNER_TEMP/v4-base/docs/guards/v4/integrations/github/Invoke-V4TrustedBase.ps1" @arguments
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+
+  v4-linux:
+    name: v4-linux
+    needs: v4-contract
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-digest: ${{ steps.upload.outputs.artifact-digest }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
@@ -44,83 +78,86 @@ jobs:
         run: |
           git worktree add --detach "$env:RUNNER_TEMP/v4-base" $env:BASE_SHA
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          "V4_BASE=$env:RUNNER_TEMP/v4-base" >> $env:GITHUB_ENV
-          "V4_BASE_SHA=$env:BASE_SHA" >> $env:GITHUB_ENV
-      - name: Validate contract, Plan root and exact candidate diff from the trusted base
-        id: scope
-        shell: pwsh
-        env:
-          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: |
-          pwsh -NoProfile -File "$env:V4_BASE/docs/guards/v4/integrations/github/Invoke-V4TrustedBase.ps1" -Mode Contract -HeadRoot $env:GITHUB_WORKSPACE -BaseSha $env:V4_BASE_SHA -HeadSha $env:HEAD_SHA -GitHubOutput $env:GITHUB_OUTPUT
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-
-  v4-linux:
-    name: v4-linux
-    needs: v4-contract
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-dotnet@v6
-        with:
-          dotnet-version: 10.0.x
-      - name: Materialize and execute the trusted base runner
+      - name: Run full Linux coverage and produce the only CI artifact
         shell: pwsh
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
-          git worktree add --detach "$env:RUNNER_TEMP/v4-base" $env:BASE_SHA
+          pwsh -NoProfile -File "$env:RUNNER_TEMP/v4-base/docs/guards/v4/integrations/github/Invoke-V4TrustedBase.ps1" -Mode Linux -HeadRoot $env:GITHUB_WORKSPACE -BaseSha $env:BASE_SHA -HeadSha $env:HEAD_SHA -StateRoot "$env:RUNNER_TEMP/v4-linux-state" -EvidenceRoot "$env:RUNNER_TEMP/v4-linux-evidence" -ArtifactRoot "$env:RUNNER_TEMP/v4-artifact"
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          pwsh -NoProfile -File "$env:RUNNER_TEMP/v4-base/docs/guards/v4/integrations/github/Invoke-V4TrustedBase.ps1" -Mode Linux -HeadRoot $env:GITHUB_WORKSPACE -BaseSha $env:BASE_SHA -HeadSha $env:HEAD_SHA -StateRoot "$env:RUNNER_TEMP/v4-state" -EvidenceRoot "$env:RUNNER_TEMP/v4-evidence"
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Upload immutable V4 artifact
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: v4-ci-artifact
+          path: ${{ runner.temp }}/v4-artifact
+          if-no-files-found: error
+          retention-days: 1
 
   v4-package:
     name: v4-package
-    needs: v4-contract
+    needs: [v4-contract, v4-linux]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-dotnet@v6
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@v5
         with:
-          dotnet-version: 10.0.x
-      - name: Package through the trusted base runner
+          name: v4-ci-artifact
+          path: ${{ runner.temp }}/v4-artifact
+      - name: Materialize the previously trusted V4 base outside the target
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+        run: |
+          git worktree add --detach "$env:RUNNER_TEMP/v4-base" $env:BASE_SHA
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Verify and reuse the Linux-produced package
         shell: pwsh
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
-          git worktree add --detach "$env:RUNNER_TEMP/v4-base" $env:BASE_SHA
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          pwsh -NoProfile -File "$env:RUNNER_TEMP/v4-base/docs/guards/v4/integrations/github/Invoke-V4TrustedBase.ps1" -Mode Package -HeadRoot $env:GITHUB_WORKSPACE -BaseSha $env:BASE_SHA -HeadSha $env:HEAD_SHA -StateRoot "$env:RUNNER_TEMP/v4-state" -EvidenceRoot "$env:RUNNER_TEMP/v4-evidence"
+          pwsh -NoProfile -File "$env:RUNNER_TEMP/v4-base/docs/guards/v4/integrations/github/Invoke-V4TrustedBase.ps1" -Mode Package -HeadRoot $env:GITHUB_WORKSPACE -BaseSha $env:BASE_SHA -HeadSha $env:HEAD_SHA -EvidenceRoot "$env:RUNNER_TEMP/v4-package-evidence" -ArtifactRoot "$env:RUNNER_TEMP/v4-artifact"
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
 
   v4-windows:
     name: v4-windows
-    needs: v4-contract
-    if: needs.v4-contract.outputs.windows-required == 'true' || inputs.windowsCoverage == 'smoke' || inputs.windowsCoverage == 'full'
+    needs: [v4-contract, v4-linux]
+    if: needs.v4-contract.outputs.windows-required == 'true'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
-      - name: Execute selected Windows coverage through the trusted base runner
+      - uses: actions/download-artifact@v5
+        with:
+          name: v4-ci-artifact
+          path: ${{ runner.temp }}/v4-artifact
+      - name: Materialize the previously trusted V4 base outside the target
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+        run: |
+          git worktree add --detach "$env:RUNNER_TEMP/v4-base" $env:BASE_SHA
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Verify the artifact and run selected Windows coverage
         shell: pwsh
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          WINDOWS_COVERAGE: ${{ inputs.windowsCoverage || 'auto' }}
+          WINDOWS_COVERAGE: ${{ needs.v4-contract.outputs.windows-coverage }}
         run: |
-          git worktree add --detach "$env:RUNNER_TEMP/v4-base" $env:BASE_SHA
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          pwsh -NoProfile -File "$env:RUNNER_TEMP/v4-base/docs/guards/v4/integrations/github/Invoke-V4TrustedBase.ps1" -Mode Windows -Coverage $env:WINDOWS_COVERAGE -HeadRoot $env:GITHUB_WORKSPACE -BaseSha $env:BASE_SHA -HeadSha $env:HEAD_SHA -StateRoot "$env:RUNNER_TEMP/v4-state" -EvidenceRoot "$env:RUNNER_TEMP/v4-evidence"
+          pwsh -NoProfile -File "$env:RUNNER_TEMP/v4-base/docs/guards/v4/integrations/github/Invoke-V4TrustedBase.ps1" -Mode Windows -Coverage $env:WINDOWS_COVERAGE -HeadRoot $env:GITHUB_WORKSPACE -BaseSha $env:BASE_SHA -HeadSha $env:HEAD_SHA -StateRoot "$env:RUNNER_TEMP/v4-windows-state" -EvidenceRoot "$env:RUNNER_TEMP/v4-windows-evidence" -ArtifactRoot "$env:RUNNER_TEMP/v4-artifact"
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
 
   v4-required:
@@ -129,15 +166,27 @@ jobs:
     needs: [v4-contract, v4-linux, v4-package, v4-windows]
     runs-on: ubuntu-latest
     steps:
-      - name: Aggregate required V4 verdicts
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Materialize the previously trusted V4 base outside the target
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+        run: |
+          git worktree add --detach "$env:RUNNER_TEMP/v4-base" $env:BASE_SHA
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Aggregate required V4 verdicts through the trusted base
         shell: pwsh
         env:
           CONTRACT_RESULT: ${{ needs.v4-contract.result }}
           LINUX_RESULT: ${{ needs.v4-linux.result }}
           PACKAGE_RESULT: ${{ needs.v4-package.result }}
           WINDOWS_RESULT: ${{ needs.v4-windows.result }}
-          WINDOWS_REQUIRED: ${{ needs.v4-contract.outputs.windows-required }}
+          WINDOWS_REQUIRED: ${{ needs.v4-contract.outputs.windows-required || 'false' }}
+          WINDOWS_COVERAGE: ${{ needs.v4-contract.outputs.windows-coverage || 'none' }}
         run: |
-          if ($env:CONTRACT_RESULT -ne 'success' -or $env:LINUX_RESULT -ne 'success' -or $env:PACKAGE_RESULT -ne 'success') { exit 1 }
-          if ($env:WINDOWS_REQUIRED -eq 'true' -and $env:WINDOWS_RESULT -ne 'success') { exit 1 }
-          if ($env:WINDOWS_REQUIRED -ne 'true' -and $env:WINDOWS_RESULT -notin @('success','skipped')) { exit 1 }
+          pwsh -NoProfile -File "$env:RUNNER_TEMP/v4-base/docs/guards/v4/integrations/github/Test-V4Required.ps1" -ContractResult $env:CONTRACT_RESULT -LinuxResult $env:LINUX_RESULT -PackageResult $env:PACKAGE_RESULT -WindowsResult $env:WINDOWS_RESULT -WindowsRequired $env:WINDOWS_REQUIRED -WindowsCoverage $env:WINDOWS_COVERAGE
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }

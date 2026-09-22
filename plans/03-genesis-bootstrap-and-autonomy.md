@@ -1,6 +1,6 @@
 # V4 genesis bootstrap and autonomy handoff
 
-Status: accepted P0 proposal; inactive until a separately authorized activation
+Status: accepted proposal with P6 candidate runner; inactive until a separately authorized activation
 
 Decision authority: `00-architecture-decision-set.md`, especially V4-AD-014, V4-AD-015,
 V4-AD-026 and V4-AD-035.
@@ -83,6 +83,13 @@ semantics or Windows selection requires a new decision and Plan.
 
 The proposed future active path is exactly `.github/workflows/v4-guards.yml`. Materializing that file
 is an activation change, not a documentation copy operation.
+
+P6 completes the dormant candidate named by this proposal: a strict CI contract, base-owned Plan/diff
+validator, Windows-sensitive change classifier, secret-scrubbed Linux runner, immutable artifact
+producer/consumer checks and an unconditional required-verdict aggregator. Its tests prove a separate
+base can judge a candidate head and reject Plan under-declaration, artifact drift and candidate test
+weakening. The specimen still lives outside `.github/workflows/`; the active V3 workflow is unchanged,
+so the transition state remains `G1_V4_DORMANT_BASE` rather than `G2_V4_AUTONOMOUS`.
 
 ## 6. Separately authorized activation transaction
 

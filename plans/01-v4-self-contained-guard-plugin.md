@@ -209,15 +209,25 @@ must not embed repository-relative IFX paths.
 
 ### V4-P6 — Linux-first CI and Windows selection
 
-- [ ] **V4-P6.1** Add `v4-contract`, `v4-linux`, `v4-package` and `v4-required` workflow contracts on the V4 base.
-- [ ] **V4-P6.2** Build/package once and reuse immutable artifacts and bound Build Evidence within a run.
-- [ ] **V4-P6.3** Implement a base-owned change classifier for Windows-sensitive paths.
-- [ ] **V4-P6.4** Run ordinary full coverage on Linux; make Windows smoke conditional and Windows full explicit for
-  milestones/releases.
-- [ ] **V4-P6.5** Ensure V4-only PRs do not run IFX solution, frontend, database or V3 package candidate suites.
-- [ ] **V4-P6.6** Run target builds without secrets, with minimum permissions and isolated StateRoot outputs.
+- [x] **V4-P6.1** Add `v4-contract`, `v4-linux`, `v4-package` and `v4-required` workflow contracts on the V4 base.
+  Evidence: strict `ci-contract.json`, inactive workflow specimen and workflow-contract negative suite.
+- [x] **V4-P6.2** Build/package once and reuse immutable artifacts and bound Build Evidence within a run.
+  Evidence: Linux is the only producer; Package and Windows verify the exact manifest/file/hash set before reuse.
+- [x] **V4-P6.3** Implement a base-owned change classifier for Windows-sensitive paths. Evidence:
+  `Get-V4WindowsSelection.ps1` and one positive fixture for every declared sensitive pattern.
+- [x] **V4-P6.4** Run ordinary full coverage on Linux; make Windows smoke conditional and Windows full explicit for
+  milestones/releases. Evidence: hash-approved Linux/full and Windows smoke/full suites; manual dispatch is
+  certification-only and requires full Windows coverage.
+- [x] **V4-P6.5** Ensure V4-only PRs do not run IFX solution, frontend, database or V3 package candidate suites.
+  Evidence: the P6 candidate workflow/runner contract rejects paths outside V4 and names all excluded suites;
+  active V3 trigger exclusion remains part of the separately authorized activation transaction.
+- [x] **V4-P6.6** Run target builds without secrets, with minimum permissions and isolated StateRoot outputs.
+  Evidence: child environments are allowlisted, workflow permission is `contents: read`, credentials are not
+  persisted, and candidate execution occurs in a StateRoot clone rather than HeadRoot.
 
-- [ ] **V4-P6.GATE** Required context never disappears; forcing a Windows-sensitive change to skip Windows fails.
+- [x] **V4-P6.GATE** Required context never disappears; forcing a Windows-sensitive change to skip Windows fails.
+  Evidence: `v4-required` is unconditional and the required-verdict negative suite rejects skipped selected
+  Windows work. P6 is activation-ready in `G1_V4_DORMANT_BASE`; it does not itself activate the workflow/ruleset.
 
 ### V4-P7 — Packaging, isolation and documentation
 

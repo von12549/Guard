@@ -39,6 +39,8 @@ $fixtures = [ordered]@{
     'finding-baseline' = [ordered]@{ formatVersion = 1; findings = @([ordered]@{ ruleId = 'ARCH.PROJECT_REFERENCE'; subject = 'Application/App.csproj -> ../Forbidden/Forbidden.csproj'; evidenceKind = 'project-model-raw'; detectorId = 'project-model' }) }
     'reset-manifest' = [ordered]@{ formatVersion = 1; mode = 'project'; projectId = ('d' * 32); entries = @([ordered]@{ root = 'state'; path = 'projects/example/data.txt'; type = 'file'; sha256 = $hash }); beforeHash = $hash; expectedAfterHash = $hash; manifestHash = $hash }
     'genesis-record' = [ordered]@{ formatVersion = 1; seedSha = $commit; packageHash = $hash; contractsManifestHash = $hash; deterministicTests = @([ordered]@{ id = 'p0a'; resultHash = $hash }); nonInterferenceEvidence = @('artifacts/guards/v3-ifx/summary-validate.json'); recovery = [ordered]@{ restoreSha = $commit; instructionsHash = $hash }; acceptedBy = [ordered]@{ authorityType = 'human-review'; authorityId = 'review-1'; candidateHostVerdictAllowed = $false } }
+    'ci-contract' = [ordered]@{ formatVersion = 1; targetBranch = 'codex/v4-development-base'; requiredContexts = @('v4-contract','v4-linux','v4-package','v4-required'); permissions = [ordered]@{ contents='read' }; allowedChangedPatterns = @('docs/guards/v4/**'); windowsSensitivePatterns = @('docs/guards/v4/core/host/**'); approvedTests = @([ordered]@{ path='docs/guards/v4/tests/p0/Test-V4Contracts.ps1'; sha256=$hash; linux=$true; windowsSmoke=$true; windowsFull=$true }); artifact = [ordered]@{ name='v4-ci-artifact'; manifestPath='manifest.json'; packagePath='package'; hostPath='host/v4-guards.dll' }; excludedSuites = @('ifx-solution','ifx-frontend','ifx-database','v3-package-candidate') }
+    'ci-artifact-manifest' = [ordered]@{ formatVersion = 1; baseSha=$commit; headSha=$commit; contractSha256=$hash; packageHash=$hash; buildEvidence=[ordered]@{ configuration='Release'; targetFramework='net10.0'; sourceSha256=$hash; hostPath='host/v4-guards.dll'; hostSha256=$hash; secretEnvironmentNames=@() }; linuxTests=@('docs/guards/v4/tests/p0/Test-V4Contracts.ps1'); files=@([ordered]@{path='package/plugin.json';sha256=$hash;size=1},[ordered]@{path='host/v4-guards.dll';sha256=$hash;size=1}) }
 }
 
 foreach ($entry in $fixtures.GetEnumerator()) {
@@ -94,7 +96,7 @@ $exitMap = @($cli.exitCategories | Sort-Object code | ForEach-Object { "$($_.id)
 $expectedExitMap = @('success=0','invalid-input=10','unsafe-path=11','integrity-failure=12','capability-denied=13','adapter-failure=14','prerequisite-missing=15','findings-blocking=16','state-conflict=17','reset-refused=18','internal-error=19')
 if (($exitMap -join ',') -cne ($expectedExitMap -join ',')) { $failures.Add('Stable exit category mapping drifted') }
 
-$schemaNames = @('capability-matrix','cli-contract','finding-baseline','genesis-record','module-registry','module','plan-set','plan','plugin','profile','reset-manifest','rule-execution-plan','stage-result','state')
+$schemaNames = @('capability-matrix','ci-artifact-manifest','ci-contract','cli-contract','finding-baseline','genesis-record','module-registry','module','plan-set','plan','plugin','profile','reset-manifest','rule-execution-plan','stage-result','state')
 foreach ($name in $schemaNames) {
     $schema = Get-Content -Raw (Schema $name) | ConvertFrom-Json -AsHashtable -Depth 50
     if ($schema.'$schema' -ne 'http://json-schema.org/draft-07/schema#' -or $schema.additionalProperties -ne $false -or -not $schema.ContainsKey('$id')) {

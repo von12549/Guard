@@ -34,10 +34,11 @@ Require-Text 'target base branch filter' $workflow '(?m)^\s+branches:\s*\[codex/
 Require-Text 'pull-request base SHA' $workflow 'github\.event\.pull_request\.base\.sha'
 Require-Text 'pull-request head SHA' $workflow 'github\.event\.pull_request\.head\.sha'
 Require-Text 'base-owned runner' $workflow 'v4-base/docs/guards/v4/integrations/github/Invoke-V4TrustedBase\.ps1'
-Require-Text 'base SHA persisted for the contract verdict' $workflow 'V4_BASE_SHA=\$env:BASE_SHA'
+Require-Text 'base SHA passed to the contract verdict' $workflow '-BaseSha.*BASE_SHA'
 Require-Text 'read-only permissions' $workflow '(?ms)^permissions:\s*\r?\n\s+contents:\s+read\s*$'
 Require-Text 'required aggregate always appears' $workflow '(?ms)^\s+v4-required:\s*\r?\n\s+name:\s+v4-required\s*\r?\n\s+if:\s+always\(\)'
-Require-Text 'required Windows fail-closed condition' $workflow "WINDOWS_REQUIRED -eq 'true'.*WINDOWS_RESULT -ne 'success'"
+Require-Text 'required Windows base aggregator' $workflow 'v4-base/docs/guards/v4/integrations/github/Test-V4Required\.ps1'
+Require-Text 'single immutable artifact producer' $workflow 'actions/upload-artifact@v4'
 
 $expectedRequired = @('v4-contract','v4-linux','v4-package','v4-required')
 $actualRequired = @([Regex]::Matches($workflow, '(?m)^\s+name:\s+(v4-(?:contract|linux|package|required))\s*$') | ForEach-Object { $_.Groups[1].Value } | Sort-Object)

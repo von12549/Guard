@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/ci-contract.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "targetBranch", "requiredContexts", "permissions", "allowedChangedPatterns", "windowsSensitivePatterns", "approvedTests", "artifact", "excludedSuites"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "targetBranch": { "const": "codex/v4-development-base" },
+    "requiredContexts": { "const": ["v4-contract", "v4-linux", "v4-package", "v4-required"] },
+    "permissions": { "type": "object", "additionalProperties": false, "required": ["contents"], "properties": { "contents": { "const": "read" } } },
+    "allowedChangedPatterns": { "$ref": "#/definitions/patterns" },
+    "windowsSensitivePatterns": { "$ref": "#/definitions/patterns" },
+    "approvedTests": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "linux", "windowsSmoke", "windowsFull"],
+        "properties": {
+          "path": { "$ref": "#/definitions/relativePath" },
+          "sha256": { "$ref": "#/definitions/sha256" },
+          "linux": { "type": "boolean" },
+          "windowsSmoke": { "type": "boolean" },
+          "windowsFull": { "type": "boolean" }
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "manifestPath", "packagePath", "hostPath"],
+      "properties": {
+        "name": { "const": "v4-ci-artifact" },
+        "manifestPath": { "const": "manifest.json" },
+        "packagePath": { "const": "package" },
+        "hostPath": { "const": "host/v4-guards.dll" }
+      }
+    },
+    "excludedSuites": { "type": "array", "minItems": 4, "uniqueItems": true, "items": { "enum": ["ifx-solution", "ifx-frontend", "ifx-database", "v3-package-candidate"] } }
+  },
+  "definitions": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "relativePath": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" },
+    "patterns": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*\\.\\.).+$" } }
+  }
+}
