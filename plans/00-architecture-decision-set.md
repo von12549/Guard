@@ -1,9 +1,10 @@
 # V4 architecture decision set
 
-Status: accepted V4 v1 baseline with post-v1 V4-P9 UI boundary
+Status: accepted V4 v1 baseline; post-v1 V4-P9 UI implemented and gate-audited
 
-Date: 2026-09-21
-Implementation authorization: V4-P9 planning only; UI implementation remains separately authorized
+Date: 2026-09-23
+Implementation authorization: V4-P9.0 through V4-P9.GATE completed; later UI expansion and remote
+activation remain separately planned and authorized
 
 Architecture view: [02-runtime-architecture.md](02-runtime-architecture.md)
 
@@ -49,10 +50,10 @@ Architecture view: [02-runtime-architecture.md](02-runtime-architecture.md)
 
 ## Implementation readiness
 
-No unresolved architecture decision blocks the released V4 v1 core. V4-AD-017 is now the accepted
-boundary for planning V4-P9; it does not authorize P9 implementation. Exact P9 query schemas, process
-interfaces and presentation technology are checkpoint outputs governed by that boundary. Remaining
-deferred decisions stay outside v1 and V4-P9 unless a later reviewed decision says otherwise.
+No unresolved architecture decision blocks the released V4 v1 core. V4-AD-017 governed the completed
+V4-P9 implementation, and `05-p9-gate-audit.md` records that the shipped boundary remains local,
+non-authoritative and confined to public V4 contracts. Remaining deferred decisions and every later UI
+expansion stay outside V4-P9 unless a reviewed decision and exact Plan authorize them.
 
 ## V4-AD-001 — Product boundary
 
@@ -252,7 +253,8 @@ The exact exclusions and revisit boundaries are maintained in `TODO.md`.
 
 V4-AD-018 through V4-AD-020 remain excluded from v1 and tracked in `TODO.md`. Deferral is not implicit
 approval: each item requires its own decision update and Plan before implementation. V4-AD-017 is a
-post-v1 accepted boundary whose implementation is divided into separately authorized V4-P9 checkpoints.
+post-v1 accepted boundary implemented through the completed, separately authorized V4-P9 checkpoints;
+the gate audit does not authorize any excluded follow-on capability.
 
 ## V4-AD-021 — Four-root execution contract
 

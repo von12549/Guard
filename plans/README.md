@@ -7,11 +7,12 @@ Current documents:
 
 | Document | Role | Status |
 | --- | --- | --- |
-| [00-architecture-decision-set.md](00-architecture-decision-set.md) | Product, trust, state, profile, stage, CI and planning decisions | Accepted v1 core and V4-P9 UI boundary; remaining roadmap items deferred |
-| [01-v4-self-contained-guard-plugin.md](01-v4-self-contained-guard-plugin.md) | V4 implementation roadmap | P0–P8 released as 1.0.0; P9.5 offline UI distribution implemented; P9.GATE pending |
-| [02-runtime-architecture.md](02-runtime-architecture.md) | Runtime, roots, detector composition, evidence, UI and trust diagrams | Published v1 architecture plus implemented P9.1–P9.5 boundaries |
+| [00-architecture-decision-set.md](00-architecture-decision-set.md) | Product, trust, state, profile, stage, CI and planning decisions | Accepted v1 core and gate-audited V4-P9 UI boundary; remaining roadmap items deferred |
+| [01-v4-self-contained-guard-plugin.md](01-v4-self-contained-guard-plugin.md) | V4 implementation roadmap | P0–P8 released as 1.0.0; P9 implemented and gate-audited |
+| [02-runtime-architecture.md](02-runtime-architecture.md) | Runtime, roots, detector composition, evidence, UI and trust diagrams | Published v1 architecture plus completed P9 local UI boundary |
 | [03-genesis-bootstrap-and-autonomy.md](03-genesis-bootstrap-and-autonomy.md) | Finite V3 genesis and V4 autonomy transition | Dormant G1; activation not authorized |
 | [04-layerguard-provenance.md](04-layerguard-provenance.md) | Architecture-rule provenance and clean-room boundary | Accepted provenance record |
+| [05-p9-gate-audit.md](05-p9-gate-audit.md) | P9 certification, authority-boundary and first-release exclusion audit | PASS |
 | [TODO.md](TODO.md) | Explicit deferred scope, P9 first-release exclusions and revisit gates | Active backlog |
 
 Status meanings:

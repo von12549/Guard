@@ -1,6 +1,6 @@
 # V4 runtime architecture
 
-Status: V4 v1 published; V4-P9.5 offline Web Companion distribution implemented; P9.GATE and remote activation not authorized
+Status: V4 v1 published; V4-P9 Lightweight Web UI implemented and gate-audited; remote activation not authorized
 
 Decision authority: `00-architecture-decision-set.md`
 
@@ -116,7 +116,20 @@ and uses no command shell.
 Every P9 test is included in the exact CI test inventory for Linux complete and Windows full. The P9.5
 lifecycle additionally covers two independent deterministic builds/archives, installed embedded-asset
 bytes, hostile parent configuration, authority override, path escape, Markdown execution sinks and
-Companion assembly drift. This packaging boundary does not complete P9.GATE or authorize remote use.
+Companion assembly drift.
+
+### P9.GATE audited boundary
+
+The final gate binds native Windows-full and pinned network-disabled Linux-complete reports to the same
+clean commit, package hash and exact CI-selected test inventories. A separate source audit confirms one
+shell-free Host process gateway, two schema-bound mutation routes, loopback/origin enforcement, no
+Companion filesystem write primitive and text-only rendering of untrusted Host and Plan content.
+
+`05-p9-gate-audit.md` accounts for every first-release exclusion in V4-TODO-005. No authority/Plan
+editing, Target mutation, Reset Apply, Git/GitHub operation, terminal/raw arguments, remote access,
+extension installation, multi-project parallelism or IFX-specific behavior is present. P9.GATE closes
+the planned local UI release only; it does not authorize remote use, workflow/ruleset activation,
+release/tag publication, IFX adoption or cutover.
 
 ## System and root boundaries
 

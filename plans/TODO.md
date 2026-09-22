@@ -32,11 +32,12 @@ separate reviewed decision and formal Plan; appearing here is not implementation
 
 ## Deferred user experience
 
-- [ ] **V4-TODO-005 — Lightweight Web UI**
+- [x] **V4-TODO-005 — Lightweight Web UI**
 
   Revisit gate met after V4 Guards 1.0.0 stabilized the CLI, JSON Schema, Stage result and state
   transaction contracts. V4-AD-017 is accepted and the work is promoted to V4-P9 by
-  `20260922-v4-p9-lightweight-web-ui-planning`; this item remains unchecked until V4-P9.GATE passes.
+  `20260922-v4-p9-lightweight-web-ui-planning`. V4-P9.GATE passed under
+  `20260923-v4-p9-gate-closure`; the exact evidence is recorded in `05-p9-gate-audit.md`.
   The UI is only an observation window and button panel over allowlisted V4 public contracts. It defines
   no guard capability or verdict, executes nothing outside `v4-guards`, does not directly edit authority
   files and cannot turn an empty/no-op profile into a successful coverage claim.
@@ -45,6 +46,9 @@ separate reviewed decision and formal Plan; appearing here is not implementation
 
 The following are deliberately excluded from the first Lightweight Web UI release. Each requires a
 later reviewed decision and exact Plan; listing it here is not implementation authorization.
+
+P9.GATE confirmed every item below is absent. The separately authorized repository push of the audited
+source branch is a delivery action by the maintainer and does not add a Git operation to the UI.
 
 - editing installed Profile or other package authorities;
 - directly editing or saving Plan authorities in `TargetRoot`;

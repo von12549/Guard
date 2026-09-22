@@ -1,6 +1,6 @@
 # V4 v1 — self-contained guard plugin
 
-Status: `V1 RELEASED — V4-P9.5 offline Web Companion distribution implemented; P9.GATE and remote activation not authorized`
+Status: `V1 RELEASED — V4-P9 Lightweight Web UI implemented and gate-audited; remote activation not authorized`
 
 Development base: `codex/v4-development-base`
 
@@ -292,13 +292,13 @@ repository-relative IFX paths.
   Markdown-XSS, hostile-parent, deterministic lifecycle, Linux complete and Windows full checks.
   (`20260922-v4-p9e-offline-ui-certification`)
 
-- [ ] **V4-P9.GATE** The UI remains only an observation/control surface over V4 public contracts, adds
+- [x] **V4-P9.GATE** The UI remains only an observation/control surface over V4 public contracts, adds
   no policy or execution bypass, writes only V4-owned mutable roots and includes none of the first-release
-  exclusions recorded under V4-TODO-005.
+  exclusions recorded under V4-TODO-005. (`20260923-v4-p9-gate-closure`; `05-p9-gate-audit.md`)
 
-V4-P9.4 and V4-P9.5 each require a separate exact Plan pair and explicit checkpoint authorization.
-Completing V4-P9.0 through V4-P9.3 does not authorize later source, dependency, package or remote
-changes.
+Every V4-P9 checkpoint used a separate exact Plan pair and explicit authorization. Completing
+V4-P9.GATE does not authorize later source, dependency, package, pull-request, merge, activation or
+other remote changes.
 
 ## 6. PR and CI strategy
 
