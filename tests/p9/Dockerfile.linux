@@ -1,0 +1,9 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:548d93f8a18a1acbe6cc127bc4f47281430d34a9e35c18afa80a8d6741c2adc3 AS dotnet
+FROM mcr.microsoft.com/powershell:7.5-ubuntu-22.04@sha256:a3affe99603400235501b8da8be5f9e40152d4db6557f698a91da0280f9e1469
+
+COPY --from=dotnet /usr/share/dotnet /usr/share/dotnet
+RUN ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
+
+WORKDIR /src
+ENTRYPOINT ["pwsh", "-NoLogo", "-NoProfile", "-NonInteractive"]
+CMD ["-File", "docs/guards/v4/tests/p9/Test-V4WebCompanionSpike.ps1"]

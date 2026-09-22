@@ -1,6 +1,6 @@
 # V4 v1 — self-contained guard plugin
 
-Status: `V1 RELEASED — V4-P9 planning authorized; UI implementation and remote activation not authorized`
+Status: `V1 RELEASED — V4-P9.1 local Companion spike implemented; P9.2+ and remote activation not authorized`
 
 Development base: `codex/v4-development-base`
 
@@ -276,8 +276,9 @@ repository-relative IFX paths.
 
 - [x] **V4-P9.0** Accept the non-authoritative UI boundary, local Web Companion topology, phased roadmap
   and first-release exclusions. (`20260922-v4-p9-lightweight-web-ui-planning`)
-- [ ] **V4-P9.1** Prove the local companion, loopback session, allowlisted V4 invocation, four-root
+- [x] **V4-P9.1** Prove the local companion, loopback session, allowlisted V4 invocation, four-root
   confinement and a synthetic Target-to-result flow on Linux and Windows.
+  (`20260922-v4-p9a-web-companion-spike`)
 - [ ] **V4-P9.2** Add schema-versioned read/query contracts for project, profile, prerequisite, run,
   evidence and Plan catalog projections without exposing host internals as UI authority.
 - [ ] **V4-P9.3** Implement one-active-Target workspace selection and the manual Stage Runner, including
@@ -291,8 +292,9 @@ repository-relative IFX paths.
   no policy or execution bypass, writes only V4-owned mutable roots and includes none of the first-release
   exclusions recorded under V4-TODO-005.
 
-V4-P9.1 through V4-P9.5 each require a separate exact Plan pair and explicit implementation
-authorization. Completing V4-P9.0 does not authorize source, dependency, package or remote changes.
+V4-P9.2 through V4-P9.5 each require a separate exact Plan pair and explicit checkpoint
+authorization. Completing V4-P9.0 or V4-P9.1 does not authorize later source, dependency, package or
+remote changes.
 
 ## 6. PR and CI strategy
 

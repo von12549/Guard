@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/web-spike/stage-run-request.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["stage", "profile", "withDependencies"],
+  "properties": {
+    "stage": { "enum": ["bootstrap", "analysis", "pre", "post"] },
+    "profile": { "const": "synthetic_profile" },
+    "withDependencies": { "type": "boolean" }
+  }
+}

@@ -1,0 +1,219 @@
+:root {
+  color-scheme: dark;
+  --ink: #e9eef2;
+  --muted: #9cabb7;
+  --surface: #17232d;
+  --surface-raised: #1e2c37;
+  --line: #40515e;
+  --paper: #f1f4f5;
+  --paper-ink: #15212a;
+  --amber: #efb44a;
+  --cyan: #6ecbd0;
+  --pass: #76c793;
+  --fail: #ef806f;
+  --focus: #fff0a8;
+  font-family: "Segoe UI Variable Text", "Aptos", "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px) 0 0 / 48px 48px,
+    #101a22;
+  color: var(--ink);
+}
+
+button, select, input { font: inherit; }
+
+.console-shell {
+  width: min(1480px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
+  border-inline: 1px solid #263945;
+  background: var(--surface);
+}
+
+.masthead {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+  min-height: 96px;
+  padding: 18px clamp(20px, 4vw, 56px);
+  border-bottom: 1px solid var(--line);
+}
+
+.product-mark {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--cyan);
+  color: var(--cyan);
+  font-size: 1.45rem;
+  font-weight: 750;
+  letter-spacing: -.04em;
+}
+
+h1, h2, p { margin: 0; }
+h1 { font-size: clamp(1.45rem, 3vw, 2.25rem); font-weight: 680; letter-spacing: -.035em; }
+.masthead p, .section-heading p { margin-top: 4px; color: var(--muted); line-height: 1.45; }
+
+.connection {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+.connection-light {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 0 4px rgba(239,180,74,.12);
+}
+
+.connection.ready .connection-light { background: var(--pass); box-shadow: 0 0 0 4px rgba(118,199,147,.12); }
+.connection.error .connection-light { background: var(--fail); box-shadow: 0 0 0 4px rgba(239,128,111,.12); }
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(250px, .8fr) minmax(300px, 1fr) minmax(430px, 1.65fr);
+  min-height: calc(100vh - 97px);
+}
+
+.control-rail, .root-track, .result-plane { padding: clamp(24px, 4vw, 48px); }
+.control-rail, .root-track { border-right: 1px solid var(--line); }
+.root-track { background: var(--surface-raised); }
+.result-plane { background: var(--paper); color: var(--paper-ink); }
+
+.section-heading h2 { font-size: 1.1rem; font-weight: 680; letter-spacing: -.015em; }
+.section-heading.compact p { font-size: .9rem; }
+
+form { display: grid; gap: 10px; margin-top: 34px; }
+form > label:not(.check-row) { margin-top: 12px; color: var(--muted); font-size: .85rem; }
+
+select {
+  width: 100%;
+  padding: 12px 38px 12px 13px;
+  border: 1px solid #526675;
+  border-radius: 3px;
+  background: #111c24;
+  color: var(--ink);
+}
+
+.check-row { display: flex; gap: 10px; align-items: center; margin: 17px 0 8px; color: var(--ink); }
+.check-row input { width: 18px; height: 18px; accent-color: var(--cyan); }
+
+button {
+  min-height: 48px;
+  border: 1px solid var(--amber);
+  border-radius: 3px;
+  background: var(--amber);
+  color: #251a08;
+  font-weight: 720;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) { background: #f7c96f; }
+button:disabled { cursor: not-allowed; opacity: .45; }
+button:focus-visible, select:focus-visible, input:focus-visible, pre:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+.boundary-note {
+  max-width: 36ch;
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: .86rem;
+  line-height: 1.55;
+}
+
+.roots-list {
+  position: relative;
+  display: grid;
+  gap: 0;
+  margin: 34px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.roots-list::before {
+  content: "";
+  position: absolute;
+  top: 22px;
+  bottom: 22px;
+  left: 8px;
+  width: 2px;
+  background: #4f6573;
+}
+
+.root-item {
+  position: relative;
+  padding: 0 0 28px 34px;
+}
+
+.root-item::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--cyan);
+  border-radius: 50%;
+  background: var(--surface-raised);
+}
+
+.root-name { display: block; font-weight: 680; }
+.root-access { display: block; margin: 3px 0 8px; color: var(--cyan); font-size: .82rem; }
+.root-path { display: block; overflow-wrap: anywhere; color: var(--muted); font-family: "Cascadia Code", Consolas, monospace; font-size: .76rem; line-height: 1.45; }
+.root-placeholder { color: var(--muted); }
+
+.result-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.result-plane .section-heading p { color: #66737b; }
+.verdict { min-width: 96px; padding: 8px 12px; border: 1px solid #9ba7ad; border-radius: 3px; text-align: center; font-weight: 720; }
+.verdict.pass { border-color: #348456; color: #22613d; background: #dff2e5; }
+.verdict.fail, .verdict.error { border-color: #a84a3d; color: #8a3329; background: #fae4df; }
+.verdict.running { border-color: #a87318; color: #76500e; background: #fbefd5; }
+
+pre {
+  min-height: 480px;
+  margin: 34px 0 0;
+  padding: clamp(18px, 3vw, 32px);
+  overflow: auto;
+  border: 1px solid #c3ccd0;
+  border-radius: 3px;
+  background: #fff;
+  color: #1b2b34;
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: .82rem;
+  line-height: 1.65;
+  tab-size: 2;
+}
+
+@media (max-width: 1040px) {
+  .workspace { grid-template-columns: 1fr 1fr; }
+  .root-track { border-right: 0; }
+  .result-plane { grid-column: 1 / -1; border-top: 1px solid var(--line); }
+}
+
+@media (max-width: 680px) {
+  .masthead { grid-template-columns: auto 1fr; }
+  .connection { grid-column: 1 / -1; }
+  .workspace { display: block; }
+  .control-rail, .root-track { border-right: 0; border-bottom: 1px solid var(--line); }
+  .result-header { display: grid; }
+  .verdict { justify-self: start; }
+  pre { min-height: 320px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .connection-light { transition: background-color 160ms ease, box-shadow 160ms ease; }
+}

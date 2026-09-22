@@ -1,6 +1,6 @@
 # V4 runtime architecture
 
-Status: V4 v1 published; V4-P9 UI boundary accepted but not implemented; remote activation not authorized
+Status: V4 v1 published; V4-P9.1 local Companion spike implemented; P9.2+ and remote activation not authorized
 
 Decision authority: `00-architecture-decision-set.md`
 
@@ -27,6 +27,20 @@ assets on loopback, accepts only schema-bound operations and renders host-produc
 define commands, execute arbitrary programs, interpret a verdict independently or infer a target from
 the package or process working directory. V4-P9 first release supports one active Target context and
 does not create a multi-project or remote control plane.
+
+### P9.1 implemented spike boundary
+
+The P9.1 Companion is a separate .NET process under `integrations/web`. Its trusted launcher fixes the
+Host DLL and all four roots before Kestrel binds to IPv4 loopback. The browser receives an HTTP-only,
+same-site session and may submit only a strict `stage`, fixed installed `synthetic_profile` and a
+boolean dependency choice. Unknown or duplicate fields, another Profile, missing/wrong origin and a
+non-loopback Host header fail before process invocation.
+
+The Companion starts the existing `v4-guards.dll` with shell execution disabled and a constructed
+`ArgumentList` for the stable `stage run` command. It returns the Host JSON and exit code unchanged;
+the presentation labels that value as the Host result. Windows-native and pinned Linux tests prove one
+synthetic Target-to-result flow, PackageRoot/TargetRoot immutability, mutable-root separation and input
+injection refusal. These spike endpoints are not the durable read/query contracts planned for P9.2.
 
 Plan presentation has two explicit modes. V4-native Plans use the V4 Plan and Plan-set contracts.
 Current V3-formal historical Markdown/JSON pairs may be shown read-only through a labelled compatibility
