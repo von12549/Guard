@@ -61,6 +61,13 @@ Assert-Schema $pluginPath (Join-Path $contracts 'plugin.schema.json') 'plugin ma
 $plugin = Read-Object $pluginPath 'plugin manifest'
 $runtimeRequirementsPath = Resolve-AuthorityPath $root 'core/distribution/runtime-requirements.json' 'runtime requirements' File
 Assert-Schema $runtimeRequirementsPath (Join-Path $contracts 'runtime-requirements.schema.json') 'runtime requirements'
+$compatibilityBaselinePath = Resolve-AuthorityPath $root 'core/certification/compatibility-baseline.json' 'compatibility baseline' File
+Assert-Schema $compatibilityBaselinePath (Join-Path $contracts 'compatibility-baseline.schema.json') 'compatibility baseline'
+$compatibilityBaseline = Read-Object $compatibilityBaselinePath 'compatibility baseline'
+foreach ($entry in $compatibilityBaseline.files) {
+    $compatibilityPath = Resolve-AuthorityPath $root ([string]$entry.path) "compatibility baseline $($entry.path)" File
+    if ((File-Hash $compatibilityPath) -cne [string]$entry.sha256) { Fail "compatibility baseline hash drift: $($entry.path)" }
+}
 
 $contractManifestPath = Resolve-AuthorityPath $root $plugin.contractsManifest 'contracts manifest' File
 $contractManifest = Read-Object $contractManifestPath 'contracts manifest'

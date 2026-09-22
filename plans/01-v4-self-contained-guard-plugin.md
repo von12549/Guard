@@ -241,14 +241,14 @@ must not embed repository-relative IFX paths.
 
 ### V4-P8 — V1 certification
 
-- [ ] **V4-P8.1** Run the complete Linux suite and Windows full certification.
-- [ ] **V4-P8.2** Run clean synthetic project Bootstrap/Analysis/Pre/Post and factory reset.
-- [ ] **V4-P8.3** Run supply-chain, dependency-lock and package-content checks.
-- [ ] **V4-P8.4** Freeze CLI/config/report compatibility baseline and recovery artifact.
-- [ ] **V4-P8.5** Confirm V4-native Architecture Conformance requires no V3/LayerGuard runtime path.
+- [x] **V4-P8.1** Run the complete Linux suite and Windows full certification. (`20260922-v4-p8-v1-certification`)
+- [x] **V4-P8.2** Run clean synthetic project Bootstrap/Analysis/Pre/Post and factory reset. (`20260922-v4-p8-v1-certification`)
+- [x] **V4-P8.3** Run supply-chain, dependency-lock and package-content checks. (`20260922-v4-p8-v1-certification`)
+- [x] **V4-P8.4** Freeze CLI/config/report compatibility baseline and recovery artifact. (`20260922-v4-p8-v1-certification`)
+- [x] **V4-P8.5** Confirm V4-native Architecture Conformance requires no V3/LayerGuard runtime path. (`20260922-v4-p8-v1-certification`)
 - [ ] **V4-P8.6** Publish V4 v1 only after a separate release authorization.
 
-- [ ] **V4-P8.GATE** V4 v1 meets §3 without `ifx_profile` or any active IFX cutover; Plan 06 §20
+- [x] **V4-P8.GATE** V4 v1 meets §3 without `ifx_profile` or any active IFX cutover; Plan 06 §20
   remains open until the deferred IFX parity/cutover/retirement work completes.
 
 ## 6. PR and CI strategy

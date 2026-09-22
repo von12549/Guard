@@ -24,8 +24,14 @@ function New-Case([string] $Name) {
 }
 
 function Invoke-Check([string] $Root) {
-    $output = & pwsh -NoLogo -NoProfile -NonInteractive -File $checker -PackageRoot $Root 2>&1 | Out-String
-    [pscustomobject]@{ Code = $LASTEXITCODE; Output = $output.Trim() }
+    $command = '$ErrorActionPreference=''Stop'';try{& $env:V4_TEST_CHECKER -PackageRoot $env:V4_TEST_ROOT}catch{[Console]::Error.WriteLine($_.Exception.Message);exit 1}'
+    $start = [Diagnostics.ProcessStartInfo]::new((Get-Command pwsh -ErrorAction Stop).Source)
+    $start.UseShellExecute = $false; $start.RedirectStandardOutput = $true; $start.RedirectStandardError = $true; $start.CreateNoWindow = $true
+    $start.Environment['V4_TEST_CHECKER'] = $checker; $start.Environment['V4_TEST_ROOT'] = $Root
+    foreach ($argument in @('-NoLogo','-NoProfile','-NonInteractive','-Command',$command)) { [void]$start.ArgumentList.Add($argument) }
+    $process = [Diagnostics.Process]::Start($start); $stdout = $process.StandardOutput.ReadToEndAsync(); $stderr = $process.StandardError.ReadToEndAsync()
+    $process.WaitForExit(); [Threading.Tasks.Task]::WaitAll(@($stdout,$stderr))
+    [pscustomobject]@{ Code = $process.ExitCode; Output = ($stdout.Result + "`n" + $stderr.Result).Trim() }
 }
 
 function Update-ManifestHash([string] $Root, [string] $ModuleId = 'synthetic-probe') {

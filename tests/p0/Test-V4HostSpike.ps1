@@ -134,7 +134,8 @@ try {
     $actualState = Join-Path $linkRoots.Root 'actual-state'
     [void][IO.Directory]::CreateDirectory($actualState)
     Remove-Item -LiteralPath $linkRoots.State
-    New-Item -ItemType Junction -Path $linkRoots.State -Target $actualState | Out-Null
+    $linkType = if ($IsWindows) { 'Junction' } else { 'SymbolicLink' }
+    New-Item -ItemType $linkType -Path $linkRoots.State -Target $actualState | Out-Null
     Assert-Exit 'linked state root' (Invoke-Host $packageRoot $linkRoots.Target $linkRoots.State $linkRoots.Evidence) 11 'unsafe-path'
 
     if ((Hash-Tree $positive.Target) -cne $targetHashBefore) { $failures.Add('the positive target changed') }
