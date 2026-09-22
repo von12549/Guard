@@ -11,6 +11,11 @@ separate reviewed decision and formal Plan; appearing here is not implementation
   specialized gates through the published profile/extension API. Treat any required V4 core change as
   an explicit compatibility decision. Do not make V4 v1 release depend on this practice.
 
+  Planning is active under `20260923-v4-ifx-profile-validation-program` / V4-P10. The released 1.1.0
+  package is the immutable entry baseline. Because 1.1.0 has no implemented package-external Profile
+  installer, P10.0/P10.1 must not edit the installed package; a required composition/loader change is
+  handled as the next certified `1.1.x` patch.
+
 - [ ] **V4-TODO-002 — IFX parallel parity**
 
   Revisit after V4-TODO-001. Run V3/V3_ifx and V4+`ifx_profile` against the same fixed corpus and real
@@ -18,11 +23,18 @@ separate reviewed decision and formal Plan; appearing here is not implementation
   prerequisites and every Architecture Conformance claim/evidence kind without activating V4. Include
   clean, deliberate-violation, missing-input and zero-match controls.
 
+  Planned as V4-P10.2 after P10.1. The corpus, IFX commit, both guard identities and every policy/profile
+  hash are frozen before comparison; TODO-002 remains open until the full matrix has no unresolved gap.
+
 - [ ] **V4-TODO-003 — IFX cutover and rollback**
 
   Revisit only after parity and a Windows full certification. Define trusted-base activation, GitHub
   required contexts, Architecture Conformance detector-family cutover, recovery, one-time compatibility
   bridges and exact rollback. Remote changes need separate authorization.
+
+  Planned as V4-P10.3 design-only work after P10.2 and Windows-full. Its output cannot activate a
+  workflow, required context, ruleset or cutover; those remote mutations retain a separate exact Plan
+  and explicit authorization boundary.
 
 - [ ] **V4-TODO-004 — V3/V3_ifx freeze or retirement**
 

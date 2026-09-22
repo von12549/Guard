@@ -268,3 +268,17 @@ Post-v1 IFX practice
 ```
 
 Plan 06 section 20 closes only after the post-v1 IFX cutover and retirement boundary completes.
+
+## IFX Profile validation installation topology
+
+The V4-P10 program uses the current `D:\IFX` repository as read-only TargetRoot and keeps the exact
+released V4 installation under `D:\IFX\guard\releases\v4-guards-1.1.x`. Mutable StateRoot and
+EvidenceRoot live in the non-overlapping sibling `D:\IFX.guard-runtime`; they cannot be placed under
+the repository merely for convenience. Profile discovery and build evidence must exclude `guard/**`
+so the guard never evaluates its own installed sources as IFX target content.
+
+V4 1.1.0 resolves Profiles and modules only inside immutable PackageRoot and has no implemented
+external extension installer. The first P10 gate therefore preserves the pristine release and either
+uses a proven existing composition contract or stops for a separately planned and certified 1.1.x
+compatibility change. Editing an extracted release is never a valid adoption path. See
+`06-ifx-profile-validation-program.md` for the version ledger, parity matrix and cutover boundary.

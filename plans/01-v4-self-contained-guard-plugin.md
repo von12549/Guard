@@ -314,6 +314,22 @@ The exact publication evidence is recorded by `20260923-v4-v1-1-release-publicat
 is the fixed initial baseline for the separately planned V4-TODO-001/002/003 IFX Profile validation
 program. This publication does not activate a workflow/ruleset or authorize IFX cutover.
 
+### V4-P10 — IFX Profile validation program
+
+- [ ] **V4-P10.0** Install and verify the immutable V4 1.1.0 release under the repository `guard/`
+  container with external StateRoot/EvidenceRoot, read-only TargetRoot and self-discovery exclusion.
+- [ ] **V4-P10.1** Practice `ifx_profile` and any declared IFX extension modules through public V4
+  contracts; treat a missing extension/composition contract as an explicit `1.1.x` compatibility patch.
+- [ ] **V4-P10.2** Run V3/V3_ifx and V4+`ifx_profile` parallel parity on one fixed IFX corpus with
+  clean, violation, missing-input and zero-match controls.
+- [ ] **V4-P10.3** After parity and Windows-full certification, produce the trusted-base cutover and
+  rollback proposal without applying remote changes.
+- [ ] **V4-P10.GATE** Prove adoption readiness, immutable versioned installations, closed parity gaps
+  and rehearsed rollback; remote activation remains separately authorized.
+
+The detailed program and stop conditions are in `06-ifx-profile-validation-program.md`. Planning does
+not mark V4-TODO-001/002/003 complete and does not pull V4-TODO-004 retirement into scope.
+
 ## 6. PR and CI strategy
 
 Implementation checkpoints receive exact formal Plan pairs. Compatible local work may use a plan-set,

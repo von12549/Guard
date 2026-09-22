@@ -13,6 +13,7 @@ Current documents:
 | [03-genesis-bootstrap-and-autonomy.md](03-genesis-bootstrap-and-autonomy.md) | Finite V3 genesis and V4 autonomy transition | Dormant G1; activation not authorized |
 | [04-layerguard-provenance.md](04-layerguard-provenance.md) | Architecture-rule provenance and clean-room boundary | Accepted provenance record |
 | [05-p9-gate-audit.md](05-p9-gate-audit.md) | P9 certification, authority-boundary and first-release exclusion audit | PASS |
+| [06-ifx-profile-validation-program.md](06-ifx-profile-validation-program.md) | 1.1.x IFX Profile practice, parity and cutover-readiness program | Planned; implementation and activation not authorized |
 | [TODO.md](TODO.md) | Explicit deferred scope, P9 first-release exclusions and revisit gates | Active backlog |
 
 Status meanings:
