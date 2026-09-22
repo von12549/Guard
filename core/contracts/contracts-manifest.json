@@ -3,7 +3,7 @@
   "apiVersion": "1.0",
   "files": [
     { "path": "core/contracts/capability-matrix.schema.json", "sha256": "d5c9e5d5b4d48431fca890f6e13d3cd6efe1a0ea4bdcca67f73543ffbed7e71e" },
-    { "path": "core/contracts/cli-contract.json", "sha256": "d25464b61fdb9197bac73dc325da1c3fc3a024e439a4057572c2f369351b44bd" },
+    { "path": "core/contracts/cli-contract.json", "sha256": "54e7d4d2815f3d10b5aa5c782ff427d3b8d3a2df202cc0381053e03c1ff97390" },
     { "path": "core/contracts/cli-contract.schema.json", "sha256": "2686085e2af99f3c9edb5403f5ca2c73a13e50ddf942c91cc99c31092cdb50a6" },
     { "path": "core/contracts/finding-baseline.schema.json", "sha256": "d913d965cfa7197ecf718288ef65b101835923c149832b3a4e44f0d15faa0507" },
     { "path": "core/contracts/genesis-record.schema.json", "sha256": "d372bcca76ccfdb346e46733293d5dbd1a8d333c8dbb177bc52ce34d6eef66da" },

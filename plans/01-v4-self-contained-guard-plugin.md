@@ -192,13 +192,20 @@ must not embed repository-relative IFX paths.
 
 ### V4-P5 — Plan and plan-set
 
-- [ ] **V4-P5.1** Implement single Plan validation and deterministic plan-set composition.
-- [ ] **V4-P5.2** Bind member paths, hashes, ordering and dependencies.
-- [ ] **V4-P5.3** Derive the exact union of paths, areas, risks, decisions and validation commands.
-- [ ] **V4-P5.4** Enforce forbidden co-bundling boundaries and negative cases.
-- [ ] **V4-P5.5** Keep Git diff consumption in the Git integration rather than the local Stage core.
+- [x] **V4-P5.1** Implement single Plan validation and deterministic plan-set composition. Evidence:
+  stable `plan validate`/`plan compose` host commands and the byte-reproducible P5 runtime suite.
+- [x] **V4-P5.2** Bind member paths, hashes, ordering and dependencies. Evidence: raw-byte SHA-256
+  member bindings, deterministic topological order, and duplicate/missing/cycle negatives.
+- [x] **V4-P5.3** Derive the exact union of paths, areas, risks, decisions and validation commands.
+  Evidence: sorted, unique derived unions verified against every member by runtime and Git suites.
+- [x] **V4-P5.4** Enforce forbidden co-bundling boundaries and negative cases. Evidence: authorization,
+  trust and activation pairwise separation plus engine-change/remote-change negative fixtures.
+- [x] **V4-P5.5** Keep Git diff consumption in the Git integration rather than the local Stage core.
+  Evidence: `integrations/git/Invoke-V4PlanDiff.ps1`; the host Plan runtime contains no Git invocation.
 
-- [ ] **V4-P5.GATE** A composed multi-plan fixture is reproducible and exact-diff negative tests fail closed.
+- [x] **V4-P5.GATE** A composed multi-plan fixture is reproducible and exact-diff negative tests fail closed.
+  Evidence: P5 runtime output is byte-identical across repeated composition; Git integration passes the
+  exact set and rejects undeclared, unchanged, composition-hash-drift and member-hash-drift cases.
 
 ### V4-P6 — Linux-first CI and Windows selection
 

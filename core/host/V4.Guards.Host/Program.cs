@@ -19,6 +19,7 @@ internal static class Program
     {
         if (args.Length > 0 && args[0] is "state" or "reset") return StateRuntime.Execute(args);
         if (args.Length > 0 && args[0] == "stage") return StageRuntime.Execute(args);
+        if (args.Length > 0 && args[0] == "plan") return PlanRuntime.Execute(args);
 
         RootSet? roots = null;
         string? adapterHash = null;

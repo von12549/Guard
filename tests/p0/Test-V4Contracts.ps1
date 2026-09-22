@@ -86,6 +86,10 @@ Valid 'cli-contract' $cli
 $stableCommands = @($cli.commands | Where-Object stability -eq 'stable' | ForEach-Object id | Sort-Object)
 $expectedCommands = @('contract.validate','plan.compose','plan.validate','reset.factory','reset.project','stage.run','version')
 if (($stableCommands -join ',') -cne ($expectedCommands -join ',')) { $failures.Add('Stable CLI command identities drifted') }
+$planValidate = @($cli.commands | Where-Object id -ceq 'plan.validate')[0]
+$planCompose = @($cli.commands | Where-Object id -ceq 'plan.compose')[0]
+if ($planValidate.syntax -cne 'v4-guards plan validate --package-root <path> --target-root <path> --plan <path>') { $failures.Add('Plan validate syntax drifted') }
+if ($planCompose.syntax -cne 'v4-guards plan compose --package-root <path> --target-root <path> --evidence-root <path> --id <id> --plan <path>... --output <path>') { $failures.Add('Plan compose syntax drifted') }
 $exitMap = @($cli.exitCategories | Sort-Object code | ForEach-Object { "$($_.id)=$($_.code)" })
 $expectedExitMap = @('success=0','invalid-input=10','unsafe-path=11','integrity-failure=12','capability-denied=13','adapter-failure=14','prerequisite-missing=15','findings-blocking=16','state-conflict=17','reset-refused=18','internal-error=19')
 if (($exitMap -join ',') -cne ($expectedExitMap -join ',')) { $failures.Add('Stable exit category mapping drifted') }
