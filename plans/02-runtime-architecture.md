@@ -271,11 +271,11 @@ Plan 06 section 20 closes only after the post-v1 IFX cutover and retirement boun
 
 ## IFX Profile validation installation topology
 
-The V4-P10 program uses the current `D:\IFX` repository as read-only TargetRoot and keeps the exact
-released V4 installation under `D:\IFX\guard\releases\v4-guards-1.1.x`. Mutable StateRoot and
-EvidenceRoot live in the non-overlapping sibling `D:\IFX.guard-runtime`; they cannot be placed under
-the repository merely for convenience. Profile discovery and build evidence must exclude `guard/**`
-so the guard never evaluates its own installed sources as IFX target content.
+The V4-P10 program uses `D:\IFX-Root\IFX` as read-only TargetRoot and keeps exact released V4
+installations under the sibling `D:\IFX-Root\guard-runtime\releases\v4-guards-1.1.x`. Mutable
+StateRoot and EvidenceRoot are sibling directories below `guard-runtime`. `D:\IFX-Root` is only a
+container and is never a V4 TargetRoot, so the guard cannot evaluate its own installed sources as IFX
+target content.
 
 V4 1.1.0 resolves Profiles and modules only inside immutable PackageRoot and has no implemented
 external extension installer. The first P10 gate therefore preserves the pristine release and either

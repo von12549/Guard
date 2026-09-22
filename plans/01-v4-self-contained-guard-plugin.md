@@ -316,8 +316,9 @@ program. This publication does not activate a workflow/ruleset or authorize IFX 
 
 ### V4-P10 — IFX Profile validation program
 
-- [ ] **V4-P10.0** Install and verify the immutable V4 1.1.0 release under the repository `guard/`
-  container with external StateRoot/EvidenceRoot, read-only TargetRoot and self-discovery exclusion.
+- [ ] **V4-P10.0** Install and verify the immutable V4 1.1.0 release below the sibling
+  `D:\IFX-Root\guard-runtime` container with external StateRoot/EvidenceRoot and read-only
+  `D:\IFX-Root\IFX` TargetRoot.
 - [ ] **V4-P10.1** Practice `ifx_profile` and any declared IFX extension modules through public V4
   contracts; treat a missing extension/composition contract as an explicit `1.1.x` compatibility patch.
 - [ ] **V4-P10.2** Run V3/V3_ifx and V4+`ifx_profile` parallel parity on one fixed IFX corpus with

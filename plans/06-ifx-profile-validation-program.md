@@ -11,8 +11,8 @@ separate and cannot be pulled forward by this program.
 
 ## 1. Program invariant
 
-The published 1.1.0 archive is the immutable initial baseline. The canonical source remains
-`D:\IFX\docs\guards\v4`; no file below an extracted release is edited. A defect found while testing is
+The published 1.1.0 archive is the immutable initial baseline. The canonical source is
+`D:\IFX-Root\IFX\docs\guards\v4`; no file below an extracted release is edited. A defect found while testing is
 reproduced against the installed release, fixed in canonical source, certified on Windows and Linux,
 published as the next `1.1.x` release and installed into a new sibling directory.
 
@@ -42,26 +42,20 @@ immutable PackageRoot deterministically and produce an external receipt.
 ## 3. Filesystem topology
 
 ```text
-D:\IFX\                              TargetRoot and canonical repository
-├─ docs\guards\v4\                   canonical V4 source authority
-└─ guard\                             ignored test installation container
-   └─ releases\
-      ├─ v4-guards-1.1.0\            exact immutable published installation
-      └─ v4-guards-1.1.x\            later exact immutable patch installations
-
-D:\IFX.guard-runtime\                never below TargetRoot or PackageRoot
-├─ state\                             mutable StateRoot
-└─ evidence\                          mutable EvidenceRoot
+D:\IFX-Root\                         common container; never passed as a V4 root
+├─ IFX\                               TargetRoot and canonical repository
+│  └─ docs\guards\v4\                canonical V4 source authority
+└─ guard-runtime\
+   ├─ releases\
+   │  ├─ v4-guards-1.1.0\            exact immutable published installation
+   │  └─ v4-guards-1.1.x\            later exact immutable patch installations
+   ├─ state\                          mutable StateRoot
+   └─ evidence\                       mutable EvidenceRoot
 ```
 
-The four-root contract allows PackageRoot to be below read-only TargetRoot but forbids StateRoot or
-EvidenceRoot from overlapping either authority root or one another. `ifx_profile` must constrain
-project discovery to reviewed IFX roots and prove `guard/**` cannot enter the project model, build copy,
-findings, policy hashes or evidence. If current module configuration cannot express that exclusion,
-the program stops for a separately reviewed 1.1.x compatibility change.
-
-`guard/` is created only by the P10.0 implementation checkpoint. That checkpoint also adds the exact
-repository ignore rule and proves the directory contains no tracked source authority.
+TargetRoot, PackageRoot, StateRoot and EvidenceRoot are siblings beneath a common non-root container.
+The common parent is never passed as TargetRoot. This avoids guard self-discovery without a repository
+ignore/exclusion contract and keeps all mutable roots outside both authority roots.
 
 ## 4. P10.0 — released baseline and topology
 
@@ -71,7 +65,7 @@ Required evidence:
    `a81a12e0d1f476c563497f961fe41fccc53edfb6`;
 2. verify archive SHA-256
    `d7d3b1ef7f70bab3153c4d1253b8a1e6db2bdea13645fe6597d36c29432c9fbd` before extraction;
-3. install into `guard/releases/v4-guards-1.1.0` through the released lifecycle command and retain the
+3. install into `guard-runtime/releases/v4-guards-1.1.0` through the released lifecycle command and retain the
    external install receipt;
 4. prove `version` is 1.1.0, API is 1.0, Package Check returns package hash
    `cfea69e151f4edcccb51c16f91ce3c1d2651bcdf89323ea133fdff8f37615802`, and prerequisites pass;
