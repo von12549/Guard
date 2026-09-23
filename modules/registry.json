@@ -16,7 +16,7 @@
     {
       "id": "build-evidence-provider",
       "manifestPath": "modules/build-evidence-provider/module.json",
-      "manifestSha256": "7b1acd8a930cd916dd336a9f03bf1f38dc9dd9910dab8455463e6fa2a628a43d",
+      "manifestSha256": "1bafc0b43381ce1483c1ff849c1b7fffa43cd1deb256e4f52bd00b10c4d58095",
       "allowedCapabilities": {
         "readRoots": ["PackageRoot", "TargetRoot"],
         "writeRoots": ["StateRoot", "EvidenceRoot"],

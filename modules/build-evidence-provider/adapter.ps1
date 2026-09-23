@@ -39,9 +39,8 @@ function Copy-Snapshot([string]$Source,[string]$Destination){
         if($item.PSIsContainer){[void][IO.Directory]::CreateDirectory($target)}else{[void][IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($target));[IO.File]::Copy($item.FullName,$target,$false)}
     }
 }
-function Invoke-DotNet([string]$WorkingDirectory,[string[]]$Arguments,[string]$CliHome,[int]$TimeoutSeconds){
-    $command=Get-Command dotnet -ErrorAction SilentlyContinue;if($null-eq$command){throw 'dotnet is unavailable.'}
-    $start=[Diagnostics.ProcessStartInfo]::new($command.Source);$start.UseShellExecute=$false;$start.RedirectStandardOutput=$true;$start.RedirectStandardError=$true;$start.CreateNoWindow=$true;$start.WorkingDirectory=$WorkingDirectory
+function New-DotNetStartInfo([string]$Executable,[string]$WorkingDirectory,[string]$CliHome){
+    $start=[Diagnostics.ProcessStartInfo]::new($Executable);$start.UseShellExecute=$false;$start.RedirectStandardOutput=$true;$start.RedirectStandardError=$true;$start.CreateNoWindow=$true;$start.WorkingDirectory=$WorkingDirectory
     $preserve=@(
         'PATH','DOTNET_ROOT','DOTNET_HOST_PATH','SystemRoot','WINDIR','ComSpec','PATHEXT',
         'TEMP','TMP','TMPDIR','USERPROFILE','HOME','HOMEDRIVE','HOMEPATH','USERNAME',
@@ -50,7 +49,12 @@ function Invoke-DotNet([string]$WorkingDirectory,[string[]]$Arguments,[string]$C
     )
     $values=[ordered]@{};foreach($name in $preserve){$value=[Environment]::GetEnvironmentVariable($name);if(-not[string]::IsNullOrWhiteSpace($value)){$values[$name]=$value}}
     $start.Environment.Clear();foreach($entry in $values.GetEnumerator()){$start.Environment[$entry.Key]=$entry.Value}
-    $start.Environment['DOTNET_CLI_HOME']=$CliHome;$start.Environment['DOTNET_CLI_TELEMETRY_OPTOUT']='1';$start.Environment['DOTNET_NOLOGO']='1';$start.Environment['DOTNET_SKIP_FIRST_TIME_EXPERIENCE']='1'
+    $start.Environment['DOTNET_CLI_HOME']=$CliHome;$start.Environment['DOTNET_ADD_GLOBAL_TOOLS_TO_PATH']='0';$start.Environment['DOTNET_CLI_TELEMETRY_OPTOUT']='1';$start.Environment['DOTNET_NOLOGO']='1';$start.Environment['DOTNET_SKIP_FIRST_TIME_EXPERIENCE']='1'
+    $start
+}
+function Invoke-DotNet([string]$WorkingDirectory,[string[]]$Arguments,[string]$CliHome,[int]$TimeoutSeconds){
+    $command=Get-Command dotnet -ErrorAction SilentlyContinue;if($null-eq$command){throw 'dotnet is unavailable.'}
+    $start=New-DotNetStartInfo $command.Source $WorkingDirectory $CliHome
     foreach($argument in $Arguments){$start.ArgumentList.Add($argument)}
     $process=[Diagnostics.Process]::Start($start);$stdout=$process.StandardOutput.ReadToEndAsync();$stderr=$process.StandardError.ReadToEndAsync()
     if(-not$process.WaitForExit($TimeoutSeconds*1000)){$process.Kill($true);throw 'dotnet build timed out.'}

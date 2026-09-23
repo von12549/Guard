@@ -13,12 +13,41 @@ $providerSchema=Join-Path $packageRoot 'modules/build-evidence-provider/result.s
 $manifestSchema=Join-Path $packageRoot 'modules/build-evidence-provider/build-manifest.schema.json'
 $architectureSchema=Join-Path $packageRoot 'modules/architecture-conformance/result.schema.json'
 $failures=[Collections.Generic.List[string]]::new()
+$userPathBefore=$null;if($IsWindows){$userPathBefore=[Environment]::GetEnvironmentVariable('Path',[EnvironmentVariableTarget]::User);if($null-eq$userPathBefore){$userPathBefore=''}}
 
 function Write-Utf8([string]$Path,[string]$Content){$parent=[IO.Path]::GetDirectoryName($Path);if(-not[IO.Directory]::Exists($parent)){[void][IO.Directory]::CreateDirectory($parent)};[IO.File]::WriteAllText($Path,$Content,[Text.UTF8Encoding]::new($false))}
 function Hash-Tree([string]$Root){$items=[ordered]@{};Get-ChildItem -LiteralPath $Root -Recurse -File -Force|Sort-Object FullName|ForEach-Object{$items[[IO.Path]::GetRelativePath($Root,$_.FullName).Replace('\','/')]=(Get-FileHash -Algorithm SHA256 $_.FullName).Hash.ToLowerInvariant()};$items|ConvertTo-Json -Compress}
 function Copy-Map($Map){$copy=[ordered]@{};foreach($entry in $Map.GetEnumerator()){$copy[$entry.Key]=$entry.Value};$copy}
 function Invoke-Module([string]$Adapter,$Payload,[string]$Schema){$prior=$env:V4_STAGE_INPUT_JSON;try{$env:V4_STAGE_INPUT_JSON=($Payload|ConvertTo-Json -Depth 30 -Compress);$output=@(& pwsh -NoProfile -File $Adapter 2>&1);$code=$LASTEXITCODE}finally{$env:V4_STAGE_INPUT_JSON=$prior};if($code-ne0){throw "Adapter failed ($code): $($output-join"`n")"};$json=$output-join"`n";if(-not(Test-Json -Json $json -SchemaFile $Schema -ErrorAction SilentlyContinue)){$failures.Add("Schema failure: $Adapter -> $json")};$json|ConvertFrom-Json}
 function Assert-Category($Result,[string]$Name,[string]$Category){if($Result.exitCategory-cne$Category){$failures.Add("${Name}: expected $Category, got $($Result.exitCategory): $($Result.message)")}}
+
+$tokens=$null;$parseErrors=$null;$providerAst=[Management.Automation.Language.Parser]::ParseFile($provider,[ref]$tokens,[ref]$parseErrors)
+if($parseErrors.Count){$failures.Add("provider parse failure: $($parseErrors.Message-join'; ')")}
+$builderAst=@($providerAst.FindAll({param($node)$node-is[Management.Automation.Language.FunctionDefinitionAst]-and$node.Name-ceq'New-DotNetStartInfo'},$true))
+if($builderAst.Count-ne1){
+    $failures.Add('provider must expose exactly one New-DotNetStartInfo child-environment builder')
+}else{
+    Invoke-Expression $builderAst[0].Extent.Text
+    $probeCliHome=Join-Path $runRoot 'environment-probe/cli-home'
+    $probe=New-DotNetStartInfo (Get-Command dotnet -ErrorAction Stop).Source $repositoryRoot $probeCliHome
+    if($probe.Environment['DOTNET_CLI_HOME']-cne$probeCliHome){$failures.Add('isolated dotnet child lost DOTNET_CLI_HOME')}
+    if($probe.Environment['DOTNET_ADD_GLOBAL_TOOLS_TO_PATH']-cne'0'){$failures.Add('isolated dotnet child must set DOTNET_ADD_GLOBAL_TOOLS_TO_PATH=0')}
+}
+
+$guardRuntimeFiles=Get-ChildItem -LiteralPath (Join-Path $repositoryRoot 'docs/guards') -Recurse -File | Where-Object{$_.Extension-in@('.ps1','.psm1','.cs','.cmd','.bat')}
+$registryHives=@('HK'+'CU:','HKEY_'+'CURRENT_USER','HK'+'LM:','HKEY_'+'LOCAL_MACHINE')-join'|'
+$registryWriters=@('Set-'+'ItemProperty','New-'+'ItemProperty')-join'|'
+$permanentMutationPatterns=@(
+    '(?is)Environment\.SetEnvironmentVariable\s*\(.{0,1000}?EnvironmentVariableTarget\.(?:User|Machine)',
+    '(?is)\[Environment\]::SetEnvironmentVariable\s*\(.{0,1000}?,\s*[''"](?:User|Machine)[''"]\s*\)',
+    '(?im)^\s*setx(?:\.exe)?\s+[''"]?Path[''"]?\b',
+    '(?is)\breg(?:\.exe)?\s+add\s+.{0,500}?(?:HKCU|HKEY_CURRENT_USER|HKLM|HKEY_LOCAL_MACHINE).{0,500}?Environment',
+    "(?is)(?:$registryHives).{0,500}?Environment.{0,500}?(?:$registryWriters)"
+)
+foreach($file in $guardRuntimeFiles){
+    $content=[IO.File]::ReadAllText($file.FullName)
+    foreach($pattern in $permanentMutationPatterns){if($content-match$pattern){$failures.Add("guard runtime contains a permanent environment mutation: $([IO.Path]::GetRelativePath($repositoryRoot,$file.FullName))");break}}
+}
 
 if(Test-Path $runRoot){$resolved=[IO.Path]::GetFullPath($runRoot);$prefix=[IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts/guards/v4')).TrimEnd([IO.Path]::DirectorySeparatorChar)+[IO.Path]::DirectorySeparatorChar;if(-not$resolved.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)){throw "Unsafe cleanup: $resolved"};Remove-Item -LiteralPath $resolved -Recurse -Force}
 $target=Join-Path $runRoot 'target';$state=Join-Path $runRoot 'state';$evidence=Join-Path $runRoot 'evidence';foreach($path in @($target,$state,$evidence)){[void][IO.Directory]::CreateDirectory($path)}
@@ -28,7 +57,7 @@ Write-Utf8(Join-Path $target 'Contracts/Contracts.cs')'namespace Synthetic.Contr
 Write-Utf8(Join-Path $target 'Application/Synthetic.Application.csproj')'<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>Synthetic.Application</AssemblyName></PropertyGroup><ItemGroup><ProjectReference Include="../Contracts/Synthetic.Contracts.csproj" /></ItemGroup></Project>'
 Write-Utf8(Join-Path $target 'Application/Application.cs')'namespace Synthetic.Application.Allowed { public sealed class Port : Synthetic.Contracts.IPort { } }'
 $targetBefore=Hash-Tree $target;$packageBefore=Hash-Tree $packageRoot
-$projectId='synthetic-p4e';$runId='0123456789abcdef0123456789abcdef';$manifestTemplate='projects/{projectId}/build/current/assembly-manifest.json'
+$projectId='synthetic-p4e';$runId=[Guid]::NewGuid().ToString('N');$manifestTemplate='projects/{projectId}/build/current/assembly-manifest.json'
 $providerConfig=[ordered]@{configuration='Debug';targetFramework='net10.0';manifestPath=$manifestTemplate;projects=@([ordered]@{projectPath='Contracts/Synthetic.Contracts.csproj';assemblyName='Synthetic.Contracts'},[ordered]@{projectPath='Application/Synthetic.Application.csproj';assemblyName='Synthetic.Application'})}
 $baseInput=[ordered]@{formatVersion=1;stage='post';targetRoot=$target;packageRoot=$packageRoot;stateRoot=$state;evidenceRoot=$evidence;projectId=$projectId;runId=$runId}
 $providerInput=Copy-Map $baseInput;$providerInput.config=$providerConfig
@@ -51,5 +80,14 @@ $missingInput=Copy-Map $baseInput;$missingInput.runId='1111111111111111111111111
 
 $external=Join-Path $runRoot 'external-link-target';[void][IO.Directory]::CreateDirectory($external);Write-Utf8(Join-Path $external 'escape.cs')'namespace Escape; public class Bad {}';$link=Join-Path $target 'linked';$linkType=if($IsWindows){'Junction'}else{'SymbolicLink'};try{New-Item -ItemType $linkType -Path $link -Target $external -Force|Out-Null;$linkInput=Copy-Map $baseInput;$linkInput.runId='22222222222222222222222222222222';$linkInput.config=$providerConfig;Assert-Category (Invoke-Module $provider $linkInput $providerSchema) 'link traversal' 'unsafe-path'}finally{if(Test-Path $link){Remove-Item -LiteralPath $link -Force}}
 
+if($IsWindows){
+    $userPathAfter=[Environment]::GetEnvironmentVariable('Path',[EnvironmentVariableTarget]::User)
+    if($null-eq$userPathAfter){$userPathAfter=''}
+    if($userPathAfter-cne$userPathBefore){$failures.Add('isolated build changed the Windows User PATH')}
+    $runToolPath=[IO.Path]::GetFullPath((Join-Path $state "projects/$projectId/build/runs/$runId/cli-home/.dotnet/tools")).TrimEnd([IO.Path]::DirectorySeparatorChar,[IO.Path]::AltDirectorySeparatorChar)
+    $userEntries=@($userPathAfter.Split(';',[StringSplitOptions]::None)|ForEach-Object{$_.Trim().Trim('"')})
+    if(@($userEntries|Where-Object{if([IO.Path]::IsPathRooted($_)){[IO.Path]::GetFullPath($_).TrimEnd([IO.Path]::DirectorySeparatorChar,[IO.Path]::AltDirectorySeparatorChar).Equals($runToolPath,[StringComparison]::OrdinalIgnoreCase)}else{$false}}).Count){$failures.Add('isolated build registered its cli-home global-tools directory in the Windows User PATH')}
+}
+
 if($failures.Count){throw($failures-join"`n")}
-Write-Host 'V4 P4E Build Evidence tests passed: isolated build, schema/freshness bindings, stale/target/assembly drift, missing project, link refusal and immutable TargetRoot/PackageRoot.'
+Write-Host 'V4 P4E Build Evidence tests passed: isolated child environment, immutable User PATH/TargetRoot/PackageRoot, no permanent environment mutation APIs, schema/freshness bindings, stale/target/assembly drift, missing project and link refusal.'

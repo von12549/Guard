@@ -1,7 +1,7 @@
 # V4 Guards
 
 V4 Guards is a self-contained, profile-driven guard package for inspecting repositories through four
-independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.1.2` is a
+independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.1.3` is a
 scope-compatibility patch; the earlier `1.1.1` and `1.1.0` releases remain immutable.
 The stable V4 1.0 command API and local, non-authoritative Web Companion are preserved.
 
@@ -22,9 +22,24 @@ Every command resolves four explicit roots:
 The package location never implies the Target. Paths are canonicalized and link/reparse-point escape,
 root overlap and undeclared write capability fail closed.
 
+### Windows child-process environment isolation
+
+The Build Evidence Provider creates a per-run `cli-home` below `StateRoot` and passes it to `dotnet`
+as `DOTNET_CLI_HOME`. Every V4 guard, test or fixture that supplies an isolated
+`DOTNET_CLI_HOME` must also set `DOTNET_ADD_GLOBAL_TOOLS_TO_PATH=0` in that child process. Without
+the opt-out, the .NET SDK can permanently register `<DOTNET_CLI_HOME>\.dotnet\tools` in the Windows
+User PATH during first-time initialization. Artifact retention never permits that host-level side
+effect.
+
+Guard and test runtime code must not write User/Machine environment variables, registry environment
+keys or PowerShell profiles. Isolation belongs in `ProcessStartInfo.Environment` (or the equivalent
+child-process environment) and must not replace the User PATH with the current process `$env:PATH`.
+The normal user tool path such as `%USERPROFILE%\.dotnet\tools` is outside V4 state and must remain
+untouched.
+
 ## Distribution and prerequisites
 
-The `1.1.2` archive is named `v4-guards-1.1.2.zip` and contains three hash-bound payloads:
+The `1.1.3` archive is named `v4-guards-1.1.3.zip` and contains three hash-bound payloads:
 
 - `package/`: immutable V4 authorities and this README;
 - `host/`: the `v4-guards` .NET Host; and
@@ -33,7 +48,8 @@ The `1.1.2` archive is named `v4-guards-1.1.2.zip` and contains three hash-bound
 The supported release targets are `linux-x64` and `win-x64`. The declared host prerequisites are
 PowerShell 7.4 or newer and .NET 10.x; selected modules may add declared prerequisites. Installation
 and verified uninstall use `core/distribution/Install-V4Distribution.ps1` plus an external receipt.
-See [1.1.2 release notes](docs/1.1.2-release-notes.md),
+See [1.1.3 release notes](docs/1.1.3-release-notes.md),
+[1.1.2 release notes](docs/1.1.2-release-notes.md),
 [1.1.1 release notes](docs/1.1.1-release-notes.md), [1.1.0 release notes](docs/1.1.0-release-notes.md)
 and [certification](docs/v1-certification.md).
 
@@ -47,6 +63,9 @@ Version `1.1.2` additionally passes declared Profile relative roots to
 Architecture Conformance and restricts project/source scanning to their validated union.
 Legacy empty or sole `.` scopes retain whole-TargetRoot behavior. This patch does not
 approve or include the incomplete IFX bundle; see the release notes.
+
+Version `1.1.3` prevents the Build Evidence Provider's isolated .NET CLI home from being
+registered in the Windows User PATH. It adds no Profile, module, rule or IFX candidate content.
 
 ## CLI
 
@@ -69,7 +88,7 @@ explicitly requested and is reported in order.
 
 Profiles are declarative configuration. They select registered, hash-bound modules and may not provide
 arbitrary executable paths or shell commands. The package ships `default` and `synthetic_profile`;
-`ifx_profile` is not included in the 1.1.2 base or earlier releases. Module capabilities declare readable/writable roots, permitted
+`ifx_profile` is not included in the 1.1.3 base or earlier releases. Module capabilities declare readable/writable roots, permitted
 processes, network use and timeouts. See [configuration.md](docs/configuration.md).
 
 ## Reset safety

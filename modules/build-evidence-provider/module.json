@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "compatibleApi": "1.x",
   "supportedPlatforms": ["linux-x64", "win-x64"],
-  "adapter": { "kind": "powershell", "path": "modules/build-evidence-provider/adapter.ps1", "sha256": "9338b45b94399962e4383f5b7576a4cf9529b825738ca08a4340a7cae623d886" },
+  "adapter": { "kind": "powershell", "path": "modules/build-evidence-provider/adapter.ps1", "sha256": "12ec6b707043477fc0ef0e86cc62ab1671f8f33f9b028ad8958cece1df45c92e" },
   "prerequisites": [
     { "runtime": "pwsh", "versionRange": ">=7.4" },
     { "runtime": "dotnet", "versionRange": ">=10.0 <11.0" }
