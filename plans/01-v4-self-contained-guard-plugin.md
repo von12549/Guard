@@ -316,11 +316,15 @@ program. This publication does not activate a workflow/ruleset or authorize IFX 
 
 ### V4-P10 — IFX Profile validation program
 
-- [ ] **V4-P10.0** Install and verify the immutable V4 1.1.0 release below the sibling
+- [x] **V4-P10.0** Install and verify the immutable V4 1.1.0 release below the sibling
   `D:\IFX-Root\guard-runtime` container with external StateRoot/EvidenceRoot and read-only
-  `D:\IFX-Root\IFX` TargetRoot.
+  `D:\IFX-Root\IFX` TargetRoot; pass the installed Web UI hands-on acceptance on IFX read-only and
+  clean/violating synthetic Targets before P10.1. The exact receipted installation was
+  already present and was verified rather than reinstalled. Operator evidence:
+  `07-p10-0-baseline-acceptance.md`.
 - [ ] **V4-P10.1** Practice `ifx_profile` and any declared IFX extension modules through public V4
-  contracts; treat a missing extension/composition contract as an explicit `1.1.x` compatibility patch.
+  contracts; repeat the installed Web UI exercise on fixed IFX clean/violating cases. Treat a missing
+  extension/composition contract as an explicit `1.1.x` compatibility patch.
 - [ ] **V4-P10.2** Run V3/V3_ifx and V4+`ifx_profile` parallel parity on one fixed IFX corpus with
   clean, violation, missing-input and zero-match controls.
 - [ ] **V4-P10.3** After parity and Windows-full certification, produce the trusted-base cutover and
