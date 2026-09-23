@@ -50,6 +50,64 @@ function Write-Result([string] $Status, [string] $Category, [string] $Message = 
     $result.coverage = @($coverage)
     $result | ConvertTo-Json -Depth 20 -Compress
 }
+function Is-Under([string] $Path, [string] $Root) {
+    $relative = [IO.Path]::GetRelativePath($Root, $Path)
+    return $relative -eq '.' -or (-not [IO.Path]::IsPathRooted($relative) -and $relative -ne '..' -and
+        -not $relative.StartsWith("..$([IO.Path]::DirectorySeparatorChar)", [StringComparison]::Ordinal))
+}
+function Resolve-ScanRoots {
+    $declared = @(if ($inputData.PSObject.Properties.Name -contains 'relativeRoots') { $inputData.relativeRoots })
+    if ($declared.Count -eq 0 -or ($declared.Count -eq 1 -and $declared[0] -ceq '.')) { return @($targetRoot) }
+    $resolved = [Collections.Generic.List[string]]::new()
+    $names = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($value in $declared) {
+        if ($value -isnot [string] -or [string]::IsNullOrWhiteSpace($value)) { throw 'Relative scan root is missing or not a string.' }
+        $relative = $value.Replace('\','/')
+        $parts = $relative.Split('/')
+        if ([IO.Path]::IsPathRooted($value) -or $relative -match '^[A-Za-z]:' -or
+            @($parts | Where-Object { $_ -in @('', '.', '..') }).Count -gt 0) {
+            throw "Unsafe relative scan root: $value"
+        }
+        if (-not $names.Add($relative)) { throw "Duplicate or case-colliding scan root: $value" }
+        $path = $targetRoot
+        foreach ($part in $parts) {
+            $path = Join-Path $path $part
+            if (-not [IO.Directory]::Exists($path)) { throw "Scan root is missing: $value" }
+            $item = Get-Item -LiteralPath $path -Force
+            if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or $null -ne $item.LinkTarget) {
+                throw "Scan root crosses a link: $value"
+            }
+        }
+        $full = [IO.Path]::GetFullPath($path)
+        if ($full -ceq $targetRoot -or -not (Is-Under $full $targetRoot)) { throw "Scan root escapes TargetRoot: $value" }
+        foreach ($prior in $resolved) {
+            if ((Is-Under $full $prior) -or (Is-Under $prior $full)) { throw "Overlapping scan roots: $value" }
+        }
+        $resolved.Add($full)
+    }
+    $resolved.Sort([StringComparer]::Ordinal)
+    return $resolved.ToArray()
+}
+function Scoped-Files([string] $Filter) {
+    $files = [Collections.Generic.List[IO.FileInfo]]::new()
+    foreach ($scanRoot in $scanRoots) {
+        foreach ($file in Get-ChildItem -LiteralPath $scanRoot -Recurse -File -Filter $Filter) {
+            $relative = Relative $file.FullName
+            if (@($relative.Split('/') | Where-Object { $_ -in @('bin','obj') }).Count -gt 0) { continue }
+            if (($file.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or $null -ne $file.LinkTarget) {
+                throw "Scan input is a link: $relative"
+            }
+            $files.Add($file)
+        }
+    }
+    $files.Sort([Comparison[IO.FileInfo]]{ param($left,$right) [StringComparer]::Ordinal.Compare($left.FullName,$right.FullName) })
+    return $files.ToArray()
+}
+try { $scanRoots = @(Resolve-ScanRoots) }
+catch {
+    Write-Result 'error' 'unsafe-path' $_.Exception.Message
+    exit 0
+}
 function Source-Location($Node, [string] $Path) {
     $position = $Node.GetLocation().GetLineSpan().StartLinePosition
     return "$(Relative $Path):$($position.Line + 1):$($position.Character + 1)"
@@ -157,7 +215,7 @@ function Target-Snapshot([string] $Root) {
 
 $requestedProjectClaims = @($activeClaims | Where-Object { $_ -in $projectClaims })
 if ($requestedProjectClaims.Count -gt 0) {
-    $projects = @(Get-ChildItem -LiteralPath $targetRoot -Recurse -File -Filter '*.csproj' | Where-Object { $_.FullName -notmatch '[\\/](bin|obj)[\\/]' } | Sort-Object FullName)
+    $projects = @(Scoped-Files '*.csproj')
     if ($projects.Count -eq 0) {
         Add-Coverage $activeClaims 0
         Write-Result 'error' 'prerequisite-missing' 'No declared project files were found.'
@@ -192,7 +250,9 @@ if ($requestedProjectClaims.Count -gt 0) {
             foreach ($reference in @($xml.SelectNodes("//*[local-name()='ProjectReference']"))) {
                 $resolved = [IO.Path]::GetFullPath((Join-Path $project.DirectoryName ([string]$reference.Include)))
                 $prefix = $targetRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
-                if (-not $resolved.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase) -or -not [IO.File]::Exists($resolved)) {
+                if (-not $resolved.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase) -or
+                    -not [IO.File]::Exists($resolved) -or
+                    @($scanRoots | Where-Object { Is-Under $resolved $_ }).Count -eq 0) {
                     Add-Finding 'ARCH.GRAPH_COMPLETENESS' "$projectSubject -> $([string]$reference.Include)" 'project-model-raw' 'project-model'
                 }
             }
@@ -203,7 +263,7 @@ if ($requestedProjectClaims.Count -gt 0) {
 
 $requestedSourceClaims = @($activeClaims | Where-Object { $_ -in ($syntaxClaims + $semanticClaims) })
 if ($requestedSourceClaims.Count -gt 0) {
-    $sources = @(Get-ChildItem -LiteralPath $targetRoot -Recurse -File -Filter '*.cs' | Where-Object { $_.FullName -notmatch '[\\/](bin|obj)[\\/]' } | Sort-Object FullName)
+    $sources = @(Scoped-Files '*.cs')
     if ($sources.Count -eq 0) {
         Add-Coverage $requestedSourceClaims 0
         Write-Result 'error' 'prerequisite-missing' 'No C# source files were found.'

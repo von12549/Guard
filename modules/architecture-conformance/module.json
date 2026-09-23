@@ -1,10 +1,10 @@
 {
   "formatVersion": 1,
   "id": "architecture-conformance",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "compatibleApi": "1.x",
   "supportedPlatforms": ["linux-x64", "win-x64"],
-  "adapter": { "kind": "powershell", "path": "modules/architecture-conformance/adapter.ps1", "sha256": "1838c6af816ec1ceb6bade850123a6bed184ed3bf21888b07a79c1bdee56ca3c" },
+  "adapter": { "kind": "powershell", "path": "modules/architecture-conformance/adapter.ps1", "sha256": "227512c6e44cdaf6e391282b05d164abb60e6c89584d414adec72f5cdf07ffe9" },
   "prerequisites": [
     { "runtime": "pwsh", "versionRange": ">=7.4" },
     { "runtime": "dotnet", "versionRange": ">=10.0 <11.0" }

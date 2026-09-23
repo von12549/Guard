@@ -57,6 +57,13 @@ Generated from package schemas and module manifests. Do not edit by hand.
 
 | Module | Version | Platforms | Prerequisites | Stages |
 | --- | --- | --- | --- | --- |
-| `architecture-conformance` | 1.0.0 | linux-x64, win-x64 | pwsh >=7.4; dotnet >=10.0 <11.0 | pre, post |
+| `architecture-conformance` | 1.0.1 (local 1.1.2 candidate) | linux-x64, win-x64 | pwsh >=7.4; dotnet >=10.0 <11.0 | pre, post |
 | `build-evidence-provider` | 1.0.0 | linux-x64, win-x64 | pwsh >=7.4; dotnet >=10.0 <11.0 | post |
 | `synthetic-probe` | 1.0.0 | linux-x64, win-x64 | pwsh >=7.4 | bootstrap, analysis, pre, post |
+
+In the local 1.1.2 candidate, Architecture Conformance honors the Profile's
+`projectIdentity.relativeRoots` for project and C# source discovery. An empty list or
+sole `.` retains whole-TargetRoot behavior; otherwise every root must be an existing,
+non-linked directory beneath TargetRoot. Missing, escaping, overlapping or
+case-colliding roots fail closed. Project references outside the declared union are
+graph-completeness findings. This does not change the published 1.1.1 behavior.

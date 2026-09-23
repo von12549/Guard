@@ -5,7 +5,7 @@
   "files": [
     { "path": "core/contracts/cli-contract.json", "role": "cli", "sha256": "083cc8d1e246c0db17f3b37791d292c1c202e869425b3299ccf90715bf4723e5" },
     { "path": "core/contracts/cli-contract.schema.json", "role": "cli", "sha256": "2686085e2af99f3c9edb5403f5ca2c73a13e50ddf942c91cc99c31092cdb50a6" },
-    { "path": "plugin.json", "role": "configuration", "sha256": "e00ce50875095e87563c5d179f4ee22a529e1d6c625fd40e13767e72ae457314" },
+    { "path": "plugin.json", "role": "configuration", "sha256": "2f78e72697ec9c19ac5c956228a368807a39bbf9482130de70a389a1203d69d9" },
     { "path": "core/contracts/extension-bundle.schema.json", "role": "configuration", "sha256": "c58b732a148e97f8100ffd887ff31b9f05ef36634b31532f5f8a349da2d19051" },
     { "path": "core/contracts/extension-review.schema.json", "role": "configuration", "sha256": "61706ab67aab616b5f4eee7076bedb8f0057f955db9483161f83c0bf16a369b7" },
     { "path": "core/contracts/composition-manifest.schema.json", "role": "report", "sha256": "8061de689ee8a3126ab6ef9e8d4604d9ee988462a451119fed5415a459e04bde" },

@@ -42,8 +42,8 @@ $hostRoot = Join-Path $buildArtifacts 'bin/V4.Guards.Host/release'
 $companionRoot = Join-Path $buildArtifacts 'bin/V4.Guards.WebCompanion/release'
 $hostAssemblyVersion = [Reflection.AssemblyName]::GetAssemblyName((Join-Path $hostRoot 'v4-guards.dll')).Version.ToString()
 $companionAssemblyVersion = [Reflection.AssemblyName]::GetAssemblyName((Join-Path $companionRoot 'v4-web-companion.dll')).Version.ToString()
-if ($hostAssemblyVersion -cne '1.1.1.0' -or $companionAssemblyVersion -cne '1.1.1.0') {
-    $failures.Add("1.1.1 assembly versions are invalid: Host=$hostAssemblyVersion Companion=$companionAssemblyVersion")
+if ($hostAssemblyVersion -cne '1.1.2.0' -or $companionAssemblyVersion -cne '1.1.2.0') {
+    $failures.Add("1.1.2 assembly versions are invalid: Host=$hostAssemblyVersion Companion=$companionAssemblyVersion")
 }
 
 $outA = Join-Path $runRoot 'out-a'; $outB = Join-Path $runRoot 'out-b'
@@ -53,7 +53,7 @@ if ($a.Code -ne 0) { $failures.Add("first distribution failed: $($a.Output)") }
 if ($b.Code -ne 0) { $failures.Add("second distribution failed: $($b.Output)") }
 if ($a.Code -eq 0 -and $b.Code -eq 0) {
     $resultA = $a.Output | ConvertFrom-Json; $resultB = $b.Output | ConvertFrom-Json
-    if ($resultA.version -cne '1.1.1' -or $resultB.version -cne '1.1.1') { $failures.Add('distribution product version is not 1.1.1') }
+    if ($resultA.version -cne '1.1.2' -or $resultB.version -cne '1.1.2') { $failures.Add('distribution product version is not 1.1.2') }
     if ($resultA.archiveSha256 -cne $resultB.archiveSha256 -or (Get-FileHash $resultA.archivePath).Hash -cne (Get-FileHash $resultB.archivePath).Hash) { $failures.Add('identical inputs did not produce byte-identical archives') }
     if ((Get-Content -Raw "$($resultA.archivePath).sha256").Trim() -cne "$($resultA.archiveSha256)  $([IO.Path]::GetFileName($resultA.archivePath))") { $failures.Add('archive SHA-256 sidecar is invalid') }
 

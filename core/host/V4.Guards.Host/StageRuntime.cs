@@ -396,6 +396,7 @@ internal static class StageRuntime
             evidenceRoot = context.Roots.EvidenceRoot,
             projectId = context.ProjectId,
             runId = context.RunId,
+            relativeRoots = context.Profile.ProjectIdentity?.RelativeRoots ?? [],
             config = selection.Config
         });
         start.Environment["V4_STAGE_INPUT_JSON"] = input;
@@ -540,9 +541,10 @@ internal static class StageRuntime
     private sealed record StageContext(string RunId, string Stage, string[] ExecutionStages, List<string> AttemptedStages, string ProjectId, StageRoots Roots, PackageValidation Package, ProfileDocument Profile);
     private sealed record ProcessResult(int ExitCode, string Output, string Error);
     private sealed record PackageValidation(int FormatVersion, string? Status, string PackageHash, string[]? Profiles, string[]? Modules);
-    private sealed record ProfileDocument(int FormatVersion, string Id, string Version, ModuleSelection[]? ModuleSelections,
+    private sealed record ProfileDocument(int FormatVersion, string Id, string Version, ProjectIdentityDocument? ProjectIdentity, ModuleSelection[]? ModuleSelections,
         Dictionary<string, StageConfiguration>? StageConfiguration, string[]? Rules, string[]? BaselineRefs,
         string? Sha256 = null, string? ProfileDirectory = null);
+    private sealed record ProjectIdentityDocument(string Id, string[]? RelativeRoots);
     private sealed record ModuleSelection(string Id, JsonElement Config);
     private sealed record StageConfiguration(bool Enabled, string[]? Modules);
     private sealed record RegistryDocument(int FormatVersion, RegistryEntry[]? Modules);

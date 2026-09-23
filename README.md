@@ -1,9 +1,9 @@
 # V4 Guards
 
 V4 Guards is a self-contained, profile-driven guard package for inspecting repositories through four
-independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.1.1`
-preserves the stable V4 1.0 command API and local, non-authoritative Web Companion introduced by V4-P9.
-The published `1.1.0` release remains immutable.
+independently runnable stages: Bootstrap, Analysis, Pre and Post. The source tree is a local
+`1.1.2` compatibility candidate; published `1.1.1` and `1.1.0` releases remain immutable.
+The stable V4 1.0 command API and local, non-authoritative Web Companion are preserved.
 
 V4 is developed inside this repository, but it does not depend on V3/V3_ifx at runtime. The active IFX
 guard remains V3/V3_ifx until a separately reviewed parity, cutover and rollback program completes.
@@ -24,7 +24,8 @@ root overlap and undeclared write capability fail closed.
 
 ## Distribution and prerequisites
 
-The `1.1.1` archive is named `v4-guards-1.1.1.zip` and contains three hash-bound payloads:
+The published `1.1.1` archive is named `v4-guards-1.1.1.zip` and contains three hash-bound payloads.
+Any future `1.1.2` archive requires separate clean-commit certification and publication authority:
 
 - `package/`: immutable V4 authorities and this README;
 - `host/`: the `v4-guards` .NET Host; and
@@ -41,6 +42,12 @@ It verifies an installed base and separate review record, creates a new sibling 
 with an external composition receipt, and gates Web Companion launch on receipt verification.
 Synthetic tests do not approve a real bundle. It does not modify 1.1.0 or authorize IFX use. See the
 [compatibility Plan](plans/08-p10-1-extension-composition-compatibility.md).
+
+The local `1.1.2` candidate additionally passes declared Profile relative roots to
+Architecture Conformance and restricts project/source scanning to their validated union.
+Legacy empty or sole `.` scopes retain whole-TargetRoot behavior. This is not a published
+patch or approval of the incomplete IFX bundle; see
+[candidate notes](docs/1.1.2-candidate-notes.md).
 
 ## CLI
 

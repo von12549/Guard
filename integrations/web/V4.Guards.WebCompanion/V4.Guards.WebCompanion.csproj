@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
     <AssemblyName>v4-web-companion</AssemblyName>
     <RootNamespace>V4.Guards.WebCompanion</RootNamespace>
-    <Version>1.1.1</Version>
-    <AssemblyVersion>1.1.1.0</AssemblyVersion>
+    <Version>1.1.2</Version>
+    <AssemblyVersion>1.1.2.0</AssemblyVersion>
     <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\..\..\..\..'))=/_/</PathMap>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
