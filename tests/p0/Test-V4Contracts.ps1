@@ -42,6 +42,10 @@ $fixtures = [ordered]@{
     'ci-contract' = [ordered]@{ formatVersion = 1; targetBranch = 'codex/v4-development-base'; requiredContexts = @('v4-contract','v4-linux','v4-package','v4-required'); permissions = [ordered]@{ contents='read' }; allowedChangedPatterns = @('docs/guards/v4/**'); windowsSensitivePatterns = @('docs/guards/v4/core/host/**'); approvedTests = @([ordered]@{ path='docs/guards/v4/tests/p0/Test-V4Contracts.ps1'; sha256=$hash; linux=$true; windowsSmoke=$true; windowsFull=$true }); artifact = [ordered]@{ name='v4-ci-artifact'; manifestPath='manifest.json'; packagePath='package'; hostPath='host/v4-guards.dll' }; excludedSuites = @('ifx-solution','ifx-frontend','ifx-database','v3-package-candidate') }
     'ci-artifact-manifest' = [ordered]@{ formatVersion = 1; baseSha=$commit; headSha=$commit; contractSha256=$hash; packageHash=$hash; buildEvidence=[ordered]@{ configuration='Release'; targetFramework='net10.0'; sourceSha256=$hash; hostPath='host/v4-guards.dll'; hostSha256=$hash; secretEnvironmentNames=@() }; linuxTests=@('docs/guards/v4/tests/p0/Test-V4Contracts.ps1'); files=@([ordered]@{path='package/plugin.json';sha256=$hash;size=1},[ordered]@{path='host/v4-guards.dll';sha256=$hash;size=1}) }
     'distribution-manifest' = [ordered]@{ formatVersion=1; id='v4-guards'; version='1.0.0'; rootDirectory='v4-guards-1.0.0'; source=[ordered]@{ commit=$commit; packageHash=$hash; contractsManifestSha256=$hash; hostSha256=$hash; companionSha256=$hash }; files=@([ordered]@{ path='package/plugin.json'; kind='package'; sha256=$hash; size=1 },[ordered]@{ path='host/v4-guards.dll'; kind='host'; sha256=$hash; size=1 },[ordered]@{ path='companion/v4-web-companion.dll'; kind='companion'; sha256=$hash; size=1 }) }
+    'extension-bundle' = [ordered]@{ formatVersion=1; id='synthetic-extension'; version='1.0.0'; compatibleApi='1.x'; baseVersion='1.1.0'; profiles=@([ordered]@{id='synthetic_profile';version='1.0.0';path='profiles/catalog/synthetic_profile/profile.json';sha256=$hash}); modules=@(); files=@([ordered]@{path='profiles/catalog/synthetic_profile/profile.json';sha256=$hash;size=1}) }
+    'extension-review' = [ordered]@{ formatVersion=1; id='20260923-synthetic-review'; scope='synthetic-test-only'; decision='accepted'; acceptedBy=[ordered]@{authorityType='test-fixture';authorityId='synthetic-test';candidateHostVerdictAllowed=$false}; bundleManifestSha256=$hash; baseArchiveSha256=$hash; moduleCeilings=@() }
+    'composition-manifest' = [ordered]@{ formatVersion=1; kind='local-extension-composition'; productVersion='1.1.0'; base=[ordered]@{sourceCommit=$commit;archiveSha256=$hash;manifestSha256=$hash;packageHash=$hash}; bundle=[ordered]@{id='synthetic-extension';version='1.0.0';manifestSha256=$hash}; review=[ordered]@{id='20260923-synthetic-review';scope='synthetic-test-only';authorityId='synthetic-test';sha256=$hash}; composedPackageHash=$hash }
+    'composition-receipt' = [ordered]@{ formatVersion=1; kind='local-extension-composition'; id=('a'*32); status='synthetic-test-only'; installRoot='C:/v4/synthetic'; productVersion='1.1.0'; compositionManifestSha256=$hash; packageHash=$hash; baseArchiveSha256=$hash; baseReceiptSha256=$hash; bundleManifestSha256=$hash; reviewRecordSha256=$hash; files=@([ordered]@{path='package/plugin.json';sha256=$hash;size=1},[ordered]@{path='host/v4-guards.dll';sha256=$hash;size=1},[ordered]@{path='provenance/composition-manifest.json';sha256=$hash;size=1}) }
     'install-receipt' = [ordered]@{ formatVersion=1; id=('a' * 32); status='installed'; version='1.0.0'; installRoot='C:/v4/v4-guards-1.0.0'; archiveSha256=$hash; manifestSha256=$hash; files=@([ordered]@{ path='distribution-manifest.json'; sha256=$hash; size=1 },[ordered]@{ path='package/plugin.json'; sha256=$hash; size=1 }) }
     'prerequisite-report' = [ordered]@{ formatVersion=1; status='pass'; exitCategory='success'; profile='default'; selectedModules=@(); requirements=@([ordered]@{ runtime='dotnet'; versionRange='>=10.0 <11.0'; sources=@('host'); status='pass'; detectedVersion='10.0.100'; executablePath='C:/dotnet/dotnet.exe' }) }
     'runtime-requirements' = [ordered]@{ formatVersion=1; requirements=@([ordered]@{ runtime='pwsh'; versionRange='>=7.4' },[ordered]@{ runtime='dotnet'; versionRange='>=10.0 <11.0' }) }
@@ -109,6 +113,18 @@ $looseEvidence = Clone $fixtures['evidence-query']
 $looseEvidence.stageResult['unexpected'] = $true
 Invalid 'evidence nested Stage result unknown field' 'evidence-query' $looseEvidence
 
+$overCapability = Clone $fixtures['extension-bundle']
+$overCapability.modules = @([ordered]@{id='synthetic-probe';version='1.0.0';manifestPath='modules/synthetic-probe/module.json';manifestSha256=$hash;allowedCapabilities=[ordered]@{readRoots=@('TargetRoot');writeRoots=@('TargetRoot');processes=@('pwsh');network=$false;maxTimeoutSeconds=30}})
+Invalid 'extension requests TargetRoot write' 'extension-bundle' $overCapability
+
+$selfApproved = Clone $fixtures['extension-review']
+$selfApproved.acceptedBy.candidateHostVerdictAllowed = $true
+Invalid 'extension self approval' 'extension-review' $selfApproved
+
+$looseReceipt = Clone $fixtures['composition-receipt']
+$looseReceipt.files[0]['unexpected'] = $true
+Invalid 'composition receipt loose inventory' 'composition-receipt' $looseReceipt
+
 $cliPath = Join-Path $contractRoot 'cli-contract.json'
 $cli = Get-Content -Raw $cliPath | ConvertFrom-Json -AsHashtable -Depth 30
 Valid 'cli-contract' $cli
@@ -141,7 +157,7 @@ if (@($query.commands | Where-Object { $_.stability -cne 'experimental' -or $_.m
 $expectedQuerySchemas = @('project-query','profile-catalog-query','prerequisite-query','run-catalog-query','evidence-query','plan-catalog-query')
 if ((@($query.commands | ForEach-Object resultSchema) -join ',') -cne ($expectedQuerySchemas -join ',')) { $failures.Add('Query result schema mapping drifted') }
 
-$schemaNames = @('capability-matrix','ci-artifact-manifest','ci-contract','cli-contract','compatibility-baseline','distribution-manifest','evidence-query','finding-baseline','genesis-record','install-receipt','module-registry','module','plan-catalog-query','plan-set','plan','platform-certification','plugin','prerequisite-query','prerequisite-report','profile-catalog-query','profile','project-query','query-contract','recovery-artifact','reset-manifest','rule-execution-plan','run-catalog-query','runtime-requirements','stage-result','state','v1-certification')
+$schemaNames = @('capability-matrix','ci-artifact-manifest','ci-contract','cli-contract','compatibility-baseline','composition-manifest','composition-receipt','distribution-manifest','evidence-query','extension-bundle','extension-review','finding-baseline','genesis-record','install-receipt','module-registry','module','plan-catalog-query','plan-set','plan','platform-certification','plugin','prerequisite-query','prerequisite-report','profile-catalog-query','profile','project-query','query-contract','recovery-artifact','reset-manifest','rule-execution-plan','run-catalog-query','runtime-requirements','stage-result','state','v1-certification')
 foreach ($name in $schemaNames) {
     $schema = Get-Content -Raw (Schema $name) | ConvertFrom-Json -AsHashtable -Depth 50
     if ($schema.'$schema' -ne 'http://json-schema.org/draft-07/schema#' -or $schema.additionalProperties -ne $false -or -not $schema.ContainsKey('$id')) {

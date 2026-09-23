@@ -4,6 +4,17 @@ Status: V4 v1 published; V4-P9 Lightweight Web UI implemented and gate-audited; 
 
 Decision authority: `00-architecture-decision-set.md`
 
+## P10.1 local extension-composition prototype
+
+The Windows/offline Linux synthetic prototype composes a separately reviewed Profile/module bundle into a new
+sibling installation. Its external receipt binds the released base identity, bundle/review hashes,
+composed Package hash and full installed-file inventory. A receipted launcher verifies that
+identity and the separate external base receipt before starting the unchanged installed Web Companion, which continues to call the
+standard Host and only projects Host results. The public 1.1.0 installation is read-only input,
+and a test-fixture review can create only a `synthetic-test-only` receipt. This boundary is not
+yet part of a published 1.1.x release; full negative tests and candidate-version gates
+remain open. See `08-p10-1-extension-composition-compatibility.md`.
+
 This document is the maintained architecture view for V4 v1. It shows ownership and data flow; it
 does not grant authority to create the development branch, runtime, workflow or remote configuration.
 

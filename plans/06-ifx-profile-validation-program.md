@@ -1,10 +1,17 @@
 # V4 P10 — IFX Profile validation program
 
-Status: `PLANNED — implementation and remote activation not authorized`
+Status: `IN PROGRESS — P10.0 local baseline/Web UI acceptance passed; remote activation not authorized`
 
 Formal planning checkpoint: `20260923-v4-ifx-profile-validation-program`
 
 Initial V4 baseline: `v4-guards-v1.1.0`
+
+P10.0 operator evidence: `07-p10-0-baseline-acceptance.md`. The 1.1.0 release and receipt
+were already present and were verified without reinstalling or modifying the installation.
+P10.1 entry-gap compatibility Plan: `20260923-v4-p10-extension-composition-compatibility`;
+durable design and gates: `08-p10-1-extension-composition-compatibility.md`. Its
+Windows/offline Linux synthetic prototype passed, but it is not an approved IFX bundle or
+authorization to publish a patch.
 
 Scope authority: V4-TODO-001, V4-TODO-002 and V4-TODO-003. V4-TODO-004 legacy retirement remains
 separate and cannot be pulled forward by this program.
@@ -46,6 +53,7 @@ D:\IFX-Root\                         common container; never passed as a V4 root
 ├─ IFX\                               TargetRoot and canonical repository
 │  └─ docs\guards\v4\                canonical V4 source authority
 └─ guard-runtime\
+   ├─ fixtures\                      disposable synthetic TargetRoots for UI practice
    ├─ releases\
    │  ├─ v4-guards-1.1.0\            exact immutable published installation
    │  └─ v4-guards-1.1.x\            later exact immutable patch installations
@@ -75,8 +83,49 @@ Required evidence:
    installation as unsupported unless a reviewed existing contract proves otherwise; and
 7. prove all target discovery and evidence omit `guard/**`.
 
+### P10.0 Web UI hands-on acceptance
+
+After the 1.1.0 installation and receipt checks, and before P10.1 begins, an operator must exercise
+the **installed** Web Companion in a local browser. This is a manual acceptance record in addition to
+the P9 automated certification, not a new verdict authority. Use the installed
+`core/distribution/Invoke-V4InstalledWebCompanion.ps1` launcher, the verified 1.1.0 PackageRoot,
+external StateRoot/EvidenceRoot, `D:\IFX-Root\IFX` and two disposable synthetic TargetRoots below
+`guard-runtime/fixtures`. Prepare one synthetic Target with `input.txt` containing `synthetic-ok` and
+one with `input.txt` containing a deliberate non-matching value; record their bytes and hashes before
+launch. Keep all Targets and the installation read-only during the browser session.
+
+The operator records the following actions and observations:
+
+1. Open the loopback UI through the installed launcher; record the installation receipt, Companion and
+   Host identities, browser URL, selected project ID and prerequisite result. Refuse a source-tree or
+   rebuilt Companion as a substitute for the published installation.
+2. Switch among the registered IFX and synthetic project IDs. Confirm the UI shows only the released
+   `default` and `synthetic_profile` Profiles, their enabled Stages and prerequisite status. On IFX,
+   inspect workspace and Plan Center only; do not run `synthetic_profile` against IFX or infer
+   `ifx_profile` support from its absence.
+3. On the clean synthetic Target, run an enabled Stage directly and run Analysis with its explicit
+   dependency option. On the violating synthetic Target, run an enabled Stage directly. Capture the
+   displayed dependency order, Host exit category/verdict, run IDs, findings and coverage. A failing
+   Host result must remain a failure in the UI; an empty or skipped Stage must not appear successful.
+4. Open each run in the evidence desk and inspect the raw JSON. Compare the displayed run IDs, verdicts,
+   findings, coverage and authority hashes with the installed Host's `query runs` and `query evidence`
+   projections. Inspect the Plan Center catalog or empty state and preserve its native versus
+   historical-read-only labels where Plan pairs are present; the UI must not present Plan content as
+   editable or authoritative merely because it is displayed.
+5. Hash PackageRoot and all registered TargetRoots before and after the session; verify byte
+   invariance. Record changes only under StateRoot/EvidenceRoot, and confirm neither the browser nor
+   its evidence exposes a path into `guard/**` as a discovered IFX subject.
+
+Retain a dated operator action log, screenshots of the workspace/Stage result/evidence views, the
+Host query JSON, run IDs, root hash inventories and the exact version-ledger tuple. P10.0 Web UI
+acceptance fails on launch or receipt drift, wrong Target selection, mismatched Host/UI result,
+missing evidence, unexpected Target/Package writes, self-discovery, or any need for browser path,
+authority edit, Reset, Git or remote access. A failure is recorded as a V4 defect or compatibility
+decision; it does not permit patching the installed 1.1.0 tree. P10.1 cannot start until this
+hands-on acceptance and the other P10.0 evidence pass.
+
 P10.0 stops on archive/receipt drift, root overlap, self-discovery, undeclared prerequisites or any
-need to edit the installation.
+need to edit the installation, including a failed Web UI hands-on acceptance.
 
 ## 5. P10.1 — V4-TODO-001 `ifx_profile` practice
 
@@ -95,6 +144,16 @@ Acceptance requires schema-valid Profile and extension bundles, deterministic pa
 receipts, capability ceilings, clean/direct Stage runs, deliberate IFX violations, missing prerequisites,
 zero-match refusal, reset confinement and PackageRoot/TargetRoot immutability. A public-contract gap is
 a V4 defect/compatibility decision and consumes a new 1.1.x patch; it is not hidden in the Profile.
+
+After `ifx_profile` is installed through the approved public composition contract, repeat the P10.0
+browser exercise against that **exact receipted 1.1.x installation**. Register the fixed, read-only IFX
+Target and a separately prepared, read-only IFX violation fixture outside the repository. Confirm the
+UI projects `ifx_profile`, its prerequisites, enabled Stages and dependency chain; manually run the
+clean Stage cases and one deliberate blocking fixture through the UI. Match each displayed verdict,
+finding, coverage and run ID to the installed Host result and evidence queries, and recheck all root
+hashes. This demonstrates that the UI can operate the IFX Profile without becoming a parity authority;
+P10.2 still makes the independent V3/V3_ifx comparison. Record the new version-ledger tuple and stop
+P10.1 if the UI hides a failure, accepts missing evidence or writes an authority root.
 
 ## 6. P10.2 — V4-TODO-002 parallel parity
 
@@ -149,6 +208,7 @@ one result.
 - Rollback selects the prior immutable installation and external state snapshot; it never rewrites an
   installation in place.
 
-P10.GATE passes only when P10.0–P10.3 evidence is complete, the latest installation is reproduced from
-a public 1.1.x release, all parity gaps are closed, rollback is rehearsed and no V3 runtime dependency
-exists in V4. Passing P10.GATE means adoption-ready only; it does not activate anything remotely.
+P10.GATE passes only when P10.0–P10.3 evidence, including both installed Web UI hands-on records, is
+complete, the latest installation is reproduced from a public 1.1.x release, all parity gaps are closed,
+rollback is rehearsed and no V3 runtime dependency exists in V4. Passing P10.GATE means adoption-ready
+only; it does not activate anything remotely.

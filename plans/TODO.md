@@ -16,6 +16,13 @@ separate reviewed decision and formal Plan; appearing here is not implementation
   installer, P10.0/P10.1 must not edit the installed package; a required composition/loader change is
   handled as the next certified `1.1.x` patch.
 
+  P10.0 local baseline and installed Web UI practice passed on 2026-09-23; see
+  `07-p10-0-baseline-acceptance.md`. The separate P10.1 entry-gap compatibility Plan is
+  `20260923-v4-p10-extension-composition-compatibility` /
+  `08-p10-1-extension-composition-compatibility.md`. Its exact-path synthetic composition
+  prototype passed on Windows and network-disabled Linux. The full negative matrix,
+  candidate-version certification and real `ifx_profile` review remain pending; TODO-001 stays open.
+
 - [ ] **V4-TODO-002 — IFX parallel parity**
 
   Revisit after V4-TODO-001. Run V3/V3_ifx and V4+`ifx_profile` against the same fixed corpus and real
