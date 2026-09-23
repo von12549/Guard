@@ -1,8 +1,8 @@
 # V4 Guards
 
 V4 Guards is a self-contained, profile-driven guard package for inspecting repositories through four
-independently runnable stages: Bootstrap, Analysis, Pre and Post. The source tree is a local
-`1.1.2` compatibility candidate; published `1.1.1` and `1.1.0` releases remain immutable.
+independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.1.2` is a
+scope-compatibility patch; the earlier `1.1.1` and `1.1.0` releases remain immutable.
 The stable V4 1.0 command API and local, non-authoritative Web Companion are preserved.
 
 V4 is developed inside this repository, but it does not depend on V3/V3_ifx at runtime. The active IFX
@@ -24,8 +24,7 @@ root overlap and undeclared write capability fail closed.
 
 ## Distribution and prerequisites
 
-The published `1.1.1` archive is named `v4-guards-1.1.1.zip` and contains three hash-bound payloads.
-Any future `1.1.2` archive requires separate clean-commit certification and publication authority:
+The `1.1.2` archive is named `v4-guards-1.1.2.zip` and contains three hash-bound payloads:
 
 - `package/`: immutable V4 authorities and this README;
 - `host/`: the `v4-guards` .NET Host; and
@@ -34,7 +33,8 @@ Any future `1.1.2` archive requires separate clean-commit certification and publ
 The supported release targets are `linux-x64` and `win-x64`. The declared host prerequisites are
 PowerShell 7.4 or newer and .NET 10.x; selected modules may add declared prerequisites. Installation
 and verified uninstall use `core/distribution/Install-V4Distribution.ps1` plus an external receipt.
-See [1.1.1 release notes](docs/1.1.1-release-notes.md), [1.1.0 release notes](docs/1.1.0-release-notes.md)
+See [1.1.2 release notes](docs/1.1.2-release-notes.md),
+[1.1.1 release notes](docs/1.1.1-release-notes.md), [1.1.0 release notes](docs/1.1.0-release-notes.md)
 and [certification](docs/v1-certification.md).
 
 Version `1.1.1` adds explicit offline Profile/module bundle composition.
@@ -43,11 +43,10 @@ with an external composition receipt, and gates Web Companion launch on receipt 
 Synthetic tests do not approve a real bundle. It does not modify 1.1.0 or authorize IFX use. See the
 [compatibility Plan](plans/08-p10-1-extension-composition-compatibility.md).
 
-The local `1.1.2` candidate additionally passes declared Profile relative roots to
+Version `1.1.2` additionally passes declared Profile relative roots to
 Architecture Conformance and restricts project/source scanning to their validated union.
-Legacy empty or sole `.` scopes retain whole-TargetRoot behavior. This is not a published
-patch or approval of the incomplete IFX bundle; see
-[candidate notes](docs/1.1.2-candidate-notes.md).
+Legacy empty or sole `.` scopes retain whole-TargetRoot behavior. This patch does not
+approve or include the incomplete IFX bundle; see the release notes.
 
 ## CLI
 
@@ -70,7 +69,7 @@ explicitly requested and is reported in order.
 
 Profiles are declarative configuration. They select registered, hash-bound modules and may not provide
 arbitrary executable paths or shell commands. The package ships `default` and `synthetic_profile`;
-`ifx_profile` is not included in 1.1.1 or 1.1.0. Module capabilities declare readable/writable roots, permitted
+`ifx_profile` is not included in the 1.1.2 base or earlier releases. Module capabilities declare readable/writable roots, permitted
 processes, network use and timeouts. See [configuration.md](docs/configuration.md).
 
 ## Reset safety
