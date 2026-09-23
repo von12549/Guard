@@ -13,7 +13,10 @@ Current documents:
 | [03-genesis-bootstrap-and-autonomy.md](03-genesis-bootstrap-and-autonomy.md) | Finite V3 genesis and V4 autonomy transition | Dormant G1; activation not authorized |
 | [04-layerguard-provenance.md](04-layerguard-provenance.md) | Architecture-rule provenance and clean-room boundary | Accepted provenance record |
 | [05-p9-gate-audit.md](05-p9-gate-audit.md) | P9 certification, authority-boundary and first-release exclusion audit | PASS |
-| [06-ifx-profile-validation-program.md](06-ifx-profile-validation-program.md) | 1.1.x IFX Profile practice, parity and cutover-readiness program | Planned; implementation and activation not authorized |
+| [06-ifx-profile-validation-program.md](06-ifx-profile-validation-program.md) | 1.1.x IFX Profile practice, parity and cutover-readiness program | In progress; P10.0 passed, activation not authorized |
+| [07-p10-0-baseline-acceptance.md](07-p10-0-baseline-acceptance.md) | Released 1.1.0 baseline and installed Web UI operator evidence | Local P10.0 pass |
+| [08-p10-1-extension-composition-compatibility.md](08-p10-1-extension-composition-compatibility.md) | Separate P10.1 entry-gap repair design and gates | Windows/offline Linux synthetic prototype pass; certification pending |
+| `20260923-v4-p10-1-candidate-version-certification` (formal Plan pair under `docs/guards/plans/`) | Next unique 1.1.x candidate version, installed-path and CI certification gate | Local 1.1.1 smoke pass; clean-commit/full certification and publication pending |
 | [TODO.md](TODO.md) | Explicit deferred scope, P9 first-release exclusions and revisit gates | Active backlog |
 
 Status meanings:

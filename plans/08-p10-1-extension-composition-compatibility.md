@@ -3,6 +3,8 @@
 Status: `WINDOWS + OFFLINE LINUX SYNTHETIC PROTOTYPE PASS — candidate patch and IFX detector-family gates pending`
 
 Formal Plan pair: `20260923-v4-p10-extension-composition-compatibility`.
+Next candidate Plan pair: `20260923-v4-p10-1-candidate-version-certification` (local 1.1.1
+installed-path smoke passed; clean-commit certification and publication remain pending).
 Predecessor evidence: `07-p10-0-baseline-acceptance.md`.
 Parent program: `06-ifx-profile-validation-program.md`, section 2 and P10.1.
 
