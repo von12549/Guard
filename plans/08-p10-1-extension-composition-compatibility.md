@@ -1,10 +1,11 @@
 # V4 P10.1 entry — local extension composition compatibility
 
-Status: `WINDOWS + OFFLINE LINUX SYNTHETIC PROTOTYPE PASS — candidate patch and IFX detector-family gates pending`
+Status: `1.1.1 COMPATIBILITY PATCH PUBLISHED — real IFX bundle and detector-family gates pending`
 
 Formal Plan pair: `20260923-v4-p10-extension-composition-compatibility`.
-Next candidate Plan pair: `20260923-v4-p10-1-candidate-version-certification` (local 1.1.1
-installed-path smoke passed; clean-commit certification and publication remain pending).
+Historical candidate Plan pair: `20260923-v4-p10-1-candidate-version-certification`.
+Publication Plan pair: `20260923-v4-guards-1-1-1-release-publication` (certified 1.1.1
+tag, GitHub Release and side-by-side installation complete; no IFX bundle approved).
 Predecessor evidence: `07-p10-0-baseline-acceptance.md`.
 Parent program: `06-ifx-profile-validation-program.md`, section 2 and P10.1.
 
