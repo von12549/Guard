@@ -1,7 +1,7 @@
 # V4 Guards
 
 V4 Guards is a self-contained, profile-driven guard package for inspecting repositories through four
-independently runnable stages: Bootstrap, Analysis, Pre and Post. The unpublished `1.1.1` candidate
+independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.1.1`
 preserves the stable V4 1.0 command API and local, non-authoritative Web Companion introduced by V4-P9.
 The published `1.1.0` release remains immutable.
 
@@ -24,7 +24,7 @@ root overlap and undeclared write capability fail closed.
 
 ## Distribution and prerequisites
 
-The candidate archive is named `v4-guards-1.1.1.zip` and contains three hash-bound payloads:
+The `1.1.1` archive is named `v4-guards-1.1.1.zip` and contains three hash-bound payloads:
 
 - `package/`: immutable V4 authorities and this README;
 - `host/`: the `v4-guards` .NET Host; and
@@ -33,10 +33,10 @@ The candidate archive is named `v4-guards-1.1.1.zip` and contains three hash-bou
 The supported release targets are `linux-x64` and `win-x64`. The declared host prerequisites are
 PowerShell 7.4 or newer and .NET 10.x; selected modules may add declared prerequisites. Installation
 and verified uninstall use `core/distribution/Install-V4Distribution.ps1` plus an external receipt.
-See [candidate notes](docs/1.1.1-release-notes.md), [published 1.1.0 notes](docs/1.1.0-release-notes.md)
+See [1.1.1 release notes](docs/1.1.1-release-notes.md), [1.1.0 release notes](docs/1.1.0-release-notes.md)
 and [certification](docs/v1-certification.md).
 
-P10.1 has an unpublished local candidate for explicit offline Profile/module bundle composition.
+Version `1.1.1` adds explicit offline Profile/module bundle composition.
 It verifies an installed base and separate review record, creates a new sibling installation
 with an external composition receipt, and gates Web Companion launch on receipt verification.
 Synthetic tests do not approve a real bundle. It does not modify 1.1.0 or authorize IFX use. See the
@@ -63,14 +63,14 @@ explicitly requested and is reported in order.
 
 Profiles are declarative configuration. They select registered, hash-bound modules and may not provide
 arbitrary executable paths or shell commands. The package ships `default` and `synthetic_profile`;
-`ifx_profile` is not included in the 1.1.1 candidate or published 1.1.0. Module capabilities declare readable/writable roots, permitted
+`ifx_profile` is not included in 1.1.1 or 1.1.0. Module capabilities declare readable/writable roots, permitted
 processes, network use and timeouts. See [configuration.md](docs/configuration.md).
 
 ## Reset safety
 
 Project and factory reset are Host CLI operations over V4-owned StateRoot and EvidenceRoot data. Apply
 requires the exact manifest hash returned by Preview, records recovery evidence and refuses authority,
-Target, worktree, link or unclaimed paths. The 1.1.1 candidate Web Companion does not expose Reset Preview or
+Target, worktree, link or unclaimed paths. The 1.1.1 Web Companion does not expose Reset Preview or
 Reset Apply.
 
 ## Local Web Companion

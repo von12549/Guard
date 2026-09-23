@@ -4,7 +4,7 @@ The Web Companion is a local presentation and manual-control integration over th
 It is not a guard engine, policy authority or verdict producer.
 
 Published V4 1.1.0 packages the completed P9 one-active-Target workspace, evidence desk and Plan Center
-as an offline, installable Companion. The unpublished 1.1.1 candidate preserves that surface:
+as an offline, installable Companion. Version 1.1.1 preserves that surface:
 
 ```text
 trusted launcher adds one or more TargetRoot values
@@ -67,7 +67,7 @@ Host DLL itself, accepts a JSON string array containing only TargetRoot, StateRo
 PlanRoot and port options, and never invokes a command shell. Attempts to override Host or PackageRoot
 are refused.
 
-The 1.1.1 candidate also packages `core/distribution/Invoke-V4ReceiptedWebCompanion.ps1` for
+Version 1.1.1 also packages `core/distribution/Invoke-V4ReceiptedWebCompanion.ps1` for
 explicitly reviewed local compositions. It requires the external composition receipt and original
 base-installation receipt, verifies both against the composed installation, and then delegates to
 the same installed Host and Companion. A synthetic test receipt is denied unless its explicit
