@@ -27,7 +27,7 @@
     { "path": "core/contracts/prerequisite-query.schema.json", "sha256": "ee9aeac3eb610dc36239a92074eb172eb00ca03a09178cfb277d6de6a9f0e4a6" },
     { "path": "core/contracts/prerequisite-report.schema.json", "sha256": "b5bd9dfa40fcd85abd8410321f572e858444b8087b83caf0715eab33edbc630a" },
     { "path": "core/contracts/profile-catalog-query.schema.json", "sha256": "2a90bafff43c7c6882b4513757a531d842354034523024c988fd18fc519896e1" },
-    { "path": "core/contracts/profile.schema.json", "sha256": "dda22c455daf6ed9bf8e76292c62deec1fd2f76acadeab89f733c78fb70ec42f" },
+    { "path": "core/contracts/profile.schema.json", "sha256": "35f42988d4a5ed2ee6d807a089a4d158a878cc96456489012400c08e0c4007a2" },
     { "path": "core/contracts/project-query.schema.json", "sha256": "c9874e527d6681b8cb6af66d3da8746422dfbad9ded06f9abd46a2b400c05502" },
     { "path": "core/contracts/query-contract.json", "sha256": "6f1d222a44ce0f4dac902df80cdf70e9ecd519eaaa602a63f4e1a4850dceec51" },
     { "path": "core/contracts/query-contract.schema.json", "sha256": "1b69f7100d39e0bc07b9ba74e9bf48b8e5d85d6120039bf87b1a935b9cbedfac" },
@@ -38,6 +38,7 @@
     { "path": "core/contracts/runtime-requirements.schema.json", "sha256": "9af23fe5469cc2ec73b4e65992d83a5e637b7cbf291b7ede685b79154f2ba4b7" },
     { "path": "core/contracts/stage-result.schema.json", "sha256": "6f2df2a330dd19fd39636f3adbe4c076974435694bb13eab7b62a7a445815e3b" },
     { "path": "core/contracts/state.schema.json", "sha256": "0ec1c8f29c266c7b38f4ca49b1b57c4143266563164bbb497362fddf9dfc9dc9" },
-    { "path": "core/contracts/v1-certification.schema.json", "sha256": "d42f4187d6f4e128d7684538eff996f1161c3936a4189f705860557fe9b44ac3" }
+    { "path": "core/contracts/v1-certification.schema.json", "sha256": "d42f4187d6f4e128d7684538eff996f1161c3936a4189f705860557fe9b44ac3" },
+    { "path": "core/contracts/workspace-evidence.schema.json", "sha256": "bbed8f4019aea8400391ea4c21bb78ae537664ef3c3e5f8b06146c1fe5f892a8" }
   ]
 }

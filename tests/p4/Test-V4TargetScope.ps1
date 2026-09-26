@@ -90,6 +90,7 @@ Copy-Item -LiteralPath $package -Destination $copy -Recurse
 $profilePath = Join-Path $copy 'profiles/catalog/synthetic_profile/profile.json'
 $profile = Get-Content -Raw -LiteralPath $profilePath | ConvertFrom-Json -AsHashtable
 $profile.projectIdentity.relativeRoots = @('src','tests')
+$profile.workspaceEvidence.relativeRoots = @('src','tests')
 $selection = @($profile.moduleSelections | Where-Object id -CEQ 'architecture-conformance')[0]
 $selection.config.enabledClaims = @('ARCH.GRAPH_COMPLETENESS')
 $profile.rules = @('ARCH.GRAPH_COMPLETENESS')

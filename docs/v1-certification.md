@@ -3,8 +3,8 @@
 The V4 certification pipeline certifies a local candidate; it does not publish a release or activate
 repository controls.
 
-Version `1.1.1` includes the completed
-P9 Web Companion, hash-bound root project README and P10.1 local composition contract while preserving
+Version `1.1.4` includes the completed P9 Web Companion, hash-bound root project README,
+P10.1 local composition contract and opt-in Host workspace evidence while preserving
 stable API version `1.0`. V4 declares and certifies
 `linux-x64` and `win-x64` only; macOS support is not declared.
 
@@ -30,7 +30,7 @@ root model, and that command-injection, path-escape, Markdown-XSS, hostile-paren
 negatives pass on Linux and Windows. It also requires `README.md` as package authority and proves that
 the README is present in the archive and installed payload. The previous V4 1.0.0 release remains an
 immutable historical release.
-The 1.1.1 certification additionally requires the installed receipted composition launcher, four
+The 1.1.1 and later certification additionally requires the installed receipted composition launcher, four
 hash-bound composition contracts, external base/composition receipts and cross-platform negative
 controls. Synthetic certification evidence is not real-bundle approval.
 `Invoke-V4V1Certification.ps1` accepts only matching passing platform reports and the exact deterministic

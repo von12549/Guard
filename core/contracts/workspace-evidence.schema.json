@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/workspace-evidence.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "formatVersion", "scope", "targetCommit", "relativeRoots", "extensions",
+    "excludedDirectoryNames", "pathOrder", "fileCount", "treeSha256",
+    "startedAt", "completedAt", "elapsedSeconds", "files"
+  ],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "scope": { "const": "v4-workspace-evidence-v1" },
+    "targetCommit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+    "relativeRoots": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" }
+    },
+    "extensions": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^\\.[a-z0-9]+$" }
+    },
+    "excludedDirectoryNames": {
+      "type": "array", "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[A-Za-z0-9._-]+$" }
+    },
+    "pathOrder": { "const": "ordinal" },
+    "fileCount": { "type": "integer", "minimum": 0 },
+    "treeSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "startedAt": { "type": "string", "format": "date-time" },
+    "completedAt": { "type": "string", "format": "date-time" },
+    "elapsedSeconds": { "type": "number", "minimum": 0 },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "extension", "length", "sha256", "normalizedSha256", "text"],
+        "properties": {
+          "path": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" },
+          "extension": { "type": "string", "pattern": "^\\.[a-z0-9]+$" },
+          "length": { "type": "integer", "minimum": 0 },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "normalizedSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "text": { "type": "string" }
+        }
+      }
+    }
+  }
+}

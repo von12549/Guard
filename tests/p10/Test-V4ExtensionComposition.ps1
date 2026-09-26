@@ -30,7 +30,7 @@ $selfContainedCandidate = $providedBaseInputs.Count -eq 0
 if (-not $selfContainedCandidate -and $FixtureSourceCommit) { throw 'FixtureSourceCommit is only for self-contained candidate smoke tests.' }
 if ($selfContainedCandidate) {
     $candidate = Read-Json (Join-Path $packageSource 'plugin.json')
-    Assert ($candidate.version -ceq '1.1.3' -and $candidate.apiVersion -ceq '1.0') 'Self-contained P10 certification requires the 1.1.3 candidate'
+    Assert ($candidate.version -ceq '1.1.4' -and $candidate.apiVersion -ceq '1.0') 'Self-contained P10 certification requires the 1.1.4 candidate'
     $fixtureRoot = Join-Path $parent ('candidate-fixture-' + [Guid]::NewGuid().ToString('N'))
     [void][IO.Directory]::CreateDirectory($fixtureRoot)
     $repository = [IO.Path]::GetFullPath((Join-Path $packageSource '../../..'))
@@ -69,9 +69,9 @@ if ($selfContainedCandidate) {
     $archiveText = @(& pwsh -NoLogo -NoProfile -NonInteractive -File $distribution @distributionArguments 2>&1) -join "`n"
     Assert ($LASTEXITCODE -eq 0) "Candidate fixture distribution failed: $archiveText"
     $archiveResult = $archiveText | ConvertFrom-Json -AsHashtable -Depth 100
-    Assert ($archiveResult.status -ceq 'pass' -and $archiveResult.version -ceq '1.1.3') 'Candidate fixture archive identity drift'
+    Assert ($archiveResult.status -ceq 'pass' -and $archiveResult.version -ceq '1.1.4') 'Candidate fixture archive identity drift'
     $BaseArchivePath = [string]$archiveResult.archivePath
-    $BaseInstallRoot = Join-Path $fixtureRoot 'installed/v4-guards-1.1.3'
+    $BaseInstallRoot = Join-Path $fixtureRoot 'installed/v4-guards-1.1.4'
     $BaseReceiptPath = Join-Path $fixtureRoot 'candidate.install.json'
     $installArguments = @('-Mode','Install','-ArchivePath',$BaseArchivePath,'-InstallRoot',$BaseInstallRoot,'-ReceiptPath',$BaseReceiptPath)
     $installText = @(& pwsh -NoLogo -NoProfile -NonInteractive -File (Join-Path $packageSource 'core/distribution/Install-V4Distribution.ps1') @installArguments 2>&1) -join "`n"
@@ -140,7 +140,7 @@ $bundleFiles.Sort([Comparison[object]]{
     [StringComparer]::Ordinal.Compare([string]$left.path,[string]$right.path)
 })
 $files = $bundleFiles.ToArray()
-$capabilities = [ordered]@{readRoots=@('TargetRoot');writeRoots=@();processes=@('pwsh');network=$false;maxTimeoutSeconds=30}
+$capabilities = [ordered]@{readRoots=@('TargetRoot','EvidenceRoot');writeRoots=@();processes=@('pwsh');network=$false;maxTimeoutSeconds=30}
 $baseReceipt = Read-Json $BaseReceiptPath
 $bundle = [ordered]@{
     formatVersion=1; id='p10-synthetic-extension'; version='1.0.0'; compatibleApi='1.x'; baseVersion=[string]$baseReceipt.version
