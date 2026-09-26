@@ -91,6 +91,13 @@ arbitrary executable paths or shell commands. The package ships `default` and `s
 `ifx_profile` is not included in the 1.1.3 base or earlier releases. Module capabilities declare readable/writable roots, permitted
 processes, network use and timeouts. See [configuration.md](docs/configuration.md).
 
+The development source also defines an unreleased, optional `workspaceEvidence` Profile capability.
+When present, the Host performs one bounded, ordinal and link-safe TargetRoot projection per run,
+records its hash in `authorityHashes`, and supplies its path/hash/target-commit binding only to modules
+whose reviewed `readRoots` includes `EvidenceRoot`. Callers cannot inject this binding through the CLI.
+Profiles that omit the property keep the existing execution path. This capability is not part of the
+published 1.1.3 package and requires a separately certified patch release before production use.
+
 ## Reset safety
 
 Project and factory reset are Host CLI operations over V4-owned StateRoot and EvidenceRoot data. Apply

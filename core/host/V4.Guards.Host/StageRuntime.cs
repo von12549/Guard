@@ -29,7 +29,9 @@ internal static class StageRuntime
             var runId = Guid.NewGuid().ToString("N");
             var requestedIndex = Array.IndexOf(StageNames, options.Stage);
             var executionStages = options.WithDependencies ? StageNames[..(requestedIndex + 1)] : [options.Stage];
-            context = new StageContext(runId, options.Stage, executionStages, [], binding.ProjectId, roots, package, profile);
+            context = new StageContext(runId, options.Stage, executionStages, [], binding.ProjectId, roots, package, profile, null);
+            if (profile.WorkspaceEvidence is not null)
+                context = context with { WorkspaceEvidence = CreateWorkspaceEvidence(context, profile.WorkspaceEvidence) };
             var result = RunStage(context);
             WriteResult(context, result);
             WriteConsole(result, result.ExitCategory == "success");
@@ -183,6 +185,8 @@ internal static class StageRuntime
             ["registry"] = HashFile(ResolveFileUnder(context.Roots.PackageRoot, "modules/registry.json", "module registry")),
             ["contractsManifest"] = HashFile(ResolveFileUnder(context.Roots.PackageRoot, "core/contracts/contracts-manifest.json", "contracts manifest"))
         };
+        if (context.WorkspaceEvidence is not null)
+            authorityHashes["workspaceEvidence"] = context.WorkspaceEvidence.Sha256;
         var moduleResults = new List<ModuleResult>();
         var findings = new List<Finding>();
         var findingKeys = new HashSet<string>(StringComparer.Ordinal);
@@ -386,19 +390,27 @@ internal static class StageRuntime
             !(manifest.Capabilities.Processes ?? []).Contains("pwsh", StringComparer.Ordinal) || manifest.Capabilities.TimeoutSeconds < 1)
             throw new StageException(13, "capability-denied", $"Module capability grant is not executable: {manifest.Id}");
         var start = PowerShellStart(FindPowerShell(), adapterPath);
-        var input = JsonSerializer.Serialize(new
+        var inputDocument = new Dictionary<string, object?>(StringComparer.Ordinal)
         {
-            formatVersion = 1,
-            stage = executionStage,
-            targetRoot = context.Roots.TargetRoot,
-            packageRoot = context.Roots.PackageRoot,
-            stateRoot = context.Roots.StateRoot,
-            evidenceRoot = context.Roots.EvidenceRoot,
-            projectId = context.ProjectId,
-            runId = context.RunId,
-            relativeRoots = context.Profile.ProjectIdentity?.RelativeRoots ?? [],
-            config = selection.Config
-        });
+            ["formatVersion"] = 1,
+            ["stage"] = executionStage,
+            ["targetRoot"] = context.Roots.TargetRoot,
+            ["packageRoot"] = context.Roots.PackageRoot,
+            ["stateRoot"] = context.Roots.StateRoot,
+            ["evidenceRoot"] = context.Roots.EvidenceRoot,
+            ["projectId"] = context.ProjectId,
+            ["runId"] = context.RunId,
+            ["relativeRoots"] = context.Profile.ProjectIdentity?.RelativeRoots ?? [],
+            ["config"] = selection.Config
+        };
+        if (context.WorkspaceEvidence is not null &&
+            (manifest.Capabilities.ReadRoots ?? []).Contains("EvidenceRoot", StringComparer.Ordinal))
+        {
+            inputDocument["workspaceEvidencePath"] = context.WorkspaceEvidence.Path;
+            inputDocument["workspaceEvidenceSha256"] = context.WorkspaceEvidence.Sha256;
+            inputDocument["workspaceEvidenceTargetCommit"] = context.WorkspaceEvidence.TargetCommit;
+        }
+        var input = JsonSerializer.Serialize(inputDocument, JsonOptions);
         start.Environment["V4_STAGE_INPUT_JSON"] = input;
         var execution = RunProcess(start, manifest.Capabilities.TimeoutSeconds, $"module {manifest.Id}");
         if (execution.ExitCode != 0)
@@ -466,6 +478,127 @@ internal static class StageRuntime
         catch (Exception ex) when (ex is JsonException or IOException) { throw new StageException(12, "integrity-failure", $"{label} is invalid: {ex.Message}"); }
     }
 
+    private static WorkspaceEvidenceBinding CreateWorkspaceEvidence(StageContext context, WorkspaceEvidenceConfiguration configuration)
+    {
+        var started = DateTimeOffset.UtcNow;
+        var watch = Stopwatch.StartNew();
+        if (configuration.RelativeRoots is not { Length: > 0 } || configuration.Extensions is not { Length: > 0 } ||
+            configuration.ExcludedDirectoryNames is null || configuration.MaximumFiles < 1 || configuration.MaximumFileBytes < 1)
+            throw new StageException(12, "integrity-failure", "Profile workspace evidence configuration is incomplete.");
+
+        var extensions = new HashSet<string>(configuration.Extensions.Select(item => item.ToLowerInvariant()), StringComparer.Ordinal);
+        var excluded = new HashSet<string>(configuration.ExcludedDirectoryNames, StringComparer.OrdinalIgnoreCase);
+        var relativeFiles = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var relativeRoot in configuration.RelativeRoots)
+        {
+            var root = ResolveWorkspaceRoot(context.Roots.TargetRoot, relativeRoot);
+            var pending = new Stack<string>();
+            pending.Push(root);
+            while (pending.Count > 0)
+            {
+                var directory = pending.Pop();
+                EnsureNoLinks(context.Roots.TargetRoot, directory, "workspace evidence directory");
+                string[] childDirectories;
+                string[] files;
+                try
+                {
+                    childDirectories = Directory.GetDirectories(directory);
+                    files = Directory.GetFiles(directory);
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    throw new StageException(15, "prerequisite-missing", $"Workspace evidence enumeration failed: {ex.Message}");
+                }
+                foreach (var child in childDirectories.Order(StringComparer.Ordinal).Reverse())
+                {
+                    var info = new DirectoryInfo(child);
+                    if ((info.Attributes & FileAttributes.ReparsePoint) != 0 || info.LinkTarget is not null)
+                        throw new StageException(11, "unsafe-path", $"Workspace evidence crosses a link or reparse point: {child}");
+                    if (!excluded.Contains(info.Name)) pending.Push(info.FullName);
+                }
+                foreach (var file in files.Order(StringComparer.Ordinal))
+                {
+                    var info = new FileInfo(file);
+                    if ((info.Attributes & FileAttributes.ReparsePoint) != 0 || info.LinkTarget is not null)
+                        throw new StageException(11, "unsafe-path", $"Workspace evidence crosses a link or reparse point: {file}");
+                    if (!extensions.Contains(info.Extension.ToLowerInvariant())) continue;
+                    var relative = Path.GetRelativePath(context.Roots.TargetRoot, info.FullName).Replace('\\', '/');
+                    if (!relativeFiles.Add(relative)) continue;
+                    if (relativeFiles.Count > configuration.MaximumFiles)
+                        throw new StageException(15, "prerequisite-missing", $"Workspace evidence exceeds maximumFiles ({configuration.MaximumFiles}).");
+                }
+            }
+        }
+
+        var entries = new List<WorkspaceEvidenceEntry>(relativeFiles.Count);
+        foreach (var relative in relativeFiles.Order(StringComparer.Ordinal))
+        {
+            var full = Path.GetFullPath(Path.Combine(context.Roots.TargetRoot, relative.Replace('/', Path.DirectorySeparatorChar)));
+            if (!IsUnder(full, context.Roots.TargetRoot))
+                throw new StageException(11, "unsafe-path", $"Workspace evidence file escapes TargetRoot: {relative}");
+            EnsureNoLinks(context.Roots.TargetRoot, full, "workspace evidence file");
+            var info = new FileInfo(full);
+            if (info.Length > configuration.MaximumFileBytes)
+                throw new StageException(15, "prerequisite-missing", $"Workspace evidence file exceeds maximumFileBytes ({configuration.MaximumFileBytes}): {relative}");
+            byte[] bytes;
+            try { bytes = File.ReadAllBytes(full); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            { throw new StageException(15, "prerequisite-missing", $"Workspace evidence read failed for {relative}: {ex.Message}"); }
+            string text;
+            try { text = new UTF8Encoding(false, true).GetString(bytes); }
+            catch (DecoderFallbackException) { throw new StageException(15, "prerequisite-missing", $"Workspace evidence file is not valid UTF-8: {relative}"); }
+            if (text.Length > 0 && text[0] == '\ufeff') text = text[1..];
+            var normalized = text.ReplaceLineEndings("\n");
+            entries.Add(new WorkspaceEvidenceEntry(relative, Path.GetExtension(relative).ToLowerInvariant(), bytes.LongLength,
+                HashBytes(bytes), HashText(normalized), text));
+        }
+
+        var targetCommit = ResolveTargetCommit(context.Roots.TargetRoot);
+        var treeSha256 = HashText(string.Join("\n", entries.Select(item => $"{item.Path}|{item.Sha256}")));
+        watch.Stop();
+        var document = new WorkspaceEvidenceDocument(1, "v4-workspace-evidence-v1", targetCommit,
+            configuration.RelativeRoots, configuration.Extensions.Select(item => item.ToLowerInvariant()).ToArray(),
+            configuration.ExcludedDirectoryNames, "ordinal", entries.Count, treeSha256, started, DateTimeOffset.UtcNow,
+            Math.Round(watch.Elapsed.TotalSeconds, 3), entries);
+        var content = JsonSerializer.Serialize(document, JsonOptions) + Environment.NewLine;
+        var relativePath = $"runs/{context.RunId}/workspace-evidence.json";
+        WriteEvidence(context, relativePath, content);
+        var path = Path.GetFullPath(Path.Combine(context.Roots.EvidenceRoot, "projects", context.ProjectId, relativePath));
+        return new WorkspaceEvidenceBinding(path, HashBytes(Encoding.UTF8.GetBytes(content)), targetCommit);
+    }
+
+    private static string ResolveWorkspaceRoot(string targetRoot, string relative)
+    {
+        if (string.IsNullOrWhiteSpace(relative) || Path.IsPathRooted(relative))
+            throw new StageException(11, "unsafe-path", "Workspace evidence roots must be relative.");
+        var full = Path.GetFullPath(Path.Combine(targetRoot, relative));
+        if (!IsUnder(full, targetRoot) || !Directory.Exists(full))
+            throw new StageException(15, "prerequisite-missing", $"Workspace evidence root is missing or escapes TargetRoot: {relative}");
+        EnsureNoLinks(targetRoot, full, "workspace evidence root");
+        return full;
+    }
+
+    private static string ResolveTargetCommit(string targetRoot)
+    {
+        var executable = FindExecutable("git") ?? throw new StageException(15, "prerequisite-missing", "Git is required for workspace evidence.");
+        var start = new ProcessStartInfo(executable)
+        {
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true
+        };
+        start.ArgumentList.Add("-C");
+        start.ArgumentList.Add(targetRoot);
+        start.ArgumentList.Add("rev-parse");
+        start.ArgumentList.Add("HEAD");
+        var result = RunProcess(start, 30, "workspace evidence target commit");
+        var commit = result.Output.Trim();
+        if (result.ExitCode != 0 || commit.Length != 40 || !commit.All(character => character is >= '0' and <= '9' or >= 'a' and <= 'f'))
+            throw new StageException(15, "prerequisite-missing", "Workspace evidence target commit is unavailable.");
+        return commit;
+    }
+
     private static string ResolveFileUnder(string root, string relative, string label)
     {
         if (string.IsNullOrWhiteSpace(relative) || Path.IsPathRooted(relative))
@@ -498,10 +631,18 @@ internal static class StageRuntime
             new ProfileResult(context.Profile.Id, context.Profile.Version, context.Profile.Sha256!), context.Roots,
             hashes, modules, findings, coverage);
 
-    private static StageResult ErrorResult(StageContext context, string category, string message) =>
-        Result(context, "error", category, context.AttemptedStages.Count == 0 ? [context.Stage] : [.. context.AttemptedStages],
-            new Dictionary<string, string>(StringComparer.Ordinal) { ["package"] = context.Package.PackageHash, ["profile"] = context.Profile.Sha256! },
-            [], [new Finding("V4.RUNTIME", message, "runtime", "v4-host", "blocking")], []);
+    private static StageResult ErrorResult(StageContext context, string category, string message)
+    {
+        var authorityHashes = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["package"] = context.Package.PackageHash,
+            ["profile"] = context.Profile.Sha256!
+        };
+        if (context.WorkspaceEvidence is not null)
+            authorityHashes["workspaceEvidence"] = context.WorkspaceEvidence.Sha256;
+        return Result(context, "error", category, context.AttemptedStages.Count == 0 ? [context.Stage] : [.. context.AttemptedStages],
+            authorityHashes, [], [new Finding("V4.RUNTIME", message, "runtime", "v4-host", "blocking")], []);
+    }
 
     private static void WriteConsole(StageResult result, bool success)
     {
@@ -516,7 +657,9 @@ internal static class StageRuntime
         "findings-blocking" => 16, "state-conflict" => 17, "reset-refused" => 18, _ => 19
     };
 
-    private static string HashFile(string path) => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
+    private static string HashFile(string path) => HashBytes(File.ReadAllBytes(path));
+    private static string HashBytes(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
+    private static string HashText(string value) => HashBytes(Encoding.UTF8.GetBytes(value));
     private static bool IsHash(string? value) => value is { Length: 64 } && value.All(character => character is >= '0' and <= '9' or >= 'a' and <= 'f');
     private static bool Overlaps(string left, string right) => IsUnder(left, right) || IsUnder(right, left);
     private static bool IsUnder(string path, string root)
@@ -538,13 +681,20 @@ internal static class StageRuntime
     }
 
     private sealed record StageOptions(string Stage, string PackageRoot, string TargetRoot, string StateRoot, string EvidenceRoot, string Profile, bool WithDependencies);
-    private sealed record StageContext(string RunId, string Stage, string[] ExecutionStages, List<string> AttemptedStages, string ProjectId, StageRoots Roots, PackageValidation Package, ProfileDocument Profile);
+    private sealed record StageContext(string RunId, string Stage, string[] ExecutionStages, List<string> AttemptedStages, string ProjectId, StageRoots Roots, PackageValidation Package, ProfileDocument Profile, WorkspaceEvidenceBinding? WorkspaceEvidence);
     private sealed record ProcessResult(int ExitCode, string Output, string Error);
     private sealed record PackageValidation(int FormatVersion, string? Status, string PackageHash, string[]? Profiles, string[]? Modules);
-    private sealed record ProfileDocument(int FormatVersion, string Id, string Version, ProjectIdentityDocument? ProjectIdentity, ModuleSelection[]? ModuleSelections,
+    private sealed record ProfileDocument(int FormatVersion, string Id, string Version, ProjectIdentityDocument? ProjectIdentity, WorkspaceEvidenceConfiguration? WorkspaceEvidence, ModuleSelection[]? ModuleSelections,
         Dictionary<string, StageConfiguration>? StageConfiguration, string[]? Rules, string[]? BaselineRefs,
         string? Sha256 = null, string? ProfileDirectory = null);
     private sealed record ProjectIdentityDocument(string Id, string[]? RelativeRoots);
+    private sealed record WorkspaceEvidenceConfiguration(string[]? RelativeRoots, string[]? Extensions, string[]? ExcludedDirectoryNames,
+        int MaximumFiles, long MaximumFileBytes);
+    private sealed record WorkspaceEvidenceBinding(string Path, string Sha256, string TargetCommit);
+    private sealed record WorkspaceEvidenceDocument(int FormatVersion, string Scope, string TargetCommit, string[] RelativeRoots,
+        string[] Extensions, string[] ExcludedDirectoryNames, string PathOrder, int FileCount, string TreeSha256,
+        DateTimeOffset StartedAt, DateTimeOffset CompletedAt, double ElapsedSeconds, List<WorkspaceEvidenceEntry> Files);
+    private sealed record WorkspaceEvidenceEntry(string Path, string Extension, long Length, string Sha256, string NormalizedSha256, string Text);
     private sealed record ModuleSelection(string Id, JsonElement Config);
     private sealed record StageConfiguration(bool Enabled, string[]? Modules);
     private sealed record RegistryDocument(int FormatVersion, RegistryEntry[]? Modules);
@@ -554,7 +704,7 @@ internal static class StageRuntime
     private sealed record AdapterDocument(string? Kind, string? Path, string? Sha256);
     private sealed record PrerequisiteDocument(string? Runtime, string? VersionRange);
     private sealed record AuthorityDocument(string? Id, string? Path, string? Sha256);
-    private sealed record CapabilityDocument(string[]? Processes, bool Network, int TimeoutSeconds);
+    private sealed record CapabilityDocument(string[]? ReadRoots, string[]? Processes, bool Network, int TimeoutSeconds);
     private sealed record AdapterResult(int FormatVersion, string? Status, string? ExitCategory, string? Message, JsonElement Findings, Coverage[]? Coverage);
     private sealed record RuleExecutionPlan(int FormatVersion, string? ModuleId, string? MatrixSha256, RulePlanEntry[]? Rules);
     private sealed record RulePlanEntry(string? RuleId, string? ClaimId, string? Stage, string[]? Detectors,

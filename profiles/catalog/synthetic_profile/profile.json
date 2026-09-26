@@ -3,8 +3,15 @@
   "id": "synthetic_profile",
   "version": "1.0.0",
   "projectIdentity": { "id": "synthetic", "relativeRoots": ["."] },
+  "workspaceEvidence": {
+    "relativeRoots": ["."],
+    "extensions": [".txt", ".cs", ".csproj"],
+    "excludedDirectoryNames": ["bin", "obj", ".git", "artifacts"],
+    "maximumFiles": 1000,
+    "maximumFileBytes": 1048576
+  },
   "moduleSelections": [
-    { "id": "synthetic-probe", "versionRange": ">=1.0.0 <2.0.0", "config": {} },
+    { "id": "synthetic-probe", "versionRange": ">=1.0.0 <2.0.0", "config": { "expectWorkspaceEvidence": true } },
     {
       "id": "build-evidence-provider",
       "versionRange": ">=1.0.0 <2.0.0",

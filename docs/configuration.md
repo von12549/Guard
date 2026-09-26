@@ -27,6 +27,7 @@ Generated from package schemas and module manifests. Do not edit by hand.
 | `rules` | yes | array |
 | `stageConfiguration` | yes | object |
 | `version` | yes | string |
+| `workspaceEvidence` | no | object |
 
 ## `module`
 

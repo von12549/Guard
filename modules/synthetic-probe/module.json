@@ -7,14 +7,14 @@
   "adapter": {
     "kind": "powershell",
     "path": "modules/synthetic-probe/adapter.ps1",
-    "sha256": "99d055132e374a6137767bea19bcb09956a561031f6617a62b85e652231089db"
+    "sha256": "25732fae7462622eef6673b823ad4084c6fc7e16c15b00c28eb1d8b886152c54"
   },
   "prerequisites": [
     { "runtime": "pwsh", "versionRange": ">=7.4" }
   ],
   "stages": ["bootstrap", "analysis", "pre", "post"],
   "capabilities": {
-    "readRoots": ["TargetRoot"],
+    "readRoots": ["TargetRoot", "EvidenceRoot"],
     "writeRoots": [],
     "processes": ["pwsh"],
     "network": false,
