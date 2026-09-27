@@ -3,7 +3,7 @@
   "apiVersion": "1.0",
   "files": [
     { "path": "core/contracts/capability-matrix.schema.json", "sha256": "d5c9e5d5b4d48431fca890f6e13d3cd6efe1a0ea4bdcca67f73543ffbed7e71e" },
-    { "path": "core/contracts/ci-artifact-manifest.schema.json", "sha256": "0b46c8d2307dee75163d24befd9b35ba493c87695ecf1bd6ae722d303c24de13" },
+    { "path": "core/contracts/ci-artifact-manifest.schema.json", "sha256": "e6f17458dc5704c0bcf2201443c9995cd446f322927257292f377ff364f20c69" },
     { "path": "core/contracts/ci-contract.schema.json", "sha256": "c6f40b8add796076ebcc9f9146d0f7e87a678f90fe9040b7ffefda74de28d2bb" },
     { "path": "core/contracts/cli-contract.json", "sha256": "083cc8d1e246c0db17f3b37791d292c1c202e869425b3299ccf90715bf4723e5" },
     { "path": "core/contracts/cli-contract.schema.json", "sha256": "2686085e2af99f3c9edb5403f5ca2c73a13e50ddf942c91cc99c31092cdb50a6" },
@@ -38,6 +38,7 @@
     { "path": "core/contracts/runtime-requirements.schema.json", "sha256": "9af23fe5469cc2ec73b4e65992d83a5e637b7cbf291b7ede685b79154f2ba4b7" },
     { "path": "core/contracts/stage-result.schema.json", "sha256": "6f2df2a330dd19fd39636f3adbe4c076974435694bb13eab7b62a7a445815e3b" },
     { "path": "core/contracts/state.schema.json", "sha256": "0ec1c8f29c266c7b38f4ca49b1b57c4143266563164bbb497362fddf9dfc9dc9" },
+    { "path": "core/contracts/trust-change-authorization.schema.json", "sha256": "c070bb4987b7cfbddfcceaa124223a7430cced28eec508716a4c04cc4e459867" },
     { "path": "core/contracts/v1-certification.schema.json", "sha256": "d42f4187d6f4e128d7684538eff996f1161c3936a4189f705860557fe9b44ac3" },
     { "path": "core/contracts/workspace-evidence.schema.json", "sha256": "bbed8f4019aea8400391ea4c21bb78ae537664ef3c3e5f8b06146c1fe5f892a8" }
   ]

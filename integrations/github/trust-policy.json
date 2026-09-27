@@ -1,0 +1,24 @@
+{
+  "formatVersion": 1,
+  "authorizationDirectory": "docs/plans/authorizations",
+  "authorizationSchema": "core/contracts/trust-change-authorization.schema.json",
+  "verdictComponents": [
+    "integrations/github/Invoke-V4TrustedBase.ps1",
+    "integrations/github/Get-V4WindowsSelection.ps1",
+    "integrations/github/Test-V4Required.ps1",
+    "integrations/github/ci-contract.json",
+    "integrations/github/trust-policy.json",
+    "integrations/github/proposed-v4-guards.yml",
+    "integrations/git/Invoke-V4PlanDiff.ps1",
+    "core/contracts/ci-contract.schema.json",
+    "core/contracts/ci-artifact-manifest.schema.json",
+    "core/contracts/trust-change-authorization.schema.json",
+    "core/contracts/plan.schema.json",
+    "core/contracts/plan-set.schema.json"
+  ],
+  "certificationComponents": [
+    "core/certification/**",
+    "core/runtime/Test-V4Package.ps1"
+  ],
+  "protectApprovedTests": true
+}

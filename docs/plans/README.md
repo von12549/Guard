@@ -9,6 +9,7 @@ from package authority, so nothing here ships in a release archive.
 | `docs/plans/<id>.md` + `<id>.plan.json` | New Guard formal Plan pairs (V4 native Plan format, `core/contracts/plan.schema.json`) | Maintained |
 | [`product/`](product/README.md) | Maintained product decisions, roadmap, runtime architecture, provenance and deferred backlog | Maintained |
 | [`history/`](history/README.md) | Byte-exact copies of the generic V4 formal Plans from the IFX incubation period | Read-only history |
+| `authorizations/` | Single-use trust-change authorization records (`core/contracts/trust-change-authorization.schema.json`), added only by an `authorization` Plan and deleted by the consuming `trust-change` diff | Transient |
 | [`migration/`](migration/) | V4-TODO-008 standalone extraction program: master Plan, handoff and execution checklist | Program record |
 
 IFX adoption material stays in the IFX repository (`von12549/IFX`) and is not maintained here. That

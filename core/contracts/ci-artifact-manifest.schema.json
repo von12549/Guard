@@ -23,6 +23,19 @@
         "secretEnvironmentNames": { "type": "array", "maxItems": 0 }
       }
     },
+    "verdictComponents": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": { "$ref": "#/definitions/relativePath" },
+          "sha256": { "$ref": "#/definitions/sha256" }
+        }
+      }
+    },
     "linuxTests": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/definitions/relativePath" } },
     "files": {
       "type": "array",

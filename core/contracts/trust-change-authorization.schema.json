@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/trust-change-authorization.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "id", "planId", "reason", "entries", "acceptedBy"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[0-9]{8}-[a-z0-9-]+$" },
+    "planId": { "type": "string", "pattern": "^[0-9]{8}-[a-z0-9-]+$" },
+    "reason": { "type": "string", "minLength": 1 },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "baseSha256", "headSha256"],
+        "properties": {
+          "path": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.{1,2}(?:/|$)|.*\\\\).+$" },
+          "baseSha256": { "oneOf": [{ "$ref": "#/definitions/sha256" }, { "type": "null" }] },
+          "headSha256": { "oneOf": [{ "$ref": "#/definitions/sha256" }, { "type": "null" }] }
+        }
+      }
+    },
+    "acceptedBy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "authority", "candidateHostVerdictAllowed"],
+      "properties": {
+        "kind": { "const": "human-review" },
+        "authority": { "type": "string", "minLength": 1 },
+        "candidateHostVerdictAllowed": { "const": false }
+      }
+    }
+  },
+  "definitions": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

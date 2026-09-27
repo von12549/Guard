@@ -21,7 +21,7 @@
     "tests/p9/**"
   ],
   "approvedTests": [
-    { "path": "tests/p0/Test-V4Contracts.ps1", "sha256": "2124257c0abaf47d5f91e3771c96bea40f1b3e7951350433ba7b05ce07732286", "linux": true, "windowsSmoke": true, "windowsFull": true },
+    { "path": "tests/p0/Test-V4Contracts.ps1", "sha256": "102facc4d07940c691ca1f79cf0c0c35b991db8f2808e271c16b7db63f312330", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "tests/p0/Test-V4GenesisProposal.ps1", "sha256": "6350f8027a21adc6b6e8a7f138c5069aab577ab0050131ccea0323cb7fa6c8b4", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p0/Test-V4HostSpike.ps1", "sha256": "2da49d7dd99e4be783ddfacfdd7b45126e2d0d67103c59d254de6cb544a1733d", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p1/Test-V4Package.ps1", "sha256": "60aad8f109388d100008e6f782e80ab65e870da67c77ffa571fcf70a4ebfc7e2", "linux": true, "windowsSmoke": true, "windowsFull": true },
@@ -40,21 +40,21 @@
     { "path": "tests/p5/Test-V4PlanDiff.ps1", "sha256": "476bfaea9498338d29d380ef487a7a7dd1938998ca9348a09086494f4b0aba5a", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p5/Test-V4PlanRuntime.ps1", "sha256": "f732534a912c5dde5767a5b4446a6e09b994ef124fb32b81963c89c708bde0b0", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "tests/p6/Test-V4ChangeClassifier.ps1", "sha256": "03bc7f59df52825a6853264458ec9a49b5421ba3f2303b87ae7690e3b0a9d8d0", "linux": true, "windowsSmoke": true, "windowsFull": true },
-    { "path": "tests/p6/Test-V4TrustedBase.ps1", "sha256": "4d2a5ed73ac0d07d369b80ea674c17261bfe45c7b052ddb558c305738fb8848e", "linux": false, "windowsSmoke": false, "windowsFull": true },
+    { "path": "tests/p6/Test-V4TrustedBase.ps1", "sha256": "960a5cbfb7af9dcb437bef88432af360af01c5bb41cb71c28324544ec2322990", "linux": false, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p6/Test-V4WorkflowContract.ps1", "sha256": "f7d682ac2a58f1f407ead0a72904327f30aac06f91c906a4aa71e1e026e33d8e", "linux": true, "windowsSmoke": true, "windowsFull": true },
-    { "path": "tests/p7/Test-V4Distribution.ps1", "sha256": "ffb1327b0e33e977a3ca6ddac640ee94e10b2b6af60bf21163d0dd56299abb4b", "linux": true, "windowsSmoke": true, "windowsFull": true },
+    { "path": "tests/p7/Test-V4Distribution.ps1", "sha256": "861ce79ab94024a23aa5a557cd0215a58d02fdbe25b345373638eba226f79469", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "tests/p7/Test-V4Documentation.ps1", "sha256": "bcd7d2ae66f8df3dc22093194412a351e00fc16eb3ba6fb61cf70851e2999014", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p7/Test-V4Lifecycle.ps1", "sha256": "aae3119ced801f7b4e2347ed64abd65c0fce189391eee78413fd82bb8e75956b", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "tests/p8/Test-V4CompatibilityBaseline.ps1", "sha256": "db05553cc2e4ca703d6c8be4315c210d33f771f74ead0b34ee160518692ee847", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "tests/p8/Test-V4SupplyChain.ps1", "sha256": "dd7de895c8327b04cf5db3acb3f6684e227ef9af328bc29f1a7455f13c14a644", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "tests/p8/Test-V4V1Acceptance.ps1", "sha256": "7568f1b1267b18f0a9c1d5f3ad41b96a1db166122726810acab023a03d250608", "linux": true, "windowsSmoke": true, "windowsFull": true },
-    { "path": "tests/p8/Test-V4StableCli.ps1", "sha256": "8e201aa68669ca963d974747a2b53b213ff4196a5c63e431ac422a874f60000d", "linux": true, "windowsSmoke": true, "windowsFull": true },
+    { "path": "tests/p8/Test-V4StableCli.ps1", "sha256": "2aa239d0d39b8da59afd225fdd5fc9c07e742405bcc137f3395dc8c8a8f1778a", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "tests/p9/Test-V4EvidencePlanCenter.ps1", "sha256": "97ea8d1c8c9d7052a6db67640089d4feaf6a13f03f0772f14bd294dce991fbd6", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p9/Test-V4OfflineWebDistribution.ps1", "sha256": "bb8de79f9ab371a438818175083cf70bf77cfbc2ac907c921f5ba66b67dc8ecb", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "tests/p9/Test-V4QueryContracts.ps1", "sha256": "b4f8a1d2ef78c462b33e4bda3545eb156210127c78c9a6b7d2a79c07d8c81218", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p9/Test-V4WebCompanionSpike.ps1", "sha256": "c80cfea180c53926c70abb92b3e28561a4b06936ecd69fd92c23c2cc20f49435", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p9/Test-V4WorkspaceStageRunner.ps1", "sha256": "e96bfc4f9715e5b0ee882b5c9fb9da5d7b7850800e396b1f9687ce7040abf62f", "linux": true, "windowsSmoke": false, "windowsFull": true },
-    { "path": "tests/p10/Test-V4ExtensionComposition.ps1", "sha256": "229a9b129dd906bb43a31c01745ad9ecb5f28701bf54567eea8f94776e08d717", "linux": true, "windowsSmoke": false, "windowsFull": true }
+    { "path": "tests/p10/Test-V4ExtensionComposition.ps1", "sha256": "b99f85ec58edcb058bbeb421f7eff29c89593fb2f99518ed65442a4d7516c334", "linux": true, "windowsSmoke": false, "windowsFull": true }
   ],
   "artifact": { "name": "v4-ci-artifact", "manifestPath": "manifest.json", "packagePath": "package", "hostPath": "host/v4-guards.dll" },
   "excludedSuites": ["ifx-solution", "ifx-frontend", "ifx-database", "v3-package-candidate"]
