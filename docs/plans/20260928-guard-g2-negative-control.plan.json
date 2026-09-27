@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-guard-g2-negative-control",
+  "title": "Negative control for the Guard V4 trusted-base workflow",
+  "goal": "Prove the active base-owned runner rejects an under-declared Plan and an unapproved test edit.",
+  "acceptanceCriteria": ["v4-contract and v4-required fail; the PR is closed without merge."],
+  "plannedPaths": [
+    "docs/plans/20260928-guard-g2-negative-control.md",
+    "docs/plans/20260928-guard-g2-negative-control.plan.json"
+  ],
+  "areas": ["GuardDocs"],
+  "risks": [],
+  "decisions": ["Never merge this change."],
+  "validationCommands": ["v4-contract"],
+  "dependencies": [],
+  "boundaries": []
+}

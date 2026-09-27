@@ -179,3 +179,5 @@ foreach ($entry in $manifest.files) {
 
 if ($failures.Count -gt 0) { throw ($failures -join "`n") }
 Write-Host "V4 P0B contract tests passed: $($schemaNames.Count) schemas, $($cli.commands.Count) stable CLI entries, $($query.commands.Count) experimental read queries, $($manifest.files.Count) bound contracts."
+
+# negative-control weakening (must be rejected)
