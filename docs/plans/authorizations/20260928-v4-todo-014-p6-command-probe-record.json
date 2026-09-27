@@ -1,0 +1,23 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-v4-todo-014-p6-command-probe-record",
+  "planId": "20260928-v4-todo-014-p6-command-probe",
+  "reason": "Add a P6 regression control for the PATHEXT defect fixed in PR #12: the synthetic P6 base gains an approved probe test that resolves git inside the runner's isolated child environment, run by both the Linux producer and Windows smoke. The CI contract rebinds only the P6 hash.",
+  "entries": [
+    {
+      "path": "integrations/github/ci-contract.json",
+      "baseSha256": "6d390ecc624d499aec669580af38f62c11d70683f134360948244c27e27d03d2",
+      "headSha256": "d2b0b0816eeb5f1173ed6d2e954a6fa2d74921da18b17260141cebf4c7af7c24"
+    },
+    {
+      "path": "tests/p6/Test-V4TrustedBase.ps1",
+      "baseSha256": "960a5cbfb7af9dcb437bef88432af360af01c5bb41cb71c28324544ec2322990",
+      "headSha256": "0df49baf8ff165de9f54a713d5340347ca1b4aa508ab572827a7ce5a2f7052d2"
+    }
+  ],
+  "acceptedBy": {
+    "kind": "human-review",
+    "authority": "operator (von12549) — V4-TODO-014 B2 fix step 4 (P6 regression control) approved 2026-09-28",
+    "candidateHostVerdictAllowed": false
+  }
+}
