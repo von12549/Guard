@@ -106,6 +106,15 @@ A2 execution:
 
 Evidence: `T1-A2-reconciliation/20260927T101043Z` (`SHA256SUMS` `cec17c9b…`).
 
+## 2b. Amendment A3 — Guard genesis seed (2026-09-28)
+
+Guard `main` holds no V4 runner, and the IFX runner cannot judge the Guard layout, so no previously
+trusted V4 base exists for the migration PR. Following the IFX genesis precedent (V4-AD-035), the
+migration PR is a genesis seed. The operator accepts it on the recorded evidence: T5, structured and
+binary equivalence, and GitHub-hosted exact-commit Linux-complete plus Windows-full certification.
+Trusted-base CI verdicts apply from the first post-seed change. The governing Plan is
+`docs/plans/20260928-v4-todo-008-t6-guard-genesis.md`.
+
 ## 3. Bound identities (effective after A2; A1 values 640c5756… / 418a1933… / 174 / 48)
 
 ```text
@@ -181,9 +190,9 @@ Claude Code never pauses, kills or reconfigures OneDrive. It only records proces
 | A-LOCAL | T0–T5 local work: evidence root, disposable clones, local Guard branch and commits | **Authorized 2026-09-27** ("授权执行T0–T5本地部分") |
 | A-IFX-AMEND | Local IFX commit recording A1 outside `docs/guards/v4` (O2) | **Authorized 2026-09-27** ("O2：在IFX做一个本地修订提交"); done `286e453d` |
 | A-TOOL | Install a secret scanner (O3) | **Authorized 2026-09-27** ("O3：批准安装"); done, gitleaks 8.30.1 |
-| A-PUSH | Push `codex/v4-todo-008-standalone` to `von12549/Guard` | Not authorized |
-| A-PR | Open/update the Guard migration pull request | Not authorized |
-| A-CI | Add the minimal trusted-base Guard workflow through its own Plan | Not authorized |
+| A-PUSH | Push `codex/v4-todo-008-standalone` to `von12549/Guard` | **Authorized 2026-09-28** (T6 Plan `20260928-v4-todo-008-t6-guard-genesis`, "Approve; do T6.1–T6.4") |
+| A-PR | Open/update the Guard migration pull request | **Authorized 2026-09-28** (T6.2) |
+| A-CI | Add the minimal trusted-base Guard workflow through its own Plan | A-CI-1 (dispatch-only certification workflow committed directly on `main`, plus its dispatch at the PR head) **authorized 2026-09-28** (T6.3/T6.4). A-CI-2 (trusted-base PR workflow activation, T6.6) is not authorized |
 | A-MERGE | Merge the Guard PR / update Guard `main` | Not authorized |
 | A-RELEASE | Create a tag/release/asset for the new standalone version | Not authorized |
 | A-IFX-REBIND | T7 IFX consumer rebinding commits | Not authorized |
