@@ -5,8 +5,11 @@ independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.1.4
 opt-in reusable Host workspace evidence; earlier releases remain immutable.
 The stable V4 1.0 command API and local, non-authoritative Web Companion are preserved.
 
-V4 is developed inside this repository, but it does not depend on V3/V3_ifx at runtime. The active IFX
-guard remains V3/V3_ifx until a separately reviewed parity, cutover and rollback program completes.
+V4 Guards is developed in this standalone repository (`von12549/Guard`). It was incubated in the IFX
+repository, and its complete history was carried over; see the
+[migration records](docs/migration/v4-todo-008/README.md). The product has no runtime dependency on
+any consumer repository or on the earlier V3/V3_ifx guards. Consumer adoption, such as IFX's Profile
+and cutover program, is owned and tracked by that consumer.
 
 ## Runtime model
 
@@ -58,7 +61,7 @@ Version `1.1.1` adds explicit offline Profile/module bundle composition.
 It verifies an installed base and separate review record, creates a new sibling installation
 with an external composition receipt, and gates Web Companion launch on receipt verification.
 Synthetic tests do not approve a real bundle. It does not modify 1.1.0 or authorize IFX use. See the
-[compatibility Plan](plans/08-p10-1-extension-composition-compatibility.md).
+[1.1.1 release notes](docs/1.1.1-release-notes.md).
 
 Version `1.1.2` additionally passes declared Profile relative roots to
 Architecture Conformance and restricts project/source scanning to their validated union.
@@ -138,23 +141,28 @@ pwsh -NoProfile -File tests/p8/Test-V4SupplyChain.ps1
 
 Release certification requires the exact hash-approved Linux-complete and Windows-full suites against
 one clean commit and package hash. Generated documentation is checked rather than silently rewritten.
-Changes require an exact formal Plan; mutable output belongs under the repository `artifacts/` tree,
-never below immutable package authorities.
+Changes require an exact formal Plan (`docs/plans/<id>.plan.json`). In this repository, PackageRoot
+is the repository root. Tests therefore write mutable output to a work root outside the checkout
+(`<TEMP>/v4-guards-work/...`), never below immutable package authorities.
 
 ## Documentation map
 
-- [Architecture decisions](plans/00-architecture-decision-set.md)
-- [Implementation roadmap](plans/01-v4-self-contained-guard-plugin.md)
-- [Runtime architecture](plans/02-runtime-architecture.md)
-- [Deferred work](plans/TODO.md)
+- [Plans and repository governance](docs/plans/README.md)
+- [Architecture decisions](docs/plans/product/00-architecture-decision-set.md)
+- [Implementation roadmap](docs/plans/product/01-v4-self-contained-guard-plugin.md)
+- [Runtime architecture](docs/plans/product/02-runtime-architecture.md)
+- [Deferred work](docs/plans/product/TODO.md)
 - [Command reference](docs/commands.md)
 - [Configuration reference](docs/configuration.md)
 - [Query contracts](docs/queries.md)
 - [Web Companion guide](integrations/web/README.md)
-- [V4-P9 gate audit](plans/05-p9-gate-audit.md)
+- [V4-P9 gate audit](docs/plans/product/05-p9-gate-audit.md)
+- [Standalone migration records](docs/migration/v4-todo-008/README.md)
 
 ## Versioning and support
 
-V4 uses semantic product versions. The `1.1.x` line is the baseline for the planned IFX Profile
-practice and parity program; defects found by that program are fixed in this source package first and
-released as `1.1.x` patches. Profile testing does not itself activate V4 for IFX.
+V4 uses semantic product versions. Releases `1.0.0` through `1.1.4` were published from the IFX
+incubation repository, and they remain immutable at their original IFX release URLs. The first release
+published from this repository uses a new, unused version. Defects found by consumers, including IFX's
+Profile practice and parity program, are fixed in this repository and released as new versions.
+Consumer testing does not itself activate V4 in any consumer.

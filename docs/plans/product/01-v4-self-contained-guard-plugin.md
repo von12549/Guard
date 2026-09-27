@@ -1,8 +1,9 @@
 # V4 v1 — self-contained guard plugin
 
-Status: `V1.1 RELEASED — P10.1/P10.2 and P10.3 design accepted; P10.GATE and remote activation not authorized`
+Status: `V1.1 RELEASED (1.1.4) — standalone repository extraction in progress (V4-TODO-008); consumer adoption tracked by consumers`
 
-Development base: `codex/v4-development-base`
+Development base: this repository (`von12549/Guard`). The IFX incubation base was
+`codex/v4-development-base` in `von12549/IFX` (historical).
 
 Decision authority: `00-architecture-decision-set.md`
 Deferred scope: `TODO.md`
@@ -314,35 +315,14 @@ The exact publication evidence is recorded by `20260923-v4-v1-1-release-publicat
 is the fixed initial baseline for the separately planned V4-TODO-001/002/003 IFX Profile validation
 program. This publication does not activate a workflow/ruleset or authorize IFX cutover.
 
-### V4-P10 — IFX Profile validation program
+### V4-P10 — IFX Profile validation program (consumer-owned)
 
-- [x] **V4-P10.0** Install and verify the immutable V4 1.1.0 release below the sibling
-  `D:\IFX-Root\guard-runtime` container with external StateRoot/EvidenceRoot and read-only
-  `D:\IFX-Root\IFX` TargetRoot; pass the installed Web UI hands-on acceptance on IFX read-only and
-  clean/violating synthetic Targets before P10.1. The exact receipted installation was
-  already present and was verified rather than reinstalled. Operator evidence:
-  `07-p10-0-baseline-acceptance.md`.
-- [x] **V4-P10.1** Practice `ifx_profile` and its declared IFX extension modules through the public
-  V4 composition contract, then repeat the installed Web UI exercise on fixed IFX clean/violating
-  cases. C6e-R1 accepted the exact V4 Guards 1.1.4 + IFX 0.4.2 composition and closed P10.1; decision:
-  `artifacts/guards/p10-ifx-114/c6e-r1-042/c6e-r1-decision.json`, SHA-256
-  `94a7c01bd991a7b4371f6d3406b43f58830bdb29740c477db7abdaf2bb0ece22`.
-- [x] **V4-P10.2** Run V3/V3_ifx and V4+`ifx_profile` parallel parity on one fixed IFX corpus with
-  clean, violation, missing-input and zero-match controls. P10.2-R2 accepted all 52 cases with zero
-  gaps and 15 explicit V4 fail-closed strengthenings; decision:
-  `artifacts/guards/p10-ifx-114/p10-2-r2-parity-042/p10-2-decision.json`, SHA-256
-  `7c5ff243ec452958ffbb08ced46ae6e1a8320f586b9fb71ef0d98f2931934516`.
-- [x] **V4-P10.3** After parity and Windows-full certification, produce the trusted-base cutover and
-  rollback proposal without applying remote changes. The design and local rehearsal were accepted by
-  `artifacts/guards/p10-ifx-114/p10-3-design-042/rehearsal/p10-3-decision.json`, SHA-256
-  `529e19b567c05619ec054117e2514c579a908a4e614355411fc28b6d52964964`; no workflow, ruleset,
-  required context, branch setting, activation or cutover was changed.
-- [ ] **V4-P10.GATE** Prove adoption readiness, immutable versioned installations, closed parity gaps
-  and rehearsed rollback; remote activation remains separately authorized.
-
-The detailed program and stop conditions are in `06-ifx-profile-validation-program.md`. Accepted
-P10.1/P10.2 evidence closes V4-TODO-001/002, and the accepted P10.3 design closes V4-TODO-003.
-P10.GATE remains open, and this update does not pull V4-TODO-004 retirement into scope.
+V4-P10 is the IFX consumer's adoption program. It is maintained in the IFX repository and is not a
+product checkpoint. When this repository was extracted on 2026-09-27, P10.0, P10.1, P10.2 (R2) and
+the P10.3 design had been accepted by IFX and P10.GATE was open. The P10.3 decision SHA-256 is
+`529e19b567c05619ec054117e2514c579a908a4e614355411fc28b6d52964964`. The product-side results of that
+program are the 1.1.1 extension composition, the 1.1.2 target-scope and 1.1.3/1.1.4 patch releases.
+The incubation-period checkpoint text remains in this repository's history.
 
 ## 6. PR and CI strategy
 
@@ -364,7 +344,8 @@ judged by the previously trusted V4 base and `v4-required`, not by V3 candidate 
 
 ## 7. Migration and non-interference
 
-Until a deferred IFX practice and cutover plan is approved:
+These constraints governed the IFX incubation period. They remain the product's non-interference
+commitments toward that consumer. Until a deferred IFX practice and cutover plan is approved:
 
 - no current command, required check, ruleset or workflow points to V4;
 - V3 participates only in the finite V4 genesis bootstrap described by V4-AD-035 and is not a V4

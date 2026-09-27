@@ -1,18 +1,15 @@
 # V4 runtime architecture
 
-Status: V4 v1 published; P10.1/P10.2 and P10.3 design accepted; P10.GATE and remote activation not authorized
+Status: V4 v1 published (1.1.4); consumer adoption status is maintained by each consumer
 
 Decision authority: `00-architecture-decision-set.md`
 
-## P10.1 local extension composition
+## Local extension composition
 
-The synthetic prototype described below became the published public composition boundary and was
-subsequently exercised by the reviewed IFX bundle. C6e-R1 accepted the exact V4 Guards 1.1.4 + IFX
-0.4.2 composed installation, and P10.2-R2 accepted the independent 52-case V3/V4 parity matrix with
-zero gaps. P10.3 then accepted the inactive trusted-base cutover topology and local rollback rehearsal
-recorded in `09-p10-3-cutover-and-rollback-proposal.md`. It retains the V3 Linux check as a temporary
-bridge. None of these records installs a live workflow, changes a ruleset, activates V4 or performs
-IFX cutover.
+The synthetic prototype described below became the published public composition boundary (1.1.1 and
+later). Consumers such as IFX use it to compose their reviewed bundles. The consumer's bundle
+acceptance, parity and cutover records are owned by that consumer. None of them installs a live
+workflow in this repository, changes a ruleset or activates V4.
 
 The Windows/offline Linux synthetic prototype composes a separately reviewed Profile/module bundle into a new
 sibling installation. Its external receipt binds the released base identity, bundle/review hashes,
@@ -20,9 +17,8 @@ composed Package hash and full installed-file inventory. A receipted launcher ve
 identity and the separate external base receipt before starting the unchanged installed Web Companion, which continues to call the
 standard Host and only projects Host results. The public 1.1.0 installation is read-only input,
 and a test-fixture review can create only a `synthetic-test-only` receipt. This paragraph records
-the historical 1.1.0 prototype boundary; its later certification, publication and P10.1 closure are
-recorded in `08-p10-1-extension-composition-compatibility.md` and
-`06-ifx-profile-validation-program.md`.
+the historical 1.1.0 prototype boundary; its later certification and publication are recorded in the
+1.1.1 and later release notes.
 
 This document is the maintained architecture view for V4 v1. It shows ownership and data flow; it
 does not grant authority to create the development branch, runtime, workflow or remote configuration.
@@ -287,18 +283,13 @@ Post-v1 IFX practice
       -> final LayerGuard freeze or authorized retirement
 ```
 
-Plan 06 section 20 closes only after the post-v1 IFX cutover and retirement boundary completes.
+The IFX-owned adoption program closes this path only after its cutover and retirement boundary
+completes.
 
-## IFX Profile validation installation topology
+## Consumer installation topology
 
-The V4-P10 program uses `D:\IFX-Root\IFX` as read-only TargetRoot and keeps exact released V4
-installations under the sibling `D:\IFX-Root\guard-runtime\releases\v4-guards-1.1.x`. Mutable
-StateRoot and EvidenceRoot are sibling directories below `guard-runtime`. `D:\IFX-Root` is only a
-container and is never a V4 TargetRoot, so the guard cannot evaluate its own installed sources as IFX
-target content.
-
-V4 1.1.0 resolves Profiles and modules only inside immutable PackageRoot and has no implemented
-external extension installer. The first P10 gate therefore preserves the pristine release and either
-uses a proven existing composition contract or stops for a separately planned and certified 1.1.x
-compatibility change. Editing an extracted release is never a valid adoption path. See
-`06-ifx-profile-validation-program.md` for the version ledger, parity matrix and cutover boundary.
+A consumer installs exact released V4 versions outside its own repository, with sibling StateRoot and
+EvidenceRoot directories, and passes its repository as a read-only TargetRoot. The package location
+never determines the Target (V4-AD-022). An extracted release is never edited, so adoption changes
+arrive only through the public composition contract or a new certified release. IFX's concrete
+topology is recorded by IFX.
