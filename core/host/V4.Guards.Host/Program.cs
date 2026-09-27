@@ -164,7 +164,7 @@ internal static class Program
 
         var capabilities = manifest.Capabilities;
         if (capabilities is null || capabilities.Network ||
-            !(capabilities.ReadRoots ?? []).SequenceEqual(new[] { "TargetRoot" }, StringComparer.Ordinal) ||
+            !(capabilities.ReadRoots ?? []).SequenceEqual(new[] { "TargetRoot", "EvidenceRoot" }, StringComparer.Ordinal) ||
             (capabilities.WriteRoots ?? []).Length != 0 ||
             !(capabilities.Processes ?? []).SequenceEqual(new[] { "pwsh" }, StringComparer.Ordinal))
             throw new SpikeException(ExitCode.CapabilityDenied, "capability-denied", "The module requests a capability outside the P0 spike grant.");
@@ -178,7 +178,14 @@ internal static class Program
             throw new SpikeException(ExitCode.IntegrityFailure, "integrity-failure", "Adapter SHA-256 does not match the module manifest.");
 
         var executable = FindPowerShell();
-        var input = JsonSerializer.Serialize(new { formatVersion = 1, stage = "analysis", targetRoot = roots.TargetRoot });
+        var input = JsonSerializer.Serialize(new
+        {
+            formatVersion = 1,
+            stage = "analysis",
+            targetRoot = roots.TargetRoot,
+            evidenceRoot = roots.EvidenceRoot,
+            config = new { }
+        });
         var start = new ProcessStartInfo(executable)
         {
             UseShellExecute = false,

@@ -7,7 +7,7 @@
   "adapter": {
     "kind": "powershell",
     "path": "modules/synthetic-probe/adapter.ps1",
-    "sha256": "25732fae7462622eef6673b823ad4084c6fc7e16c15b00c28eb1d8b886152c54"
+    "sha256": "8cc299c7f5bd1a20c4af808a064501d26f7bd93f94909d42bdc578edf062335b"
   },
   "prerequisites": [
     { "runtime": "pwsh", "versionRange": ">=7.4" }

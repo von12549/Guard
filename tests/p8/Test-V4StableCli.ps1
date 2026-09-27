@@ -42,7 +42,7 @@ try {
 
     $plugin = Get-Content -Raw (Join-Path $packageRoot 'plugin.json') | ConvertFrom-Json
     $version = Invoke-Host @('version')
-    Expect $version 0 'version' '"version"\s*:\s*"1\.1\.3"'
+    Expect $version 0 'version' '"version"\s*:\s*"1\.1\.4"'
     if ($version.Code -eq 0) {
         $versionResult = $version.Text | ConvertFrom-Json
         if ($versionResult.version -cne $plugin.version -or $versionResult.apiVersion -cne $plugin.apiVersion) {
@@ -71,13 +71,13 @@ try {
     foreach ($entry in Get-ChildItem (Join-Path $packageRoot 'modules') -Filter module.json -Recurse) {
         $module = Get-Content -Raw $entry.FullName | ConvertFrom-Json
         $expectedVersion = if ($module.id -ceq 'architecture-conformance') { '1.0.1' } else { '1.0.0' }
-        if ($module.version -cne $expectedVersion) { $failures.Add("$($module.id) component version is not $expectedVersion in V4 1.1.3.") }
+        if ($module.version -cne $expectedVersion) { $failures.Add("$($module.id) component version is not $expectedVersion in V4 1.1.4.") }
         if (@($module.supportedPlatforms) -contains 'osx-arm64') { $failures.Add("macOS remains declared by $($module.id).") }
         if ((@($module.supportedPlatforms | Sort-Object) -join ',') -cne 'linux-x64,win-x64') { $failures.Add("$($module.id) platform declaration is not the certified Linux/Windows set.") }
     }
 
     if ($failures.Count) { throw ($failures -join "`n") }
-    Write-Host 'V4 stable CLI tests passed: product version 1.1.3, API-compatible module versions, contract validation behavior, required-root syntax and Linux/Windows-only declarations.'
+    Write-Host 'V4 stable CLI tests passed: product version 1.1.4, API-compatible module versions, contract validation behavior, required-root syntax and Linux/Windows-only declarations.'
 }
 finally {
     if (Test-Path $runRoot) { Remove-Item -LiteralPath $runRoot -Recurse -Force }

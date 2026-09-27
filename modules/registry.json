@@ -28,7 +28,7 @@
     {
       "id": "synthetic-probe",
       "manifestPath": "modules/synthetic-probe/module.json",
-      "manifestSha256": "4115b6e37670741406785089def36fd1a28557faf644c406f697a4a55dad1d59",
+      "manifestSha256": "97d36d555a79d85743eab1c6e15d6d862e139a329f95048bf81463afc805e3c0",
       "allowedCapabilities": {
         "readRoots": ["TargetRoot", "EvidenceRoot"],
         "writeRoots": [],

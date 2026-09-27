@@ -90,7 +90,7 @@ function Test-ApprovedTests([string] $Repository, [string] $Property) {
 function New-IsolatedHead([string] $State) {
     $target = Join-Path $State 'target'
     if ([IO.Directory]::Exists($target)) { Fail "Isolated target already exists: $target" 17 }
-    $clone = Invoke-Isolated 'git' @('clone','--quiet','--no-local',$head,$target) $State 300
+    $clone = Invoke-Isolated 'git' @('-c','core.longpaths=true','clone','--quiet','--no-local',$head,$target) $State 300
     if ($clone.Code) { Fail "Isolated target clone failed: $($clone.Error)" }
     $checkout = Invoke-Isolated 'git' @('-C',$target,'checkout','--quiet','--detach',$HeadSha) $State 120
     if ($checkout.Code) { Fail "Isolated target checkout failed: $($checkout.Error)" }

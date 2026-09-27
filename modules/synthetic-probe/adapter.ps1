@@ -15,7 +15,8 @@ $targetRoot = [IO.Path]::GetFullPath([string]$inputData.targetRoot)
 $evidenceRoot = [IO.Path]::GetFullPath([string]$inputData.evidenceRoot)
 $requiredEvidenceFields = @('workspaceEvidencePath','workspaceEvidenceSha256','workspaceEvidenceTargetCommit')
 $presentEvidenceFields = @($requiredEvidenceFields | Where-Object { $inputData.PSObject.Properties.Name -contains $_ })
-$expectWorkspaceEvidence = $inputData.config.PSObject.Properties.Name -contains 'expectWorkspaceEvidence' -and [bool]$inputData.config.expectWorkspaceEvidence
+$configPropertyNames = @($inputData.config.PSObject.Properties | ForEach-Object { $_.Name })
+$expectWorkspaceEvidence = $configPropertyNames -contains 'expectWorkspaceEvidence' -and [bool]$inputData.config.expectWorkspaceEvidence
 $workspaceEvidence = $null
 if ($expectWorkspaceEvidence) {
     if ($presentEvidenceFields.Count -ne $requiredEvidenceFields.Count) { throw 'V4 Host workspace evidence binding is incomplete.' }
