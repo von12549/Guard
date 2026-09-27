@@ -99,10 +99,18 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   Revisit after v1 portability measurements. Evaluate .NET self-contained publishing and the cost of
   bundling or replacing PowerShell/Node dependencies across supported OS/architecture combinations.
 
-- [ ] **V4-TODO-008 — Standalone V4 repository**
+- [ ] **V4-TODO-008 — Standalone V4 repository — PROJECT STARTED**
 
   Revisit before the first external stable release. Extract V4 from the IFX incubation repository or
   record why a monorepo distribution remains preferable. Preserve provenance and deterministic history.
+
+  Formally started on 2026-09-27 under
+  `20260927-v4-todo-008-standalone-repository-extraction`. The existing clean public repository
+  `von12549/Guard` is feasible as the destination. The program preserves extracted Git history,
+  validates the standalone product, publishes only a new immutable version under separate authority,
+  rebinds IFX as a consumer and cleans duplicated IFX product source only after that consumer gate.
+  Claude Code is the requested executor. Project start does not authorize implementation, remote
+  writes, release publication, IFX protected deletion, V4 activation or V3 retirement.
 
 - [ ] **V4-TODO-009 — Profile/module marketplace and signatures**
 

@@ -30,7 +30,7 @@ Architecture view: [02-runtime-architecture.md](02-runtime-architecture.md)
 | V4-AD-016 | .NET CLI host plus PowerShell/.NET module adapters | ACCEPTED |
 | V4-AD-017 | Lightweight Web UI is a non-authoritative local surface over V4 public contracts | ACCEPTED |
 | V4-AD-018 | Fully bundled runtimes and zero-prerequisite distribution | DEFERRED |
-| V4-AD-019 | Standalone repository extraction before external stable release | DEFERRED |
+| V4-AD-019 | Standalone repository extraction before IFX activation and V3 retirement | ACCEPTED |
 | V4-AD-020 | V3/V3_ifx activation cutover and retirement | DEFERRED |
 | V4-AD-021 | Four-root execution contract | ACCEPTED |
 | V4-AD-022 | Package location never determines the target | ACCEPTED |
@@ -249,12 +249,28 @@ editing, target mutation, Reset Apply, Git/PR actions, remote activation, multi-
 terminals, remote access, automatic extension installation and IFX-specific behavior remain excluded.
 The exact exclusions and revisit boundaries are maintained in `TODO.md`.
 
+## V4-AD-019 — Standalone repository before IFX activation
+
+V4-TODO-008 is accepted as the next trust-boundary program after P10.3 design completion and before
+remote V4 activation or V3/V3_ifx retirement. The canonical product source will move from the IFX
+incubation subtree to `von12549/Guard` through a history-preserving, receipt-bound extraction.
+
+The move is not a bulk transfer of IFX authority. Generic V4 product source, tests, documentation and
+product Plans belong in Guard; IFX Profile/Bundle/review authority, P10 evidence, consumer integration,
+coexistence and rollback plans remain in IFX. Existing 1.1.0–1.1.4 releases remain immutable at their
+original authority. The first Guard-hosted release receives a new version and exact provenance.
+
+Repository extraction, remote Guard review, release publication, IFX consumer rebinding and protected
+IFX cleanup are separate authorization tranches. V4 activation, P10.GATE and V3 retirement are not
+authorized by the extraction program.
+
 ## Deferred decisions
 
-V4-AD-018 through V4-AD-020 remain excluded from v1 and tracked in `TODO.md`. Deferral is not implicit
+V4-AD-018 and V4-AD-020 remain excluded from v1 and tracked in `TODO.md`. Deferral is not implicit
 approval: each item requires its own decision update and Plan before implementation. V4-AD-017 is a
 post-v1 accepted boundary implemented through the completed, separately authorized V4-P9 checkpoints;
-the gate audit does not authorize any excluded follow-on capability.
+V4-AD-019 is governed by `20260927-v4-todo-008-standalone-repository-extraction`. Neither decision
+authorizes another excluded follow-on capability.
 
 ## V4-AD-021 — Four-root execution contract
 
@@ -329,7 +345,9 @@ cost. Co-location is a source-management choice, not an application dependency: 
 must not reference V4, and V4 must not depend on an IFX-relative location.
 
 Every release candidate must also run from outside the target against synthetic fixtures. Standalone
-repository extraction remains deferred, but the runtime and package contracts must not block it.
+repository extraction is now accepted under
+`20260927-v4-todo-008-standalone-repository-extraction`; the runtime and package contracts must remain
+location-independent throughout the move.
 
 ## V4-AD-028 — Immutable package versus mutable V4 data
 

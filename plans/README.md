@@ -17,6 +17,7 @@ Current documents:
 | [07-p10-0-baseline-acceptance.md](07-p10-0-baseline-acceptance.md) | Released 1.1.0 baseline and installed Web UI operator evidence | Local P10.0 pass |
 | [08-p10-1-extension-composition-compatibility.md](08-p10-1-extension-composition-compatibility.md) | Separate P10.1 entry-gap repair design and gates | Completed through accepted V4 Guards 1.1.4 + IFX 0.4.2 C6e-R1 evidence |
 | [09-p10-3-cutover-and-rollback-proposal.md](09-p10-3-cutover-and-rollback-proposal.md) | Inactive trusted-base cutover topology, coexistence ownership and exact rollback | Design and local rehearsal accepted; no remote mutation authorized or performed |
+| `20260927-v4-todo-008-standalone-repository-extraction` (formal Plan pair under `docs/guards/plans/`) | History-preserving standalone Guard repository extraction, validation and IFX cleanup program | Project started; Claude Code handoff ready; implementation and remote mutations not yet authorized |
 | `20260923-v4-p10-1-candidate-version-certification` (formal Plan pair under `docs/guards/plans/`) | Historical 1.1.1 local candidate and certification gate | Superseded by exact published release checkpoint |
 | `20260923-v4-guards-1-1-1-release-publication` (formal Plan pair under `docs/guards/plans/`) | Authorized 1.1.1 publication and side-by-side installation | Historical publication complete; superseded by the 1.1.4 P10.1 record |
 | [TODO.md](TODO.md) | Explicit deferred scope, P9 first-release exclusions and revisit gates | Active backlog |
