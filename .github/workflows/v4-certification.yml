@@ -1,0 +1,95 @@
+# V4-TODO-008 T6.3 (Plan 20260928-v4-todo-008-t6-guard-genesis): dispatch-only platform certification.
+# Certifies one exact source commit on Linux (complete) and Windows (full) and uploads both reports.
+# This is platform evidence for an operator-accepted seed, not a trusted-base PR verdict. It has no
+# pull_request trigger, uses no secrets and holds read-only contents permission.
+name: V4 Certification
+
+on:
+  workflow_dispatch:
+    inputs:
+      sourceCommit:
+        description: Exact 40-character lowercase commit SHA to certify
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v4-certification-${{ inputs.sourceCommit }}
+  cancel-in-progress: false
+
+jobs:
+  certify:
+    name: v4-certify-${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            platform: linux
+          - os: windows-2025
+            platform: windows
+    steps:
+      - name: Validate the requested commit identity
+        shell: pwsh
+        env:
+          SOURCE_COMMIT: ${{ inputs.sourceCommit }}
+        run: |
+          if ($env:SOURCE_COMMIT -cnotmatch '^[a-f0-9]{40}$') { throw 'sourceCommit must be a full lowercase 40-character SHA.' }
+
+      - name: Check out the exact source commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.sourceCommit }}
+          path: src
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Install the .NET SDK selected by the package
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Prefetch the locked NuGet dependencies and verify their SHA-512
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $deps = @(Get-ChildItem -LiteralPath 'src/modules' -Recurse -Filter 'dependencies.lock.json' | ForEach-Object {
+              (Get-Content -Raw -LiteralPath $_.FullName | ConvertFrom-Json -AsHashtable).dependencies
+            } | Where-Object { $_.source -eq 'nuget-global-packages' })
+          if ($deps.Count -eq 0) { Write-Host 'No locked NuGet dependencies.'; exit 0 }
+          $work = Join-Path $env:RUNNER_TEMP 'nuget-prefetch'
+          [void][IO.Directory]::CreateDirectory($work)
+          $refs = ($deps | ForEach-Object { "<PackageReference Include=`"$($_.id)`" Version=`"[$($_.version)]`" />" }) -join ''
+          Set-Content -LiteralPath (Join-Path $work 'prefetch.csproj') -Value "<Project Sdk=`"Microsoft.NET.Sdk`"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup>$refs</ItemGroup></Project>"
+          & dotnet restore (Join-Path $work 'prefetch.csproj') --source https://api.nuget.org/v3/index.json -nologo
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $cache = if ($env:NUGET_PACKAGES) { $env:NUGET_PACKAGES } else { Join-Path $HOME '.nuget/packages' }
+          foreach ($d in $deps) {
+            $id = ([string]$d.id).ToLowerInvariant(); $version = [string]$d.version
+            $sha = Join-Path $cache "$id/$version/$id.$version.nupkg.sha512"
+            if (-not (Test-Path -LiteralPath $sha) -or (Get-Content -Raw -LiteralPath $sha).Trim() -cne [string]$d.sha512) { throw "Locked NuGet dependency hash mismatch: $($d.id) $version" }
+            Write-Host "verified $($d.id) $version"
+          }
+
+      - name: Certify the exact commit
+        shell: pwsh
+        env:
+          SOURCE_COMMIT: ${{ inputs.sourceCommit }}
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          $report = Join-Path $env:RUNNER_TEMP "v4-report/v4-$($env:PLATFORM).json"
+          pwsh -NoLogo -NoProfile -NonInteractive -File "$env:GITHUB_WORKSPACE/src/core/certification/Invoke-V4PlatformCertification.ps1" -RepositoryRoot "$env:GITHUB_WORKSPACE/src" -Platform $env:PLATFORM -SourceCommit $env:SOURCE_COMMIT -ReportPath $report
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+
+      - name: Upload the certification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v4-certification-${{ matrix.platform }}-${{ inputs.sourceCommit }}
+          path: ${{ runner.temp }}/v4-report
+          if-no-files-found: warn
+          retention-days: 90
