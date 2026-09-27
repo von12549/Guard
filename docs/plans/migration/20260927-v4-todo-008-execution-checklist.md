@@ -332,20 +332,33 @@ Evidence: `T2-history-export/<run-id>`.
 
 Evidence: `T3-merge/<run-id>`.
 
-- [ ] Re-confirm P-1/P-2/P-4 and the Guard §4 status.
-- [ ] `git switch -c codex/v4-todo-008-standalone e75d0386492632e4df87230f3b64252086d1bc58`
-- [ ] `git remote add v4-export <export clone path>`; fetch `export/v4-standalone`; verify the
+- [x] Re-confirm P-1/P-2/P-4 and the Guard §4 status.
+- [x] `git switch -c codex/v4-todo-008-standalone e75d0386492632e4df87230f3b64252086d1bc58`
+- [x] `git remote add v4-export <export clone path>`; fetch `export/v4-standalone`; verify the
       fetched tip equals the T2 export tip; `git remote remove v4-export`; record the path and tip.
-- [ ] `git merge --allow-unrelated-histories --no-ff <export tip>`. The only conflict allowed is
+- [x] `git merge --allow-unrelated-histories --no-ff <export tip>`. The only conflict allowed is
       `README.md` (add/add). Any other conflict aborts the merge and the tranche stops.
-- [ ] Resolve `README.md` to the V4 product README (the export blob). Record the original Guard
+- [x] Resolve `README.md` to the V4 product README (the export blob). Record the original Guard
       README blob `d6e5996b…`.
-- [ ] Commit the merge. Verify it has two parents: `e75d0386…` and the export tip.
-- [ ] Commit this checklist as a separate docs-only commit (§4).
-- [ ] Prove: `e75d0386` is reachable; all mapped export commits are reachable; the merge tree minus
+- [x] Commit the merge. Verify it has two parents: `e75d0386…` and the export tip.
+- [x] Commit this checklist as a separate docs-only commit (§4).
+- [x] Prove: `e75d0386` is reachable; all mapped export commits are reachable; the merge tree minus
       this checklist equals the export inventory with the resolved README; `git remote -v` shows only
       `origin`; the worktree is clean; `fsck --full --strict` passes; the secret scan passes.
-- [ ] Copy the evidence. Then remove the disposable clone after validating its path. No push.
+- [x] Copy the evidence. Then remove the disposable clone after validating its path. No push.
+
+**T3 result: `pass`**. Evidence `T3-merge/<run>` (see the progress log). Results:
+
+- merge `ec9f5eade8596c99081ed2ca1663252b13bc6e49` has parents `e75d0386` and `4609edae`;
+- its tree `af913836…` equals the export tree;
+- the only conflict was README (add/add), resolved to the V4 product README;
+- the checklist was committed as `031c6519`;
+- 50/50 exported commits and the initial commit are reachable;
+- the only remote is `origin`, and `main` is unchanged;
+- fsck passed; gitleaks found 0 in 51 commits;
+- no IFX, V3 or workflow paths;
+- disposable clones removed after their evidence was copied;
+- nothing pushed.
 
 ### T4 — Standalone normalization
 
@@ -479,6 +492,7 @@ v3Retired=false
 | Date (UTC+local) | Tranche | Event | Evidence |
 | --- | --- | --- | --- |
 | 2026-09-27 | pre-T0 | Plans read. Read-only identity check. A1 rebinding decided. P-1/P-2 attested. Checklist created (untracked). | — |
+| 2026-09-27 | T3 | `codex/v4-todo-008-standalone` created from `e75d0386`. Unrelated-history merge `ec9f5ead`; checklist commit `031c6519`. OneDrive pause obligation (P-4) satisfied. T3 pass. | `T3-merge/20260927T103329Z` |
 | 2026-09-27 | T2 | Subtree split at `80f7b6b6` in `D:\v4t\t2-3dc631`; export tip `4609edae`; all checks pass. T2 pass. | `T2-history-export/20260927T102819Z` |
 | 2026-09-27 | T1/A2 | 1.1.4 lineage gap found. The operator chose A2. The reconciliation Plan `17a1d56c` and merge `80f7b6b6` (tree equals the certified trial; Windows-full 34/34) were committed, then the A2 amendment `af2bd603`. T1 manifests generated. T1 pass. | `T1-A2-reconciliation/20260927T101043Z`, `T1-manifests/20260927T102631Z` |
 | 2026-09-27 | T0 | A-LOCAL, A-IFX-AMEND, A-TOOL and O1 push authorized; P-3/P-4 attested. Identities verified; hydration scan pass; Git clients closed; gitleaks installed; IFX A1 commit `286e453d` pushed (fast-forward). T0 pass. | `T0-identity/20260927T090305Z` |
