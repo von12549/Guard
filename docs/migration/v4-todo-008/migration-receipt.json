@@ -16,7 +16,8 @@
       "17a1d56c2e244717f64576059b711e2e5f79480a",
       "af2bd603a31be362128a881f684847e40bb7ce5a"
     ],
-    "reconciliationMerge": "80f7b6b65fb06897444a6a36c604c42c93c834e4"
+    "reconciliationMerge": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+    "currentDevelopmentTip": "42b666acc7762c12eb2d34182537825430825f55"
   },
   "export": {
     "tip": "4609edaeef0cf357fb1a59cb2413850e1367056b",
@@ -96,7 +97,10 @@
     "v3Retired": false
   },
   "remoteWrites": [
-    "IFX codex/v4-development-base fast-forward 6b80fc04..286e453d (O1, authorized)"
+    "IFX codex/v4-development-base fast-forward 6b80fc04..286e453d (O1, authorized 2026-09-27)",
+    "IFX codex/v4-development-base fast-forward 286e453d..af2bd603 (O13, authorized 2026-09-28)",
+    "IFX PR #108 opened then closed without merge (O5 step 1; structural V3 CI red)",
+    "IFX codex/v4-development-base af2bd603..42b666ac (O5 merges, executed by operator 2026-09-28)"
   ],
   "publicContractDifferences": [],
   "declaredDifferences": [
@@ -109,7 +113,6 @@
     "integrations/github/proposed-v4-guards.yml"
   ],
   "nextAuthorizationRequired": [
-    "IFX push of 17a1d56c..af2bd603 (O13)",
     "T6 A-PUSH: push codex/v4-todo-008-standalone to von12549/Guard",
     "T6 A-PR / A-CI / A-MERGE / A-RELEASE (each separately)"
   ]
