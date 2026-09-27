@@ -79,6 +79,16 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   `docs/migration/v4-todo-008/`. The matching IFX-side TODO entry stays in IFX, which remains the
   canonical source until the canonical-source switch.
 
+  Progress on 2026-09-28:
+
+  - T0–T4 pass.
+  - T5 pass. GitHub dispatch certification of the seed head `79596c37` passed Linux-complete 33/33 and
+    Windows-full 34/34 on package `491e7eb4…`.
+  - T6.1–T6.5 are done: seed PR #1 was merged as `65cf6cde` (Amendment A3 genesis seed).
+  - T6.6 was superseded by `20260928-guard-v4-workflow-activation`, whose phase 1 is complete (see
+    V4-TODO-011).
+  - Remaining: T6.7 release (a separate publication Plan), T7 IFX consumer rebinding and T8 IFX cleanup.
+
 - [ ] **V4-TODO-009 — Profile/module marketplace and signatures**
 
   Revisit after local install/uninstall/version compatibility is stable. Define discovery, download,
@@ -97,11 +107,34 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   Revisit after repeated success of the V4 development workflow and final check-name freeze. Creating
   or editing GitHub rulesets remains a separately authorized remote operation.
 
+  **Phase 1 complete (2026-09-28)** under `20260928-guard-v4-workflow-activation`:
+
+  - `.github/workflows/v4-guards.yml` has been active on `main` since `b022f9e8`. It is the reviewed
+    specimen with only its first comment line changed; the P0C/P6 tests and V1 certification enforce
+    that byte-identity.
+  - Genesis record: `docs/plans/activation/guard-genesis-record.json` (seed `118644e3`, package
+    `4c8b45c0…`, accepted by human-review).
+  - Negative control: PR #3 was rejected (`v4-contract` findings-blocking "Root Plan paths do not exactly
+    match", `v4-required` failed; run 36329134054).
+  - Positive control: the records-update PR that added this entry.
+  - Frozen check names: `v4-contract`, `v4-linux`, `v4-package`, `v4-windows` (selected by the base
+    classifier) and `v4-required`.
+  - Repeated-success tracking starts with that positive control.
+
+  Until phase 2, verdicts are advisory. A red PR can still be merged. Workflow edits are outside
+  `allowedChangedPatterns`, but GitHub runs a PR's merged workflow definition. Phase 2 must therefore add
+  a `main` ruleset that requires `v4-required`, enforces strict up-to-date checks, and requires review
+  of workflow and authority changes. Phase 2 reaches `G2_V4_AUTONOMOUS` and remains separately authorized.
+
 - [ ] **V4-TODO-012 — Windows full-run frequency review**
 
   Revisit after real V4 run-duration data exists. Ordinary CI remains Linux-first with conditional
   Windows smoke; increase or reduce full cadence only with evidence and without weakening release
   certification.
+
+  Run-duration data collection started on 2026-09-28, when the V4 workflow became active on `main`
+  (`b022f9e8`). The dispatch certification run times (Linux-complete about 7 minutes, Windows-full about
+  8 minutes) are the first data points.
 
 - [ ] **V4-TODO-013 — Plan-set limits and parallel agent policy**
 

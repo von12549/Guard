@@ -119,3 +119,19 @@ Before `G2`, recovery is restoration of the local branch to the accepted seed or
 there is no remote state to unwind. After `G2`, recovery disables the V4 ruleset/workflow through the
 recorded activation rollback, restores the last accepted V4 base and re-runs both controls. Recovery
 does not weaken or retire V3/V3_ifx, which remains the active IFX guard until a deferred cutover.
+
+## 8. Guard adaptation (standalone repository)
+
+The sections above record the IFX incubation design. In the standalone Guard repository:
+
+- The base branch is `main`, and the base-owned runner is `V4_BASE/integrations/github/Invoke-V4TrustedBase.ps1`.
+- The genesis seed was the V4-TODO-008 migration PR #1 (merge `65cf6cde`). It was accepted by operator
+  review under Amendment A3 on exact-commit Linux-complete and Windows-full certification, which gave
+  `G1_V4_DORMANT_BASE`.
+- Activation follows §6 in two phases (`20260928-guard-v4-workflow-activation`):
+  - Phase 1 (complete): the genesis record, the active workflow at `.github/workflows/v4-guards.yml`,
+    and negative- and positive-control PRs. The resulting state is `G1_V4_WORKFLOW_ACTIVE`, in which
+    base-owned verdicts run but are advisory.
+  - Phase 2 (V4-TODO-011): the ruleset that requires `v4-required`. It reaches `G2_V4_AUTONOMOUS`.
+- §6 item 4 (IFX `v3-ifx-guardrails.yml`) does not apply to Guard.
+

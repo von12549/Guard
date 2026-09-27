@@ -36,14 +36,22 @@
       "2bf2fd85f869f74fc71760663575f331272bbb49",
       "f2e5cf32397b392a212ffb4a4c87c9f1eb5e3e32"
     ],
-    "acceptedDefaultBranchCommit": null,
+    "acceptedDefaultBranchCommit": "65cf6cde3392d34d0fb86ff50e33f58a2d546913",
     "certifiedCommit": "f2e5cf32397b392a212ffb4a4c87c9f1eb5e3e32",
     "certifiedPackageHash": "491e7eb4bd3fbdaec5619601c334414f2820998aedaec529c21be004a027d3ee",
     "distributionArchiveSha256": "05e44168d4bae81655e5ea81b6909be114e4f26e1e6a7548def4709af920f877",
     "checkpointCommits": [
       "031c65198af42107cb9325a9bbdb54ea646554d8",
       "c6ec84d5db54a5fdcc95d4ede2afe857cc2214bd"
-    ]
+    ],
+    "seedAcceptance": "Amendment A3 genesis seed; PR #1 merged 2026-09-28 by operator after GitHub certification run 36326273549",
+    "activation": {
+      "plan": "20260928-guard-v4-workflow-activation",
+      "stepA": "PR #2 merged as 118644e3d4eaaf6102345d79e96040b568e50632 (package 4c8b45c0183f3f911a7dfd497ad214b81fd72ae2a59e95037d42896be748eb59)",
+      "activeWorkflowCommit": "b022f9e8d9ca3c93e8e97456a47ae945593c48cb",
+      "negativeControl": "PR #3 rejected (run 36329134054)",
+      "state": "G1_V4_WORKFLOW_ACTIVE"
+    }
   },
   "evidenceRoot": "D:/IFX-Root/v4-todo-008-evidence",
   "tranches": {
@@ -78,13 +86,30 @@
       "SHA256SUMS": "bf49efa7d9b7b00ae17f391218327ba3c595985c9d81dac9d140b3e97952ec41"
     },
     "T5": {
-      "status": "local-windows-accepted-linux-pending",
+      "status": "pass",
       "run": "T5-validation/20260927T104523Z",
       "SHA256SUMS": "2074eefbe0c14238183ba06dee3f0a9536d4dc62ee043e9926fe8776a86cc64c",
       "windowsFull": "34/34 pass",
       "linuxCompleteLocal": "33/33 pass (supporting; T6 CI required)",
       "publicContractDifferences": 0,
-      "declaredPackageDifferencesVs114": 7
+      "declaredPackageDifferencesVs114": 7,
+      "linuxCompleteT6Ci": "33/33 pass at 79596c37 (run 36326273549), package 491e7eb4"
+    },
+    "T6": {
+      "status": "in-progress",
+      "done": [
+        "T6.1",
+        "T6.2",
+        "T6.3",
+        "T6.4",
+        "T6.5"
+      ],
+      "superseded": {
+        "T6.6": "20260928-guard-v4-workflow-activation"
+      },
+      "pending": [
+        "T6.7 release"
+      ]
     }
   },
   "boundaries": {
@@ -100,7 +125,10 @@
     "IFX codex/v4-development-base fast-forward 6b80fc04..286e453d (O1, authorized 2026-09-27)",
     "IFX codex/v4-development-base fast-forward 286e453d..af2bd603 (O13, authorized 2026-09-28)",
     "IFX PR #108 opened then closed without merge (O5 step 1; structural V3 CI red)",
-    "IFX codex/v4-development-base af2bd603..42b666ac (O5 merges, executed by operator 2026-09-28)"
+    "IFX codex/v4-development-base af2bd603..42b666ac (O5 merges, executed by operator 2026-09-28)",
+    "Guard: branch codex/v4-todo-008-standalone pushed; PR #1 opened and merged (65cf6cde)",
+    "Guard main: 73a0653 certification workflow; b022f9e8 active V4 workflow + genesis record",
+    "Guard: PR #2 merged (118644e3); PR #3 negative control closed"
   ],
   "publicContractDifferences": [],
   "declaredDifferences": [
@@ -113,7 +141,7 @@
     "integrations/github/proposed-v4-guards.yml"
   ],
   "nextAuthorizationRequired": [
-    "T6 A-PUSH: push codex/v4-todo-008-standalone to von12549/Guard",
-    "T6 A-PR / A-CI / A-MERGE / A-RELEASE (each separately)"
+    "T6.7 A-RELEASE through a separate publication Plan",
+    "V4-TODO-011 phase 2 ruleset (separately authorized)"
   ]
 }
