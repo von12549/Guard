@@ -1,6 +1,6 @@
 # V4 v1 — self-contained guard plugin
 
-Status: `V1.1 RELEASED — V4-P9 Lightweight Web UI packaged; remote activation not authorized`
+Status: `V1.1 RELEASED — P10.1/P10.2 accepted; P10.3 and remote activation not authorized`
 
 Development base: `codex/v4-development-base`
 
@@ -322,18 +322,24 @@ program. This publication does not activate a workflow/ruleset or authorize IFX 
   clean/violating synthetic Targets before P10.1. The exact receipted installation was
   already present and was verified rather than reinstalled. Operator evidence:
   `07-p10-0-baseline-acceptance.md`.
-- [ ] **V4-P10.1** Practice `ifx_profile` and any declared IFX extension modules through public V4
-  contracts; repeat the installed Web UI exercise on fixed IFX clean/violating cases. Treat a missing
-  extension/composition contract as an explicit `1.1.x` compatibility patch.
-- [ ] **V4-P10.2** Run V3/V3_ifx and V4+`ifx_profile` parallel parity on one fixed IFX corpus with
-  clean, violation, missing-input and zero-match controls.
+- [x] **V4-P10.1** Practice `ifx_profile` and its declared IFX extension modules through the public
+  V4 composition contract, then repeat the installed Web UI exercise on fixed IFX clean/violating
+  cases. C6e-R1 accepted the exact V4 Guards 1.1.4 + IFX 0.4.2 composition and closed P10.1; decision:
+  `artifacts/guards/p10-ifx-114/c6e-r1-042/c6e-r1-decision.json`, SHA-256
+  `94a7c01bd991a7b4371f6d3406b43f58830bdb29740c477db7abdaf2bb0ece22`.
+- [x] **V4-P10.2** Run V3/V3_ifx and V4+`ifx_profile` parallel parity on one fixed IFX corpus with
+  clean, violation, missing-input and zero-match controls. P10.2-R2 accepted all 52 cases with zero
+  gaps and 15 explicit V4 fail-closed strengthenings; decision:
+  `artifacts/guards/p10-ifx-114/p10-2-r2-parity-042/p10-2-decision.json`, SHA-256
+  `7c5ff243ec452958ffbb08ced46ae6e1a8320f586b9fb71ef0d98f2931934516`.
 - [ ] **V4-P10.3** After parity and Windows-full certification, produce the trusted-base cutover and
   rollback proposal without applying remote changes.
 - [ ] **V4-P10.GATE** Prove adoption readiness, immutable versioned installations, closed parity gaps
   and rehearsed rollback; remote activation remains separately authorized.
 
-The detailed program and stop conditions are in `06-ifx-profile-validation-program.md`. Planning does
-not mark V4-TODO-001/002/003 complete and does not pull V4-TODO-004 retirement into scope.
+The detailed program and stop conditions are in `06-ifx-profile-validation-program.md`. Accepted
+P10.1/P10.2 evidence closes V4-TODO-001/002. V4-TODO-003 remains open and unstarted, and this update
+does not pull V4-TODO-004 retirement into scope.
 
 ## 6. PR and CI strategy
 

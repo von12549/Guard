@@ -5,7 +5,7 @@ separate reviewed decision and formal Plan; appearing here is not implementation
 
 ## Deferred profiles and adoption
 
-- [ ] **V4-TODO-001 — `ifx_profile` practice**
+- [x] **V4-TODO-001 — `ifx_profile` practice**
 
   Revisit after V4-P8. Package current IFX project map, toolchain, policies, baselines and selected
   specialized gates through the published profile/extension API. Treat any required V4 core change as
@@ -19,19 +19,22 @@ separate reviewed decision and formal Plan; appearing here is not implementation
   P10.0 local baseline and installed Web UI practice passed on 2026-09-23; see
   `07-p10-0-baseline-acceptance.md`. The separate P10.1 entry-gap compatibility Plan is
   `20260923-v4-p10-extension-composition-compatibility` /
-  `08-p10-1-extension-composition-compatibility.md`. Its exact-path synthetic composition
-  prototype passed on Windows and network-disabled Linux. The full negative matrix,
-  candidate-version certification and real `ifx_profile` review remain pending; TODO-001 stays open.
+  `08-p10-1-extension-composition-compatibility.md`. P10.1 completed on 2026-09-27 when C6e-R1
+  accepted the reviewed IFX 0.4.2 bundle against V4 Guards 1.1.4, including installed-Web-UI clean
+  and blocking-violation evidence. Binding decision SHA-256:
+  `94a7c01bd991a7b4371f6d3406b43f58830bdb29740c477db7abdaf2bb0ece22`.
 
-- [ ] **V4-TODO-002 — IFX parallel parity**
+- [x] **V4-TODO-002 — IFX parallel parity**
 
   Revisit after V4-TODO-001. Run V3/V3_ifx and V4+`ifx_profile` against the same fixed corpus and real
   repository commit. Compare blocking verdicts, failure categories, reports, policy hashes, runtime
   prerequisites and every Architecture Conformance claim/evidence kind without activating V4. Include
   clean, deliberate-violation, missing-input and zero-match controls.
 
-  Planned as V4-P10.2 after P10.1. The corpus, IFX commit, both guard identities and every policy/profile
-  hash are frozen before comparison; TODO-002 remains open until the full matrix has no unresolved gap.
+  P10.2-R2 completed and was accepted on 2026-09-27. The frozen 52-case matrix closed with zero gaps
+  and 15 explicit V4 fail-closed strengthenings while the reference, installation, bundle, C6c corpus
+  and Targets remained unchanged. Binding decision SHA-256:
+  `7c5ff243ec452958ffbb08ced46ae6e1a8320f586b9fb71ef0d98f2931934516`.
 
 - [ ] **V4-TODO-003 — IFX cutover and rollback**
 

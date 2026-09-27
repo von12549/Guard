@@ -1,6 +1,6 @@
 # V4 P10.1 entry — local extension composition compatibility
 
-Status: `1.1.1 COMPATIBILITY PATCH PUBLISHED — real IFX bundle and detector-family gates pending`
+Status: `COMPLETED THROUGH P10.1 — V4 Guards 1.1.4 + IFX 0.4.2 accepted; activation not authorized`
 
 Formal Plan pair: `20260923-v4-p10-extension-composition-compatibility`.
 Historical candidate Plan pair: `20260923-v4-p10-1-candidate-version-certification`.
@@ -8,6 +8,14 @@ Publication Plan pair: `20260923-v4-guards-1-1-1-release-publication` (certified
 tag, GitHub Release and side-by-side installation complete; no IFX bundle approved).
 Predecessor evidence: `07-p10-0-baseline-acceptance.md`.
 Parent program: `06-ifx-profile-validation-program.md`, section 2 and P10.1.
+
+Completion record (2026-09-27): later 1.1.x certification advanced the public composition baseline
+to V4 Guards 1.1.4. The reviewed IFX 0.4.2 bundle and detector-family gates completed C6e-R1 against
+the exact composed installation `v4-guards-1.1.4-ifx-0.4.2-c6e-r1`. The binding decision is
+`artifacts/guards/p10-ifx-114/c6e-r1-042/c6e-r1-decision.json`, SHA-256
+`94a7c01bd991a7b4371f6d3406b43f58830bdb29740c477db7abdaf2bb0ece22`. This completion record
+supersedes the earlier pending state while preserving the historical prototype narrative; it does
+not authorize P10.3, activation or cutover.
 
 ## Problem and decision
 

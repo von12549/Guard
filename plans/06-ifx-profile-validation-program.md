@@ -1,6 +1,6 @@
 # V4 P10 — IFX Profile validation program
 
-Status: `IN PROGRESS — P10.0 local baseline/Web UI acceptance passed; remote activation not authorized`
+Status: `IN PROGRESS — P10.0–P10.2 accepted; P10.3 not started or authorized; remote activation not authorized`
 
 Formal planning checkpoint: `20260923-v4-ifx-profile-validation-program`
 
@@ -9,9 +9,10 @@ Initial V4 baseline: `v4-guards-v1.1.0`
 P10.0 operator evidence: `07-p10-0-baseline-acceptance.md`. The 1.1.0 release and receipt
 were already present and were verified without reinstalling or modifying the installation.
 P10.1 entry-gap compatibility Plan: `20260923-v4-p10-extension-composition-compatibility`;
-durable design and gates: `08-p10-1-extension-composition-compatibility.md`. Its
-Windows/offline Linux synthetic prototype passed, but it is not an approved IFX bundle or
-authorization to publish a patch.
+durable design and gates: `08-p10-1-extension-composition-compatibility.md`. P10.1 completed through
+the accepted C6e-R1 decision for V4 Guards 1.1.4 + IFX 0.4.2. P10.2 completed through the accepted
+R2 parity decision with 52/52 cases, zero gaps and 15 explicit V4 fail-closed strengthenings. These
+records do not start P10.3, activate V4, publish anything, retire V3 or perform IFX cutover.
 
 Scope authority: V4-TODO-001, V4-TODO-002 and V4-TODO-003. V4-TODO-004 legacy retirement remains
 separate and cannot be pulled forward by this program.
@@ -129,6 +130,14 @@ need to edit the installation, including a failed Web UI hands-on acceptance.
 
 ## 5. P10.1 — V4-TODO-001 `ifx_profile` practice
 
+Completion record (2026-09-27): **accepted and closed**. C6e-R1 used detached Git worktrees at target
+commit `40b4c0f85e5d8a63ac5af5c1da80d4d46ba32b82` and accepted the exact composed installation
+`v4-guards-1.1.4-ifx-0.4.2-c6e-r1`. Its public verifier, clean installed-Web-UI run, deliberate
+blocking violation run, non-vacuous coverage and authority-root immutability all passed. The binding
+decision is `artifacts/guards/p10-ifx-114/c6e-r1-042/c6e-r1-decision.json`, SHA-256
+`94a7c01bd991a7b4371f6d3406b43f58830bdb29740c477db7abdaf2bb0ece22`, decision
+`c6e-r1-git-backed-repair-accepted`. This closes V4-TODO-001 without activation or cutover.
+
 The checkpoint inventories and maps, without importing V3 runtime paths:
 
 | IFX authority | V4 destination | Required proof |
@@ -157,6 +166,17 @@ P10.1 if the UI hides a failure, accepts missing evidence or writes an authority
 
 ## 6. P10.2 — V4-TODO-002 parallel parity
 
+Completion record (2026-09-27): **accepted and closed**. After the R1 stop exposed 13 comparison
+gaps, R2 repaired the supplemental provider binding, directional non-weakening comparison and Host
+result-channel parsing, then replayed the frozen corpus. The independent matrix accepted 52/52 cases
+with zero gaps and 15 explicit V4 fail-closed strengthenings: 10 zero-match non-vacuity controls,
+three missing-input controls and two blocking-rule coverage cases. The binding decision is
+`artifacts/guards/p10-ifx-114/p10-2-r2-parity-042/p10-2-decision.json`, SHA-256
+`7c5ff243ec452958ffbb08ced46ae6e1a8320f586b9fb71ef0d98f2931934516`, decision
+`p10-2-parity-accepted`. V3, the V4 installation, the reviewed bundle, C6c corpus and Targets remained
+unchanged. This closes V4-TODO-002 without starting P10.3 or authorizing activation, publication,
+V3 retirement or IFX cutover.
+
 Before execution, record one fixed repository commit, toolchain identity, V3/V3_ifx package hash, V4
 release/package hash, Profile version, extension hashes and corpus manifest. Neither engine reads output
 from the other.
@@ -178,6 +198,10 @@ Parity evidence is judged by the previously trusted V3/V3_ifx reference plus an 
 script. Candidate V4 output is evidence, not its own acceptance authority.
 
 ## 7. P10.3 — V4-TODO-003 cutover and rollback design
+
+Planning status (2026-09-27): **not started and not authorized**. The accepted P10.1 and P10.2
+records satisfy their own completion gates, but this status update is not the separate formal Plan
+or explicit authorization required to execute P10.3.
 
 Entry requires completed P10.2 parity, no open blocking gap and a Windows-full certification of the
 exact proposed 1.1.x baseline. The proposal must specify:
@@ -202,6 +226,10 @@ extension hashes, IFX target commit, corpus hash)`. Evidence from different tupl
 one result.
 
 - 1.1.0 is retained permanently as the initial immutable baseline.
+- The accepted P10.1/P10.2 tuple is V4 Guards 1.1.4 + `ifx_profile` 0.4.2 at IFX target commit
+  `40b4c0f85e5d8a63ac5af5c1da80d4d46ba32b82`, Package hash
+  `739e2035b24f42a0d09719bd78d010de9320452086109fbdd95c064f67e5a6c1` and composition receipt
+  SHA-256 `51f5fc11b7fa36e14d83eade699979e31de2d06d3134af9caad9a329fd043345`.
 - Each correction to the distributed V4 test baseline publishes the next unique 1.1.x version after
   Windows-full, Linux-complete, lifecycle, supply-chain and compatibility certification.
 - Installations are side by side; promotion selects a new path only after receipt verification.

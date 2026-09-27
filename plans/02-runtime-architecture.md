@@ -1,19 +1,26 @@
 # V4 runtime architecture
 
-Status: V4 v1 published; V4-P9 Lightweight Web UI implemented and gate-audited; remote activation not authorized
+Status: V4 v1 published; P10.1/P10.2 accepted; P10.3 and remote activation not authorized
 
 Decision authority: `00-architecture-decision-set.md`
 
-## P10.1 local extension-composition prototype
+## P10.1 local extension composition
+
+The synthetic prototype described below became the published public composition boundary and was
+subsequently exercised by the reviewed IFX bundle. C6e-R1 accepted the exact V4 Guards 1.1.4 + IFX
+0.4.2 composed installation, and P10.2-R2 accepted the independent 52-case V3/V4 parity matrix with
+zero gaps. P10.3 remains a separate, unstarted planning and authorization boundary; none of these
+records activate V4 or perform IFX cutover.
 
 The Windows/offline Linux synthetic prototype composes a separately reviewed Profile/module bundle into a new
 sibling installation. Its external receipt binds the released base identity, bundle/review hashes,
 composed Package hash and full installed-file inventory. A receipted launcher verifies that
 identity and the separate external base receipt before starting the unchanged installed Web Companion, which continues to call the
 standard Host and only projects Host results. The public 1.1.0 installation is read-only input,
-and a test-fixture review can create only a `synthetic-test-only` receipt. This boundary is not
-yet part of a published 1.1.x release; full negative tests and candidate-version gates
-remain open. See `08-p10-1-extension-composition-compatibility.md`.
+and a test-fixture review can create only a `synthetic-test-only` receipt. This paragraph records
+the historical 1.1.0 prototype boundary; its later certification, publication and P10.1 closure are
+recorded in `08-p10-1-extension-composition-compatibility.md` and
+`06-ifx-profile-validation-program.md`.
 
 This document is the maintained architecture view for V4 v1. It shows ownership and data flow; it
 does not grant authority to create the development branch, runtime, workflow or remote configuration.
