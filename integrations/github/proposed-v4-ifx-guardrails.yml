@@ -1,0 +1,157 @@
+# INACTIVE P10.3 SPECIMEN. A later exact Plan must install this as .github/workflows/v4-ifx-guardrails.yml.
+name: V4 IFX Guardrails
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v4-ifx-guardrails-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  V4_RELEASE_TAG: v4-guards-v1.1.4
+  V4_ARCHIVE_NAME: v4-guards-1.1.4.zip
+  V4_ARCHIVE_SHA256: dce037149d0fa38995e244ad417888a15d90809467e8ecc83708faef2b995c4d
+  IFX_BUNDLE_BASE_PATH: docs/guards/v4/extensions/ifx/0.4.2
+  IFX_BUNDLE_MANIFEST_SHA256: 82eb0c5db8ec3779bc10a43b89f0a9235e38d02819745e8f42bffa7fd9635ee5
+  IFX_PRODUCTION_REVIEW_SHA256: 871173d4fc27236c06ff0a0c940c6f2d8a8983771b897878261de092826d8ced
+  IFX_TARGET_COMMIT: 40b4c0f85e5d8a63ac5af5c1da80d4d46ba32b82
+
+jobs:
+  v4-ifx-contract:
+    name: v4-ifx-contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Materialize the previously trusted base
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+        run: |
+          git worktree add --detach "$env:RUNNER_TEMP/ifx-trusted-base" $env:BASE_SHA
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Fetch and verify immutable V4 and IFX inputs
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $input = Join-Path $env:RUNNER_TEMP 'v4-ifx-inputs'
+          New-Item -ItemType Directory -Path $input | Out-Null
+          gh release download $env:V4_RELEASE_TAG --repo ${{ github.repository }} --pattern $env:V4_ARCHIVE_NAME --dir $input
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $archive = Join-Path $input $env:V4_ARCHIVE_NAME
+          $archiveHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $archive).Hash.ToLowerInvariant()
+          if ($archiveHash -cne $env:V4_ARCHIVE_SHA256) { throw 'V4 release archive hash mismatch.' }
+          $trusted = Join-Path "$env:RUNNER_TEMP/ifx-trusted-base" $env:IFX_BUNDLE_BASE_PATH
+          $manifest = Join-Path $trusted 'bundle/bundle-manifest.json'
+          $review = Join-Path $trusted 'production-extension-review.json'
+          if (-not (Test-Path -LiteralPath $manifest -PathType Leaf) -or -not (Test-Path -LiteralPath $review -PathType Leaf)) {
+            throw 'The exact IFX bundle has not been published into the trusted base by its separate authorization.'
+          }
+          if ((Get-FileHash -Algorithm SHA256 -LiteralPath $manifest).Hash.ToLowerInvariant() -cne $env:IFX_BUNDLE_MANIFEST_SHA256) {
+            throw 'IFX bundle manifest hash mismatch.'
+          }
+          if ((Get-FileHash -Algorithm SHA256 -LiteralPath $review).Hash.ToLowerInvariant() -cne $env:IFX_PRODUCTION_REVIEW_SHA256) {
+            throw 'IFX production review hash mismatch.'
+          }
+          Copy-Item -LiteralPath $trusted -Destination (Join-Path $input 'ifx-0.4.2') -Recurse
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v4-ifx-inputs-${{ github.sha }}
+          path: ${{ runner.temp }}/v4-ifx-inputs
+          if-no-files-found: error
+          retention-days: 1
+
+  v4-ifx-windows:
+    name: v4-ifx-windows
+    needs: v4-ifx-contract
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v5
+        with:
+          name: v4-ifx-inputs-${{ github.sha }}
+          path: ${{ runner.temp }}/v4-ifx-inputs
+      - name: Install and compose the exact trusted inputs outside TargetRoot
+        shell: pwsh
+        run: |
+          $input = Join-Path $env:RUNNER_TEMP 'v4-ifx-inputs'
+          $archive = Join-Path $input $env:V4_ARCHIVE_NAME
+          $expanded = Join-Path $env:RUNNER_TEMP 'v4-archive'
+          $base = Join-Path $env:RUNNER_TEMP 'v4-base-install'
+          $baseReceipt = Join-Path $env:RUNNER_TEMP 'v4-base.install.json'
+          $composed = Join-Path $env:RUNNER_TEMP 'v4-ifx-composed'
+          $composeReceipt = Join-Path $env:RUNNER_TEMP 'v4-ifx.compose.json'
+          $state = Join-Path $env:RUNNER_TEMP 'v4-ifx-state'
+          $evidence = Join-Path $env:RUNNER_TEMP 'v4-ifx-evidence'
+          Expand-Archive -LiteralPath $archive -DestinationPath $expanded
+          pwsh -NoProfile -File (Join-Path $expanded 'package/core/distribution/Install-V4Distribution.ps1') -Mode Install -InstallRoot $base -ReceiptPath $baseReceipt -ArchivePath $archive
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $bundleBase = Join-Path $input 'ifx-0.4.2'
+          pwsh -NoProfile -File (Join-Path $base 'package/core/distribution/Compose-V4Extension.ps1') -BaseInstallRoot $base -BaseReceiptPath $baseReceipt -BaseArchivePath $archive -BundleRoot (Join-Path $bundleBase 'bundle') -ReviewRecordPath (Join-Path $bundleBase 'production-extension-review.json') -OutputInstallRoot $composed -CompositionReceiptPath $composeReceipt -TargetRoot $env:GITHUB_WORKSPACE -StateRoot $state -EvidenceRoot $evidence
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          "V4_IFX_COMPOSED=$composed" >> $env:GITHUB_ENV
+          "V4_IFX_STATE=$state" >> $env:GITHUB_ENV
+          "V4_IFX_EVIDENCE=$evidence" >> $env:GITHUB_ENV
+      - name: Run trusted IFX Pre
+        shell: pwsh
+        run: |
+          dotnet "$env:V4_IFX_COMPOSED/host/v4-guards.dll" stage run --stage pre --package-root "$env:V4_IFX_COMPOSED/package" --target-root $env:GITHUB_WORKSPACE --state-root $env:V4_IFX_STATE --evidence-root $env:V4_IFX_EVIDENCE --profile ifx_profile
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Run trusted IFX Post with dependencies
+        shell: pwsh
+        run: |
+          dotnet "$env:V4_IFX_COMPOSED/host/v4-guards.dll" stage run --stage post --with-dependencies --package-root "$env:V4_IFX_COMPOSED/package" --target-root $env:GITHUB_WORKSPACE --state-root $env:V4_IFX_STATE --evidence-root $env:V4_IFX_EVIDENCE --profile ifx_profile
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v4-ifx-evidence-${{ github.sha }}
+          path: ${{ runner.temp }}/v4-ifx-evidence
+          if-no-files-found: error
+
+  v4-ifx-required:
+    name: v4-ifx-required
+    if: always()
+    needs: [v4-ifx-contract, v4-ifx-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Materialize the previously trusted base
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+        run: |
+          git worktree add --detach "$env:RUNNER_TEMP/ifx-trusted-base" $env:BASE_SHA
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Aggregate from the trusted base
+        shell: pwsh
+        env:
+          CONTRACT_RESULT: ${{ needs.v4-ifx-contract.result }}
+          WINDOWS_RESULT: ${{ needs.v4-ifx-windows.result }}
+        run: |
+          pwsh -NoProfile -File "$env:RUNNER_TEMP/ifx-trusted-base/docs/guards/candidates/ifx-cutover-p10-3/Test-IFXP10CutoverRollback.ps1" -Mode Aggregate -ContractResult $env:CONTRACT_RESULT -WindowsResult $env:WINDOWS_RESULT
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
