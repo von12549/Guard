@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/cli-contract.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "executable", "apiVersion", "commands", "exitCategories"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "executable": { "const": "v4-guards" },
+    "apiVersion": { "const": "1.0" },
+    "commands": { "type": "array", "minItems": 7, "items": { "type": "object", "additionalProperties": false, "required": ["id", "syntax", "stability", "mutability", "requiredRoots"], "properties": { "id": { "type": "string", "pattern": "^[a-z]+(?:[.-][a-z]+)*$" }, "syntax": { "type": "string", "minLength": 1 }, "stability": { "enum": ["stable", "experimental"] }, "mutability": { "enum": ["read-only", "state-write", "preview", "accepted-apply"] }, "requiredRoots": { "type": "array", "uniqueItems": true, "items": { "enum": ["PackageRoot", "TargetRoot", "StateRoot", "EvidenceRoot"] } } } } },
+    "exitCategories": { "type": "array", "minItems": 11, "maxItems": 11, "items": { "type": "object", "additionalProperties": false, "required": ["id", "code"], "properties": { "id": { "enum": ["success", "invalid-input", "unsafe-path", "integrity-failure", "capability-denied", "adapter-failure", "prerequisite-missing", "findings-blocking", "state-conflict", "reset-refused", "internal-error"] }, "code": { "type": "integer", "minimum": 0, "maximum": 19 } } } }
+  }
+}

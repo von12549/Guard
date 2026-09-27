@@ -1,0 +1,30 @@
+{
+  "formatVersion": 1,
+  "id": "synthetic-probe",
+  "version": "1.0.0",
+  "compatibleApi": "1.x",
+  "supportedPlatforms": ["linux-x64", "win-x64"],
+  "adapter": {
+    "kind": "powershell",
+    "path": "modules/synthetic-probe/adapter.ps1",
+    "sha256": "8cc299c7f5bd1a20c4af808a064501d26f7bd93f94909d42bdc578edf062335b"
+  },
+  "prerequisites": [
+    { "runtime": "pwsh", "versionRange": ">=7.4" }
+  ],
+  "stages": ["bootstrap", "analysis", "pre", "post"],
+  "capabilities": {
+    "readRoots": ["TargetRoot", "EvidenceRoot"],
+    "writeRoots": [],
+    "processes": ["pwsh"],
+    "network": false,
+    "timeoutSeconds": 30
+  },
+  "configSchema": "modules/synthetic-probe/config.schema.json",
+  "resultSchema": "core/contracts/stage-result-spike.schema.json",
+  "dependencyLock": {
+    "path": "modules/synthetic-probe/dependencies.lock.json",
+    "sha256": "10aebb07e6318b42a22a825b59ccb3c11b7c756a59a85b19b113a96731741d09"
+  },
+  "authorities": []
+}

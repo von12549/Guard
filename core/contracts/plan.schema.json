@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/plan.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "id", "title", "goal", "acceptanceCriteria", "plannedPaths", "areas", "risks", "decisions", "validationCommands", "dependencies", "boundaries"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[0-9]{8}-[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "goal": { "type": "string", "minLength": 1 },
+    "acceptanceCriteria": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "plannedPaths": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" } },
+    "areas": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+    "risks": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+    "decisions": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+    "validationCommands": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+    "dependencies": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[0-9]{8}-[a-z0-9-]+$" } },
+    "boundaries": { "type": "array", "uniqueItems": true, "items": { "enum": ["authorization", "trust-change", "activation", "engine-change", "remote-change"] } }
+  }
+}

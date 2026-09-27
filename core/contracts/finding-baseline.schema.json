@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/finding-baseline.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "findings"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "findings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ruleId", "subject", "evidenceKind", "detectorId"],
+        "properties": {
+          "ruleId": { "type": "string", "pattern": "^[A-Z0-9][A-Z0-9._-]+$" },
+          "subject": { "type": "string", "minLength": 1 },
+          "evidenceKind": { "type": "string", "minLength": 1 },
+          "detectorId": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

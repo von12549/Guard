@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/extension-review.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "id", "scope", "decision", "acceptedBy", "bundleManifestSha256", "baseArchiveSha256", "moduleCeilings"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[0-9]{8}-[a-z0-9-]+$" },
+    "scope": { "enum": ["synthetic-test-only", "production"] },
+    "decision": { "const": "accepted" },
+    "acceptedBy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authorityType", "authorityId", "candidateHostVerdictAllowed"],
+      "properties": {
+        "authorityType": { "enum": ["human-review", "test-fixture"] },
+        "authorityId": { "type": "string", "minLength": 1 },
+        "candidateHostVerdictAllowed": { "const": false }
+      }
+    },
+    "bundleManifestSha256": { "$ref": "#/definitions/sha256" },
+    "baseArchiveSha256": { "$ref": "#/definitions/sha256" },
+    "moduleCeilings": {
+      "type": "array", "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["moduleId", "allowedCapabilities"],
+        "properties": {
+          "moduleId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "allowedCapabilities": { "$ref": "#/definitions/capabilities" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "capabilities": {
+      "type": "object", "additionalProperties": false,
+      "required": ["readRoots", "writeRoots", "processes", "network", "maxTimeoutSeconds"],
+      "properties": {
+        "readRoots": { "type": "array", "uniqueItems": true, "items": { "enum": ["PackageRoot", "TargetRoot", "StateRoot", "EvidenceRoot"] } },
+        "writeRoots": { "type": "array", "uniqueItems": true, "items": { "enum": ["StateRoot", "EvidenceRoot"] } },
+        "processes": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9.-]+$" } },
+        "network": { "type": "boolean" },
+        "maxTimeoutSeconds": { "type": "integer", "minimum": 1, "maximum": 3600 }
+      }
+    }
+  }
+}

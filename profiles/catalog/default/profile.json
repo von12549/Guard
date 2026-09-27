@@ -1,0 +1,18 @@
+{
+  "formatVersion": 1,
+  "id": "default",
+  "version": "1.0.0",
+  "projectIdentity": {
+    "id": "default",
+    "relativeRoots": []
+  },
+  "moduleSelections": [],
+  "stageConfiguration": {
+    "bootstrap": { "enabled": false, "modules": [] },
+    "analysis": { "enabled": false, "modules": [] },
+    "pre": { "enabled": false, "modules": [] },
+    "post": { "enabled": false, "modules": [] }
+  },
+  "rules": [],
+  "baselineRefs": []
+}

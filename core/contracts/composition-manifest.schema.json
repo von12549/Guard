@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/composition-manifest.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "kind", "productVersion", "base", "bundle", "review", "composedPackageHash"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "kind": { "const": "local-extension-composition" },
+    "productVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "base": {
+      "type": "object", "additionalProperties": false,
+      "required": ["sourceCommit", "archiveSha256", "manifestSha256", "packageHash"],
+      "properties": {
+        "sourceCommit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "archiveSha256": { "$ref": "#/definitions/sha256" },
+        "manifestSha256": { "$ref": "#/definitions/sha256" },
+        "packageHash": { "$ref": "#/definitions/sha256" }
+      }
+    },
+    "bundle": { "type": "object", "additionalProperties": false, "required": ["id", "version", "manifestSha256"], "properties": {
+      "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+      "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+      "manifestSha256": { "$ref": "#/definitions/sha256" }
+    } },
+    "review": { "type": "object", "additionalProperties": false, "required": ["id", "scope", "authorityId", "sha256"], "properties": {
+      "id": { "type": "string", "pattern": "^[0-9]{8}-[a-z0-9-]+$" },
+      "scope": { "enum": ["synthetic-test-only", "production"] },
+      "authorityId": { "type": "string", "minLength": 1 },
+      "sha256": { "$ref": "#/definitions/sha256" }
+    } },
+    "composedPackageHash": { "$ref": "#/definitions/sha256" }
+  },
+  "definitions": { "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } }
+}

@@ -1,0 +1,59 @@
+{
+  "formatVersion": 1,
+  "id": "v4-p9-gate-audit",
+  "status": "pass",
+  "auditDate": "2026-09-23",
+  "closurePlan": "20260923-v4-p9-gate-closure",
+  "certifiedSourceCommit": "a7c118b52a639220c5176871e2efa395df6f5b72",
+  "certifiedPackageHash": "e513d7512c8e6786882661192a3e7fe3471b86c61ef795f5b472190e4ff911b5",
+  "closureChangesPackageAuthority": false,
+  "certification": {
+    "windowsFull": {
+      "reportPath": "artifacts/guards/v4/p9e-certification/windows-full.json",
+      "reportSha256": "b3a30d8c46622ebb00ee093bc0a203cafa284ca081246274bfcfc00527ef9331",
+      "status": "pass",
+      "testCount": 32,
+      "exactCiSelection": true
+    },
+    "linuxComplete": {
+      "reportPath": "artifacts/guards/v4/p9e-certification/linux-complete.json",
+      "reportSha256": "d04411851d357d1065b5d54e88eb80a099e68057f1fbbb4508eb0bd6411f6f18",
+      "status": "pass",
+      "testCount": 31,
+      "exactCiSelection": true,
+      "networkDisabled": true
+    }
+  },
+  "boundary": {
+    "hostIsSoleExecutionAndVerdictAuthority": true,
+    "publicStructuredContractsOnly": true,
+    "loopbackOnly": true,
+    "sameOriginMutations": true,
+    "shellExecutionDisabled": true,
+    "companionFilesystemWrites": false,
+    "packageRootMutable": false,
+    "targetRootMutable": false,
+    "mutableRoots": ["StateRoot", "EvidenceRoot"],
+    "textOnlyUntrustedRendering": true
+  },
+  "firstReleaseExclusions": {
+    "authorityEditing": false,
+    "planEditing": false,
+    "targetMutation": false,
+    "gitOperations": false,
+    "githubActivation": false,
+    "resetApply": false,
+    "multiProjectParallelism": false,
+    "terminalOrRawArguments": false,
+    "remoteWebAccess": false,
+    "automaticExtensionInstallation": false,
+    "ifxSpecificBehavior": false
+  },
+  "remoteScope": {
+    "branchPushAuthorized": true,
+    "pullRequestAuthorized": false,
+    "mergeAuthorized": false,
+    "releaseOrTagAuthorized": false,
+    "workflowOrRulesetActivationAuthorized": false
+  }
+}

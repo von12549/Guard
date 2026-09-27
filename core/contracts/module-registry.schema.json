@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/module-registry.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "modules"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "modules": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "manifestPath", "manifestSha256", "allowedCapabilities"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "manifestPath": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" },
+          "manifestSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "allowedCapabilities": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["readRoots", "writeRoots", "processes", "network", "maxTimeoutSeconds"],
+            "properties": {
+              "readRoots": { "type": "array", "uniqueItems": true, "items": { "enum": ["PackageRoot", "TargetRoot", "StateRoot", "EvidenceRoot"] } },
+              "writeRoots": { "type": "array", "uniqueItems": true, "items": { "enum": ["StateRoot", "EvidenceRoot"] } },
+              "processes": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9.-]+$" } },
+              "network": { "type": "boolean" },
+              "maxTimeoutSeconds": { "type": "integer", "minimum": 1, "maximum": 3600 }
+            }
+          }
+        }
+      }
+    }
+  }
+}
