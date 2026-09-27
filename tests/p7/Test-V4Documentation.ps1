@@ -5,8 +5,9 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$repoRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))
-$runRoot = Join-Path $repoRoot 'artifacts/guards/v4/p7-docs'
+$repoRoot = $packageRoot
+$workRoot = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant())
+$runRoot = Join-Path $workRoot 'p7-docs'
 $generator = Join-Path $packageRoot 'core/distribution/Publish-V4Documentation.ps1'
 
 if (Test-Path -LiteralPath $runRoot) { Remove-Item -LiteralPath $runRoot -Recurse -Force }

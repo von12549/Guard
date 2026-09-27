@@ -5,8 +5,9 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$repoRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))
-$runRoot = Join-Path $repoRoot 'artifacts/guards/v4/p7-lifecycle'
+$repoRoot = $packageRoot
+$workRoot = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant())
+$runRoot = Join-Path $workRoot 'p7-lifecycle'
 $buildRoot = Join-Path $packageRoot 'build'
 $project = Join-Path $packageRoot 'core/host/V4.Guards.Host/V4.Guards.Host.csproj'
 $companionProject = Join-Path $packageRoot 'integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj'

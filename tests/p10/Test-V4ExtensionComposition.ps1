@@ -5,7 +5,7 @@ param(
     [string] $BaseArchivePath = '',
     [string] $BaseReceiptTemplatePath = '',
     [string] $FixtureSourceCommit = '',
-    [string] $EvidenceParent = (Join-Path $PSScriptRoot '../../../../../artifacts/guards/p10-composition')
+    [string] $EvidenceParent = ''
 )
 
 Set-StrictMode -Version Latest
@@ -20,6 +20,7 @@ function Read-Json([string] $Path) { Get-Content -Raw -LiteralPath $Path | Conve
 function Assert([bool] $Condition, [string] $Message) { if (-not $Condition) { throw $Message } }
 
 $packageSource = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+if (-not $EvidenceParent) { $EvidenceParent = Join-Path ([IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageSource))).Substring(0,12).ToLowerInvariant())) 'p10-composition' }
 $composer = Join-Path $packageSource 'core/distribution/Compose-V4Extension.ps1'
 $verifier = Join-Path $packageSource 'core/distribution/Test-V4ComposedInstallation.ps1'
 $parent = [IO.Path]::GetFullPath($EvidenceParent)
@@ -33,7 +34,7 @@ if ($selfContainedCandidate) {
     Assert ($candidate.version -ceq '1.1.4' -and $candidate.apiVersion -ceq '1.0') 'Self-contained P10 certification requires the 1.1.4 candidate'
     $fixtureRoot = Join-Path $parent ('candidate-fixture-' + [Guid]::NewGuid().ToString('N'))
     [void][IO.Directory]::CreateDirectory($fixtureRoot)
-    $repository = [IO.Path]::GetFullPath((Join-Path $packageSource '../../..'))
+    $repository = $packageSource
     $buildRoot = Join-Path $packageSource 'build'
     $buildArtifacts = Join-Path $fixtureRoot 'build'
     $hostProject = Join-Path $packageSource 'core/host/V4.Guards.Host/V4.Guards.Host.csproj'

@@ -5,9 +5,10 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$repoRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))
+$repoRoot = $packageRoot
+$workRoot = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant())
 $checker = Join-Path $packageRoot 'core/runtime/Test-V4Package.ps1'
-$fixtureRoot = Join-Path $repoRoot 'artifacts/guards/v4/p1a'
+$fixtureRoot = Join-Path $workRoot 'p1a'
 $failures = [Collections.Generic.List[string]]::new()
 
 function Invoke-Check([string] $Root) {
@@ -158,7 +159,7 @@ Expect-Failure 'invalid-baseline' {
     $json.unexpected = $true; Write-Json $path $json
 } 'profile synthetic_profile baseline does not satisfy'
 
-foreach ($path in @('docs/guards/v4/state/probe.json','docs/guards/v4/.work/probe.json','docs/guards/v4/artifacts/probe.json')) {
+foreach ($path in @('state/probe.json','.work/probe.json','artifacts/probe.json')) {
     & git -C $repoRoot check-ignore -q -- $path
     if ($LASTEXITCODE -ne 0) { $failures.Add("mutable path is not ignored: $path") }
 }

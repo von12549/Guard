@@ -6,4 +6,4 @@ RUN ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
 
 WORKDIR /src
 ENTRYPOINT ["pwsh", "-NoLogo", "-NoProfile", "-NonInteractive"]
-CMD ["-File", "docs/guards/v4/tests/p9/Test-V4WebCompanionSpike.ps1"]
+CMD ["-File", "tests/p9/Test-V4WebCompanionSpike.ps1"]

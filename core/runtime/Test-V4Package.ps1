@@ -168,6 +168,8 @@ if (-not $profiles.ContainsKey($plugin.defaultProfile)) { Fail "default profile 
 $authorityFiles = [Collections.Generic.List[object]]::new()
 $readmePath = Resolve-AuthorityPath $root 'README.md' 'package README' File
 $authorityRoots = @('build','core','docs','integrations','modules','profiles','restore','stages')
+# Repository governance records live beside the package in a standalone checkout; they are not package authority.
+$repositoryOnlyPrefixes = @('docs/plans/','docs/migration/')
 $files = [Collections.Generic.List[IO.FileInfo]]::new()
 $files.Add((Get-Item -LiteralPath $pluginPath))
 $files.Add((Get-Item -LiteralPath $readmePath))
@@ -178,8 +180,9 @@ foreach ($name in $authorityRoots) {
     }
 }
 foreach ($file in @($files | Sort-Object FullName -Unique)) {
-    Assert-NoLinks $root $file.FullName 'package authority file'
     $relative = [IO.Path]::GetRelativePath($root, $file.FullName).Replace('\','/')
+    if (@($repositoryOnlyPrefixes | Where-Object { $relative.StartsWith($_, [StringComparison]::Ordinal) }).Count -gt 0) { continue }
+    Assert-NoLinks $root $file.FullName 'package authority file'
     if ($relative -match '(^|/)(?:state|artifacts|\.work)(?:/|$)') { Fail "mutable path entered package authority: $relative" }
     $authorityFiles.Add([ordered]@{ path = $relative; sha256 = File-Hash $file.FullName })
 }

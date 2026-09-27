@@ -5,10 +5,11 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))
+$repositoryRoot = $packageRoot
+$workRoot = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant())
 $adapter = Join-Path $packageRoot 'modules/architecture-conformance/adapter.ps1'
 $schema = Join-Path $packageRoot 'modules/architecture-conformance/result.schema.json'
-$runRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p4d'
+$runRoot = Join-Path $workRoot 'p4d'
 $failures = [Collections.Generic.List[string]]::new()
 
 function Hash-Tree([string] $Root) {
@@ -75,7 +76,7 @@ function Invoke-Adapter($Fixture,$Config,[string]$NuGetPackages=''){
 function Assert-Category($Result,[string]$Name,[string]$Category){if($Result.exitCategory-cne$Category){$failures.Add("${Name}: expected $Category, got $($Result.exitCategory)")}}
 
 if(Test-Path $runRoot){
-    $resolved=[IO.Path]::GetFullPath($runRoot);$prefix=[IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts/guards/v4')).TrimEnd([IO.Path]::DirectorySeparatorChar)+[IO.Path]::DirectorySeparatorChar
+    $resolved=[IO.Path]::GetFullPath($runRoot);$prefix=[IO.Path]::GetFullPath($workRoot).TrimEnd([IO.Path]::DirectorySeparatorChar)+[IO.Path]::DirectorySeparatorChar
     if(-not$resolved.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)){throw "Unsafe cleanup path: $resolved"}
     Remove-Item -LiteralPath $resolved -Recurse -Force
 }

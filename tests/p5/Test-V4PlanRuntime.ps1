@@ -5,8 +5,9 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))
-$runRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p5/runtime'
+$repositoryRoot = $packageRoot
+$workRoot = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant())
+$runRoot = Join-Path $workRoot 'p5/runtime'
 $project = Join-Path $packageRoot 'core/host/V4.Guards.Host/V4.Guards.Host.csproj'
 $buildRoot = Join-Path $packageRoot 'build'
 $dll = Join-Path $runRoot 'build/bin/V4.Guards.Host/debug/v4-guards.dll'
@@ -24,7 +25,7 @@ function Expect-Code($Run, [int] $Code, [string] $Name, [string] $Pattern = '') 
 
 if (Test-Path $runRoot) {
     $resolved = [IO.Path]::GetFullPath($runRoot)
-    $prefix = [IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts/guards/v4')).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    $prefix = [IO.Path]::GetFullPath($workRoot).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
     if (-not $resolved.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) { throw "Unsafe cleanup: $resolved" }
     Remove-Item -LiteralPath $resolved -Recurse -Force
 }

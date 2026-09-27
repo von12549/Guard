@@ -5,9 +5,10 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $package = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$repository = [IO.Path]::GetFullPath((Join-Path $package '../../..'))
+$repository = $package
+$workRoot = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($package))).Substring(0,12).ToLowerInvariant())
 $adapter = Join-Path $package 'modules/architecture-conformance/adapter.ps1'
-$case = Join-Path $repository ('artifacts/guards/v4/target-scope/' + [Guid]::NewGuid().ToString('N'))
+$case = Join-Path $workRoot ('target-scope/' + [Guid]::NewGuid().ToString('N'))
 $target = Join-Path $case 'target'
 $source = Join-Path $target 'src'
 $tests = Join-Path $target 'tests'

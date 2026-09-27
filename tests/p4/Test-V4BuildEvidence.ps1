@@ -5,8 +5,9 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 
 $packageRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$repositoryRoot=[IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))
-$runRoot=Join-Path $repositoryRoot 'artifacts/guards/v4/p4e'
+$repositoryRoot=$packageRoot
+$workRoot=[IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant())
+$runRoot=Join-Path $workRoot 'p4e'
 $provider=Join-Path $packageRoot 'modules/build-evidence-provider/adapter.ps1'
 $architecture=Join-Path $packageRoot 'modules/architecture-conformance/adapter.ps1'
 $providerSchema=Join-Path $packageRoot 'modules/build-evidence-provider/result.schema.json'
@@ -34,7 +35,7 @@ if($builderAst.Count-ne1){
     if($probe.Environment['DOTNET_ADD_GLOBAL_TOOLS_TO_PATH']-cne'0'){$failures.Add('isolated dotnet child must set DOTNET_ADD_GLOBAL_TOOLS_TO_PATH=0')}
 }
 
-$guardRuntimeFiles=Get-ChildItem -LiteralPath (Join-Path $repositoryRoot 'docs/guards') -Recurse -File | Where-Object{$_.Extension-in@('.ps1','.psm1','.cs','.cmd','.bat')}
+$guardRuntimeFiles=Get-ChildItem -LiteralPath $repositoryRoot -Recurse -File | Where-Object{$_.Extension-in@('.ps1','.psm1','.cs','.cmd','.bat')}
 $registryHives=@('HK'+'CU:','HKEY_'+'CURRENT_USER','HK'+'LM:','HKEY_'+'LOCAL_MACHINE')-join'|'
 $registryWriters=@('Set-'+'ItemProperty','New-'+'ItemProperty')-join'|'
 $permanentMutationPatterns=@(
@@ -49,7 +50,7 @@ foreach($file in $guardRuntimeFiles){
     foreach($pattern in $permanentMutationPatterns){if($content-match$pattern){$failures.Add("guard runtime contains a permanent environment mutation: $([IO.Path]::GetRelativePath($repositoryRoot,$file.FullName))");break}}
 }
 
-if(Test-Path $runRoot){$resolved=[IO.Path]::GetFullPath($runRoot);$prefix=[IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts/guards/v4')).TrimEnd([IO.Path]::DirectorySeparatorChar)+[IO.Path]::DirectorySeparatorChar;if(-not$resolved.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)){throw "Unsafe cleanup: $resolved"};Remove-Item -LiteralPath $resolved -Recurse -Force}
+if(Test-Path $runRoot){$resolved=[IO.Path]::GetFullPath($runRoot);$prefix=[IO.Path]::GetFullPath($workRoot).TrimEnd([IO.Path]::DirectorySeparatorChar)+[IO.Path]::DirectorySeparatorChar;if(-not$resolved.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)){throw "Unsafe cleanup: $resolved"};Remove-Item -LiteralPath $resolved -Recurse -Force}
 $target=Join-Path $runRoot 'target';$state=Join-Path $runRoot 'state';$evidence=Join-Path $runRoot 'evidence';foreach($path in @($target,$state,$evidence)){[void][IO.Directory]::CreateDirectory($path)}
 Write-Utf8(Join-Path $target 'input.txt')"synthetic-ok`n"
 Write-Utf8(Join-Path $target 'Contracts/Synthetic.Contracts.csproj')'<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>Synthetic.Contracts</AssemblyName></PropertyGroup></Project>'

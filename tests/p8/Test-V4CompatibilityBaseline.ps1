@@ -3,7 +3,7 @@ param()
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
-$packageRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'));$repoRoot=[IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'));$runRoot=Join-Path $repoRoot 'artifacts/guards/v4/p8-compatibility'
+$packageRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'));$repoRoot=$packageRoot;$workRoot=[IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant());$runRoot=Join-Path $workRoot 'p8-compatibility'
 $baselinePath=Join-Path $packageRoot 'core/certification/compatibility-baseline.json';$schema=Join-Path $packageRoot 'core/contracts/compatibility-baseline.schema.json'
 if(-not(Test-Json -LiteralPath $baselinePath -SchemaFile $schema -ErrorAction SilentlyContinue)){throw 'Compatibility baseline violates its schema.'}
 $baseline=Get-Content -Raw $baselinePath|ConvertFrom-Json -AsHashtable -Depth 100;$seen=[Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)

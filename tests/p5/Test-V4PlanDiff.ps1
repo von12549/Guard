@@ -5,8 +5,9 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))
-$runRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p5/git-diff'
+$repositoryRoot = $packageRoot
+$workRoot = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant())
+$runRoot = Join-Path $workRoot 'p5/git-diff'
 $integration = Join-Path $packageRoot 'integrations/git/Invoke-V4PlanDiff.ps1'
 $project = Join-Path $packageRoot 'core/host/V4.Guards.Host/V4.Guards.Host.csproj'
 $buildRoot = Join-Path $packageRoot 'build'
@@ -36,7 +37,7 @@ function Invoke-Diff($Case, [string] $Report) { $output = @(& pwsh -NoProfile -F
 function Expect($Run, [int] $Code, [string] $Category, [string] $Name) { if ($Run.Code -ne $Code -or -not (Test-Path $Run.Report)) { $failures.Add("${Name}: expected code $Code and a report, got $($Run.Code): $($Run.Text)"); return }; $report = Get-Content -Raw $Run.Report | ConvertFrom-Json; if ($report.exitCategory -cne $Category) { $failures.Add("${Name}: expected $Category, got $($report.exitCategory)") } }
 
 if (Test-Path $runRoot) {
-    $resolved = [IO.Path]::GetFullPath($runRoot); $prefix = [IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts/guards/v4')).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    $resolved = [IO.Path]::GetFullPath($runRoot); $prefix = [IO.Path]::GetFullPath($workRoot).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
     if (-not $resolved.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) { throw "Unsafe cleanup: $resolved" }; Remove-Item -LiteralPath $resolved -Recurse -Force
 }
 [void][IO.Directory]::CreateDirectory($runRoot)

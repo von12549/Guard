@@ -25,13 +25,13 @@ function Invoke-Required([string] $WindowsResult, [string] $WindowsRequired, [st
     [pscustomobject]@{ Code=$LASTEXITCODE; Text=($output -join "`n") }
 }
 
-Expect-Selection 'ordinary docs-only change' @('docs/guards/v4/plans/note.md','docs/guards/plans/20260922-example.plan.json') 'none'
+Expect-Selection 'ordinary docs-only change' @('docs/plans/product/note.md','docs/plans/20260922-example.plan.json') 'none'
 foreach ($pattern in $contract.windowsSensitivePatterns) {
     $path = if ($pattern.EndsWith('/**')) { $pattern.Substring(0,$pattern.Length-3) + '/probe.txt' } else { [string]$pattern }
-    Expect-Selection "sensitive pattern $pattern" @($path,'docs/guards/plans/20260922-example.plan.json') 'smoke'
+    Expect-Selection "sensitive pattern $pattern" @($path,'docs/plans/20260922-example.plan.json') 'smoke'
 }
-Expect-Selection 'explicit smoke' @('docs/guards/v4/plans/note.md') 'smoke' 'smoke'
-Expect-Selection 'explicit full certification' @('docs/guards/v4/plans/note.md') 'full' 'full'
+Expect-Selection 'explicit smoke' @('docs/plans/product/note.md') 'smoke' 'smoke'
+Expect-Selection 'explicit full certification' @('docs/plans/product/note.md') 'full' 'full'
 $outside = Invoke-Selection @('src/Application/App.cs'); if ($outside.Code -eq 0) { $failures.Add('Non-V4 changed path unexpectedly classified.') }
 
 if ((Invoke-Required skipped false none).Code -ne 0) { $failures.Add('Optional skipped Windows verdict did not pass.') }

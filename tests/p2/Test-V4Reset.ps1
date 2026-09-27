@@ -5,10 +5,11 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))
+$repositoryRoot = $packageRoot
+$workRoot = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant())
 $buildRoot = Join-Path $packageRoot 'build'
 $project = Join-Path $packageRoot 'core/host/V4.Guards.Host/V4.Guards.Host.csproj'
-$artifactsRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p2b'
+$artifactsRoot = Join-Path $workRoot 'p2b'
 $runRoot = Join-Path $artifactsRoot 'fixture'
 $failures = [Collections.Generic.List[string]]::new()
 

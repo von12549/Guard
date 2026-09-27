@@ -1,11 +1,15 @@
 [CmdletBinding()]
-param()
+param(
+    # Optional checkout that still contains the frozen V3_ifx reference sources (for example IFX).
+    [string] $ReferenceRepositoryRoot = ''
+)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))
+$repositoryRoot = $packageRoot
+$workRoot = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant())
 $moduleRoot = Join-Path $packageRoot 'modules/architecture-conformance'
 $matrixPath = Join-Path $moduleRoot 'capability-matrix.json'
 $planPath = Join-Path $moduleRoot 'rule-execution-plan.json'
@@ -83,15 +87,18 @@ foreach ($claim in $claims) {
     if ($reference.Count -ne 1 -or $reference[0].parityRule -cne $claim.parityRule) { $failures.Add("frozen reference parity drift: $($claim.claimId)") }
 }
 foreach ($source in $parity.sources) {
-    $sourcePath = Join-Path $repositoryRoot $source.path
-    if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf) -or (Hash $sourcePath) -cne $source.sha256) { $failures.Add("frozen reference source drift: $($source.path)") }
+    if ([string]$source.path -notmatch '^[A-Za-z0-9_][A-Za-z0-9_./-]*$' -or [string]$source.path -match '(^|/)\.\.(/|$)' -or [string]$source.sha256 -notmatch '^[a-f0-9]{64}$') { $failures.Add("frozen reference source identity is invalid: $($source.path)") }
+    if ($ReferenceRepositoryRoot) {
+        $sourcePath = Join-Path ([IO.Path]::GetFullPath($ReferenceRepositoryRoot)) $source.path
+        if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf) -or (Hash $sourcePath) -cne $source.sha256) { $failures.Add("frozen reference source drift: $($source.path)") }
+    }
 }
 
 $registry = Read (Join-Path $packageRoot 'modules/registry.json')
 $entry = @($registry.modules | Where-Object id -CEQ 'architecture-conformance')
 if ($entry.Count -ne 1 -or $entry[0].manifestSha256 -cne (Hash $manifestPath)) { $failures.Add('architecture module registry binding is invalid') }
 
-$fixtureRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p4a/package-drift'
+$fixtureRoot = Join-Path $workRoot 'p4a/package-drift'
 if (Test-Path -LiteralPath $fixtureRoot) { Remove-Item -LiteralPath $fixtureRoot -Recurse -Force }
 New-Item -ItemType Directory -Path $fixtureRoot -Force | Out-Null
 $copy = Join-Path $fixtureRoot 'package'; Copy-Item -LiteralPath $packageRoot -Destination $copy -Recurse

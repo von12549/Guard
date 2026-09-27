@@ -5,11 +5,12 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))
+$repositoryRoot = $packageRoot
+$workRoot = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant())
 $buildRoot = Join-Path $packageRoot 'build'
 $project = Join-Path $packageRoot 'core/host/V4.Guards.Host/V4.Guards.Host.csproj'
 $runRoot = Join-Path ([IO.Path]::GetTempPath()) ('v4-p0a-' + [Guid]::NewGuid().ToString('N'))
-$artifactsRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p0a'
+$artifactsRoot = Join-Path $workRoot 'p0a'
 $failures = [Collections.Generic.List[string]]::new()
 
 function Hash-Tree([string] $Root) {

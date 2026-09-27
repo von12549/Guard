@@ -25,7 +25,7 @@ function Invoke-Clean([string] $Executable,[string[]] $Arguments,[string] $Worki
 }
 
 $repository=[IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath($RepositoryRoot))
-$package=Join-Path $repository 'docs/guards/v4';$contractPath=Join-Path $package 'integrations/github/ci-contract.json'
+$package=$repository;$contractPath=Join-Path $package 'integrations/github/ci-contract.json'
 if(($Platform -eq 'linux' -and -not $IsLinux) -or ($Platform -eq 'windows' -and -not $IsWindows)){throw "Platform certification requested $Platform on $([Runtime.InteropServices.RuntimeInformation]::OSDescription)."}
 $actualCommit=(& git -C $repository rev-parse HEAD).Trim().ToLowerInvariant();if($LASTEXITCODE -or $actualCommit -cne $SourceCommit){throw "Repository HEAD does not match SourceCommit $SourceCommit."}
 if(@(& git -C $repository status --porcelain --untracked-files=no).Count-ne0){throw 'Platform certification requires a clean tracked worktree.'}

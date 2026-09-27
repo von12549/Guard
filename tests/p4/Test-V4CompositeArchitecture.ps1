@@ -5,8 +5,9 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 
 $packageRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$repositoryRoot=[IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))
-$runRoot=Join-Path $repositoryRoot 'artifacts/guards/v4/p4f'
+$repositoryRoot=$packageRoot
+$workRoot=[IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant())
+$runRoot=Join-Path $workRoot 'p4f'
 $buildRoot=Join-Path $packageRoot 'build'
 $project=Join-Path $packageRoot 'core/host/V4.Guards.Host/V4.Guards.Host.csproj'
 $dll=Join-Path $runRoot 'bin/V4.Guards.Host/debug/v4-guards.dll'
@@ -60,7 +61,7 @@ function Expect($Run,[string]$Name,[int]$Code,[string]$Category){if($Run.Code-ne
 function Assert-Claims($Result,[string[]]$Claims,[switch]$Findings){foreach($claim in $Claims){if(@($Result.coverage|Where-Object{$_.claimId-ceq$claim}).Count-ne1){$failures.Add("coverage identity missing: $claim")};if($Findings-and@($Result.findings|Where-Object{$_.ruleId-ceq$claim}).Count-lt1){$failures.Add("violating finding missing: $claim")}}}
 function Invoke-Adapter($Payload){$prior=$env:V4_STAGE_INPUT_JSON;try{$env:V4_STAGE_INPUT_JSON=$Payload|ConvertTo-Json -Depth 100 -Compress;$json=& pwsh -NoProfile -File $adapter;$code=$LASTEXITCODE}finally{$env:V4_STAGE_INPUT_JSON=$prior};if($code-ne0-or-not(Test-Json -Json $json -SchemaFile $adapterSchema -ErrorAction SilentlyContinue)){throw "Direct adapter result invalid: $json"};$json|ConvertFrom-Json}
 
-if(Test-Path $runRoot){$resolved=[IO.Path]::GetFullPath($runRoot);$prefix=[IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts/guards/v4')).TrimEnd([IO.Path]::DirectorySeparatorChar)+[IO.Path]::DirectorySeparatorChar;if(-not$resolved.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)){throw "Unsafe cleanup: $resolved"};Remove-Item -LiteralPath $resolved -Recurse -Force}
+if(Test-Path $runRoot){$resolved=[IO.Path]::GetFullPath($runRoot);$prefix=[IO.Path]::GetFullPath($workRoot).TrimEnd([IO.Path]::DirectorySeparatorChar)+[IO.Path]::DirectorySeparatorChar;if(-not$resolved.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)){throw "Unsafe cleanup: $resolved"};Remove-Item -LiteralPath $resolved -Recurse -Force}
 [void][IO.Directory]::CreateDirectory($runRoot)
 $properties=@('-p:ImportDirectoryBuildProps=false','-p:ImportDirectoryBuildTargets=false','-p:ImportDirectoryPackagesProps=false','-p:ImportDirectorySolutionProps=false','-p:ImportDirectorySolutionTargets=false',"-p:CustomBeforeMicrosoftCommonProps=$(Join-Path $buildRoot 'V4.Build.props')")
 Push-Location $buildRoot;try{& dotnet restore $project --configfile (Join-Path $buildRoot 'NuGet.config') --artifacts-path $runRoot -nologo @properties;if($LASTEXITCODE){throw'P4F restore failed'};& dotnet build $project --no-restore --artifacts-path $runRoot -nologo @properties;if($LASTEXITCODE){throw'P4F build failed'}}finally{Pop-Location}

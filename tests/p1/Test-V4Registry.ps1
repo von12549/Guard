@@ -5,9 +5,10 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$repoRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))
+$repoRoot = $packageRoot
+$workRoot = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant())
 $checker = Join-Path $packageRoot 'core/runtime/Test-V4Package.ps1'
-$fixtureRoot = Join-Path $repoRoot 'artifacts/guards/v4/p1b'
+$fixtureRoot = Join-Path $workRoot 'p1b'
 $failures = [Collections.Generic.List[string]]::new()
 
 function Write-Json([string] $Path, $Value) {

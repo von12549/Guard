@@ -17,7 +17,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$baseRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))
+$baseRoot = $packageRoot
 $head = [IO.Path]::GetFullPath($HeadRoot)
 $contractPath = Join-Path $PSScriptRoot 'ci-contract.json'
 $contractSchema = Join-Path $packageRoot 'core/contracts/ci-contract.schema.json'
@@ -113,11 +113,11 @@ function Get-SourceHash([string] $Package) {
 }
 function Copy-TrackedPackage([string] $Repository, [string] $Destination) {
     [void][IO.Directory]::CreateDirectory($Destination)
-    $paths = @(Invoke-Git $Repository @('ls-files','--','docs/guards/v4'))
+    $paths = @(Invoke-Git $Repository @('ls-files'))
     if ($paths.Count -eq 0) { Fail 'Candidate has no tracked V4 package files.' }
     foreach ($relative in $paths) {
-        if (-not $relative.StartsWith('docs/guards/v4/',[StringComparison]::Ordinal)) { Fail "Tracked package path escaped: $relative" }
-        $packageRelative = $relative.Substring('docs/guards/v4/'.Length)
+        if ([IO.Path]::IsPathRooted($relative) -or @($relative.Split('/') | Where-Object { $_ -in @('', '.', '..') }).Count -gt 0) { Fail "Tracked package path escaped: $relative" }
+        $packageRelative = $relative
         $source = Join-Path $Repository $relative; $target = Join-Path $Destination $packageRelative; $parent = [IO.Path]::GetDirectoryName($target)
         if (-not [IO.Directory]::Exists($parent)) { [void][IO.Directory]::CreateDirectory($parent) }
         [IO.File]::Copy($source,$target,$true)
@@ -165,8 +165,8 @@ try {
         }
         else {
             $changed = @(Get-ChangedPaths); if ($changed.Count -eq 0) { Fail 'Candidate head has no changed paths.' 10 }
-            $planSets = @($changed | Where-Object { $_ -match '^docs/guards/plans/.+\.plan-set\.json$' })
-            $plans = @($changed | Where-Object { $_ -match '^docs/guards/plans/.+\.plan\.json$' })
+            $planSets = @($changed | Where-Object { $_ -match '^docs/plans/[^/]+\.plan-set\.json$' })
+            $plans = @($changed | Where-Object { $_ -match '^docs/plans/[^/]+\.plan\.json$' })
             if ($planSets.Count -eq 1) { $rootPlan = $planSets[0] }
             elseif ($planSets.Count -eq 0 -and $plans.Count -eq 1) { $rootPlan = $plans[0] }
             else { Fail 'The candidate must select exactly one root Plan or one root plan-set.' 10 }
@@ -197,7 +197,7 @@ try {
         Assert-ExternalRoots ([ordered]@{StateRoot=$state;EvidenceRoot=$evidence;ArtifactRoot=$artifact})
         if (@(Get-ChildItem -LiteralPath $artifact -Force).Count -gt 0) { Fail 'ArtifactRoot must be empty before Linux production.' 17 }
         $target = New-IsolatedHead $state; $tests = @(Test-ApprovedTests $target 'linux'); $executed = @(Invoke-Tests $target $tests)
-        $targetPackage = Join-Path $target 'docs/guards/v4'; $packageCheck = Invoke-Isolated 'pwsh' @('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $packageRoot 'core/runtime/Test-V4Package.ps1'),'-PackageRoot',$targetPackage) $target 300
+        $targetPackage = $target; $packageCheck = Invoke-Isolated 'pwsh' @('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $packageRoot 'core/runtime/Test-V4Package.ps1'),'-PackageRoot',$targetPackage) $target 300
         if ($packageCheck.Code) { Fail "Candidate package validation failed: $($packageCheck.Error)" }; $packageResult = $packageCheck.Output | ConvertFrom-Json
         $project = Join-Path $targetPackage 'core/host/V4.Guards.Host/V4.Guards.Host.csproj'; $build = Join-Path $state 'build'; [void][IO.Directory]::CreateDirectory($build)
         $properties = @('-p:ImportDirectoryBuildProps=false','-p:ImportDirectoryBuildTargets=false','-p:ImportDirectoryPackagesProps=false','-p:ImportDirectorySolutionProps=false','-p:ImportDirectorySolutionTargets=false',"-p:CustomBeforeMicrosoftCommonProps=$(Join-Path $targetPackage 'build/V4.Build.props')")
