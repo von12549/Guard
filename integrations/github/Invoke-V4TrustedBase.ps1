@@ -69,7 +69,7 @@ function Get-ChangedPaths {
 function Invoke-Isolated([string] $Executable, [string[]] $Arguments, [string] $WorkingDirectory, [int] $TimeoutSeconds = 1200) {
     $command = (Get-Command $Executable -ErrorAction Stop).Source
     $start = [Diagnostics.ProcessStartInfo]::new($command); $start.UseShellExecute = $false; $start.RedirectStandardOutput = $true; $start.RedirectStandardError = $true; $start.CreateNoWindow = $true; $start.WorkingDirectory = $WorkingDirectory; $start.Environment.Clear()
-    foreach ($name in @('PATH','SystemRoot','WINDIR','TEMP','TMP','HOME','USERPROFILE','DOTNET_ROOT','ProgramFiles','ProgramFiles(x86)','LOCALAPPDATA','APPDATA','NUGET_PACKAGES')) { $value = [Environment]::GetEnvironmentVariable($name); if (-not [string]::IsNullOrWhiteSpace($value)) { $start.Environment[$name] = $value } }
+    foreach ($name in @('PATH','PATHEXT','SystemRoot','WINDIR','TEMP','TMP','HOME','USERPROFILE','DOTNET_ROOT','ProgramFiles','ProgramFiles(x86)','LOCALAPPDATA','APPDATA','NUGET_PACKAGES')) { $value = [Environment]::GetEnvironmentVariable($name); if (-not [string]::IsNullOrWhiteSpace($value)) { $start.Environment[$name] = $value } }
     $start.Environment['CI'] = 'true'; $start.Environment['DOTNET_CLI_TELEMETRY_OPTOUT'] = '1'; $start.Environment['POWERSHELL_TELEMETRY_OPTOUT'] = '1'
     foreach ($argument in $Arguments) { [void]$start.ArgumentList.Add($argument) }
     $process = [Diagnostics.Process]::Start($start); if ($null -eq $process) { Fail "$Executable did not start." }
