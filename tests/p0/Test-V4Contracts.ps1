@@ -177,6 +177,8 @@ $expectedManifestPaths = @($schemaNames | ForEach-Object { "core/contracts/$_.sc
 $manifest = Get-Content -Raw (Join-Path $contractRoot 'contracts-manifest.json') | ConvertFrom-Json -AsHashtable -Depth 20
 $manifestPaths = @($manifest.files | ForEach-Object path | Sort-Object)
 if (($manifestPaths -join ',') -cne ($expectedManifestPaths -join ',')) { $failures.Add('Contract manifest path set is not exact') }
+$trustPolicy = Get-Content -Raw (Join-Path $packageRoot 'integrations/github/trust-policy.json') | ConvertFrom-Json -AsHashtable -Depth 20
+if ($manifestPaths -cnotcontains [string]$trustPolicy.authorizationSchema) { $failures.Add('Trust policy authorization schema is not a bound contract') }
 foreach ($entry in $manifest.files) {
     $full = Join-Path $packageRoot $entry.path
     if (-not [IO.File]::Exists($full)) { $failures.Add("Manifest file is missing: $($entry.path)"); continue }
