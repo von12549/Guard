@@ -1,0 +1,292 @@
+{
+  "formatVersion": 1,
+  "seedSha": "118644e3d4eaaf6102345d79e96040b568e50632",
+  "packageHash": "4c8b45c0183f3f911a7dfd497ad214b81fd72ae2a59e95037d42896be748eb59",
+  "contractsManifestHash": "18085bd12a20615af31e8055c0c094f758b77a18a483048db69eb191168fb940",
+  "deterministicTests": [
+    {
+      "id": "linux:tests/p0/Test-V4Contracts.ps1",
+      "resultHash": "1146e33f0b3910d2095a390b5841faa1d3464173259d201ff02e097142248735"
+    },
+    {
+      "id": "linux:tests/p0/Test-V4GenesisProposal.ps1",
+      "resultHash": "8c977f393c92cee6f535b50a595326e5c3444dab1036c94d86f7e242533b72c8"
+    },
+    {
+      "id": "linux:tests/p0/Test-V4HostSpike.ps1",
+      "resultHash": "353a4bc0285d65df46a4eee5e0dc35c03177d76067cc05d6ecd18e6ca4f32778"
+    },
+    {
+      "id": "linux:tests/p1/Test-V4Package.ps1",
+      "resultHash": "28681f71bc4496448d4fd512d112bd28932bc1242ec916dfe6030bfc48e4bed6"
+    },
+    {
+      "id": "linux:tests/p1/Test-V4Registry.ps1",
+      "resultHash": "d2eed4a4c0753e0dbdc885b10821e2040d378e6fd2517645091777ab7f02d07f"
+    },
+    {
+      "id": "linux:tests/p2/Test-V4Reset.ps1",
+      "resultHash": "3571dfe4c4cccaa8a678c58a3dfff1968aa5d3f87a6ef90888ad2f555121b3cc"
+    },
+    {
+      "id": "linux:tests/p2/Test-V4StateTransactions.ps1",
+      "resultHash": "7700305f17a275edb0fd4ded40401eb17a2c7af95dcfbc330cb33ff97bf06194"
+    },
+    {
+      "id": "linux:tests/p3/Test-V4StageOrchestration.ps1",
+      "resultHash": "a7760fe6d48ce9bfff97d9c7f674af6a40f469dd148c61a39c66faa457802646"
+    },
+    {
+      "id": "linux:tests/p3/Test-V4Stages.ps1",
+      "resultHash": "94a64a02f5d194b7f70800cd513dc015e6e900f1020d86209aed964063461958"
+    },
+    {
+      "id": "linux:tests/p4/Test-V4ArchitectureAuthority.ps1",
+      "resultHash": "5dfda1f4e5552f907bf80b5b053036931f6c0eac9a6298fdf9934d118b28ae0e"
+    },
+    {
+      "id": "linux:tests/p4/Test-V4ArchUnitNetAdapter.ps1",
+      "resultHash": "2e1661fc18425509794da6b09084f288f4f4de776eecd2cdc6f7b5d0fdd12836"
+    },
+    {
+      "id": "linux:tests/p4/Test-V4BuildEvidence.ps1",
+      "resultHash": "7b86e718c900dc940b5b9277b2875379a7586804ae6923120000064bd215cd61"
+    },
+    {
+      "id": "linux:tests/p4/Test-V4CompositeArchitecture.ps1",
+      "resultHash": "990b6bec4214075be694466f136335cf5606f5418e197cda3d5ba1e7dcc713c5"
+    },
+    {
+      "id": "linux:tests/p4/Test-V4ProjectModel.ps1",
+      "resultHash": "7dcec2f4d243fd13d77ff0ade4f4e3ecefe8528e85e82b4721ef12899db44d50"
+    },
+    {
+      "id": "linux:tests/p4/Test-V4RoslynDetectors.ps1",
+      "resultHash": "9b5f4857eb7125e0446a3ce51be6649857262a36d2c07cbaef951843f457ea78"
+    },
+    {
+      "id": "linux:tests/p4/Test-V4TargetScope.ps1",
+      "resultHash": "36205cbcf6a1253c89c859855502d532f798a4feef30f5fd82176d4e29d80ea5"
+    },
+    {
+      "id": "linux:tests/p5/Test-V4PlanDiff.ps1",
+      "resultHash": "8975046b5ea4fd8b39fe12401eb045aea1d94050ce0cea7405daf1c34cb90851"
+    },
+    {
+      "id": "linux:tests/p5/Test-V4PlanRuntime.ps1",
+      "resultHash": "e1e5952ed855f0d0d8ba5027a32861f0152fe82a1db16af7fee322ed6ac22dc5"
+    },
+    {
+      "id": "linux:tests/p6/Test-V4ChangeClassifier.ps1",
+      "resultHash": "accf6bd973a36803b3fb6a64d150269e916abe1c3fe6e9d01da45a8d9b7ee6bc"
+    },
+    {
+      "id": "linux:tests/p6/Test-V4WorkflowContract.ps1",
+      "resultHash": "a993080218c897ced22914679f07fcdec8cbccde03c0566ee93bbf9522543a77"
+    },
+    {
+      "id": "linux:tests/p7/Test-V4Distribution.ps1",
+      "resultHash": "70c60ec9e9a3f6838cdb6178e8dd0f7260bd278b36107000a9cbc7f47818cac7"
+    },
+    {
+      "id": "linux:tests/p7/Test-V4Documentation.ps1",
+      "resultHash": "7a09ecffac04022fe033d26f5504a056a7efa8a7605e61fcbe44273bf7886e32"
+    },
+    {
+      "id": "linux:tests/p7/Test-V4Lifecycle.ps1",
+      "resultHash": "b1c516e155925035f480e6593b540d3eba76fbc001229345f915eac98517b8d1"
+    },
+    {
+      "id": "linux:tests/p8/Test-V4CompatibilityBaseline.ps1",
+      "resultHash": "2a448a75de36d6165c192f737d1274f51288a21dd55e32e6ed7ef43cc33bfd0d"
+    },
+    {
+      "id": "linux:tests/p8/Test-V4SupplyChain.ps1",
+      "resultHash": "1b220e5dbca85138187c7a9818712cd5657d1a14065662375af631241d1b78d2"
+    },
+    {
+      "id": "linux:tests/p8/Test-V4V1Acceptance.ps1",
+      "resultHash": "f8d448fb0ae500a867dc99a2d2ec1da147bdea1d19b9fd1ac7ff6e40efe358d0"
+    },
+    {
+      "id": "linux:tests/p8/Test-V4StableCli.ps1",
+      "resultHash": "c142cb473a0a2aca1c6d3db2ac417489e282a71360d3f795fbb52c96499819d8"
+    },
+    {
+      "id": "linux:tests/p9/Test-V4EvidencePlanCenter.ps1",
+      "resultHash": "b01651a7d3683d370ac1872726eba95c7a52e7b28c9592e0d8fc9f970d1ad3cb"
+    },
+    {
+      "id": "linux:tests/p9/Test-V4OfflineWebDistribution.ps1",
+      "resultHash": "3601a65ffd450f38d703c0219bc332a86df3f52e7298d38db575585319285d89"
+    },
+    {
+      "id": "linux:tests/p9/Test-V4QueryContracts.ps1",
+      "resultHash": "f684a82a64cfe06ab88d5bc64f07b039b1b543ed35876559b4c58a391fafd0ad"
+    },
+    {
+      "id": "linux:tests/p9/Test-V4WebCompanionSpike.ps1",
+      "resultHash": "21b6e56e9cf7706485497ec3096b0f841e2b0e9dc081a5a8c28d08267251da91"
+    },
+    {
+      "id": "linux:tests/p9/Test-V4WorkspaceStageRunner.ps1",
+      "resultHash": "1e370fe2de1cfcd48564017902083e65651a2954a06ff07156a81929989bd9a4"
+    },
+    {
+      "id": "linux:tests/p10/Test-V4ExtensionComposition.ps1",
+      "resultHash": "cce49fe2fe89f2477a9f06f41f53df5c873da7edfbd24d1f643b35e07020bb33"
+    },
+    {
+      "id": "windows:tests/p0/Test-V4Contracts.ps1",
+      "resultHash": "1146e33f0b3910d2095a390b5841faa1d3464173259d201ff02e097142248735"
+    },
+    {
+      "id": "windows:tests/p0/Test-V4GenesisProposal.ps1",
+      "resultHash": "8c977f393c92cee6f535b50a595326e5c3444dab1036c94d86f7e242533b72c8"
+    },
+    {
+      "id": "windows:tests/p0/Test-V4HostSpike.ps1",
+      "resultHash": "857d4f89e5345fac86648a3eaf1ebdfabe43f47e249805160286da31840cd944"
+    },
+    {
+      "id": "windows:tests/p1/Test-V4Package.ps1",
+      "resultHash": "28681f71bc4496448d4fd512d112bd28932bc1242ec916dfe6030bfc48e4bed6"
+    },
+    {
+      "id": "windows:tests/p1/Test-V4Registry.ps1",
+      "resultHash": "d2eed4a4c0753e0dbdc885b10821e2040d378e6fd2517645091777ab7f02d07f"
+    },
+    {
+      "id": "windows:tests/p2/Test-V4Reset.ps1",
+      "resultHash": "db75b1b0a4cce11b273fa30c380d882c3448d1ef8609f60ac80439bd8b51a373"
+    },
+    {
+      "id": "windows:tests/p2/Test-V4StateTransactions.ps1",
+      "resultHash": "1821e36afae14c29c48bf397302fa3bc6ba3861c8869fdb93e8524f602997c72"
+    },
+    {
+      "id": "windows:tests/p3/Test-V4StageOrchestration.ps1",
+      "resultHash": "8e0ceec7911c1182e2ce211b1714b9a9bfc01a3a28cff65f3aa04ed2b66cdc07"
+    },
+    {
+      "id": "windows:tests/p3/Test-V4Stages.ps1",
+      "resultHash": "1b8f9a8151d1315b8fe0d142295065c95fef6e9752bf5c500b246f59cfc851e0"
+    },
+    {
+      "id": "windows:tests/p4/Test-V4ArchitectureAuthority.ps1",
+      "resultHash": "5dfda1f4e5552f907bf80b5b053036931f6c0eac9a6298fdf9934d118b28ae0e"
+    },
+    {
+      "id": "windows:tests/p4/Test-V4ArchUnitNetAdapter.ps1",
+      "resultHash": "2bd2ce0532c8db227e2b396c3b9d8b2e2adf99e6bc0da571474be5995e904fb3"
+    },
+    {
+      "id": "windows:tests/p4/Test-V4BuildEvidence.ps1",
+      "resultHash": "7b86e718c900dc940b5b9277b2875379a7586804ae6923120000064bd215cd61"
+    },
+    {
+      "id": "windows:tests/p4/Test-V4CompositeArchitecture.ps1",
+      "resultHash": "142d66efe5dabe92e49149523f31504640bc458fb711acdb00c862d1af6a24ff"
+    },
+    {
+      "id": "windows:tests/p4/Test-V4ProjectModel.ps1",
+      "resultHash": "f0053d0c9fcc1d929658061209dd19b5c8c06f4614f89d586205cde407099825"
+    },
+    {
+      "id": "windows:tests/p4/Test-V4RoslynDetectors.ps1",
+      "resultHash": "9b5f4857eb7125e0446a3ce51be6649857262a36d2c07cbaef951843f457ea78"
+    },
+    {
+      "id": "windows:tests/p4/Test-V4TargetScope.ps1",
+      "resultHash": "61db8b766a7486253aa57ca38c7a8aa2ab70fe8aa894bef857ea17e5bf2c5169"
+    },
+    {
+      "id": "windows:tests/p5/Test-V4PlanDiff.ps1",
+      "resultHash": "bbee468e1e248e252e2851eac54f85fae48624862f094c6b5e46936037635334"
+    },
+    {
+      "id": "windows:tests/p5/Test-V4PlanRuntime.ps1",
+      "resultHash": "6ae87302f4726c6d3cd7e7c22cb463c442ca6c33c37b6a29289f2ab1c78385b9"
+    },
+    {
+      "id": "windows:tests/p6/Test-V4ChangeClassifier.ps1",
+      "resultHash": "accf6bd973a36803b3fb6a64d150269e916abe1c3fe6e9d01da45a8d9b7ee6bc"
+    },
+    {
+      "id": "windows:tests/p6/Test-V4TrustedBase.ps1",
+      "resultHash": "538e9425f40858abea336e89755d2e9ceb582c2cd2f10167038778cc757ee70e"
+    },
+    {
+      "id": "windows:tests/p6/Test-V4WorkflowContract.ps1",
+      "resultHash": "a993080218c897ced22914679f07fcdec8cbccde03c0566ee93bbf9522543a77"
+    },
+    {
+      "id": "windows:tests/p7/Test-V4Distribution.ps1",
+      "resultHash": "82d5ef8f6a144953a355a2acd61811cd2dd148a554611e9a5fc1b97866b82775"
+    },
+    {
+      "id": "windows:tests/p7/Test-V4Documentation.ps1",
+      "resultHash": "7a09ecffac04022fe033d26f5504a056a7efa8a7605e61fcbe44273bf7886e32"
+    },
+    {
+      "id": "windows:tests/p7/Test-V4Lifecycle.ps1",
+      "resultHash": "0c476236b22e6c6450e6f2808e52952b2669eda6e387df24c27fea2ce56c98c0"
+    },
+    {
+      "id": "windows:tests/p8/Test-V4CompatibilityBaseline.ps1",
+      "resultHash": "2a448a75de36d6165c192f737d1274f51288a21dd55e32e6ed7ef43cc33bfd0d"
+    },
+    {
+      "id": "windows:tests/p8/Test-V4SupplyChain.ps1",
+      "resultHash": "1b220e5dbca85138187c7a9818712cd5657d1a14065662375af631241d1b78d2"
+    },
+    {
+      "id": "windows:tests/p8/Test-V4V1Acceptance.ps1",
+      "resultHash": "9ef41fc4800e6d7e15687e631e46f2ef68088810a24884d8da6e851f806d6969"
+    },
+    {
+      "id": "windows:tests/p8/Test-V4StableCli.ps1",
+      "resultHash": "9fd1b081c1b9974c6831a3110786fb5a6e87dd33e5148c40d9e1638e7ad3eaad"
+    },
+    {
+      "id": "windows:tests/p9/Test-V4EvidencePlanCenter.ps1",
+      "resultHash": "71570290d87fcf437b901d036a56b1576c897b158f03d468ac904d8894e4fd88"
+    },
+    {
+      "id": "windows:tests/p9/Test-V4OfflineWebDistribution.ps1",
+      "resultHash": "c018b47327d5639a31f078aa73b4fd3bfc5cba94f9dda761f279a246d551fd6f"
+    },
+    {
+      "id": "windows:tests/p9/Test-V4QueryContracts.ps1",
+      "resultHash": "8373fa3828b7ba39bbbe45f459fb4b2e8182a064cb283beb13ccc7417f34fee9"
+    },
+    {
+      "id": "windows:tests/p9/Test-V4WebCompanionSpike.ps1",
+      "resultHash": "50499c0b782ae59fa487180fea25c93c066fe1837ab81f21f6da9a1817142249"
+    },
+    {
+      "id": "windows:tests/p9/Test-V4WorkspaceStageRunner.ps1",
+      "resultHash": "d6bffbaeb51d310e10f26c5c9701b6cef6aa016d469bdb5f43737b926e2ffdfa"
+    },
+    {
+      "id": "windows:tests/p10/Test-V4ExtensionComposition.ps1",
+      "resultHash": "c990e95807c2076147ca89e0eadc3cb151d7e3cfa45bc654b28316345bf081c4"
+    }
+  ],
+  "nonInterferenceEvidence": [
+    "certification run https://github.com/von12549/Guard/actions/runs/36328329765 at a2c7323be52b5a5c51a1cb2cc0b89fdd87bd216e (tree of seed)",
+    "linux-complete report sha256 275cc266d9c69358274a00ccb667fd001f69128eb2fc5a7d703e4713db778cb9",
+    "windows-full report sha256 758d211c58b3e9e8c30cccf00753dd0f1a40f28848249858f80dcf0b78a31fef",
+    "genesis seed certification https://github.com/von12549/Guard/actions/runs/36326273549 at 79596c37d839606ca171270fc080a220fb31248d",
+    "V4-TODO-008 T5 evidence D:/IFX-Root/v4-todo-008-evidence/T5-validation/20260927T104523Z (t5-decision.json)"
+  ],
+  "recovery": {
+    "restoreSha": "65cf6cde3392d34d0fb86ff50e33f58a2d546913",
+    "instructionsHash": "59294e3f5abbcb493e064ff279a0074abff344e79e5348e713ce570e6b57b82d"
+  },
+  "acceptedBy": {
+    "authorityType": "human-review",
+    "authorityId": "von12549 operator authorization 2026-09-28 (activation steps A, C, D, E; Plan 20260928-guard-v4-workflow-activation)",
+    "candidateHostVerdictAllowed": false
+  }
+}
