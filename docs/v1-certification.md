@@ -3,7 +3,7 @@
 The V4 certification pipeline certifies a local candidate; it does not publish a release or activate
 repository controls.
 
-Version `1.1.4` includes the completed P9 Web Companion, hash-bound root project README,
+Version `1.1.5` includes the completed P9 Web Companion, hash-bound root project README,
 P10.1 local composition contract and opt-in Host workspace evidence while preserving
 stable API version `1.0`. V4 declares and certifies
 `linux-x64` and `win-x64` only; macOS support is not declared.
