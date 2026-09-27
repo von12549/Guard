@@ -1,8 +1,9 @@
 # V4 Guards
 
 V4 Guards is a self-contained, profile-driven guard package for inspecting repositories through four
-independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.1.4` adds
-opt-in reusable Host workspace evidence; earlier releases remain immutable.
+independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.1.5` is the
+first release published from this standalone repository and carries no runtime change from `1.1.4`,
+which added opt-in reusable Host workspace evidence; earlier releases remain immutable.
 The stable V4 1.0 command API and local, non-authoritative Web Companion are preserved.
 
 V4 Guards is developed in this standalone repository (`von12549/Guard`). It was incubated in the IFX
@@ -42,7 +43,7 @@ untouched.
 
 ## Distribution and prerequisites
 
-The `1.1.4` archive is named `v4-guards-1.1.4.zip` and contains three hash-bound payloads:
+The `1.1.5` archive is named `v4-guards-1.1.5.zip` and contains three hash-bound payloads:
 
 - `package/`: immutable V4 authorities and this README;
 - `host/`: the `v4-guards` .NET Host; and
@@ -51,7 +52,8 @@ The `1.1.4` archive is named `v4-guards-1.1.4.zip` and contains three hash-bound
 The supported release targets are `linux-x64` and `win-x64`. The declared host prerequisites are
 PowerShell 7.4 or newer and .NET 10.x; selected modules may add declared prerequisites. Installation
 and verified uninstall use `core/distribution/Install-V4Distribution.ps1` plus an external receipt.
-See [1.1.4 release notes](docs/1.1.4-release-notes.md),
+See [1.1.5 release notes](docs/1.1.5-release-notes.md),
+[1.1.4 release notes](docs/1.1.4-release-notes.md),
 [1.1.3 release notes](docs/1.1.3-release-notes.md),
 [1.1.2 release notes](docs/1.1.2-release-notes.md),
 [1.1.1 release notes](docs/1.1.1-release-notes.md), [1.1.0 release notes](docs/1.1.0-release-notes.md)
@@ -70,6 +72,11 @@ approve or include the incomplete IFX bundle; see the release notes.
 
 Version `1.1.3` prevents the Build Evidence Provider's isolated .NET CLI home from being
 registered in the Windows User PATH. It adds no Profile, module, rule or IFX candidate content.
+
+Version `1.1.5` is published from `von12549/Guard` after the V4-TODO-008 extraction. Its Host and Web
+Companion are binary-equivalent to `1.1.4` apart from version metadata; the package differs only by the
+standalone repository layout, test and certification paths, and the activation-ready trusted-base workflow
+specimen. See the [1.1.5 release notes](docs/1.1.5-release-notes.md).
 
 Version `1.1.4` lets a Profile opt into one Host-generated workspace evidence document per
 stage run. Eligible modules reuse its deterministic, schema-bound inventory and hashes instead
@@ -96,7 +103,7 @@ explicitly requested and is reported in order.
 
 Profiles are declarative configuration. They select registered, hash-bound modules and may not provide
 arbitrary executable paths or shell commands. The package ships `default` and `synthetic_profile`;
-`ifx_profile` is not included in the 1.1.4 base or earlier releases. Module capabilities declare readable/writable roots, permitted
+`ifx_profile` is not included in the 1.1.5 base or earlier releases. Module capabilities declare readable/writable roots, permitted
 processes, network use and timeouts. See [configuration.md](docs/configuration.md).
 
 Version 1.1.4 defines an optional `workspaceEvidence` Profile capability.
