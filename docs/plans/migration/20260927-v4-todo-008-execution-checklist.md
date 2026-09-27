@@ -1,6 +1,6 @@
 # V4-TODO-008 execution checklist
 
-Status: `T0–T4 PASS; T5 local-windows-accepted-linux-pending — STOPPED AT THE REMOTE BOUNDARY (T6 NOT AUTHORIZED)`
+Status: `T0–T5 PASS; T6.1–T6.5 DONE (seed merged); T6.6 SUPERSEDED BY THE ACTIVATION PLAN (phase 1 complete); T6.7 RELEASE NOT AUTHORIZED`
 
 Executor: **Claude Code**. Operator: the repository owner (`von12549`).
 
@@ -193,7 +193,8 @@ Claude Code never pauses, kills or reconfigures OneDrive. It only records proces
 | A-PUSH | Push `codex/v4-todo-008-standalone` to `von12549/Guard` | **Authorized 2026-09-28** (T6 Plan `20260928-v4-todo-008-t6-guard-genesis`, "Approve; do T6.1–T6.4") |
 | A-PR | Open/update the Guard migration pull request | **Authorized 2026-09-28** (T6.2) |
 | A-CI | Add the minimal trusted-base Guard workflow through its own Plan | A-CI-1 (dispatch-only certification workflow committed directly on `main`, plus its dispatch at the PR head) **authorized 2026-09-28** (T6.3/T6.4). A-CI-2 (trusted-base PR workflow activation, T6.6) is not authorized |
-| A-MERGE | Merge the Guard PR / update Guard `main` | Not authorized |
+| A-MERGE | Merge the Guard PR / update Guard `main` | **Authorized 2026-09-28** ("授权T6.5合并和T6.6激活"); PR #1 merged as `65cf6cde` |
+| A-ACT | Activation Plan `20260928-guard-v4-workflow-activation` steps A, C, D and E | **Authorized 2026-09-28** ("授权执行A、C、D、E"). A: PR #2 → `118644e3`; C: `b022f9e8`; D: PR #3 rejected; E: records PR |
 | A-RELEASE | Create a tag/release/asset for the new standalone version | Not authorized |
 | A-IFX-REBIND | T7 IFX consumer rebinding commits | Not authorized |
 | A-IFX-REMOTE-O13-O5 | O13: push `codex/v4-development-base` (`286e453d..af2bd603`). O5: push, PR and merge its two-step V3_ifx fix into `codex/v4-development-base` | **Authorized 2026-09-28** ("授权执行O13/O5的推送，PR和合并"; then "关闭 PR，改为直接推送两个分支到开发分支"). O13 done. O5 done: PR von12549/IFX#108 closed without merge; the operator merged `707b3019` and `42b666ac` directly and pushed them |
@@ -447,15 +448,19 @@ certified package identity is unchanged at the branch tip.
 
 ### T6 — Remote Guard review and release (each item separately authorized)
 
-- [ ] A-PUSH: push only `codex/v4-todo-008-standalone`, never `main`.
-- [ ] A-PR: open the PR with the migration receipt and the validation matrix.
-- [ ] A-CI: minimal trusted-base workflow through its own reviewed Plan. The candidate never judges itself.
-- [ ] Linux-complete and Windows-full against one exact commit/package identity. T5 becomes `pass`
+- [x] A-PUSH: push only `codex/v4-todo-008-standalone`, never `main` (`79596c37`).
+- [x] A-PR: open the PR with the migration receipt and the validation matrix.
+- [x] A-CI: minimal trusted-base workflow through its own reviewed Plan. The candidate never judges itself.
+- [x] Linux-complete and Windows-full against one exact commit/package identity. T5 becomes `pass`
       only then; record both decision hashes.
-- [ ] A-MERGE: merge after the required review and controls.
+- [x] A-MERGE: merge after the required review and controls (seed PR #1 → `65cf6cde`, operator acceptance under A3).
 - [ ] A-RELEASE: next unused semantic version (after 1.1.4) through a separate publication Plan, with
       a provenance note pointing to the immutable IFX releases. Never recreate the `v4-guards-v1.*` tags.
 - [ ] Verify the release asset bytes and the install receipt from a clean consumer environment.
+
+**T6 status**: T6.1–T6.5 done. Seed `65cf6cde` (A3) and the certification workflow `73a0653` are on
+`main`. The trusted-base workflow is active since `b022f9e8` (activation phase 1; the ruleset follows
+V4-TODO-011). T6.7 release is pending a separate publication Plan.
 
 ### T7 — IFX consumer rebinding (A-IFX-REBIND)
 
@@ -527,6 +532,8 @@ v3Retired=false
 | Date (UTC+local) | Tranche | Event | Evidence |
 | --- | --- | --- | --- |
 | 2026-09-27 | pre-T0 | Plans read. Read-only identity check. A1 rebinding decided. P-1/P-2 attested. Checklist created (untracked). | — |
+| 2026-09-28 | T6 | T6.1 push `79596c37`; T6.2 PR #1; T6.3 dispatch-only certification workflow on `main` `73a0653`; T6.4 run 36326273549 passed Linux 33/33 and Windows 34/34 (package `491e7eb4`), so T5 overall is pass; T6.5 seed merged as `65cf6cde` (A3). | `T6-remote/<run>` |
+| 2026-09-28 | Activation | Step A PR #2 certified (run 36328329765, package `4c8b45c0`) and merged as `118644e3`; C: genesis record and active `v4-guards.yml` at `b022f9e8`; D: negative-control PR #3 rejected (run 36329134054); E: this records PR is the positive control. | `G2-activation/<run>` |
 | 2026-09-28 | O13/O5 | O13 pushed `286e453d..af2bd603`. O5: PR #108 closed (structural V3 CI red, O15); the operator merged `707b3019` and `42b666ac` directly and pushed; Validate passes. | `O13-O5-remote/20260927T140256Z` |
 | 2026-09-27 | T5 | Windows-full 34/34 and local Linux-complete 33/33 at `f2e5cf3`; structured and binary equivalence, A/B, external Target, scans and fsck pass. Status: local-windows-accepted-linux-pending. Stopped before T6. | `T5-validation/20260927T104523Z` |
 | 2026-09-27 | T4 | Normalization commits `a4f9b1e`, `4d61dac`, `2bf2fd8` and `f2e5cf3`. Declared differences only; public contracts unchanged. T4 pass. | `T4-normalize/<run>` |

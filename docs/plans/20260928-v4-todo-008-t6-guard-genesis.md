@@ -1,6 +1,6 @@
 # V4-TODO-008 T6 — Guard genesis seed, CI certification and trusted-base activation
 
-Status: `APPROVED 2026-09-28 — T6.1–T6.4 authorized; T6.5 (seed merge), T6.6 (activation) and T6.7 (release) not yet authorized`
+Status: `T6.1–T6.5 COMPLETE (seed PR #1 → 65cf6cde); T6.6 SUPERSEDED by 20260928-guard-v4-workflow-activation; T6.7 (release) not yet authorized`
 
 Formal Plan ID: `20260928-v4-todo-008-t6-guard-genesis`.
 
