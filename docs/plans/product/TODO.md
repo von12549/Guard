@@ -87,7 +87,10 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   - T6.1–T6.5 are done: seed PR #1 was merged as `65cf6cde` (Amendment A3 genesis seed).
   - T6.6 was superseded by `20260928-guard-v4-workflow-activation`, whose phase 1 is complete (see
     V4-TODO-011).
-  - Remaining: T6.7 release (a separate publication Plan), T7 IFX consumer rebinding and T8 IFX cleanup.
+  - T6.7 is done. **V4 Guards 1.1.5** was published from this repository on 2026-09-28
+    (`https://github.com/von12549/Guard/releases/tag/v4-guards-v1.1.5`): tag `v4-guards-v1.1.5` on `a02ee3c6`, archive SHA-256 `74c371ebca73186d…`,
+    package `e8cd32697709e8ca…`. A fresh download was verified with install, four Stages and uninstall.
+  - Remaining: T7 IFX consumer rebinding and T8 IFX cleanup.
 
 - [ ] **V4-TODO-009 — Profile/module marketplace and signatures**
 
@@ -125,6 +128,33 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   `allowedChangedPatterns`, but GitHub runs a PR's merged workflow definition. Phase 2 must therefore add
   a `main` ruleset that requires `v4-required`, enforces strict up-to-date checks, and requires review
   of workflow and authority changes. Phase 2 reaches `G2_V4_AUTONOMOUS` and remains separately authorized.
+  Phase 2 is blocked by V4-TODO-014: a ruleset that requires `v4-required` would otherwise block every
+  approved-test, CI-contract or runner change.
+
+- [ ] **V4-TODO-014 — Trusted-base authorization for approved-test and runner changes**
+
+  The base-owned runner validates a candidate's approved tests against the **base** CI contract. It has
+  no way to authorize a legitimate change to approved tests, the CI contract or the runner itself, so
+  every such PR fails `v4-linux` and `v4-required` with "Approved test hash drift". This first happened
+  on PR #5 (the 1.1.5 version bump), because the product version is hard-coded in the P7, P8 and P10
+  tests.
+
+  Until this item is resolved, such PRs are accepted by operator review under the recorded rule
+  (V4-TODO-008 checklist O16):
+
+  1. The drift is limited exactly to the declared test paths, and every other CI-contract field is
+     unchanged.
+  2. `v4-contract` passes.
+  3. Exact-head dispatch certification passes Linux-complete and Windows-full with one `packageHash`.
+  4. The operator confirms acceptance on the PR.
+
+  Resolution scope:
+
+  - Design a single-use, base-held authorization bound to exact candidate hashes, analogous to the V3
+    P11 `weaken-policy` and `change-trusted-base` records.
+  - Make the P7, P8 and P10 version assertions read `plugin.json` instead of hard-coding the version.
+
+  This item is a prerequisite for V4-TODO-011 phase 2.
 
 - [ ] **V4-TODO-012 — Windows full-run frequency review**
 
