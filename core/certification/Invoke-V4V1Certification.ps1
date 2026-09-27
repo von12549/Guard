@@ -34,7 +34,7 @@ $packageOutput=@(& pwsh -NoLogo -NoProfile -NonInteractive -File (Join-Path $roo
 if($packageResult.packageHash -cne $packageHash){throw 'Certified package hash differs from current package.'}
 $supply=@(& pwsh -NoLogo -NoProfile -NonInteractive -File (Join-Path $root 'core/certification/Test-V4SupplyChain.ps1') -PackageRoot $root 2>&1);if($LASTEXITCODE){throw "Supply-chain check failed: $($supply-join"`n")"}
 if(Test-Path (Join-Path $root 'profiles/catalog/ifx_profile')){throw 'ifx_profile is outside the V1 certification boundary.'}
-$repoRoot=$root;if(Test-Path (Join-Path $repoRoot '.github/workflows/v4-guards.yml')){throw 'Active V4 workflow exists without activation authorization.'}
+$repoRoot=$root;$activeWorkflow=Join-Path $repoRoot '.github/workflows/v4-guards.yml';if(Test-Path $activeWorkflow){$specimenLines=@(([IO.File]::ReadAllText((Join-Path $root 'integrations/github/proposed-v4-guards.yml'))).Replace("`r`n","`n").Split("`n"));$activeLines=@(([IO.File]::ReadAllText($activeWorkflow)).Replace("`r`n","`n").Split("`n"));if($activeLines.Count -ne $specimenLines.Count -or -not $activeLines[0].StartsWith('#') -or ((@($activeLines|Select-Object -Skip 1)) -join "`n") -cne ((@($specimenLines|Select-Object -Skip 1)) -join "`n")){throw 'Active V4 workflow differs from the reviewed specimen beyond its first comment line.'}}
 
 $baselinePath=Join-Path $root 'core/certification/compatibility-baseline.json';$baseline=Read-Json $baselinePath
 if(-not(Test-Json -LiteralPath $baselinePath -SchemaFile (Join-Path $root 'core/contracts/compatibility-baseline.schema.json') -ErrorAction SilentlyContinue)){throw 'Compatibility baseline violates its schema.'}

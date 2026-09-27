@@ -1,0 +1,47 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-guard-v4-workflow-activation",
+  "title": "Activate the Guard V4 trusted-base workflow (03 section 6, V4-TODO-011 phase 1)",
+  "goal": "Move Guard from G1_V4_DORMANT_BASE to G1_V4_WORKFLOW_ACTIVE: make the product activation-ready, record the genesis acceptance, install the base-owned V4 verdict workflow on main, prove it with negative and positive control pull requests, and update the backlog, leaving the ruleset (G2) to V4-TODO-011.",
+  "acceptanceCriteria": [
+    "The specimen targets main, prefetches only base-locked NuGet dependencies with SHA-512 verification, and keeps check identities, trust direction and failure semantics unchanged.",
+    "Dormant-state checks accept .github/workflows/v4-guards.yml only when absent or byte-identical to the specimen except its first comment line.",
+    "The product refinement PR is certified Linux-complete and Windows-full at its exact head with one packageHash and merged by the operator.",
+    "A schema-valid, human-review genesis record binds the activated base, package, contracts manifest, certification reports and recovery point.",
+    "The active workflow is committed directly on main, and a negative-control PR fails v4-required while a positive-control PR passes it.",
+    "TODO V4-TODO-011, V4-TODO-008 and V4-TODO-012, the 03 Guard adaptation note and the migration records are updated by the positive-control PR; no ruleset, required context, tag or release is created."
+  ],
+  "plannedPaths": [
+    "core/certification/Invoke-V4V1Certification.ps1",
+    "docs/plans/20260928-guard-v4-workflow-activation.md",
+    "docs/plans/20260928-guard-v4-workflow-activation.plan.json",
+    "integrations/github/ci-contract.json",
+    "integrations/github/proposed-v4-guards.yml",
+    "tests/p0/Test-V4GenesisProposal.ps1",
+    "tests/p6/Test-V4WorkflowContract.ps1"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "An active workflow could drift from the reviewed specimen or let a candidate supply its own judge.",
+    "Networked dependency prefetch could admit unlocked packages if it read candidate-controlled locks.",
+    "Advisory verdicts without a ruleset do not block merges until V4-TODO-011 phase 2."
+  ],
+  "decisions": [
+    "Split activation: workflow now (phase 1), ruleset later under V4-TODO-011 (phase 2, G2).",
+    "Prefetch locked NuGet dependencies from the materialized base only and verify SHA-512; NuGet.config stays offline.",
+    "Workflow and genesis-record changes enter main only through operator-authorized direct commits, never candidate PRs.",
+    "Keep ci-contract targetBranch as a declared schema constant; the runner does not read it."
+  ],
+  "validationCommands": [
+    "v4-native-plan-validate",
+    "github-dispatch-certification-at-pr-head",
+    "negative-control-pr-v4-required-failure",
+    "positive-control-pr-v4-required-success"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "activation"
+  ]
+}

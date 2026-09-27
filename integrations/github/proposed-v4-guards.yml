@@ -3,8 +3,9 @@ name: V4 Guardrails
 
 on:
   pull_request:
-    branches: [codex/v4-development-base]
+    branches: [main]
     paths:
+      - .gitattributes
       - .gitignore
       - README.md
       - plugin.json
@@ -86,6 +87,18 @@ jobs:
         run: |
           git worktree add --detach "$env:RUNNER_TEMP/v4-base" $env:BASE_SHA
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Prefetch base-locked NuGet dependencies and verify SHA-512
+        shell: pwsh
+        run: |
+          $deps = @(Get-ChildItem -LiteralPath "$env:RUNNER_TEMP/v4-base/modules" -Recurse -Filter 'dependencies.lock.json' | ForEach-Object { (Get-Content -Raw -LiteralPath $_.FullName | ConvertFrom-Json -AsHashtable).dependencies } | Where-Object { $_.source -eq 'nuget-global-packages' })
+          if ($deps.Count -eq 0) { exit 0 }
+          $work = Join-Path $env:RUNNER_TEMP 'v4-nuget-prefetch'; [void][IO.Directory]::CreateDirectory($work)
+          $refs = ($deps | ForEach-Object { "<PackageReference Include=`"$($_.id)`" Version=`"[$($_.version)]`" />" }) -join ''
+          Set-Content -LiteralPath (Join-Path $work 'prefetch.csproj') -Value "<Project Sdk=`"Microsoft.NET.Sdk`"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup>$refs</ItemGroup></Project>"
+          dotnet restore (Join-Path $work 'prefetch.csproj') --source https://api.nuget.org/v3/index.json -nologo
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $cache = if ($env:NUGET_PACKAGES) { $env:NUGET_PACKAGES } else { Join-Path $HOME '.nuget/packages' }
+          foreach ($d in $deps) { $id = ([string]$d.id).ToLowerInvariant(); $sha = Join-Path $cache "$id/$($d.version)/$id.$($d.version).nupkg.sha512"; if (-not (Test-Path -LiteralPath $sha) -or (Get-Content -Raw -LiteralPath $sha).Trim() -cne [string]$d.sha512) { throw "Base-locked NuGet dependency hash mismatch: $($d.id) $($d.version)" } }
       - name: Run full Linux coverage and produce the only CI artifact
         shell: pwsh
         env:
@@ -158,6 +171,18 @@ jobs:
         run: |
           git worktree add --detach "$env:RUNNER_TEMP/v4-base" $env:BASE_SHA
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Prefetch base-locked NuGet dependencies and verify SHA-512
+        shell: pwsh
+        run: |
+          $deps = @(Get-ChildItem -LiteralPath "$env:RUNNER_TEMP/v4-base/modules" -Recurse -Filter 'dependencies.lock.json' | ForEach-Object { (Get-Content -Raw -LiteralPath $_.FullName | ConvertFrom-Json -AsHashtable).dependencies } | Where-Object { $_.source -eq 'nuget-global-packages' })
+          if ($deps.Count -eq 0) { exit 0 }
+          $work = Join-Path $env:RUNNER_TEMP 'v4-nuget-prefetch'; [void][IO.Directory]::CreateDirectory($work)
+          $refs = ($deps | ForEach-Object { "<PackageReference Include=`"$($_.id)`" Version=`"[$($_.version)]`" />" }) -join ''
+          Set-Content -LiteralPath (Join-Path $work 'prefetch.csproj') -Value "<Project Sdk=`"Microsoft.NET.Sdk`"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup>$refs</ItemGroup></Project>"
+          dotnet restore (Join-Path $work 'prefetch.csproj') --source https://api.nuget.org/v3/index.json -nologo
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $cache = if ($env:NUGET_PACKAGES) { $env:NUGET_PACKAGES } else { Join-Path $HOME '.nuget/packages' }
+          foreach ($d in $deps) { $id = ([string]$d.id).ToLowerInvariant(); $sha = Join-Path $cache "$id/$($d.version)/$id.$($d.version).nupkg.sha512"; if (-not (Test-Path -LiteralPath $sha) -or (Get-Content -Raw -LiteralPath $sha).Trim() -cne [string]$d.sha512) { throw "Base-locked NuGet dependency hash mismatch: $($d.id) $($d.version)" } }
       - name: Verify the artifact and run selected Windows coverage
         shell: pwsh
         env:

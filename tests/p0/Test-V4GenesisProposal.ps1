@@ -32,7 +32,7 @@ Require-Text 'separate V3 trigger change' $proposal ([Regex]::Escape('.github/wo
 Require-Text 'future active V4 workflow path' $proposal ([Regex]::Escape('.github/workflows/v4-guards.yml'))
 Require-Text 'ruleset requirement' $proposal '(?i)ruleset.*v4-required'
 
-Require-Text 'target base branch filter' $workflow '(?m)^\s+branches:\s*\[codex/v4-development-base\]\s*$'
+Require-Text 'target base branch filter' $workflow '(?m)^\s+branches:\s*\[main\]\s*$'
 Require-Text 'pull-request base SHA' $workflow 'github\.event\.pull_request\.base\.sha'
 Require-Text 'pull-request head SHA' $workflow 'github\.event\.pull_request\.head\.sha'
 Require-Text 'base-owned runner' $workflow 'v4-base/integrations/github/Invoke-V4TrustedBase\.ps1'
@@ -48,7 +48,12 @@ if (($actualRequired -join ',') -cne (($expectedRequired | Sort-Object) -join ',
     $failures.Add("Required context identities drifted: $($actualRequired -join ', ')")
 }
 
-if (Test-Path -LiteralPath $activeV4Workflow) { $failures.Add('The active V4 workflow path must not exist during P0C') }
+# An active workflow is allowed only as the reviewed specimen with a different first comment line.
+if (Test-Path -LiteralPath $activeV4Workflow) {
+    $specimenLines = @(([IO.File]::ReadAllText($workflowPath)).Replace("`r`n", "`n").Split("`n"))
+    $activeLines = @(([IO.File]::ReadAllText($activeV4Workflow)).Replace("`r`n", "`n").Split("`n"))
+    if ($activeLines.Count -ne $specimenLines.Count -or -not $activeLines[0].StartsWith('#') -or ((@($activeLines | Select-Object -Skip 1)) -join "`n") -cne ((@($specimenLines | Select-Object -Skip 1)) -join "`n")) { $failures.Add('The active V4 workflow differs from the reviewed specimen beyond its first comment line.') }
+}
 if ($ConsumerRepositoryRoot) {
     $activeV3Workflow = Join-Path ([IO.Path]::GetFullPath($ConsumerRepositoryRoot)) '.github/workflows/v3-ifx-guardrails.yml'
     $actualV3Hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $activeV3Workflow).Hash.ToLowerInvariant()

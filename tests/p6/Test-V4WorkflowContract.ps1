@@ -39,7 +39,12 @@ Require 'manual full certification' "-Certification','-RequestedWindowsCoverage'
 if (@([Regex]::Matches($workflow,'actions/upload-artifact@v4')).Count -ne 1) { $failures.Add('Workflow must produce exactly one uploaded artifact.') }
 if ($workflow -match '\$\{\{\s*secrets\.') { $failures.Add('Workflow references a secret.') }
 foreach ($forbidden in @('docs/guards/V3','V3_ifx','src/Frontend','IFX.Migration','Database')) { if ($workflow.Contains($forbidden,[StringComparison]::OrdinalIgnoreCase)) { $failures.Add("Workflow invokes excluded suite/path: $forbidden") } }
-if (Test-Path $activeV4) { $failures.Add('Active V4 workflow exists before activation authorization.') }
+# An active workflow is allowed only as the reviewed specimen with a different first comment line.
+if (Test-Path -LiteralPath $activeV4) {
+    $specimenLines = @(([IO.File]::ReadAllText($workflowPath)).Replace("`r`n", "`n").Split("`n"))
+    $activeLines = @(([IO.File]::ReadAllText($activeV4)).Replace("`r`n", "`n").Split("`n"))
+    if ($activeLines.Count -ne $specimenLines.Count -or -not $activeLines[0].StartsWith('#') -or ((@($activeLines | Select-Object -Skip 1)) -join "`n") -cne ((@($specimenLines | Select-Object -Skip 1)) -join "`n")) { $failures.Add('Active V4 workflow differs from the reviewed specimen beyond its first comment line.') }
+}
 if ($ConsumerRepositoryRoot -and (Get-FileHash -Algorithm SHA256 (Join-Path ([IO.Path]::GetFullPath($ConsumerRepositoryRoot)) '.github/workflows/v3-ifx-guardrails.yml')).Hash.ToLowerInvariant() -cne $ConsumerV3WorkflowSha256) { $failures.Add('Consumer V3 workflow changed during dormant P6.') }
 if (($contract.excludedSuites | Sort-Object) -join ',' -cne (@('ifx-database','ifx-frontend','ifx-solution','v3-package-candidate') -join ',')) { $failures.Add('Excluded suite contract drifted.') }
 $discoveredTests = @(Get-ChildItem -LiteralPath (Join-Path $packageRoot 'tests') -File -Filter 'Test-*.ps1' -Recurse | ForEach-Object { [IO.Path]::GetRelativePath($repoRoot,$_.FullName).Replace('\','/') } | Sort-Object)
