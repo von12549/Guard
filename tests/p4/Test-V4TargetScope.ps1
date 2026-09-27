@@ -7,6 +7,7 @@ $ErrorActionPreference = 'Stop'
 $package = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $repository = $package
 $workRoot = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($package))).Substring(0,12).ToLowerInvariant())
+if(-not(Test-Path -LiteralPath (Join-Path $workRoot '.git'))){[void][IO.Directory]::CreateDirectory($workRoot);& git -C $workRoot init -q;& git -C $workRoot -c user.name=v4-guards-test -c user.email=v4-guards-test@example.invalid -c commit.gpgsign=false commit -q --allow-empty -m 'V4 test work root';if($LASTEXITCODE){throw 'V4 test work root initialization failed.'}}
 $adapter = Join-Path $package 'modules/architecture-conformance/adapter.ps1'
 $case = Join-Path $workRoot ('target-scope/' + [Guid]::NewGuid().ToString('N'))
 $target = Join-Path $case 'target'

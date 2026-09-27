@@ -20,7 +20,7 @@ function Read-Json([string] $Path) { Get-Content -Raw -LiteralPath $Path | Conve
 function Assert([bool] $Condition, [string] $Message) { if (-not $Condition) { throw $Message } }
 
 $packageSource = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-if (-not $EvidenceParent) { $EvidenceParent = Join-Path ([IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageSource))).Substring(0,12).ToLowerInvariant())) 'p10-composition' }
+if (-not $EvidenceParent) { $workRoot = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageSource))).Substring(0,12).ToLowerInvariant()); if(-not(Test-Path -LiteralPath (Join-Path $workRoot '.git'))){[void][IO.Directory]::CreateDirectory($workRoot);& git -C $workRoot init -q;& git -C $workRoot -c user.name=v4-guards-test -c user.email=v4-guards-test@example.invalid -c commit.gpgsign=false commit -q --allow-empty -m 'V4 test work root';if($LASTEXITCODE){throw 'V4 test work root initialization failed.'}}; $EvidenceParent = Join-Path ([IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageSource))).Substring(0,12).ToLowerInvariant())) 'p10-composition' }
 $composer = Join-Path $packageSource 'core/distribution/Compose-V4Extension.ps1'
 $verifier = Join-Path $packageSource 'core/distribution/Test-V4ComposedInstallation.ps1'
 $parent = [IO.Path]::GetFullPath($EvidenceParent)

@@ -7,13 +7,14 @@ $ErrorActionPreference = 'Stop'
 $packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $repositoryRoot = $packageRoot
 $workRoot = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant())
+if(-not(Test-Path -LiteralPath (Join-Path $workRoot '.git'))){[void][IO.Directory]::CreateDirectory($workRoot);& git -C $workRoot init -q;& git -C $workRoot -c user.name=v4-guards-test -c user.email=v4-guards-test@example.invalid -c commit.gpgsign=false commit -q --allow-empty -m 'V4 test work root';if($LASTEXITCODE){throw 'V4 test work root initialization failed.'}}
 $buildRoot = Join-Path $packageRoot 'build'
 $project = Join-Path $packageRoot 'core/host/V4.Guards.Host/V4.Guards.Host.csproj'
 $artifactsRoot = Join-Path $workRoot 'p3a'
 $runRoot = Join-Path $artifactsRoot 'fixture'
 $schema = Join-Path $packageRoot 'core/contracts/stage-result.schema.json'
 $workspaceEvidenceSchema = Join-Path $packageRoot 'core/contracts/workspace-evidence.schema.json'
-$targetCommit = (git -C $repositoryRoot rev-parse HEAD).Trim().ToLowerInvariant()
+$targetCommit = (git -C $workRoot rev-parse HEAD).Trim().ToLowerInvariant()
 $failures = [Collections.Generic.List[string]]::new()
 
 function Hash-Tree([string] $Root) {
