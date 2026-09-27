@@ -96,25 +96,23 @@
       "linuxCompleteT6Ci": "33/33 pass at 79596c37 (run 36326273549), package 491e7eb4"
     },
     "T6": {
-      "status": "in-progress",
+      "status": "pass",
       "done": [
         "T6.1",
         "T6.2",
         "T6.3",
         "T6.4",
-        "T6.5"
+        "T6.5",
+        "T6.7"
       ],
       "superseded": {
-        "T6.6": "20260928-guard-v4-workflow-activation"
-      },
-      "pending": [
-        "T6.7 release"
-      ]
+        "T6.6": "20260928-guard-v4-workflow-activation (phase 1 complete)"
+      }
     }
   },
   "boundaries": {
     "standaloneSourceAccepted": false,
-    "standaloneReleasePublished": false,
+    "standaloneReleasePublished": true,
     "ifxConsumerRebound": false,
     "ifxCoreSourceRemoved": false,
     "v4Activated": false,
@@ -128,7 +126,9 @@
     "IFX codex/v4-development-base af2bd603..42b666ac (O5 merges, executed by operator 2026-09-28)",
     "Guard: branch codex/v4-todo-008-standalone pushed; PR #1 opened and merged (65cf6cde)",
     "Guard main: 73a0653 certification workflow; b022f9e8 active V4 workflow + genesis record",
-    "Guard: PR #2 merged (118644e3); PR #3 negative control closed"
+    "Guard: PR #2 merged (118644e3); PR #3 negative control closed",
+    "Guard: PR #5 merged (a02ee3c6) under O16",
+    "Guard: tag v4-guards-v1.1.5 and GitHub Release V4 Guards 1.1.5"
   ],
   "publicContractDifferences": [],
   "declaredDifferences": [
@@ -141,7 +141,25 @@
     "integrations/github/proposed-v4-guards.yml"
   ],
   "nextAuthorizationRequired": [
-    "T6.7 A-RELEASE through a separate publication Plan",
-    "V4-TODO-011 phase 2 ruleset (separately authorized)"
-  ]
+    "T7 IFX consumer rebinding (A-IFX-REBIND)",
+    "T8 IFX cleanup (A-IFX-DELETE)",
+    "V4-TODO-014, then V4-TODO-011 phase 2 ruleset"
+  ],
+  "release": {
+    "version": "1.1.5",
+    "tag": "v4-guards-v1.1.5",
+    "tagObject": "dce9295d77c975fe0eae9045a48130d9159794c6",
+    "commit": "a02ee3c66712c1cc9c3a84676da8ce1cd1bd6286",
+    "url": "https://github.com/von12549/Guard/releases/tag/v4-guards-v1.1.5",
+    "assetUrl": "https://github.com/von12549/Guard/releases/download/v4-guards-v1.1.5/v4-guards-1.1.5.zip",
+    "archiveSha256": "74c371ebca73186d5ef636669a226960982c5c28b13532bc5972cbcdffee3976",
+    "packageHash": "e8cd32697709e8ca155b051ddbf731e12b65bad42858eafd92cddb0ee4dbf733",
+    "certificationRun": "https://github.com/von12549/Guard/actions/runs/36331614650",
+    "linuxComplete": "33/33",
+    "windowsFull": "34/34",
+    "abReproducible": true,
+    "v1Certification": "pass",
+    "restoreCommit": "ca781ad8c68feb20762ca1567196496c47ba2def",
+    "downloadVerification": "byte-identical; install + four Stages + verified uninstall pass"
+  }
 }

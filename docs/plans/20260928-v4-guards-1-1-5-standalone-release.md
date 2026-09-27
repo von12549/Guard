@@ -1,6 +1,6 @@
 # V4 Guards 1.1.5 — first release from the standalone Guard repository (V4-TODO-008 T6.7)
 
-Status: `APPROVED 2026-09-28 — R1–R5 authorized, including R4 publication (A-RELEASE)`
+Status: `COMPLETE 2026-09-28 — V4 Guards 1.1.5 published (https://github.com/von12549/Guard/releases/tag/v4-guards-v1.1.5); R1 accepted by operator under O16 (expected approved-test hash drift)`
 
 Formal Plan ID: `20260928-v4-guards-1-1-5-standalone-release`.
 
