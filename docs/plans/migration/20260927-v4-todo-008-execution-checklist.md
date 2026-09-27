@@ -1,6 +1,6 @@
 # V4-TODO-008 execution checklist
 
-Status: `IN PROGRESS — T0–T5 LOCAL EXECUTION AUTHORIZED 2026-09-27`
+Status: `T0–T4 PASS; T5 local-windows-accepted-linux-pending — STOPPED AT THE REMOTE BOUNDARY (T6 NOT AUTHORIZED)`
 
 Executor: **Claude Code**. Operator: the repository owner (`von12549`).
 
@@ -364,26 +364,43 @@ Evidence: `T3-merge/<run-id>`.
 
 Evidence: `T4-normalize/<run-id>`. One or more commits, separate from the merge.
 
-- [ ] Delete the six fixed IFX-only paths and any other T1-confirmed IFX-only path from the active tree.
-- [ ] Add `docs/migration/v4-todo-008/`: provenance index (former paths, source blobs, IFX successor
+- [x] Delete the six fixed IFX-only paths and any other T1-confirmed IFX-only path from the active tree.
+- [x] Add `docs/migration/v4-todo-008/`: provenance index (former paths, source blobs, IFX successor
       paths), path disposition, commit map, migration receipt.
-- [ ] Move product plans 00–05 and TODO into `docs/plans/product/` with `git mv`. Replace their live
+- [x] Move product plans 00–05 and TODO into `docs/plans/product/` with `git mv`. Replace their live
       IFX operational status with adoption-history cross-links. Add the product/adoption TODO
       cross-link.
-- [ ] Import the reviewed generic historical formal Plan pairs into `docs/plans/history/` byte-exact,
+- [x] Import the reviewed generic historical formal Plan pairs into `docs/plans/history/` byte-exact,
       with an index stating that they are historical and contain IFX-relative paths.
-- [ ] Copy the master Plan, `.plan.json` and handoff (the §1 blobs) into `docs/plans/migration/`
+- [x] Copy the master Plan, `.plan.json` and handoff (the §1 blobs) into `docs/plans/migration/`
       byte-exact.
-- [ ] Fix every T1 coupling entry through explicit-root or standalone-root logic. No symlinks and no
+- [x] Fix every T1 coupling entry through explicit-root or standalone-root logic. No symlinks and no
       duplicate trees.
-- [ ] Test/evidence defaults move from `artifacts/guards/v4` to a standalone ignored work root, with a
+- [x] Test/evidence defaults move from `artifacts/guards/v4` to a standalone ignored work root, with a
       matching `.gitignore`.
-- [ ] Generic CI allowed-path and Plan-discovery rules use standalone paths.
-- [ ] Consumer download logic names `von12549/Guard` explicitly and never uses `${{ github.repository }}`.
-- [ ] Update documentation links, version statements and build instructions.
-- [ ] The public CLI, schemas, package layout and four-root runtime contract are unchanged. The commit
+- [x] Generic CI allowed-path and Plan-discovery rules use standalone paths.
+- [x] Consumer download logic names `von12549/Guard` explicitly and never uses `${{ github.repository }}`.
+- [x] Update documentation links, version statements and build instructions.
+- [x] The public CLI, schemas, package layout and four-root runtime contract are unchanged. The commit
       message and receipt list the intentional public-contract differences (normally none).
-- [ ] Clean worktree and `fsck --full --strict`.
+- [x] Clean worktree and `fsck --full --strict`.
+
+**T4 result: `pass`**. There are five normalization commits after the T3 checkpoint `c6ec84d`:
+
+| Commit | Scope |
+| --- | --- |
+| `a4f9b1e` (T4a) | Deletes the 6 IFX-only paths. Moves 9 product plans to `docs/plans/product/` with `git mv`. Adds 74 byte-exact historical Plan files (37 IDs) and the 3 A2-amended migration documents; all 77 blobs equal their IFX source blobs. Adds the `docs/migration/v4-todo-008/` provenance records. |
+| `4d61dac` (T4b) | PackageRoot is the repository root. Adds the external work root `<TEMP>/v4-guards-work/<sha256(PackageRoot)[:12]>`. Package authority excludes `docs/plans/**` and `docs/migration/**` (O10). The CI contract, trusted-base Plan discovery (`docs/plans/*.plan.json`) and inactive specimen use standalone paths. IFX-only assertions become opt-in consumer/reference roots (O12). Adds `.gitattributes` (`* text eol=lf`) and `.gitignore`. V1 recovery commands use standalone paths. |
+| `2bf2fd8` (T4c) | README and product plans: live IFX/P10 status is replaced by IFX-owned pointers. V4-TODO-001..004 move to IFX with their identifiers reserved. |
+| `f2e5cf3` (T4d) | The external test work root becomes a Git repository with one synthetic commit, which restores the IFX-era implicit Git context for fixture Targets. P3A binds the expected Target commit to the work root HEAD. Found by the first T5 Windows-full attempt. |
+
+Declared intentional differences from the published 1.1.4 package authority (7 files): `README.md`,
+`core/runtime/Test-V4Package.ps1`, `core/certification/Invoke-V4PlatformCertification.ps1`,
+`core/certification/Invoke-V4V1Certification.ps1`, `integrations/github/Invoke-V4TrustedBase.ps1`,
+`integrations/github/ci-contract.json` and `integrations/github/proposed-v4-guards.yml`. There are 0
+public-contract differences: CLI, query and schema contracts, modules, profiles and `plugin.json` are
+byte-identical. The schema `$id` values stay `https://ifx.local/v4/...` (O11). `targetBranch` and
+`excludedSuites` stay as schema constants; the Guard branch model is deferred to the T6 workflow Plan.
 
 ### T5 — Standalone local validation
 
@@ -391,26 +408,32 @@ Evidence: `T5-validation/<run-id>`. Discover the exact commands from the migrate
 
 | Gate | Required | Result |
 | --- | --- | --- |
-| PowerShell parser / JSON schemas / YAML / generated docs | clean | |
-| Host build and test | pass | |
-| Web Companion build and test | pass | |
-| P0–P9 generic suites | pass | |
-| Package integrity | pass | |
-| Trusted-base positive case | pass | |
-| Candidate self-judgment negative controls | rejected | |
-| Plan validate / compose / Plan Center at new paths | pass | |
-| Distribution build A/B from clean worktrees | reproducible | |
-| Fresh external install / receipt / launch / verified uninstall | pass | |
-| Supply-chain, lifecycle, compatibility baseline | pass | |
-| Windows-full at the exact Guard commit | pass | |
-| External synthetic target, no shared parent between PackageRoot and TargetRoot | pass | |
-| Secret and IFX/V3-content scan | zero | |
-| Old (`640c5756`) vs new structured diff: CLI, schemas, contracts, normalized manifests, fixture verdicts | no undeclared difference | |
-| Linux-complete at the same commit/package | pass (T6 CI) | pending |
-| Post-run clean status and `fsck --full --strict` | clean / pass | |
+| PowerShell parser / JSON schemas / YAML / generated docs | clean | clean: 54 PS and 123 JSON files; YAML identical to the IFX specimen after the declared substitutions; generated docs checked by P7 |
+| Host build and test | pass | pass (Release, warnings as errors) |
+| Web Companion build and test | pass | pass (P9 suites) |
+| P0–P9 generic suites | pass | 34/34 (P0–P10) |
+| Package integrity | pass | pass, `packageHash 491e7eb4…` |
+| Trusted-base positive case | pass | pass (P6) |
+| Candidate self-judgment negative controls | rejected | rejected: tamper, under-declaration, test weakening, provenance (P6) |
+| Plan validate / compose / Plan Center at new paths | pass | pass: P5, `plan validate` on migration/history, Plan Center 37+1 |
+| Distribution build A/B from clean worktrees | reproducible | same Host input produces a byte-identical archive `05e44168…`; independent Host builds differ only by build location (O14) |
+| Fresh external install / receipt / launch / verified uninstall | pass | pass |
+| Supply-chain, lifecycle, compatibility baseline | pass | pass (P7/P8) |
+| Windows-full at the exact Guard commit | pass | **pass**: 34/34 at `f2e5cf3`, Windows 10.0.26200 |
+| External synthetic target, no shared parent between PackageRoot and TargetRoot | pass | pass: 4 Stages; workspace evidence commit = Target HEAD |
+| Secret and IFX/V3-content scan | zero | zero: gitleaks tree/56 commits; no IFX, V3 or workflow paths |
+| Old (`80f7b6b6`, A2) and published 1.1.4 vs new structured diff: CLI, schemas, contracts, normalized manifests, fixture verdicts | no undeclared difference | 0 undeclared, 7 declared, public surface unchanged; Host/Companion binaries byte-identical after build-location normalization |
+| Linux-complete at the same commit/package | pass (T6 CI) | **pending T6 CI**; a supporting local run passed 33/33 in the pinned image with `--network none`, same commit and package |
+| Post-run clean status and `fsck --full --strict` | clean / pass | clean / pass |
 
-- [ ] Local outcome recorded as `local-windows-accepted-linux-pending` (or `stopped`). This is not
+- [x] Local outcome recorded as `local-windows-accepted-linux-pending` (or `stopped`). This is not
       overall T5 `pass`. Stop before any remote action.
+
+**T5 result: `local-windows-accepted-linux-pending`** at Guard `f2e5cf32397b392a212ffb4a4c87c9f1eb5e3e32`,
+package `491e7eb4bd3fbdaec5619601c334414f2820998aedaec529c21be004a027d3ee`. The first Windows-full attempt,
+at `2bf2fd85`, failed in P3B and was fixed by T4d. Evidence: `T5-validation/20260927T104523Z` (`t5-decision.json`).
+Later commits touch only `docs/plans/**` and `docs/migration/**`, which are not package authority, so the
+certified package identity is unchanged at the branch tip.
 
 ### T6 — Remote Guard review and release (each item separately authorized)
 
@@ -464,6 +487,7 @@ clone. Never repair it in place.
 | O5 | Pre-existing IFX V3_ifx `Validate` failure: `docs/guards/V3_ifx/shared/decisions/history/20260924-v4-ifx-c2d-g03-current-documentation.json` is not registered in `shared/policy-config.json`. The failure reproduces identically on unmodified `640c5756`, so A1 did not cause it. This is outside V4-TODO-008 scope, because V3 stays unchanged. | Reported to the operator; not fixed here |
 | O6 | Disposable IFX clones fail checkout with "Filename too long" unless `core.longpaths=true` is set at command scope (`git -c core.longpaths=true clone …`). T2 uses that form. | Mitigation adopted |
 | O7 | Published 1.1.4 (`2185477b`) was not in the development lineage (see A2). | Closed by A2 (`80f7b6b6`); all six release tags are now ancestors of the export source |
+| O14 | Pre-existing (1.1.x) build-location dependence: an independent Host build embeds its PDB path, and the Companion's `staticwebassets.runtime.json` embeds the absolute source `wwwroot` path. Archives are byte-identical for the same Host/Companion input, which is the established 1.1.x release contract. Independent builds therefore differ in 3 archive entries. A later product Plan may add PathMap/deterministic source paths. This migration does not change it. | Recorded |
 | O13 | The IFX commits `17a1d56c`, `80f7b6b6` and `af2bd603` are local only. The extracted Guard history maps to `80f7b6b6`, so that commit must be public before T6 for provenance. This needs a new IFX push authorization. | Open, needed before T6 |
 | O8 | Latent V4 defect, present in released 1.1.4 and unchanged by the migration: `Invoke-V4TrustedBase` Linux mode clones the target with `core.longpaths=true`, but its post-test `git status` on the target does not. On a deep IFX path below a longer root, the status check reports a false `M` ("Filename too long") and certification fails. Mitigation: run certification from a short root. A product fix is out of V4-TODO-008 scope (no behavior change) and belongs to a later Guard product Plan. | Recorded; mitigated |
 | O9 | The imported 1.1.4 release Plan pair is V3-format (`areaIds`). V4 native `plan validate` rejects it as "unknown property: areaIds". This is its published form, byte-identical from the release branch, so it is treated as a V3-historical Plan. | Recorded |
@@ -492,6 +516,8 @@ v3Retired=false
 | Date (UTC+local) | Tranche | Event | Evidence |
 | --- | --- | --- | --- |
 | 2026-09-27 | pre-T0 | Plans read. Read-only identity check. A1 rebinding decided. P-1/P-2 attested. Checklist created (untracked). | — |
+| 2026-09-27 | T5 | Windows-full 34/34 and local Linux-complete 33/33 at `f2e5cf3`; structured and binary equivalence, A/B, external Target, scans and fsck pass. Status: local-windows-accepted-linux-pending. Stopped before T6. | `T5-validation/20260927T104523Z` |
+| 2026-09-27 | T4 | Normalization commits `a4f9b1e`, `4d61dac`, `2bf2fd8` and `f2e5cf3`. Declared differences only; public contracts unchanged. T4 pass. | `T4-normalize/<run>` |
 | 2026-09-27 | T3 | `codex/v4-todo-008-standalone` created from `e75d0386`. Unrelated-history merge `ec9f5ead`; checklist commit `031c6519`. OneDrive pause obligation (P-4) satisfied. T3 pass. | `T3-merge/20260927T103329Z` |
 | 2026-09-27 | T2 | Subtree split at `80f7b6b6` in `D:\v4t\t2-3dc631`; export tip `4609edae`; all checks pass. T2 pass. | `T2-history-export/20260927T102819Z` |
 | 2026-09-27 | T1/A2 | 1.1.4 lineage gap found. The operator chose A2. The reconciliation Plan `17a1d56c` and merge `80f7b6b6` (tree equals the certified trial; Windows-full 34/34) were committed, then the A2 amendment `af2bd603`. T1 manifests generated. T1 pass. | `T1-A2-reconciliation/20260927T101043Z`, `T1-manifests/20260927T102631Z` |
