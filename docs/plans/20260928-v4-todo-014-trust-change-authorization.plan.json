@@ -1,0 +1,63 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-v4-todo-014-trust-change-authorization",
+  "title": "Trusted-base authorization for approved-test and trusted-component changes (V4-TODO-014)",
+  "goal": "For Guard's own development gate, give the V4 base-owned runner a fail-closed, two-step, single-use authorization path for legitimate changes to approved tests and tiered trusted components, protect those components from silent post-merge weakening, record the judge identity in every verdict, and remove hard-coded product versions from tests, as the prerequisite for the V4-TODO-011 ruleset.",
+  "acceptanceCriteria": [
+    "The runner reads a tiered, explicit, base-owned protected set (verdict and certification components plus approved tests) and accepts a changed protected path only when a base-held record for the root Plan binds its exact base and head hashes and the same diff consumes the record.",
+    "Authorization pull requests may only add authorization records and their own Plan pair.",
+    "Unauthorized, partial, mismatched, unconsumed, candidate-only, contract-widening and self-authorizing changes fail closed in P6 controls, while unprotected product-code changes still pass.",
+    "Runner results and the CI artifact manifest carry verdictComponents hashes of the judging base.",
+    "P7, P8 and P10 read the expected version from plugin.json.",
+    "The bootstrap PR is accepted under O16 with exact-head Linux-complete and Windows-full certification.",
+    "On GitHub, an unauthorized approved-test edit fails v4-required and the same edit passes after a merged authorization PR and a consuming trust-change PR.",
+    "Records complete V4-TODO-014, extend V4-TODO-011 phase 2 with review of .github/** and docs/plans/authorizations/**, add the consumer-side follow-up item, retire O16 and close O17, without any ruleset, tag or release."
+  ],
+  "plannedPaths": [
+    "README.md",
+    "core/contracts/ci-artifact-manifest.schema.json",
+    "core/contracts/contracts-manifest.json",
+    "core/contracts/trust-change-authorization.schema.json",
+    "docs/plans/20260928-v4-todo-014-trust-change-authorization.md",
+    "docs/plans/20260928-v4-todo-014-trust-change-authorization.plan.json",
+    "docs/plans/README.md",
+    "docs/plans/product/03-genesis-bootstrap-and-autonomy.md",
+    "integrations/github/Invoke-V4TrustedBase.ps1",
+    "integrations/github/ci-contract.json",
+    "integrations/github/trust-policy.json",
+    "tests/p0/Test-V4Contracts.ps1",
+    "tests/p10/Test-V4ExtensionComposition.ps1",
+    "tests/p6/Test-V4TrustedBase.ps1",
+    "tests/p7/Test-V4Distribution.ps1",
+    "tests/p8/Test-V4StableCli.ps1"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "An authorization mechanism that reads candidate data would let a candidate authorize itself.",
+    "Protecting too little keeps silent judge changes possible; protecting too much makes routine product work need authorization.",
+    "The bootstrap change is judged by the old runner and must be accepted once more under O16.",
+    "Workflow self-modification (G3) is only closed by the V4-TODO-011 ruleset, not by the runner."
+  ],
+  "decisions": [
+    "Scope is Guard's own development gate; consumer-side counterparts belong to T7 and a separate backlog item.",
+    "Protected set is tiered and explicit in base-owned integrations/github/trust-policy.json; product code is not protected.",
+    "Authorization records live in docs/plans/authorizations/, validate against a new additive schema, are added only by authorization-boundary PRs and are consumed by deletion in the trust-change diff.",
+    "Authorization and trust-change stay in separate root Plans (existing boundary rule).",
+    "Verdict component hashes are recorded through an additive optional ci-artifact-manifest property.",
+    "Version expectations in P7/P8/P10 come from plugin.json.",
+    "No release in this Plan; the next product release carries the change."
+  ],
+  "validationCommands": [
+    "v4-native-plan-validate",
+    "p6-trusted-base-authorization-controls",
+    "full-local-sweep",
+    "github-dispatch-certification-at-pr-head",
+    "live-negative-authorization-and-trust-change-prs"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "trust-change"
+  ]
+}

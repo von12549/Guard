@@ -31,7 +31,7 @@ $selfContainedCandidate = $providedBaseInputs.Count -eq 0
 if (-not $selfContainedCandidate -and $FixtureSourceCommit) { throw 'FixtureSourceCommit is only for self-contained candidate smoke tests.' }
 if ($selfContainedCandidate) {
     $candidate = Read-Json (Join-Path $packageSource 'plugin.json')
-    Assert ($candidate.version -ceq '1.1.5' -and $candidate.apiVersion -ceq '1.0') 'Self-contained P10 certification requires the 1.1.5 candidate'
+    Assert ([string]$candidate.version -match '^[0-9]+\.[0-9]+\.[0-9]+$' -and $candidate.apiVersion -ceq '1.0') 'Self-contained P10 certification requires an x.y.z API 1.0 candidate'
     $fixtureRoot = Join-Path $parent ('candidate-fixture-' + [Guid]::NewGuid().ToString('N'))
     [void][IO.Directory]::CreateDirectory($fixtureRoot)
     $repository = $packageSource
@@ -70,9 +70,9 @@ if ($selfContainedCandidate) {
     $archiveText = @(& pwsh -NoLogo -NoProfile -NonInteractive -File $distribution @distributionArguments 2>&1) -join "`n"
     Assert ($LASTEXITCODE -eq 0) "Candidate fixture distribution failed: $archiveText"
     $archiveResult = $archiveText | ConvertFrom-Json -AsHashtable -Depth 100
-    Assert ($archiveResult.status -ceq 'pass' -and $archiveResult.version -ceq '1.1.5') 'Candidate fixture archive identity drift'
+    Assert ($archiveResult.status -ceq 'pass' -and $archiveResult.version -ceq $candidate.version) 'Candidate fixture archive identity drift'
     $BaseArchivePath = [string]$archiveResult.archivePath
-    $BaseInstallRoot = Join-Path $fixtureRoot 'installed/v4-guards-1.1.5'
+    $BaseInstallRoot = Join-Path $fixtureRoot "installed/v4-guards-$($candidate.version)"
     $BaseReceiptPath = Join-Path $fixtureRoot 'candidate.install.json'
     $installArguments = @('-Mode','Install','-ArchivePath',$BaseArchivePath,'-InstallRoot',$BaseInstallRoot,'-ReceiptPath',$BaseReceiptPath)
     $installText = @(& pwsh -NoLogo -NoProfile -NonInteractive -File (Join-Path $packageSource 'core/distribution/Install-V4Distribution.ps1') @installArguments 2>&1) -join "`n"

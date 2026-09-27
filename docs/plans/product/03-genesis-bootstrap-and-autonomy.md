@@ -135,3 +135,46 @@ The sections above record the IFX incubation design. In the standalone Guard rep
   - Phase 2 (V4-TODO-011): the ruleset that requires `v4-required`. It reaches `G2_V4_AUTONOMOUS`.
 - §6 item 4 (IFX `v3-ifx-guardrails.yml`) does not apply to Guard.
 
+### 8.1 Trust changes (V4-TODO-014)
+
+The base-owned policy `integrations/github/trust-policy.json` names the protected set. The runner reads
+it only from `V4_BASE`.
+
+- **Verdict components**: the runner, the Windows classifier, the required-verdict aggregator, the CI
+  contract, the trust policy, the workflow specimen, the Plan-set diff validator, and the CI, Plan and
+  authorization schemas.
+- **Certification components**: `core/certification/**` and `core/runtime/Test-V4Package.ps1`.
+- **Approved tests**: every `approvedTests` path of the base CI contract.
+
+Product code (Host, modules, profiles, distribution scripts and documentation) is not protected and is
+judged by the tests.
+
+A change to a protected path needs two pull requests:
+
+1. **Authorization PR.** Its root Plan has boundary `authorization`, and its diff may only add records
+   under `docs/plans/authorizations/<id>.json` plus the Plan's own pair. Each record names the
+   consuming Plan ID and binds every protected path to the exact base and head SHA-256 (`null` for an
+   addition or deletion). It is accepted only by human review
+   (`candidateHostVerdictAllowed: false`).
+2. **Trust-change PR.** Its root Plan has boundary `trust-change` and the consuming Plan ID. The runner
+   requires all of the following:
+   - exactly one base-held record exists for that Plan;
+   - the record covers exactly the changed protected paths, with matching base and head hashes;
+   - the same diff deletes the record;
+   - the candidate CI contract binds every candidate approved test.
+
+   Approved-test drift is then accepted only at the authorized head hashes.
+
+A candidate cannot authorize itself:
+
+- records are read only from the base;
+- `authorization` and `trust-change` cannot share a root Plan;
+- any other change to `docs/plans/authorizations/**` is rejected.
+
+Every runner result and the CI artifact manifest carry `verdictComponents`, the path and SHA-256 of
+each base verdict component, so every verdict names the judge that produced it.
+
+GitHub runs the workflow definition of the pull request's merge result, so the runner cannot protect
+`.github/**`. That review requirement, together with review of `docs/plans/authorizations/**`, belongs
+to the V4-TODO-011 phase 2 ruleset.
+

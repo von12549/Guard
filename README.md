@@ -152,6 +152,13 @@ Changes require an exact formal Plan (`docs/plans/<id>.plan.json`). In this repo
 is the repository root. Tests therefore write mutable output to a work root outside the checkout
 (`<TEMP>/v4-guards-work/...`), never below immutable package authorities.
 
+Pull requests are judged by the base-owned runner `integrations/github/Invoke-V4TrustedBase.ps1`. The
+runner reads approved tests, the CI contract and its other verdict and certification components from
+the base, as listed in `integrations/github/trust-policy.json`. Changing any of them needs a
+single-use authorization record, which a separate `authorization` Plan adds and the `trust-change` diff
+consumes. Every verdict records the hashes of the components that produced it. See
+[genesis and autonomy §8.1](docs/plans/product/03-genesis-bootstrap-and-autonomy.md).
+
 ## Documentation map
 
 - [Plans and repository governance](docs/plans/README.md)

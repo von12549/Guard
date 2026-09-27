@@ -15,7 +15,7 @@ $weak = Join-Path $runRoot 'weak'
 $failures = [Collections.Generic.List[string]]::new()
 
 function Write-Utf8([string] $Path, [string] $Text) { $parent=[IO.Path]::GetDirectoryName($Path);if(-not[IO.Directory]::Exists($parent)){[void][IO.Directory]::CreateDirectory($parent)};[IO.File]::WriteAllText($Path,$Text,[Text.UTF8Encoding]::new($false)) }
-function Write-Json([string] $Path, $Value) { Write-Utf8 $Path (($Value|ConvertTo-Json -Depth 100)+"`n") }
+function Write-Json([string] $Path, $Value) { Write-Utf8 $Path ((($Value|ConvertTo-Json -Depth 100)+"`n").Replace("`r`n","`n")) }
 function Invoke-Git([string] $Repository,[string[]] $Arguments){$output=@(& git.exe -C $Repository @Arguments 2>&1);if($LASTEXITCODE){throw "git $($Arguments-join' ') failed: $($output-join"`n")"};@($output|ForEach-Object{[string]$_})}
 function Invoke-Runner([string] $RunnerRoot,[string[]] $Arguments){$runner=Join-Path $RunnerRoot 'integrations/github/Invoke-V4TrustedBase.ps1';$output=@(& pwsh -NoProfile -File $runner @Arguments 2>&1);[pscustomobject]@{Code=$LASTEXITCODE;Text=($output-join"`n")}}
 function Expect($Run,[int]$Code,[string]$Name,[string]$Pattern=''){if($Run.Code-ne$Code-or($Pattern-and$Run.Text-notmatch$Pattern)){$failures.Add("${Name}: expected $Code/$Pattern, got $($Run.Code): $($Run.Text)")}}
@@ -45,8 +45,55 @@ $hostArtifact=Join-Path $artifact 'host/v4-guards.dll';[IO.File]::AppendAllText(
 Write-Utf8 (Join-Path $head 'docs/plans/product/undeclared.md') "undeclared`n";Invoke-Git $head @('add','--all')|Out-Null;Invoke-Git $head @('commit','-q','-m','undeclared')|Out-Null;$badHeadSha=(@(Invoke-Git $head @('rev-parse','HEAD')))[0];$under=Invoke-Runner $base @('-Mode','Contract','-HeadRoot',$head,'-BaseSha',$baseSha,'-HeadSha',$badHeadSha,'-EvidenceRoot',(Join-Path $runRoot 'under-evidence'));Expect $under 16 'under-declared Plan' 'do not exactly match'
 
 & git -c core.longpaths=true clone --quiet --no-local $base $weak;if($LASTEXITCODE){throw 'weak clone failed'};Invoke-Git $weak @('config','user.email','p6@example.invalid')|Out-Null;Invoke-Git $weak @('config','user.name','V4 P6')|Out-Null;[IO.File]::AppendAllText((Join-Path $weak $testRelative),"`n# weakening`n",[Text.UTF8Encoding]::new($false));Invoke-Git $weak @('add','--all')|Out-Null;Invoke-Git $weak @('commit','-q','-m','weaken test')|Out-Null;$weakSha=(@(Invoke-Git $weak @('rev-parse','HEAD')))[0]
-$weakRun=Invoke-Runner $base @('-Mode','Linux','-HeadRoot',$weak,'-BaseSha',$baseSha,'-HeadSha',$weakSha,'-StateRoot',(Join-Path $runRoot 'weak-state'),'-EvidenceRoot',(Join-Path $runRoot 'weak-evidence'),'-ArtifactRoot',(Join-Path $runRoot 'weak-artifact'));Expect $weakRun 12 'candidate test weakening' 'Approved test hash drift'
+$weakRun=Invoke-Runner $base @('-Mode','Linux','-HeadRoot',$weak,'-BaseSha',$baseSha,'-HeadSha',$weakSha,'-StateRoot',(Join-Path $runRoot 'weak-state'),'-EvidenceRoot',(Join-Path $runRoot 'weak-evidence'),'-ArtifactRoot',(Join-Path $runRoot 'weak-artifact'));Expect $weakRun 16 'candidate test weakening' 'Approved test hash drift without trust-change authorization'
 $provenance=Invoke-Runner $base @('-Mode','Contract','-HeadRoot',$head,'-BaseSha',$badHeadSha,'-HeadSha',$badHeadSha,'-EvidenceRoot',(Join-Path $runRoot 'provenance-evidence'),'-Certification','-RequestedWindowsCoverage','full');if($provenance.Code-eq0){$failures.Add('Wrong trusted base provenance unexpectedly passed.')}
 
+function New-Clone([string] $Source,[string] $Name){$path=Join-Path $runRoot $Name;& git -c core.longpaths=true clone --quiet --no-local $Source $path;if($LASTEXITCODE){throw "$Name clone failed"};Invoke-Git $path @('config','user.email','p6@example.invalid')|Out-Null;Invoke-Git $path @('config','user.name','V4 P6')|Out-Null;$path}
+function FileHash([string] $Path){(Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()}
+function Invoke-TrustCase([string] $Name,[string] $RunnerRoot,[string] $FromSha,[scriptblock] $Mutate,[string] $PlanId,[string[]] $Boundaries,[int] $Code,[string] $Pattern){
+    Invoke-Git $trust @('checkout','-q','--detach',$FromSha)|Out-Null;& $Mutate;Invoke-Git $trust @('add','--all')|Out-Null
+    $paths=@(Invoke-Git $trust @('-c','core.quotepath=false','diff','--cached','--name-only','--no-renames'));$planRelative="docs/plans/$PlanId.plan.json"
+    Write-Json (Join-Path $trust $planRelative) ([ordered]@{formatVersion=1;id=$PlanId;title="P6 trust case $Name";goal='Exercise trust-change authorization';acceptanceCriteria=@('The trusted base decides the case');plannedPaths=@(@($paths)+@($planRelative)|Sort-Object -Unique -CaseSensitive);areas=@('ci');risks=@();decisions=@('V4-TODO-014');validationCommands=@('v4-contract');dependencies=@();boundaries=@($Boundaries)})
+    Invoke-Git $trust @('add','--all')|Out-Null;Invoke-Git $trust @('commit','-q','-m',$Name)|Out-Null;$sha=(@(Invoke-Git $trust @('rev-parse','HEAD')))[0]
+    $run=Invoke-Runner $RunnerRoot @('-Mode','Contract','-HeadRoot',$trust,'-BaseSha',$FromSha,'-HeadSha',$sha,'-EvidenceRoot',(Join-Path $runRoot "trust-$Name-evidence"));Expect $run $Code "trust $Name" $Pattern
+    [pscustomobject]@{Sha=$sha;Run=$run;Evidence=(Join-Path $runRoot "trust-$Name-evidence/contract.json")}
+}
+
+$trust=New-Clone $base 'trust';$scratch=Join-Path $runRoot 'trust-scratch';[void][IO.Directory]::CreateDirectory($scratch)
+$contractRelative='integrations/github/ci-contract.json';$runnerRelative='integrations/github/Invoke-V4TrustedBase.ps1';$certificationRelative='core/certification/Invoke-V4V1Certification.ps1';$productRelative='modules/synthetic-probe/adapter.ps1'
+$authorizedTest=Join-Path $scratch 'test.ps1';Copy-Item -LiteralPath (Join-Path $base $testRelative) -Destination $authorizedTest;[IO.File]::AppendAllText($authorizedTest,"`n# P6 authorized change`n",[Text.UTF8Encoding]::new($false));$authorizedTestHash=FileHash $authorizedTest
+$authorizedContractValue=Get-Content -Raw (Join-Path $base $contractRelative)|ConvertFrom-Json -AsHashtable -Depth 100;$authorizedContractValue.approvedTests[0].sha256=$authorizedTestHash;$authorizedContract=Join-Path $scratch 'ci-contract.json';Write-Json $authorizedContract $authorizedContractValue;$authorizedContractHash=FileHash $authorizedContract
+$tcPlan='20260928-p6-trust-change';$recordId='20260928-p6-trust-record';$recordRelative="docs/plans/authorizations/$recordId.json"
+$record=[ordered]@{formatVersion=1;id=$recordId;planId=$tcPlan;reason='P6 authorized approved-test change';entries=@([ordered]@{path=$testRelative;baseSha256=$testHash;headSha256=$authorizedTestHash},[ordered]@{path=$contractRelative;baseSha256=(FileHash (Join-Path $trust $contractRelative));headSha256=$authorizedContractHash});acceptedBy=[ordered]@{kind='human-review';authority='p6-operator';candidateHostVerdictAllowed=$false}}
+$applyTest={Copy-Item -LiteralPath $authorizedTest -Destination (Join-Path $trust $testRelative) -Force;Copy-Item -LiteralPath $authorizedContract -Destination (Join-Path $trust $contractRelative) -Force}
+$addRecord={Write-Json (Join-Path $trust $recordRelative) $record}
+$touch={param([string]$Relative)[IO.File]::AppendAllText((Join-Path $trust $Relative),"`n# P6 change`n",[Text.UTF8Encoding]::new($false))}
+$editContract={param([scriptblock]$Change)$path=Join-Path $trust $contractRelative;$value=Get-Content -Raw $path|ConvertFrom-Json -AsHashtable -Depth 100;& $Change $value;Write-Json $path $value}
+
+[void](Invoke-TrustCase 'unauthorized-test' $base $baseSha $applyTest '20260928-p6-unauthorized-test' @() 16 'Approved test hash drift without trust-change authorization')
+[void](Invoke-TrustCase 'unauthorized-runner' $base $baseSha {& $touch $runnerRelative} '20260928-p6-unauthorized-runner' @('trust-change') 16 'Unauthorized trusted-component change: integrations/github/Invoke-V4TrustedBase\.ps1')
+[void](Invoke-TrustCase 'widened-scope' $base $baseSha {& $editContract {param($c)$c.allowedChangedPatterns=@($c.allowedChangedPatterns)+@('.github/**')}} '20260928-p6-widened-scope' @() 16 'Unauthorized trusted-component change: integrations/github/ci-contract\.json')
+[void](Invoke-TrustCase 'reduced-windows' $base $baseSha {& $editContract {param($c)$c.windowsSensitivePatterns=@($c.windowsSensitivePatterns|Where-Object{$_ -cne 'tests/p6/**'})}} '20260928-p6-reduced-windows' @() 16 'Unauthorized trusted-component change: integrations/github/ci-contract\.json')
+[void](Invoke-TrustCase 'certification-change' $base $baseSha {& $touch $certificationRelative} '20260928-p6-certification-change' @() 16 'Unauthorized trusted-component change: core/certification/')
+$product=Invoke-TrustCase 'product-change' $base $baseSha {& $touch $productRelative} '20260928-p6-product-change' @() 0 '"status": "pass"'
+[void](Invoke-TrustCase 'candidate-only-record' $base $baseSha {& $addRecord;& $applyTest} $tcPlan @('trust-change') 16 'no base-held authorization record')
+[void](Invoke-TrustCase 'authorization-shape' $base $baseSha {& $addRecord;Write-Utf8 (Join-Path $trust 'docs/plans/product/p6-extra.md') "extra`n"} '20260928-p6-authorization' @('authorization') 16 'may only add authorization records')
+[void](Invoke-TrustCase 'self-authorization' $base $baseSha {& $addRecord;& $applyTest} $tcPlan @('authorization','trust-change') 10 'Forbidden root Plan boundary combination')
+$authorization=Invoke-TrustCase 'authorization' $base $baseSha $addRecord '20260928-p6-authorization' @('authorization') 0 '"status": "authorization-added"'
+
+Invoke-Git $trust @('branch','p6-authorized',$authorization.Sha)|Out-Null;$authorizedBase=New-Clone $trust 'base-authorized';Invoke-Git $authorizedBase @('checkout','-q','--detach',$authorization.Sha)|Out-Null;$authorizedSha=$authorization.Sha;$policy=Get-Content -Raw (Join-Path $authorizedBase 'integrations/github/trust-policy.json')|ConvertFrom-Json
+$consume={& $applyTest;Remove-Item -LiteralPath (Join-Path $trust $recordRelative)}
+$trustChange=Invoke-TrustCase 'trust-change' $authorizedBase $authorizedSha $consume $tcPlan @('trust-change') 0 '"status": "authorized"'
+if($trustChange.Run.Code-eq0){$trustResult=Get-Content -Raw $trustChange.Evidence|ConvertFrom-Json
+    $expected=@($policy.verdictComponents|ForEach-Object{"${_}:$(FileHash (Join-Path $authorizedBase $_))"})-join"`n";$actual=@($trustResult.verdictComponents|ForEach-Object{"$($_.path):$($_.sha256)"})-join"`n"
+    if($actual-cne$expected){$failures.Add('Contract result verdictComponents do not equal the judging base component hashes.')}
+    if($trustResult.trustChange.authorization-cne$recordRelative-or((@($trustResult.trustChange.protectedPaths)|Sort-Object)-join',')-cne((@($testRelative,$contractRelative)|Sort-Object)-join',')){$failures.Add('Contract result did not bind the consumed authorization.')}}
+$trustArtifact=Join-Path $runRoot 'trust-artifact';$trustLinux=Invoke-Runner $authorizedBase @('-Mode','Linux','-HeadRoot',$trust,'-BaseSha',$authorizedSha,'-HeadSha',$trustChange.Sha,'-StateRoot',(Join-Path $runRoot 'trust-linux-state'),'-EvidenceRoot',(Join-Path $runRoot 'trust-linux-evidence'),'-ArtifactRoot',$trustArtifact);Expect $trustLinux 0 'trust Linux authorized drift' '"status": "authorized"'
+if($trustLinux.Code-eq0){if(@((Get-Content -Raw (Join-Path $trustArtifact 'manifest.json')|ConvertFrom-Json).verdictComponents).Count-ne@($policy.verdictComponents).Count){$failures.Add('CI artifact manifest does not carry the verdict components.')}}
+[void](Invoke-TrustCase 'head-mismatch' $authorizedBase $authorizedSha {& $consume;& $touch $testRelative} $tcPlan @('trust-change') 16 'Authorization hash mismatch: tests/p0/Test-V4Contracts\.ps1')
+[void](Invoke-TrustCase 'unconsumed' $authorizedBase $authorizedSha $applyTest $tcPlan @('trust-change') 16 'was not consumed in the same diff')
+[void](Invoke-TrustCase 'partial' $authorizedBase $authorizedSha {& $consume;& $touch $runnerRelative} $tcPlan @('trust-change') 16 'not covered by the authorization: integrations/github/Invoke-V4TrustedBase\.ps1')
+[void](Invoke-TrustCase 'record-deletion' $authorizedBase $authorizedSha {Remove-Item -LiteralPath (Join-Path $trust $recordRelative)} '20260928-p6-record-deletion' @() 16 'Authorization records change only through an authorization Plan')
+
 if($failures.Count){throw ($failures-join"`n")}
-Write-Host 'V4 P6 trusted-base tests passed: exact Plan, root isolation, isolated Linux producer, immutable Package/Windows reuse, tamper, under-declaration, test weakening and provenance negatives.'
+Write-Host 'V4 P6 trusted-base tests passed: exact Plan, root isolation, isolated Linux producer, immutable Package/Windows reuse, tamper, under-declaration, test weakening and provenance negatives; trust-change authorization (authorized drift, record shape, hash binding, consumption, coverage, candidate-only records, CI-contract widening, certification and runner protection, unprotected product code, verdict component identity).'
