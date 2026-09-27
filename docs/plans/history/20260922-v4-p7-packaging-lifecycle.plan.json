@@ -1,0 +1,46 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p7-packaging-lifecycle",
+  "title": "Implement V4 packaging, isolation and documentation lifecycle",
+  "goal": "Complete deterministic versioned distribution, isolated verified installation, declared prerequisite validation, schema-generated documentation and reversible lifecycle without publishing or activating V4.",
+  "acceptanceCriteria": [
+    "Identical immutable package and host inputs produce byte-identical versioned archives with source provenance and exact SHA-256 manifests.",
+    "Install, uninstall and reinstall are confined to an explicit clean root and fail closed on archive, receipt, path or installed-file drift.",
+    "The installed entry point validates package and selected-module runtime prerequisites before starting the V4 host and reports missing requirements structurally.",
+    "Command and configuration documentation is generated deterministically from authoritative JSON contracts and schemas.",
+    "A packaged host runs and resets an external synthetic target under hostile parent configuration without IFX or repository-parent influence.",
+    "Current V3 behavior remains unchanged and no release, active workflow, ruleset, push or other remote mutation occurs."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p7-packaging-lifecycle.md",
+    "docs/guards/plans/20260922-v4-p7-packaging-lifecycle.plan.json",
+    "docs/guards/v4/core/contracts/contracts-manifest.json",
+    "docs/guards/v4/core/contracts/distribution-manifest.schema.json",
+    "docs/guards/v4/core/contracts/install-receipt.schema.json",
+    "docs/guards/v4/core/contracts/prerequisite-report.schema.json",
+    "docs/guards/v4/core/contracts/runtime-requirements.schema.json",
+    "docs/guards/v4/core/distribution/Install-V4Distribution.ps1",
+    "docs/guards/v4/core/distribution/Invoke-V4Installed.ps1",
+    "docs/guards/v4/core/distribution/New-V4Distribution.ps1",
+    "docs/guards/v4/core/distribution/Publish-V4Documentation.ps1",
+    "docs/guards/v4/core/distribution/Test-V4Prerequisites.ps1",
+    "docs/guards/v4/core/distribution/runtime-requirements.json",
+    "docs/guards/v4/core/runtime/Test-V4Package.ps1",
+    "docs/guards/v4/docs/commands.md",
+    "docs/guards/v4/docs/configuration.md",
+    "docs/guards/v4/integrations/github/ci-contract.json",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/tests/p0/Test-V4Contracts.ps1",
+    "docs/guards/v4/tests/p7/Test-V4Distribution.ps1",
+    "docs/guards/v4/tests/p7/Test-V4Documentation.ps1",
+    "docs/guards/v4/tests/p7/Test-V4Lifecycle.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

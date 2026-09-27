@@ -1,0 +1,43 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p9c-workspace-stage-runner",
+  "title": "Implement the V4 P9.3 one-active-Target workspace and Stage Runner",
+  "goal": "Add a Host-projected one-active-Target workspace and manual serialized Stage Runner to the local Web Companion without accepting browser paths, raw arguments or a second verdict authority.",
+  "acceptanceCriteria": [
+    "Trusted startup arguments may register multiple Target roots, but browser selection uses only Host-derived project IDs and exactly one Target is active.",
+    "Installed Profile, module, Stage and prerequisite readiness comes from P9.2 Host query projections.",
+    "Manual Stage execution exposes its dependency chain, uses only constructed stage.run arguments and preserves the Host JSON and exit code.",
+    "Target switching and UI-originated runs are serialized, and simultaneous runs fail closed before a second Host Stage process starts.",
+    "Workspace, selection and Stage contracts are strict and reject path, command and profile injection.",
+    "Windows and pinned network-disabled Linux tests prove root confinement and one-active-Target behavior.",
+    "No P9.4/P9.5 feature, authority edit, Target mutation, reset, Git/PR action, remote access or remote activation is introduced."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p9c-workspace-stage-runner.md",
+    "docs/guards/plans/20260922-v4-p9c-workspace-stage-runner.plan.json",
+    "docs/guards/v4/integrations/web/README.md",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/Program.cs",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/contracts/session.schema.json",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/contracts/stage-run-request.schema.json",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/contracts/stage-run-response.schema.json",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/contracts/workspace-select-request.schema.json",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/contracts/workspace-select-response.schema.json",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/contracts/workspace.schema.json",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/wwwroot/app.js",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/wwwroot/index.html",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/wwwroot/styles.css",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/plans/02-runtime-architecture.md",
+    "docs/guards/v4/plans/README.md",
+    "docs/guards/v4/tests/p9/Test-V4WebCompanionSpike.ps1",
+    "docs/guards/v4/tests/p9/Test-V4WorkspaceStageRunner.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "id": "20260923-v4-p9-gate-closure",
+  "title": "Close the V4 P9 Lightweight Web UI gate",
+  "goal": "Audit and close V4-P9 without changing the certified package, while preserving the non-authoritative local UI boundary and every first-release exclusion.",
+  "acceptanceCriteria": [
+    "Windows-full and Linux-complete reports pass against one clean source commit, one package hash and the exact CI-selected suites.",
+    "The gate-only planning diff leaves the certified package hash unchanged.",
+    "The Web Companion remains loopback-only and same-origin, with one shell-free structured gateway to the fixed V4 Host.",
+    "PackageRoot and TargetRoot remain read-only while UI-originated mutable data stays below StateRoot and EvidenceRoot.",
+    "No V4-TODO-005 first-release exclusion is present in the implemented UI surface.",
+    "Formal Pre, V3 Validate, isolated IFX package and relevant V4 validation pass for the exact changed-path set.",
+    "Only the authorized branch push occurs; no PR, merge, release/tag, workflow/ruleset activation or IFX cutover occurs."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260923-v4-p9-gate-closure.md",
+    "docs/guards/plans/20260923-v4-p9-gate-closure.plan.json",
+    "docs/guards/v4/plans/00-architecture-decision-set.md",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/plans/02-runtime-architecture.md",
+    "docs/guards/v4/plans/05-p9-gate-audit.json",
+    "docs/guards/v4/plans/05-p9-gate-audit.md",
+    "docs/guards/v4/plans/README.md",
+    "docs/guards/v4/plans/TODO.md"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p9b-read-query-contracts",
+  "title": "Implement V4 P9.2 read and query contracts",
+  "goal": "Add schema-versioned Host-owned project, profile, prerequisite, run, evidence and Plan catalog projections without exposing internal files as UI authorities or changing released stable CLI behavior.",
+  "acceptanceCriteria": [
+    "A registered experimental query command contract defines six read-only Host commands without modifying the released stable CLI command set.",
+    "Project, profile and prerequisite projections derive only from package-validated Host authorities.",
+    "Run and evidence projections validate registered state and Stage result contracts and use deterministic IDs and hashes rather than timestamps.",
+    "Plan catalog projection validates V4-native Plans through the V4 Plan runtime and labels V3-formal pairs as read-only historical compatibility views.",
+    "Every query output satisfies a strict registered schema and malformed, linked or escaping inputs fail closed.",
+    "All queries leave PackageRoot, TargetRoot, StateRoot and EvidenceRoot byte-identical on Windows and Linux.",
+    "No Stage Runner, authority edit, Target mutation, reset, Git operation, remote access or remote activation is introduced."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p9b-read-query-contracts.md",
+    "docs/guards/plans/20260922-v4-p9b-read-query-contracts.plan.json",
+    "docs/guards/v4/core/contracts/contracts-manifest.json",
+    "docs/guards/v4/core/contracts/evidence-query.schema.json",
+    "docs/guards/v4/core/contracts/plan-catalog-query.schema.json",
+    "docs/guards/v4/core/contracts/prerequisite-query.schema.json",
+    "docs/guards/v4/core/contracts/profile-catalog-query.schema.json",
+    "docs/guards/v4/core/contracts/project-query.schema.json",
+    "docs/guards/v4/core/contracts/query-contract.json",
+    "docs/guards/v4/core/contracts/query-contract.schema.json",
+    "docs/guards/v4/core/contracts/run-catalog-query.schema.json",
+    "docs/guards/v4/core/host/V4.Guards.Host/ContractRuntime.cs",
+    "docs/guards/v4/core/host/V4.Guards.Host/PlanRuntime.cs",
+    "docs/guards/v4/core/host/V4.Guards.Host/Program.cs",
+    "docs/guards/v4/core/host/V4.Guards.Host/QueryRuntime.cs",
+    "docs/guards/v4/docs/queries.md",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/plans/02-runtime-architecture.md",
+    "docs/guards/v4/plans/README.md",
+    "docs/guards/v4/tests/p0/Test-V4Contracts.ps1",
+    "docs/guards/v4/tests/p9/Test-V4QueryContracts.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

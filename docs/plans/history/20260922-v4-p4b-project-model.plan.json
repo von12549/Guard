@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p4b-project-model",
+  "title": "Implement the non-executing V4 Project Model detector",
+  "goal": "Inspect raw project XML without target execution and aggregate structured Architecture Conformance findings and coverage through the V4 Host.",
+  "acceptanceCriteria": [
+    "Validated module configuration is passed explicitly from the selected profile to the adapter.",
+    "Project/package references, target frameworks and graph completeness are inspected without invoking target build logic.",
+    "Layered findings and non-vacuity coverage are preserved by Host aggregation.",
+    "Missing projects and zero-match evidence return structured prerequisite outcomes.",
+    "The synthetic profile exercises Architecture Conformance in Pre while P0-P4A remain green.",
+    "Current V3 behavior remains unchanged with no active workflow or remote change."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p4b-project-model.md",
+    "docs/guards/plans/20260922-v4-p4b-project-model.plan.json",
+    "docs/guards/v4/core/host/V4.Guards.Host/StageRuntime.cs",
+    "docs/guards/v4/modules/architecture-conformance/adapter.ps1",
+    "docs/guards/v4/modules/architecture-conformance/config.schema.json",
+    "docs/guards/v4/modules/architecture-conformance/module.json",
+    "docs/guards/v4/modules/registry.json",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/profiles/catalog/synthetic_profile/profile.json",
+    "docs/guards/v4/tests/p3/Test-V4StageOrchestration.ps1",
+    "docs/guards/v4/tests/p3/Test-V4Stages.ps1",
+    "docs/guards/v4/tests/p4/Test-V4ArchitectureAuthority.ps1",
+    "docs/guards/v4/tests/p4/Test-V4ProjectModel.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

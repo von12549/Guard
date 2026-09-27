@@ -1,0 +1,33 @@
+{
+  "formatVersion": 1,
+  "id": "20260923-v4-guards-1-1-1-release-publication",
+  "title": "Publish V4 Guards 1.1.1 composition patch",
+  "goal": "Finalize release-safe 1.1.1 package documentation, recertify one exact source commit and archive, publish the authorized tag and GitHub Release, and verify a new side-by-side installation without approving an IFX bundle or cutover.",
+  "acceptanceCriteria": [
+    "The 1.1.1 tag and Release are absent before publication and the remote development branch can be advanced by an exact fast-forward to the newly certified commit.",
+    "Package README, release notes, certification guide and Web Companion guide contain release-safe wording; changed authority bytes are recertified on Windows-full and pinned network-disabled Linux-complete against one clean commit and package hash.",
+    "The deterministic 1.1.1 archive and SHA-256 sidecar match the new certification record, and the same archive passes installed-path synthetic composition on Linux and Windows.",
+    "An annotated v4-guards-v1.1.1 tag points to the exact certified commit, and a final GitHub Release V4 Guards 1.1.1 contains only the certified ZIP and sidecar with matching remote digests.",
+    "The published archive is installed into a new sibling v4-guards-1.1.1 directory with an external verified release receipt, without changing the 1.1.0 installation or receipt.",
+    "Publication and local installation evidence are recorded; no real ifx_profile bundle approval, remote workflow/ruleset change, IFX cutover, or V3 retirement occurs."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260923-v4-guards-1-1-1-release-publication.md",
+    "docs/guards/plans/20260923-v4-guards-1-1-1-release-publication.plan.json",
+    "docs/guards/plans/20260923-v4-p10-1-candidate-version-certification.md",
+    "docs/guards/v4/README.md",
+    "docs/guards/v4/docs/1.1.1-release-notes.md",
+    "docs/guards/v4/docs/v1-certification.md",
+    "docs/guards/v4/integrations/web/README.md",
+    "docs/guards/v4/plans/08-p10-1-extension-composition-compatibility.md",
+    "docs/guards/v4/plans/README.md"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

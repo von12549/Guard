@@ -1,0 +1,33 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p4d-archunitnet-adapter",
+  "title": "Implement V4 ArchUnitNET compiled-assembly adapter",
+  "goal": "Enforce three compiled architecture claims from explicit hash-bound assemblies without building or executing the target repository.",
+  "acceptanceCriteria": [
+    "ArchUnitNET and its runtime dependency closure are pinned and loaded without network access.",
+    "Only explicit assemblies beneath EvidenceRoot with matching hashes and identities are inspected.",
+    "Compiled dependency, implementation placement and assembly placement claims emit layered findings and non-zero coverage.",
+    "Missing dependencies, assemblies and zero-match evidence fail explicitly.",
+    "The adapter does not build or mutate TargetRoot and P0-P4C remain green.",
+    "Current V3 behavior remains unchanged with no active workflow or remote change."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p4d-archunitnet-adapter.md",
+    "docs/guards/plans/20260922-v4-p4d-archunitnet-adapter.plan.json",
+    "docs/guards/v4/modules/architecture-conformance/adapter.ps1",
+    "docs/guards/v4/modules/architecture-conformance/config.schema.json",
+    "docs/guards/v4/modules/architecture-conformance/dependencies.lock.json",
+    "docs/guards/v4/modules/architecture-conformance/module.json",
+    "docs/guards/v4/modules/registry.json",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/tests/p4/Test-V4ArchUnitNetAdapter.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

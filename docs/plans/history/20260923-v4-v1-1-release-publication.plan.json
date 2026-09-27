@@ -1,0 +1,27 @@
+{
+  "formatVersion": 1,
+  "id": "20260923-v4-v1-1-release-publication",
+  "title": "Publish V4 Guards 1.1.0",
+  "goal": "Publish and remotely verify the certified V4 Guards 1.1.0 candidate as the fixed initial IFX Profile validation baseline without activating remote governance or IFX cutover.",
+  "acceptanceCriteria": [
+    "The remote codex/v4-development-base branch identifies certified candidate a81a12e0d1f476c563497f961fe41fccc53edfb6 at publication time.",
+    "Annotated tag v4-guards-v1.1.0 exists remotely and peels to the exact certified candidate commit.",
+    "GitHub Release V4 Guards 1.1.0 is published as a final release for the authorized tag.",
+    "The certified ZIP and SHA-256 sidecar are uploaded and their remote digests equal the local artifacts.",
+    "The immutable pre-publication certification record and exact recovery point remain preserved.",
+    "No workflow or ruleset activation, IFX Profile implementation, IFX cutover, Reset UI expansion or macOS support declaration occurs."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260923-v4-v1-1-release-publication.md",
+    "docs/guards/plans/20260923-v4-v1-1-release-publication.plan.json",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

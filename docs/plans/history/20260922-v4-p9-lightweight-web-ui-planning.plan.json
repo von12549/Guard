@@ -1,0 +1,31 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p9-lightweight-web-ui-planning",
+  "title": "Establish the V4-P9 Lightweight Web UI decisions and roadmap",
+  "goal": "Accept a non-authoritative local Web UI boundary, define phased V4-P9 implementation checkpoints and preserve all first-release exclusions before any UI code is implemented.",
+  "acceptanceCriteria": [
+    "V4-AD-017 defines the Web UI as an observation and allowlisted command surface over the V4 host, never a policy or verdict engine.",
+    "The maintained runtime architecture shows the local Web Companion and preserves PackageRoot, TargetRoot, StateRoot and EvidenceRoot ownership.",
+    "The parent roadmap contains separately authorized V4-P9 planning and implementation checkpoints.",
+    "V4-TODO-005 remains open and records every excluded first-release capability requested by the user.",
+    "The planning index accurately distinguishes released V4 1.0.0 from the unimplemented V4-P9 roadmap.",
+    "No executable, dependency, package, profile, module, workflow, ruleset or remote state changes occur."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p9-lightweight-web-ui-planning.md",
+    "docs/guards/plans/20260922-v4-p9-lightweight-web-ui-planning.plan.json",
+    "docs/guards/v4/plans/00-architecture-decision-set.md",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/plans/02-runtime-architecture.md",
+    "docs/guards/v4/plans/README.md",
+    "docs/guards/v4/plans/TODO.md"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "id": "20260924-v4-guards-1-1-3-path-isolation-release",
+  "title": "Publish V4 Guards 1.1.3 from the immutable 1.1.2 tag with only the PATH isolation fix",
+  "goal": "Produce, certify, publish and install a 1.1.3 patch containing only the child-process PATH isolation repair plus required release metadata, without incorporating concurrent C1-C6 work or modifying prior releases.",
+  "acceptanceCriteria": [
+    "The source diff is based directly on v4-guards-v1.1.2 and contains no C1-C6 candidate or inventory paths; the V4 behavior change is limited to build-evidence child PATH isolation.",
+    "Exact Formal Pre/Diff, Windows-full, offline Linux-complete, deterministic archive and candidate certification pass on one clean source commit with matching package hashes.",
+    "A new annotated tag and final GitHub Release expose only the verified 1.1.3 ZIP and SHA-256 sidecar, and a new verified sibling installation leaves all prior releases and PATH values unchanged."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260924-v4-guards-1-1-3-path-isolation-release.md",
+    "docs/guards/plans/20260924-v4-guards-1-1-3-path-isolation-release.plan.json",
+    "docs/guards/v4/README.md",
+    "docs/guards/v4/core/certification/compatibility-baseline.json",
+    "docs/guards/v4/core/host/V4.Guards.Host/V4.Guards.Host.csproj",
+    "docs/guards/v4/docs/1.1.3-release-notes.md",
+    "docs/guards/v4/integrations/github/ci-contract.json",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj",
+    "docs/guards/v4/modules/build-evidence-provider/adapter.ps1",
+    "docs/guards/v4/modules/build-evidence-provider/module.json",
+    "docs/guards/v4/modules/registry.json",
+    "docs/guards/v4/plugin.json",
+    "docs/guards/v4/tests/p10/Test-V4ExtensionComposition.ps1",
+    "docs/guards/v4/tests/p4/Test-V4BuildEvidence.ps1",
+    "docs/guards/v4/tests/p7/Test-V4Distribution.ps1",
+    "docs/guards/v4/tests/p8/Test-V4StableCli.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

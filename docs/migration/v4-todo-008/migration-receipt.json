@@ -1,0 +1,81 @@
+{
+  "schema": "v4-todo-008/migration-receipt/1",
+  "program": "20260927-v4-todo-008-standalone-repository-extraction",
+  "amendments": {
+    "A1": "rebind to 640c5756 (in-subtree V4-AD-019 acceptance)",
+    "A2": "reconcile published 1.1.4 lineage; rebind to 80f7b6b6"
+  },
+  "ifx": {
+    "repository": "von12549/IFX",
+    "exportSourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+    "v4Tree": "af913836d83c071b9c0a769c6c84da4fb727b971",
+    "v4Files": 175,
+    "v4TouchingCommits": 50,
+    "amendmentCommits": [
+      "286e453d5db66b9283c8432d81030717799b84cb",
+      "17a1d56c2e244717f64576059b711e2e5f79480a",
+      "af2bd603a31be362128a881f684847e40bb7ce5a"
+    ],
+    "reconciliationMerge": "80f7b6b65fb06897444a6a36c604c42c93c834e4"
+  },
+  "export": {
+    "tip": "4609edaeef0cf357fb1a59cb2413850e1367056b",
+    "commits": 50,
+    "commitMap": "commit-map.json"
+  },
+  "guard": {
+    "repository": "von12549/Guard",
+    "initialCommit": "e75d0386492632e4df87230f3b64252086d1bc58",
+    "initialReadmeBlob": "d6e5996b5246743aba98e26e1ee7e7292f26ead8",
+    "branch": "codex/v4-todo-008-standalone",
+    "mergeCommit": "ec9f5eade8596c99081ed2ca1663252b13bc6e49",
+    "normalizationCommits": "see git log after ec9f5ead",
+    "acceptedDefaultBranchCommit": null
+  },
+  "evidenceRoot": "D:/IFX-Root/v4-todo-008-evidence",
+  "tranches": {
+    "T0": {
+      "status": "pass",
+      "run": "T0-identity/20260927T090305Z",
+      "SHA256SUMS": "a8e48d9035cd45c568878875ed032f7a776c05e8f2611409728296c0c0208ed4"
+    },
+    "A2": {
+      "status": "pass",
+      "run": "T1-A2-reconciliation/20260927T101043Z",
+      "SHA256SUMS": "cec17c9b55903cf5d4be40d8199a8042d2a5fc06955f92dd601848b00ff7585e"
+    },
+    "T1": {
+      "status": "pass",
+      "run": "T1-manifests/20260927T102631Z",
+      "SHA256SUMS": "acb96d21e84361e47795a2c97df164aa943c8acdf2d9b8272411f3e6b9c869f6"
+    },
+    "T2": {
+      "status": "pass",
+      "run": "T2-history-export/20260927T102819Z",
+      "SHA256SUMS": "ad7ab74ac6200fdeaef7e583de19058c5fd954429bf8cac4042fb26a575fc7a2"
+    },
+    "T3": {
+      "status": "pass",
+      "run": "T3-merge/20260927T103329Z",
+      "SHA256SUMS": "c80a70161fca075b498f47b3d3c4c7bef097c9e26192bfd0df319c62c88115e4"
+    },
+    "T4": {
+      "status": "in-progress"
+    },
+    "T5": {
+      "status": "not-started"
+    }
+  },
+  "boundaries": {
+    "standaloneSourceAccepted": false,
+    "standaloneReleasePublished": false,
+    "ifxConsumerRebound": false,
+    "ifxCoreSourceRemoved": false,
+    "v4Activated": false,
+    "p10GatePassed": false,
+    "v3Retired": false
+  },
+  "remoteWrites": [
+    "IFX codex/v4-development-base fast-forward 6b80fc04..286e453d (O1, authorized)"
+  ]
+}

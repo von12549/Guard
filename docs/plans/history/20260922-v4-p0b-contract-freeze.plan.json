@@ -1,0 +1,43 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p0b-contract-freeze",
+  "title": "Freeze V4 v1 contracts and stable CLI identities",
+  "goal": "Freeze strict JSON Schemas, stable CLI commands, exit categories, architecture capability contracts and the genesis acceptance record before production V4 Stage or state implementation begins.",
+  "acceptanceCriteria": [
+    "Strict schemas exist for plugin, profile, module, Stage result, state, Plan, plan-set, capability matrix, rule execution plan, CLI contract and genesis acceptance record.",
+    "Profiles cannot declare arbitrary commands or environment mutation and modules cannot request TargetRoot or PackageRoot writes.",
+    "The stable v1 CLI contract names independent Stage execution, contract validation, reset Preview/Apply, Plan validation and deterministic plan-set composition with stable exit categories 0 and 10 through 19.",
+    "Blocking architecture claims require layered evidence, positive minimum matches and clean, violating and missing-input fixtures.",
+    "The genesis record cannot be accepted by the candidate V4 host and binds the seed, package/contracts, deterministic tests and recovery evidence.",
+    "A deterministic manifest hash-binds every frozen contract and positive/negative schema tests pass.",
+    "Current V3 validation remains green and no workflow, ruleset, V3/V3_ifx authority or remote state changes."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p0b-contract-freeze.md",
+    "docs/guards/plans/20260922-v4-p0b-contract-freeze.plan.json",
+    "docs/guards/v4/core/contracts/capability-matrix.schema.json",
+    "docs/guards/v4/core/contracts/cli-contract.json",
+    "docs/guards/v4/core/contracts/cli-contract.schema.json",
+    "docs/guards/v4/core/contracts/contracts-manifest.json",
+    "docs/guards/v4/core/contracts/genesis-record.schema.json",
+    "docs/guards/v4/core/contracts/module.schema.json",
+    "docs/guards/v4/core/contracts/plan-set.schema.json",
+    "docs/guards/v4/core/contracts/plan.schema.json",
+    "docs/guards/v4/core/contracts/plugin.schema.json",
+    "docs/guards/v4/core/contracts/profile.schema.json",
+    "docs/guards/v4/core/contracts/rule-execution-plan.schema.json",
+    "docs/guards/v4/core/contracts/stage-result.schema.json",
+    "docs/guards/v4/core/contracts/state.schema.json",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/tests/p0/Test-V4Contracts.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d14-package-local-build-baseline.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d15-trusted-base-component-upgrade.json"
+  ]
+}

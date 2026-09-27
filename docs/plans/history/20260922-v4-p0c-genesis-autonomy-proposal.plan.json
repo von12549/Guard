@@ -1,0 +1,30 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p0c-genesis-autonomy-proposal",
+  "title": "Specify the finite V3 genesis bootstrap and V4 autonomy handoff",
+  "goal": "Produce an exact, testable and inactive proposal for the V4 development-base workflow and the finite transition from V3 genesis review to base-owned V4 governance.",
+  "acceptanceCriteria": [
+    "The proposal identifies the already authorized local codex/v4-development-base branch and its recovery lineage.",
+    "The V3 bootstrap, dormant V4 base and V4 autonomy states have explicit entry evidence, allowed verdict authority and exit criteria.",
+    "The proposed V4-only workflow exposes v4-contract, v4-linux, v4-package and v4-required and obtains required verdicts from the previously trusted base.",
+    "Head candidate V4 code cannot judge its own change and missing base-owned governance fails closed.",
+    "Future active workflow and V3 trigger changes are named as separate authorization boundaries and are not applied by this checkpoint.",
+    "Current V3 validation remains green and no active workflow, ruleset or remote state changes."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p0c-genesis-autonomy-proposal.md",
+    "docs/guards/plans/20260922-v4-p0c-genesis-autonomy-proposal.plan.json",
+    "docs/guards/v4/integrations/github/proposed-v4-guards.yml",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/plans/03-genesis-bootstrap-and-autonomy.md",
+    "docs/guards/v4/tests/p0/Test-V4GenesisProposal.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d15-trusted-base-component-upgrade.json"
+  ]
+}

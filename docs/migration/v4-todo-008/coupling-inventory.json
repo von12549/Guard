@@ -1,0 +1,1891 @@
+{
+  "sourceRepository": "von12549/IFX",
+  "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+  "sourcePath": "docs/guards/v4",
+  "sourceTree": "af913836d83c071b9c0a769c6c84da4fb727b971",
+  "schema": "v4-todo-008/coupling-inventory/1",
+  "scope": "active Guard tree after T4 (fixed IFX-only paths excluded; they leave the active tree)",
+  "countsByCategory": {
+    "v3-ifx-source-reference": 29,
+    "repo-layout-v4-path": 83,
+    "parent-traversal-root": 33,
+    "schema-id-ifx-local": 44,
+    "ifx-dev-branch": 19,
+    "repo-layout-plans-path": 11,
+    "artifacts-default": 42,
+    "ifx-release-url": 2,
+    "ifx-v3-workflow": 4
+  },
+  "files": 94,
+  "entries": [
+    {
+      "path": "README.md",
+      "line": 8,
+      "category": "v3-ifx-source-reference",
+      "text": "V4 is developed inside this repository, but it does not depend on V3/V3_ifx at runtime. The active IFX",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "README.md",
+      "line": 9,
+      "category": "v3-ifx-source-reference",
+      "text": "guard remains V3/V3_ifx until a separately reviewed parity, cutover and rollback program completes.",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "core/certification/Invoke-V4PlatformCertification.ps1",
+      "line": 28,
+      "category": "repo-layout-v4-path",
+      "text": "$package=Join-Path $repository 'docs/guards/v4';$contractPath=Join-Path $package 'integrations/github/ci-contract.json'",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "core/certification/Invoke-V4V1Certification.ps1",
+      "line": 37,
+      "category": "parent-traversal-root",
+      "text": "$repoRoot=[IO.Path]::GetFullPath((Join-Path $root '../../..'));if(Test-Path (Join-Path $repoRoot '.github/workflows/v4-guards.yml')){throw 'Active V4 workflow exists without activation authorization.'}",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "core/certification/Invoke-V4V1Certification.ps1",
+      "line": 51,
+      "category": "repo-layout-v4-path",
+      "text": "$recovery=[ordered]@{formatVersion=1;candidateCommit=$SourceCommit;restoreCommit=$RestoreCommit;packageHash=$packageHash;archiveSha256=$archiveHash;compatibilityBaselineSha256=$baselineHash;strategy='restore-reviewed-source-checkpoint';veri",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "core/certification/Invoke-V4V1Certification.ps1",
+      "line": 51,
+      "category": "v3-ifx-source-reference",
+      "text": "$recovery=[ordered]@{formatVersion=1;candidateCommit=$SourceCommit;restoreCommit=$RestoreCommit;packageHash=$packageHash;archiveSha256=$archiveHash;compatibilityBaselineSha256=$baselineHash;strategy='restore-reviewed-source-checkpoint';veri",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "core/certification/Test-V4SupplyChain.ps1",
+      "line": 41,
+      "category": "v3-ifx-source-reference",
+      "text": "$forbidden = [Regex]::new('(?i)(docs[\\\\/]guards[\\\\/]V3|V3_ifx|LayerGuard|IFX\\.Migration|ifx_profile)')",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "core/contracts/capability-matrix.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/capability-matrix.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/ci-artifact-manifest.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/ci-artifact-manifest.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/ci-contract.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/ci-contract.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/ci-contract.schema.json",
+      "line": 9,
+      "category": "ifx-dev-branch",
+      "text": "\"targetBranch\": { \"const\": \"codex/v4-development-base\" },",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "core/contracts/cli-contract.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/cli-contract.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/compatibility-baseline.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/compatibility-baseline.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/composition-manifest.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/composition-manifest.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/composition-receipt.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/composition-receipt.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/distribution-manifest.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/distribution-manifest.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/evidence-query.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/evidence-query.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/extension-bundle.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/extension-bundle.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/extension-review.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/extension-review.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/finding-baseline.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/finding-baseline.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/genesis-record.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/genesis-record.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/install-receipt.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/install-receipt.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/module-registry.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/module-registry.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/module.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/module.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/plan-catalog-query.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/plan-catalog-query.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/plan-set.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/plan-set.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/plan.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/plan.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/platform-certification.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/platform-certification.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/plugin.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/plugin.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/prerequisite-query.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/prerequisite-query.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/prerequisite-report.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/prerequisite-report.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/profile-catalog-query.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/profile-catalog-query.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/profile.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/profile.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/project-query.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/project-query.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/query-contract.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/query-contract.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/recovery-artifact.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/recovery-artifact.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/reset-manifest.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/reset-manifest.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/rule-execution-plan.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/rule-execution-plan.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/run-catalog-query.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/run-catalog-query.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/runtime-requirements.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/runtime-requirements.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/stage-result.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/stage-result.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/state.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/state.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/v1-certification.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/v1-certification.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "core/contracts/workspace-evidence.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/contracts/workspace-evidence.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "integrations/github/Invoke-V4TrustedBase.ps1",
+      "line": 20,
+      "category": "parent-traversal-root",
+      "text": "$baseRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "integrations/github/Invoke-V4TrustedBase.ps1",
+      "line": 116,
+      "category": "repo-layout-v4-path",
+      "text": "$paths = @(Invoke-Git $Repository @('ls-files','--','docs/guards/v4'))",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/Invoke-V4TrustedBase.ps1",
+      "line": 119,
+      "category": "repo-layout-v4-path",
+      "text": "if (-not $relative.StartsWith('docs/guards/v4/',[StringComparison]::Ordinal)) { Fail \"Tracked package path escaped: $relative\" }",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/Invoke-V4TrustedBase.ps1",
+      "line": 120,
+      "category": "repo-layout-v4-path",
+      "text": "$packageRelative = $relative.Substring('docs/guards/v4/'.Length)",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/Invoke-V4TrustedBase.ps1",
+      "line": 168,
+      "category": "repo-layout-plans-path",
+      "text": "$planSets = @($changed | Where-Object { $_ -match '^docs/guards/plans/.+\\.plan-set\\.json$' })",
+      "plannedFix": "Replace with standalone plan location (docs/plans) or explicit parameter."
+    },
+    {
+      "path": "integrations/github/Invoke-V4TrustedBase.ps1",
+      "line": 169,
+      "category": "repo-layout-plans-path",
+      "text": "$plans = @($changed | Where-Object { $_ -match '^docs/guards/plans/.+\\.plan\\.json$' })",
+      "plannedFix": "Replace with standalone plan location (docs/plans) or explicit parameter."
+    },
+    {
+      "path": "integrations/github/Invoke-V4TrustedBase.ps1",
+      "line": 200,
+      "category": "repo-layout-v4-path",
+      "text": "$targetPackage = Join-Path $target 'docs/guards/v4'; $packageCheck = Invoke-Isolated 'pwsh' @('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $packageRoot 'core/runtime/Test-V4Package.ps1'),'-PackageRoot',$targetPackage) $target",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 3,
+      "category": "ifx-dev-branch",
+      "text": "\"targetBranch\": \"codex/v4-development-base\",",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 6,
+      "category": "repo-layout-v4-path",
+      "text": "\"allowedChangedPatterns\": [\"docs/guards/v4/**\", \"docs/guards/plans/**\"],",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 6,
+      "category": "repo-layout-plans-path",
+      "text": "\"allowedChangedPatterns\": [\"docs/guards/v4/**\", \"docs/guards/plans/**\"],",
+      "plannedFix": "Replace with standalone plan location (docs/plans) or explicit parameter."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 8,
+      "category": "repo-layout-v4-path",
+      "text": "\"docs/guards/v4/build/**\",",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 9,
+      "category": "repo-layout-v4-path",
+      "text": "\"docs/guards/v4/core/certification/**\",",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 10,
+      "category": "repo-layout-v4-path",
+      "text": "\"docs/guards/v4/core/distribution/**\",",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 11,
+      "category": "repo-layout-v4-path",
+      "text": "\"docs/guards/v4/core/host/**\",",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 12,
+      "category": "repo-layout-v4-path",
+      "text": "\"docs/guards/v4/core/runtime/**\",",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 13,
+      "category": "repo-layout-v4-path",
+      "text": "\"docs/guards/v4/integrations/**\",",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 14,
+      "category": "repo-layout-v4-path",
+      "text": "\"docs/guards/v4/modules/build-evidence-provider/**\",",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 15,
+      "category": "repo-layout-v4-path",
+      "text": "\"docs/guards/v4/tests/p2/**\",",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 16,
+      "category": "repo-layout-v4-path",
+      "text": "\"docs/guards/v4/tests/p3/**\",",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 17,
+      "category": "repo-layout-v4-path",
+      "text": "\"docs/guards/v4/tests/p4/Test-V4BuildEvidence.ps1\",",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 18,
+      "category": "repo-layout-v4-path",
+      "text": "\"docs/guards/v4/tests/p6/**\",",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 19,
+      "category": "repo-layout-v4-path",
+      "text": "\"docs/guards/v4/tests/p7/**\",",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 20,
+      "category": "repo-layout-v4-path",
+      "text": "\"docs/guards/v4/tests/p8/**\",",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 21,
+      "category": "repo-layout-v4-path",
+      "text": "\"docs/guards/v4/tests/p9/**\"",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 24,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p0/Test-V4Contracts.ps1\", \"sha256\": \"2124257c0abaf47d5f91e3771c96bea40f1b3e7951350433ba7b05ce07732286\", \"linux\": true, \"windowsSmoke\": true, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 25,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p0/Test-V4GenesisProposal.ps1\", \"sha256\": \"8e47bca44b95d01a225bf45b96b553ed512a8e5b96d5b35daf92f572127b6a44\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 26,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p0/Test-V4HostSpike.ps1\", \"sha256\": \"8659f6bbc94929418bde24f6041236f0c6358bae8551b021a7b0dac110cf19ea\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 27,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p1/Test-V4Package.ps1\", \"sha256\": \"0ce1028e360449d2854fc58e5d005a811414805993dbb8d379ca228b42e58c27\", \"linux\": true, \"windowsSmoke\": true, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 28,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p1/Test-V4Registry.ps1\", \"sha256\": \"36b5ff1bbba5a191532dac158229837a16d77785557c3be9dd969cb3fdb74cfc\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 29,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p2/Test-V4Reset.ps1\", \"sha256\": \"d7745a42e6e8c659608c38d10b02408ac421ffbb3a1c87fa0dc999be10d6e77b\", \"linux\": true, \"windowsSmoke\": true, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 30,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p2/Test-V4StateTransactions.ps1\", \"sha256\": \"db0ee11568fcbbc1c92881538ad21c03095337f6677306c79939d728a7925e0d\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 31,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p3/Test-V4StageOrchestration.ps1\", \"sha256\": \"26dad5d59dfabee5bdeb40cd5c9eedf016a3b324bbf96e0c1ae73fdd88c3ee19\", \"linux\": true, \"windowsSmoke\": true, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 32,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p3/Test-V4Stages.ps1\", \"sha256\": \"99d26df2ebb6856caf8a8569e0848a10a9bb5e64c19e49b81560264686e93803\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 33,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p4/Test-V4ArchitectureAuthority.ps1\", \"sha256\": \"f2eb8ec2f75c4e6a9adef17f03427800ebbbd688459f88f44739ee5c0933e285\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 34,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p4/Test-V4ArchUnitNetAdapter.ps1\", \"sha256\": \"69be54c3e6968f82217d7fb904a788fb177dc28568b875150ebec37304b8431e\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 35,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p4/Test-V4BuildEvidence.ps1\", \"sha256\": \"5d67ca63ec35b0fe31ff2035d268929527f7b82c4532aeb7aa605e1162d19de8\", \"linux\": true, \"windowsSmoke\": true, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 36,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p4/Test-V4CompositeArchitecture.ps1\", \"sha256\": \"3e0d7dd121efd28d3ade8bde154b5f896c14f9022caf6ef7f90cd4c31b648d92\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 37,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p4/Test-V4ProjectModel.ps1\", \"sha256\": \"32c02e3cc7bbf11d05b6edc29ad150a37dc98d95929a0c855679b3fd62f88a4b\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 38,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p4/Test-V4RoslynDetectors.ps1\", \"sha256\": \"84159b49e0c82b22e80e7e89abb7de82393cd370494abc44abaa67875bfcfb19\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 39,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p4/Test-V4TargetScope.ps1\", \"sha256\": \"2d01adfffd41a117bb5113dc03853b6cffd0e59190323975ead02fb4a8476701\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 40,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p5/Test-V4PlanDiff.ps1\", \"sha256\": \"d4c0d6c457707a64104510ae823a2fe746a29fd5d7ee30b9fe3d4096592efcfc\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 41,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p5/Test-V4PlanRuntime.ps1\", \"sha256\": \"ea4505080c0490f28d491b90f2464f4a314fe1892b841253390e7504d0ccd806\", \"linux\": true, \"windowsSmoke\": true, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 42,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p6/Test-V4ChangeClassifier.ps1\", \"sha256\": \"cdf405ddc0c489c9aa551f691a893feca8be8ab588c1e84049bac34843edf1fa\", \"linux\": true, \"windowsSmoke\": true, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 43,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p6/Test-V4TrustedBase.ps1\", \"sha256\": \"543749c31b519aa98f0b4c7f31e7b79defbbf035ef9894fc827efd0071ee4563\", \"linux\": false, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 44,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p6/Test-V4WorkflowContract.ps1\", \"sha256\": \"4c6e4006f136cdbe413c9e6e2daf98387381efc2970ff8bc7278949d94ef2e25\", \"linux\": true, \"windowsSmoke\": true, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 45,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p7/Test-V4Distribution.ps1\", \"sha256\": \"73bdb9df4416aa31a31bde1444415ee7e53717b82fcca7b7fcaa476a67b9ede1\", \"linux\": true, \"windowsSmoke\": true, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 46,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p7/Test-V4Documentation.ps1\", \"sha256\": \"7842c8c2b3d1118888af50a9a0e89f709681ca43da167f0b8e8ece327dca6142\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 47,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p7/Test-V4Lifecycle.ps1\", \"sha256\": \"0d3dd4b83cb4d9a5265996deadec9fb70c382765af6ebca7285ca47fa75f97f0\", \"linux\": true, \"windowsSmoke\": true, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 48,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p8/Test-V4CompatibilityBaseline.ps1\", \"sha256\": \"fa6d368e3013d7b60fe576810d42b269e9e061a41cb3516cefa0685d1c5711e5\", \"linux\": true, \"windowsSmoke\": true, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 49,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p8/Test-V4SupplyChain.ps1\", \"sha256\": \"14d242478bf8b23d11a0281ae5455bef359fc754ecb0108bdff3b9e12adf2788\", \"linux\": true, \"windowsSmoke\": true, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 50,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p8/Test-V4V1Acceptance.ps1\", \"sha256\": \"0f8df149fce6e80f1b6039548f13478383ba62e6368175baec28143ed4248322\", \"linux\": true, \"windowsSmoke\": true, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 51,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p8/Test-V4StableCli.ps1\", \"sha256\": \"b2c6dcfaec1a508c72645ec05f2b615c50d50f0da966765b33f13bbd61210a42\", \"linux\": true, \"windowsSmoke\": true, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 52,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p9/Test-V4EvidencePlanCenter.ps1\", \"sha256\": \"667fb1acc58bd80189d9b2a78b78d0d7bdc9fdbd1f89db832c0ae9173690af52\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 53,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p9/Test-V4OfflineWebDistribution.ps1\", \"sha256\": \"4d37e018e0f51cf1923aa4b36ab6ca532e1d2c3f8cf149921d3ade7ca6ec9cc8\", \"linux\": true, \"windowsSmoke\": true, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 54,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p9/Test-V4QueryContracts.ps1\", \"sha256\": \"fb81a93a7253e0b02cc4902289a21aa24f900a8d3dde39cfb443172bcbccc0c3\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 55,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p9/Test-V4WebCompanionSpike.ps1\", \"sha256\": \"b6f193da36761711de678b15c3bcbef029952d7f26216293b6ebd6c4602dbb90\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 56,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p9/Test-V4WorkspaceStageRunner.ps1\", \"sha256\": \"01d5c43149805c820ad64a91f2453c143b574bf1b4b6c60f734bd735bb3a969b\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true },",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "line": 57,
+      "category": "repo-layout-v4-path",
+      "text": "{ \"path\": \"docs/guards/v4/tests/p10/Test-V4ExtensionComposition.ps1\", \"sha256\": \"6570e598a3a6e0f441f818a3c1ba0d25a4b6a10ca1394504f43de7ef16e808e4\", \"linux\": true, \"windowsSmoke\": false, \"windowsFull\": true }",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/proposed-v4-guards.yml",
+      "line": 6,
+      "category": "ifx-dev-branch",
+      "text": "branches: [codex/v4-development-base]",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "integrations/github/proposed-v4-guards.yml",
+      "line": 8,
+      "category": "repo-layout-v4-path",
+      "text": "- docs/guards/v4/**",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/proposed-v4-guards.yml",
+      "line": 9,
+      "category": "repo-layout-plans-path",
+      "text": "- docs/guards/plans/**",
+      "plannedFix": "Replace with standalone plan location (docs/plans) or explicit parameter."
+    },
+    {
+      "path": "integrations/github/proposed-v4-guards.yml",
+      "line": 56,
+      "category": "repo-layout-v4-path",
+      "text": "pwsh -NoProfile -File \"$env:RUNNER_TEMP/v4-base/docs/guards/v4/integrations/github/Invoke-V4TrustedBase.ps1\" @arguments",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/proposed-v4-guards.yml",
+      "line": 87,
+      "category": "repo-layout-v4-path",
+      "text": "pwsh -NoProfile -File \"$env:RUNNER_TEMP/v4-base/docs/guards/v4/integrations/github/Invoke-V4TrustedBase.ps1\" -Mode Linux -HeadRoot $env:GITHUB_WORKSPACE -BaseSha $env:BASE_SHA -HeadSha $env:HEAD_SHA -StateRoot \"$env:RUNNER_TEMP/v4-linux-sta",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/proposed-v4-guards.yml",
+      "line": 125,
+      "category": "repo-layout-v4-path",
+      "text": "pwsh -NoProfile -File \"$env:RUNNER_TEMP/v4-base/docs/guards/v4/integrations/github/Invoke-V4TrustedBase.ps1\" -Mode Package -HeadRoot $env:GITHUB_WORKSPACE -BaseSha $env:BASE_SHA -HeadSha $env:HEAD_SHA -EvidenceRoot \"$env:RUNNER_TEMP/v4-pack",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/proposed-v4-guards.yml",
+      "line": 160,
+      "category": "repo-layout-v4-path",
+      "text": "pwsh -NoProfile -File \"$env:RUNNER_TEMP/v4-base/docs/guards/v4/integrations/github/Invoke-V4TrustedBase.ps1\" -Mode Windows -Coverage $env:WINDOWS_COVERAGE -HeadRoot $env:GITHUB_WORKSPACE -BaseSha $env:BASE_SHA -HeadSha $env:HEAD_SHA -StateR",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/github/proposed-v4-guards.yml",
+      "line": 191,
+      "category": "repo-layout-v4-path",
+      "text": "pwsh -NoProfile -File \"$env:RUNNER_TEMP/v4-base/docs/guards/v4/integrations/github/Test-V4Required.ps1\" -ContractResult $env:CONTRACT_RESULT -LinuxResult $env:LINUX_RESULT -PackageResult $env:PACKAGE_RESULT -WindowsResult $env:WINDOWS_RESUL",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "integrations/web/V4.Guards.WebCompanion/contracts/plan-detail.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/web/plan-detail.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "integrations/web/V4.Guards.WebCompanion/contracts/session.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/web/session.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "integrations/web/V4.Guards.WebCompanion/contracts/stage-run-request.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/web/stage-run-request.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "integrations/web/V4.Guards.WebCompanion/contracts/stage-run-response.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/web/stage-run-response.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "integrations/web/V4.Guards.WebCompanion/contracts/workspace-select-request.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/web/workspace-select-request.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "integrations/web/V4.Guards.WebCompanion/contracts/workspace-select-response.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/web/workspace-select-response.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "integrations/web/V4.Guards.WebCompanion/contracts/workspace.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/web/workspace.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "modules/synthetic-probe/config.schema.json",
+      "line": 3,
+      "category": "schema-id-ifx-local",
+      "text": "\"$id\": \"https://ifx.local/v4/modules/synthetic-probe/config.schema.json\",",
+      "plannedFix": "Public schema $id namespace; unchanged in T4 to keep schemas stable (declared naming debt)."
+    },
+    {
+      "path": "plans/00-architecture-decision-set.md",
+      "line": 28,
+      "category": "ifx-dev-branch",
+      "text": "| V4-AD-014 | V4 incubates on `codex/v4-development-base` as inactive additive code | ACCEPTED |",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "plans/00-architecture-decision-set.md",
+      "line": 34,
+      "category": "v3-ifx-source-reference",
+      "text": "| V4-AD-020 | V3/V3_ifx activation cutover and retirement | DEFERRED |",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/00-architecture-decision-set.md",
+      "line": 199,
+      "category": "ifx-dev-branch",
+      "text": "V4 incubates from `codex/guards-principles-plan` on a future `codex/v4-development-base` branch.",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "plans/00-architecture-decision-set.md",
+      "line": 210,
+      "category": "v3-ifx-source-reference",
+      "text": "candidate engines, schemas, modules, profiles and tests. Current V3/V3_ifx remains the active guard",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/00-architecture-decision-set.md",
+      "line": 255,
+      "category": "v3-ifx-source-reference",
+      "text": "remote V4 activation or V3/V3_ifx retirement. The canonical product source will move from the IFX",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/00-architecture-decision-set.md",
+      "line": 343,
+      "category": "ifx-dev-branch",
+      "text": "V4 v1 may live in the IFX repository on `codex/v4-development-base` to reduce incubation and review",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "plans/00-architecture-decision-set.md",
+      "line": 436,
+      "category": "v3-ifx-source-reference",
+      "text": "Because V4 initially incubates in the same repository as the active V3/V3_ifx system, its genesis",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/00-architecture-decision-set.md",
+      "line": 446,
+      "category": "ifx-dev-branch",
+      "text": "own trusted verdict. Creating `codex/v4-development-base`, installing its workflow or changing remote",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "plans/00-architecture-decision-set.md",
+      "line": 450,
+      "category": "ifx-dev-branch",
+      "text": "`codex/v4-development-base` and a base-owned V4 runner can evaluate a head checkout as its target.",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "plans/00-architecture-decision-set.md",
+      "line": 453,
+      "category": "v3-ifx-source-reference",
+      "text": "candidate suites. V3/V3_ifx continues to protect the active IFX system independently until the",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 5,
+      "category": "ifx-dev-branch",
+      "text": "Development base: `codex/v4-development-base`",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 18,
+      "category": "v3-ifx-source-reference",
+      "text": "runtimes, V3/V3_ifx cutover or remote activation.",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 23,
+      "category": "v3-ifx-source-reference",
+      "text": "inactive additive package on its own development base branch. Existing V3/V3_ifx remains authoritative",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 57,
+      "category": "repo-layout-v4-path",
+      "text": "docs/guards/v4/                    # canonical source package; distribution is versioned independently",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 96,
+      "category": "artifacts-default",
+      "text": "`artifacts/guards/v4/p0a/summary.json`.",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 105,
+      "category": "ifx-dev-branch",
+      "text": "- [x] **V4-P0.6** Prepare the exact proposal for `codex/v4-development-base`, the V4-only workflow and the finite",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 108,
+      "category": "v3-ifx-source-reference",
+      "text": "- [x] **V4-P0.7** Record recovery point and current V3/V3_ifx non-interference checks. Recovery seed:",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 187,
+      "category": "v3-ifx-source-reference",
+      "text": "- [x] **V4-P4.GATE** Generic modules contain no IFX identifier or V3/V3_ifx runtime path; every blocking",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 265,
+      "category": "ifx-release-url",
+      "text": "`https://github.com/von12549/IFX/releases/tag/v4-guards-v1.0.0`. The uploaded archive is 607880 bytes",
+      "plannedFix": "Historical IFX release URL; keep only as provenance, never as a live product download."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 310,
+      "category": "ifx-release-url",
+      "text": "`https://github.com/von12549/IFX/releases/tag/v4-guards-v1.1.0` with archive digest",
+      "plannedFix": "Historical IFX release URL; keep only as provenance, never as a live product download."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 328,
+      "category": "artifacts-default",
+      "text": "`artifacts/guards/p10-ifx-114/c6e-r1-042/c6e-r1-decision.json`, SHA-256",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 330,
+      "category": "v3-ifx-source-reference",
+      "text": "- [x] **V4-P10.2** Run V3/V3_ifx and V4+`ifx_profile` parallel parity on one fixed IFX corpus with",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 333,
+      "category": "artifacts-default",
+      "text": "`artifacts/guards/p10-ifx-114/p10-2-r2-parity-042/p10-2-decision.json`, SHA-256",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 337,
+      "category": "artifacts-default",
+      "text": "`artifacts/guards/p10-ifx-114/p10-3-design-042/rehearsal/p10-3-decision.json`, SHA-256",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 372,
+      "category": "v3-ifx-source-reference",
+      "text": "- no V3/V3_ifx file is moved or removed for V4 convenience;",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 374,
+      "category": "v3-ifx-source-reference",
+      "text": "- V4 cannot write current V3/V3_ifx authorities; and",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/01-v4-self-contained-guard-plugin.md",
+      "line": 387,
+      "category": "v3-ifx-source-reference",
+      "text": "- IFX cutover, V3/V3_ifx retirement and historical migration.",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/02-runtime-architecture.md",
+      "line": 262,
+      "category": "ifx-dev-branch",
+      "text": "Seed -->|separate authorization| Base[codex/v4-development-base]",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "plans/02-runtime-architecture.md",
+      "line": 270,
+      "category": "v3-ifx-source-reference",
+      "text": "Subsequent V4-only changes use V4 Plans or plan-sets and V4 checks; V3/V3_ifx continues separately as",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/02-runtime-architecture.md",
+      "line": 284,
+      "category": "v3-ifx-source-reference",
+      "text": "-> V3/V3_ifx and V4 parallel evidence",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/03-genesis-bootstrap-and-autonomy.md",
+      "line": 13,
+      "category": "ifx-dev-branch",
+      "text": "The user authorized the local branch `codex/v4-development-base`. It was created without a worktree",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "plans/03-genesis-bootstrap-and-autonomy.md",
+      "line": 33,
+      "category": "ifx-dev-branch",
+      "text": "| `G1_V4_DORMANT_BASE` | Local `codex/v4-development-base` at the accepted seed; no active V4 workflow/ruleset | V3 remains active for IFX; V4 results are local/supplemental | Build P1–P6 candidate authority, runner and negative corpus unde",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "plans/03-genesis-bootstrap-and-autonomy.md",
+      "line": 57,
+      "category": "ifx-dev-branch",
+      "text": "For a pull request whose base branch is `codex/v4-development-base`:",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "plans/03-genesis-bootstrap-and-autonomy.md",
+      "line": 62,
+      "category": "repo-layout-v4-path",
+      "text": "`V4_BASE/docs/guards/v4/integrations/github/Invoke-V4TrustedBase.ps1`.",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "plans/03-genesis-bootstrap-and-autonomy.md",
+      "line": 103,
+      "category": "ifx-v3-workflow",
+      "text": "4. change `.github/workflows/v3-ifx-guardrails.yml` so pull requests targeting",
+      "plannedFix": "IFX non-interference assertion; move to IFX consumer checks or gate behind an explicit consumer root."
+    },
+    {
+      "path": "plans/03-genesis-bootstrap-and-autonomy.md",
+      "line": 104,
+      "category": "ifx-dev-branch",
+      "text": "`codex/v4-development-base` do not run IFX/V3 candidate suites;",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "plans/03-genesis-bootstrap-and-autonomy.md",
+      "line": 121,
+      "category": "v3-ifx-source-reference",
+      "text": "does not weaken or retire V3/V3_ifx, which remains the active IFX guard until a deferred cutover.",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/04-layerguard-provenance.md",
+      "line": 8,
+      "category": "v3-ifx-source-reference",
+      "text": "- `docs/guards/V3/stages/post/gates/architecture/dotnet/src/LayerGuard/` for raw project-model,",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/04-layerguard-provenance.md",
+      "line": 10,
+      "category": "v3-ifx-source-reference",
+      "text": "- `docs/guards/V3/tests/Test-V3ArchUnit.ps1` for compiled dependency and implementation-location",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/04-layerguard-provenance.md",
+      "line": 12,
+      "category": "v3-ifx-source-reference",
+      "text": "- `docs/guards/V3_ifx/tests/post/Test-IFXAssemblyGuard.ps1` for missing, zero-match and stale compiled",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/05-p9-gate-audit.json",
+      "line": 12,
+      "category": "artifacts-default",
+      "text": "\"reportPath\": \"artifacts/guards/v4/p9e-certification/windows-full.json\",",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "plans/05-p9-gate-audit.json",
+      "line": 19,
+      "category": "artifacts-default",
+      "text": "\"reportPath\": \"artifacts/guards/v4/p9e-certification/linux-complete.json\",",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "plans/README.md",
+      "line": 20,
+      "category": "repo-layout-plans-path",
+      "text": "| `20260927-v4-todo-008-standalone-repository-extraction` (formal Plan pair under `docs/guards/plans/`) | History-preserving standalone Guard repository extraction, validation and IFX cleanup program | Project started; Claude Code handoff r",
+      "plannedFix": "Replace with standalone plan location (docs/plans) or explicit parameter."
+    },
+    {
+      "path": "plans/README.md",
+      "line": 21,
+      "category": "repo-layout-plans-path",
+      "text": "| `20260923-v4-p10-1-candidate-version-certification` (formal Plan pair under `docs/guards/plans/`) | Historical 1.1.1 local candidate and certification gate | Superseded by exact published release checkpoint |",
+      "plannedFix": "Replace with standalone plan location (docs/plans) or explicit parameter."
+    },
+    {
+      "path": "plans/README.md",
+      "line": 22,
+      "category": "repo-layout-plans-path",
+      "text": "| `20260923-v4-guards-1-1-1-release-publication` (formal Plan pair under `docs/guards/plans/`) | Authorized 1.1.1 publication and side-by-side installation | Historical publication complete; superseded by the 1.1.4 P10.1 record |",
+      "plannedFix": "Replace with standalone plan location (docs/plans) or explicit parameter."
+    },
+    {
+      "path": "plans/README.md",
+      "line": 36,
+      "category": "v3-ifx-source-reference",
+      "text": "The active system remains `docs/guards/V3` plus the dependent `docs/guards/V3_ifx` overlay until an",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/README.md",
+      "line": 41,
+      "category": "ifx-dev-branch",
+      "text": "`codex/v4-development-base`, V4 development is governed by its own base-owned contracts and checks;",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "plans/TODO.md",
+      "line": 29,
+      "category": "v3-ifx-source-reference",
+      "text": "Revisit after V4-TODO-001. Run V3/V3_ifx and V4+`ifx_profile` against the same fixed corpus and real",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "plans/TODO.md",
+      "line": 52,
+      "category": "v3-ifx-source-reference",
+      "text": "- [ ] **V4-TODO-004 — V3/V3_ifx freeze or retirement**",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "tests/p0/Test-V4Contracts.ps1",
+      "line": 42,
+      "category": "artifacts-default",
+      "text": "'genesis-record' = [ordered]@{ formatVersion = 1; seedSha = $commit; packageHash = $hash; contractsManifestHash = $hash; deterministicTests = @([ordered]@{ id = 'p0a'; resultHash = $hash }); nonInterferenceEvidence = @('artifacts/guards/v3-",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p0/Test-V4Contracts.ps1",
+      "line": 43,
+      "category": "repo-layout-v4-path",
+      "text": "'ci-contract' = [ordered]@{ formatVersion = 1; targetBranch = 'codex/v4-development-base'; requiredContexts = @('v4-contract','v4-linux','v4-package','v4-required'); permissions = [ordered]@{ contents='read' }; allowedChangedPatterns = @('d",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p0/Test-V4Contracts.ps1",
+      "line": 43,
+      "category": "ifx-dev-branch",
+      "text": "'ci-contract' = [ordered]@{ formatVersion = 1; targetBranch = 'codex/v4-development-base'; requiredContexts = @('v4-contract','v4-linux','v4-package','v4-required'); permissions = [ordered]@{ contents='read' }; allowedChangedPatterns = @('d",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "tests/p0/Test-V4Contracts.ps1",
+      "line": 44,
+      "category": "repo-layout-v4-path",
+      "text": "'ci-artifact-manifest' = [ordered]@{ formatVersion = 1; baseSha=$commit; headSha=$commit; contractSha256=$hash; packageHash=$hash; buildEvidence=[ordered]@{ configuration='Release'; targetFramework='net10.0'; sourceSha256=$hash; hostPath='h",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p0/Test-V4Contracts.ps1",
+      "line": 54,
+      "category": "repo-layout-v4-path",
+      "text": "'platform-certification' = [ordered]@{ formatVersion=1; status='pass'; platform='linux'; coverage='complete'; sourceCommit=$commit; packageHash=$hash; osDescription='Linux'; architecture='x64'; toolchain=[ordered]@{pwsh='7.5.0';dotnet='10.0",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p0/Test-V4GenesisProposal.ps1",
+      "line": 7,
+      "category": "parent-traversal-root",
+      "text": "$repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p0/Test-V4GenesisProposal.ps1",
+      "line": 8,
+      "category": "repo-layout-v4-path",
+      "text": "$v4Root = Join-Path $repoRoot 'docs/guards/v4'",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p0/Test-V4GenesisProposal.ps1",
+      "line": 12,
+      "category": "ifx-v3-workflow",
+      "text": "$activeV3Workflow = Join-Path $repoRoot '.github/workflows/v3-ifx-guardrails.yml'",
+      "plannedFix": "IFX non-interference assertion; move to IFX consumer checks or gate behind an explicit consumer root."
+    },
+    {
+      "path": "tests/p0/Test-V4GenesisProposal.ps1",
+      "line": 23,
+      "category": "ifx-dev-branch",
+      "text": "Require-Text 'authorized branch identity' $proposal '(?m)`codex/v4-development-base`'",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "tests/p0/Test-V4GenesisProposal.ps1",
+      "line": 29,
+      "category": "ifx-v3-workflow",
+      "text": "Require-Text 'separate V3 trigger change' $proposal ([Regex]::Escape('.github/workflows/v3-ifx-guardrails.yml'))",
+      "plannedFix": "IFX non-interference assertion; move to IFX consumer checks or gate behind an explicit consumer root."
+    },
+    {
+      "path": "tests/p0/Test-V4GenesisProposal.ps1",
+      "line": 33,
+      "category": "ifx-dev-branch",
+      "text": "Require-Text 'target base branch filter' $workflow '(?m)^\\s+branches:\\s*\\[codex/v4-development-base\\]\\s*$'",
+      "plannedFix": "Replace IFX development-branch identity with the Guard branch/trigger model (T4/T6 workflow Plan)."
+    },
+    {
+      "path": "tests/p0/Test-V4GenesisProposal.ps1",
+      "line": 36,
+      "category": "repo-layout-v4-path",
+      "text": "Require-Text 'base-owned runner' $workflow 'v4-base/docs/guards/v4/integrations/github/Invoke-V4TrustedBase\\.ps1'",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p0/Test-V4GenesisProposal.ps1",
+      "line": 40,
+      "category": "repo-layout-v4-path",
+      "text": "Require-Text 'required Windows base aggregator' $workflow 'v4-base/docs/guards/v4/integrations/github/Test-V4Required\\.ps1'",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p0/Test-V4HostSpike.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p0/Test-V4HostSpike.ps1",
+      "line": 12,
+      "category": "artifacts-default",
+      "text": "$artifactsRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p0a'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p1/Test-V4Package.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repoRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p1/Test-V4Package.ps1",
+      "line": 10,
+      "category": "artifacts-default",
+      "text": "$fixtureRoot = Join-Path $repoRoot 'artifacts/guards/v4/p1a'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p1/Test-V4Package.ps1",
+      "line": 161,
+      "category": "repo-layout-v4-path",
+      "text": "foreach ($path in @('docs/guards/v4/state/probe.json','docs/guards/v4/.work/probe.json','docs/guards/v4/artifacts/probe.json')) {",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p1/Test-V4Registry.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repoRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p1/Test-V4Registry.ps1",
+      "line": 10,
+      "category": "artifacts-default",
+      "text": "$fixtureRoot = Join-Path $repoRoot 'artifacts/guards/v4/p1b'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p10/Test-V4ExtensionComposition.ps1",
+      "line": 8,
+      "category": "artifacts-default",
+      "text": "[string] $EvidenceParent = (Join-Path $PSScriptRoot '../../../../../artifacts/guards/p10-composition')",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p10/Test-V4ExtensionComposition.ps1",
+      "line": 36,
+      "category": "parent-traversal-root",
+      "text": "$repository = [IO.Path]::GetFullPath((Join-Path $packageSource '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p2/Test-V4Reset.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p2/Test-V4Reset.ps1",
+      "line": 11,
+      "category": "artifacts-default",
+      "text": "$artifactsRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p2b'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p2/Test-V4StateTransactions.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p2/Test-V4StateTransactions.ps1",
+      "line": 11,
+      "category": "artifacts-default",
+      "text": "$artifactsRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p2a'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p3/Test-V4StageOrchestration.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p3/Test-V4StageOrchestration.ps1",
+      "line": 11,
+      "category": "artifacts-default",
+      "text": "$artifactsRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p3b'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p3/Test-V4Stages.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p3/Test-V4Stages.ps1",
+      "line": 11,
+      "category": "artifacts-default",
+      "text": "$artifactsRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p3a'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p4/Test-V4ArchUnitNetAdapter.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p4/Test-V4ArchUnitNetAdapter.ps1",
+      "line": 11,
+      "category": "artifacts-default",
+      "text": "$runRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p4d'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p4/Test-V4ArchUnitNetAdapter.ps1",
+      "line": 78,
+      "category": "artifacts-default",
+      "text": "$resolved=[IO.Path]::GetFullPath($runRoot);$prefix=[IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts/guards/v4')).TrimEnd([IO.Path]::DirectorySeparatorChar)+[IO.Path]::DirectorySeparatorChar",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p4/Test-V4ArchitectureAuthority.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p4/Test-V4ArchitectureAuthority.ps1",
+      "line": 94,
+      "category": "artifacts-default",
+      "text": "$fixtureRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p4a/package-drift'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p4/Test-V4BuildEvidence.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot=[IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p4/Test-V4BuildEvidence.ps1",
+      "line": 9,
+      "category": "artifacts-default",
+      "text": "$runRoot=Join-Path $repositoryRoot 'artifacts/guards/v4/p4e'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p4/Test-V4BuildEvidence.ps1",
+      "line": 52,
+      "category": "artifacts-default",
+      "text": "if(Test-Path $runRoot){$resolved=[IO.Path]::GetFullPath($runRoot);$prefix=[IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts/guards/v4')).TrimEnd([IO.Path]::DirectorySeparatorChar)+[IO.Path]::DirectorySeparatorChar;if(-not$resolve",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p4/Test-V4CompositeArchitecture.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot=[IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p4/Test-V4CompositeArchitecture.ps1",
+      "line": 9,
+      "category": "artifacts-default",
+      "text": "$runRoot=Join-Path $repositoryRoot 'artifacts/guards/v4/p4f'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p4/Test-V4CompositeArchitecture.ps1",
+      "line": 63,
+      "category": "artifacts-default",
+      "text": "if(Test-Path $runRoot){$resolved=[IO.Path]::GetFullPath($runRoot);$prefix=[IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts/guards/v4')).TrimEnd([IO.Path]::DirectorySeparatorChar)+[IO.Path]::DirectorySeparatorChar;if(-not$resolve",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p4/Test-V4ProjectModel.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p4/Test-V4ProjectModel.ps1",
+      "line": 11,
+      "category": "artifacts-default",
+      "text": "$artifactsRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p4b'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p4/Test-V4TargetScope.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repository = [IO.Path]::GetFullPath((Join-Path $package '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p4/Test-V4TargetScope.ps1",
+      "line": 10,
+      "category": "artifacts-default",
+      "text": "$case = Join-Path $repository ('artifacts/guards/v4/target-scope/' + [Guid]::NewGuid().ToString('N'))",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p4/reference/v3-architecture-claims.json",
+      "line": 6,
+      "category": "v3-ifx-source-reference",
+      "text": "{ \"path\": \"docs/guards/V3_ifx/stages/post/policy/layerguard.json\", \"sha256\": \"b89172e667a3e5c51b4d065cc325a99ea293aa2696a548980c8125d9c0323fb5\" },",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "tests/p4/reference/v3-architecture-claims.json",
+      "line": 7,
+      "category": "v3-ifx-source-reference",
+      "text": "{ \"path\": \"docs/guards/V3_ifx/stages/post/gates/architecture/dotnet/src/LayerGuard.Ifx/IfxArchitectureConformance.cs\", \"sha256\": \"78de8f459deb47b032faf2b217a53b94c241cd4534713150c65fff464b4d8c45\" }",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "tests/p5/Test-V4PlanDiff.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p5/Test-V4PlanDiff.ps1",
+      "line": 9,
+      "category": "artifacts-default",
+      "text": "$runRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p5/git-diff'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p5/Test-V4PlanDiff.ps1",
+      "line": 39,
+      "category": "artifacts-default",
+      "text": "$resolved = [IO.Path]::GetFullPath($runRoot); $prefix = [IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts/guards/v4')).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p5/Test-V4PlanRuntime.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p5/Test-V4PlanRuntime.ps1",
+      "line": 9,
+      "category": "artifacts-default",
+      "text": "$runRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p5/runtime'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p5/Test-V4PlanRuntime.ps1",
+      "line": 27,
+      "category": "artifacts-default",
+      "text": "$prefix = [IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts/guards/v4')).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p6/Test-V4ChangeClassifier.ps1",
+      "line": 28,
+      "category": "repo-layout-v4-path",
+      "text": "Expect-Selection 'ordinary docs-only change' @('docs/guards/v4/plans/note.md','docs/guards/plans/20260922-example.plan.json') 'none'",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p6/Test-V4ChangeClassifier.ps1",
+      "line": 28,
+      "category": "repo-layout-plans-path",
+      "text": "Expect-Selection 'ordinary docs-only change' @('docs/guards/v4/plans/note.md','docs/guards/plans/20260922-example.plan.json') 'none'",
+      "plannedFix": "Replace with standalone plan location (docs/plans) or explicit parameter."
+    },
+    {
+      "path": "tests/p6/Test-V4ChangeClassifier.ps1",
+      "line": 31,
+      "category": "repo-layout-plans-path",
+      "text": "Expect-Selection \"sensitive pattern $pattern\" @($path,'docs/guards/plans/20260922-example.plan.json') 'smoke'",
+      "plannedFix": "Replace with standalone plan location (docs/plans) or explicit parameter."
+    },
+    {
+      "path": "tests/p6/Test-V4ChangeClassifier.ps1",
+      "line": 33,
+      "category": "repo-layout-v4-path",
+      "text": "Expect-Selection 'explicit smoke' @('docs/guards/v4/plans/note.md') 'smoke' 'smoke'",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p6/Test-V4ChangeClassifier.ps1",
+      "line": 34,
+      "category": "repo-layout-v4-path",
+      "text": "Expect-Selection 'explicit full certification' @('docs/guards/v4/plans/note.md') 'full' 'full'",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p6/Test-V4TrustedBase.ps1",
+      "line": 7,
+      "category": "parent-traversal-root",
+      "text": "$sourceRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p6/Test-V4TrustedBase.ps1",
+      "line": 8,
+      "category": "repo-layout-v4-path",
+      "text": "$sourcePackage = Join-Path $sourceRoot 'docs/guards/v4'",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p6/Test-V4TrustedBase.ps1",
+      "line": 9,
+      "category": "artifacts-default",
+      "text": "$runRoot = Join-Path $sourceRoot 'artifacts/guards/v4/p6/trusted-base'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p6/Test-V4TrustedBase.ps1",
+      "line": 18,
+      "category": "repo-layout-v4-path",
+      "text": "function Invoke-Runner([string] $RunnerRoot,[string[]] $Arguments){$runner=Join-Path $RunnerRoot 'docs/guards/v4/integrations/github/Invoke-V4TrustedBase.ps1';$output=@(& pwsh -NoProfile -File $runner @Arguments 2>&1);[pscustomobject]@{Code",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p6/Test-V4TrustedBase.ps1",
+      "line": 21,
+      "category": "artifacts-default",
+      "text": "if(Test-Path $runRoot){$resolved=[IO.Path]::GetFullPath($runRoot);$prefix=[IO.Path]::GetFullPath((Join-Path $sourceRoot 'artifacts/guards/v4')).TrimEnd([IO.Path]::DirectorySeparatorChar)+[IO.Path]::DirectorySeparatorChar;if(-not$resolved.St",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p6/Test-V4TrustedBase.ps1",
+      "line": 24,
+      "category": "repo-layout-plans-path",
+      "text": "$formalPlan=Get-Content -Raw (Join-Path $sourceRoot 'docs/guards/plans/20260922-v4-p6-linux-first-ci.plan.json')|ConvertFrom-Json",
+      "plannedFix": "Replace with standalone plan location (docs/plans) or explicit parameter."
+    },
+    {
+      "path": "tests/p6/Test-V4TrustedBase.ps1",
+      "line": 26,
+      "category": "repo-layout-v4-path",
+      "text": "$contractPath=Join-Path $base 'docs/guards/v4/integrations/github/ci-contract.json';$contract=Get-Content -Raw $contractPath|ConvertFrom-Json -AsHashtable -Depth 100;$testRelative='docs/guards/v4/tests/p0/Test-V4Contracts.ps1';$testHash=(Ge",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p6/Test-V4TrustedBase.ps1",
+      "line": 29,
+      "category": "repo-layout-v4-path",
+      "text": "$candidatePlan='docs/guards/plans/20260922-ci-candidate.plan.json';$candidateNote='docs/guards/v4/plans/ci-candidate-note.md'",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p6/Test-V4TrustedBase.ps1",
+      "line": 29,
+      "category": "repo-layout-plans-path",
+      "text": "$candidatePlan='docs/guards/plans/20260922-ci-candidate.plan.json';$candidateNote='docs/guards/v4/plans/ci-candidate-note.md'",
+      "plannedFix": "Replace with standalone plan location (docs/plans) or explicit parameter."
+    },
+    {
+      "path": "tests/p6/Test-V4TrustedBase.ps1",
+      "line": 38,
+      "category": "repo-layout-v4-path",
+      "text": "$manifestPath=Join-Path $artifact 'manifest.json';if(-not(Test-Path $manifestPath)){throw \"Linux artifact manifest missing: $($linuxRun.Text)\"};if(-not(Test-Json -LiteralPath $manifestPath -SchemaFile (Join-Path $base 'docs/guards/v4/core/c",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p6/Test-V4TrustedBase.ps1",
+      "line": 45,
+      "category": "repo-layout-v4-path",
+      "text": "Write-Utf8 (Join-Path $head 'docs/guards/v4/plans/undeclared.md') \"undeclared`n\";Invoke-Git $head @('add','--all')|Out-Null;Invoke-Git $head @('commit','-q','-m','undeclared')|Out-Null;$badHeadSha=(@(Invoke-Git $head @('rev-parse','HEAD')))",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p6/Test-V4WorkflowContract.ps1",
+      "line": 7,
+      "category": "parent-traversal-root",
+      "text": "$repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p6/Test-V4WorkflowContract.ps1",
+      "line": 8,
+      "category": "repo-layout-v4-path",
+      "text": "$packageRoot = Join-Path $repoRoot 'docs/guards/v4'",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p6/Test-V4WorkflowContract.ps1",
+      "line": 12,
+      "category": "ifx-v3-workflow",
+      "text": "$activeV3 = Join-Path $repoRoot '.github/workflows/v3-ifx-guardrails.yml'",
+      "plannedFix": "IFX non-interference assertion; move to IFX consumer checks or gate behind an explicit consumer root."
+    },
+    {
+      "path": "tests/p6/Test-V4WorkflowContract.ps1",
+      "line": 26,
+      "category": "repo-layout-v4-path",
+      "text": "Require 'trusted-base runner' 'v4-base/docs/guards/v4/integrations/github/Invoke-V4TrustedBase\\.ps1'",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p6/Test-V4WorkflowContract.ps1",
+      "line": 27,
+      "category": "repo-layout-v4-path",
+      "text": "Require 'trusted required aggregator' 'v4-base/docs/guards/v4/integrations/github/Test-V4Required\\.ps1'",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p6/Test-V4WorkflowContract.ps1",
+      "line": 39,
+      "category": "v3-ifx-source-reference",
+      "text": "foreach ($forbidden in @('docs/guards/V3','V3_ifx','src/Frontend','IFX.Migration','Database')) { if ($workflow.Contains($forbidden,[StringComparison]::OrdinalIgnoreCase)) { $failures.Add(\"Workflow invokes excluded suite/path: $forbidden\") }",
+      "plannedFix": "IFX V3 reference; keep as frozen reference data only, never as a runtime/test dependency on IFX files."
+    },
+    {
+      "path": "tests/p7/Test-V4Distribution.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repoRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p7/Test-V4Distribution.ps1",
+      "line": 9,
+      "category": "artifacts-default",
+      "text": "$runRoot = Join-Path $repoRoot 'artifacts/guards/v4/p7-distribution'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p7/Test-V4Documentation.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repoRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p7/Test-V4Documentation.ps1",
+      "line": 9,
+      "category": "artifacts-default",
+      "text": "$runRoot = Join-Path $repoRoot 'artifacts/guards/v4/p7-docs'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p7/Test-V4Lifecycle.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repoRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p7/Test-V4Lifecycle.ps1",
+      "line": 9,
+      "category": "artifacts-default",
+      "text": "$runRoot = Join-Path $repoRoot 'artifacts/guards/v4/p7-lifecycle'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p8/Test-V4CompatibilityBaseline.ps1",
+      "line": 6,
+      "category": "artifacts-default",
+      "text": "$packageRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'));$repoRoot=[IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'));$runRoot=Join-Path $repoRoot 'artifacts/guards/v4/p8-compatibility'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p8/Test-V4CompatibilityBaseline.ps1",
+      "line": 6,
+      "category": "parent-traversal-root",
+      "text": "$packageRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'));$repoRoot=[IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'));$runRoot=Join-Path $repoRoot 'artifacts/guards/v4/p8-compatibility'",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p8/Test-V4StableCli.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p8/Test-V4StableCli.ps1",
+      "line": 11,
+      "category": "artifacts-default",
+      "text": "$artifactsRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p8-stable-cli'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p8/Test-V4SupplyChain.ps1",
+      "line": 6,
+      "category": "artifacts-default",
+      "text": "$packageRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'));$repoRoot=[IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'));$runRoot=Join-Path $repoRoot 'artifacts/guards/v4/p8-supply-chain';$checker=Join-Path $packageRoot ",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p8/Test-V4SupplyChain.ps1",
+      "line": 6,
+      "category": "parent-traversal-root",
+      "text": "$packageRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'));$repoRoot=[IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'));$runRoot=Join-Path $repoRoot 'artifacts/guards/v4/p8-supply-chain';$checker=Join-Path $packageRoot ",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p8/Test-V4V1Acceptance.ps1",
+      "line": 6,
+      "category": "artifacts-default",
+      "text": "$packageRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'));$repoRoot=[IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'));$runRoot=Join-Path $repoRoot 'artifacts/guards/v4/p8-acceptance';$buildRoot=Join-Path $packageRoot ",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p8/Test-V4V1Acceptance.ps1",
+      "line": 6,
+      "category": "parent-traversal-root",
+      "text": "$packageRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'));$repoRoot=[IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'));$runRoot=Join-Path $repoRoot 'artifacts/guards/v4/p8-acceptance';$buildRoot=Join-Path $packageRoot ",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p9/Dockerfile.linux",
+      "line": 9,
+      "category": "repo-layout-v4-path",
+      "text": "CMD [\"-File\", \"docs/guards/v4/tests/p9/Test-V4WebCompanionSpike.ps1\"]",
+      "plannedFix": "Replace with standalone repository-root or explicit PackageRoot-relative logic."
+    },
+    {
+      "path": "tests/p9/Test-V4EvidencePlanCenter.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p9/Test-V4EvidencePlanCenter.ps1",
+      "line": 12,
+      "category": "artifacts-default",
+      "text": "$artifactsRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p9d'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p9/Test-V4OfflineWebDistribution.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p9/Test-V4OfflineWebDistribution.ps1",
+      "line": 14,
+      "category": "artifacts-default",
+      "text": "$runRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p9e'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p9/Test-V4QueryContracts.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p9/Test-V4QueryContracts.ps1",
+      "line": 11,
+      "category": "artifacts-default",
+      "text": "$artifactsRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p9b'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p9/Test-V4WebCompanionSpike.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p9/Test-V4WebCompanionSpike.ps1",
+      "line": 12,
+      "category": "artifacts-default",
+      "text": "$artifactsRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p9a'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    },
+    {
+      "path": "tests/p9/Test-V4WorkspaceStageRunner.ps1",
+      "line": 8,
+      "category": "parent-traversal-root",
+      "text": "$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $packageRoot '../../..'))",
+      "plannedFix": "Remove fixed parent traversal; derive repository root from the standalone checkout or an explicit parameter."
+    },
+    {
+      "path": "tests/p9/Test-V4WorkspaceStageRunner.ps1",
+      "line": 12,
+      "category": "artifacts-default",
+      "text": "$artifactsRoot = Join-Path $repositoryRoot 'artifacts/guards/v4/p9c'",
+      "plannedFix": "Move mutable test/evidence defaults to an explicit work root outside PackageRoot."
+    }
+  ]
+}
