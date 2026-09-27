@@ -21,7 +21,7 @@
     "tests/p9/**"
   ],
   "approvedTests": [
-    { "path": "tests/p0/Test-V4Contracts.ps1", "sha256": "102facc4d07940c691ca1f79cf0c0c35b991db8f2808e271c16b7db63f312330", "linux": true, "windowsSmoke": true, "windowsFull": true },
+    { "path": "tests/p0/Test-V4Contracts.ps1", "sha256": "dc1bada0eaf8103b43f94a378a6333a13e080b4c2f31d4a861d6d39eebd6aada", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "tests/p0/Test-V4GenesisProposal.ps1", "sha256": "6350f8027a21adc6b6e8a7f138c5069aab577ab0050131ccea0323cb7fa6c8b4", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p0/Test-V4HostSpike.ps1", "sha256": "2da49d7dd99e4be783ddfacfdd7b45126e2d0d67103c59d254de6cb544a1733d", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p1/Test-V4Package.ps1", "sha256": "60aad8f109388d100008e6f782e80ab65e870da67c77ffa571fcf70a4ebfc7e2", "linux": true, "windowsSmoke": true, "windowsFull": true },

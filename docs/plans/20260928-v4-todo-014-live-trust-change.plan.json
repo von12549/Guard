@@ -1,0 +1,33 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-v4-todo-014-live-trust-change",
+  "title": "V4-TODO-014 live trust change (B2.3)",
+  "goal": "Consume the base-held authorization and change P0 and the CI contract at the authorized hashes.",
+  "acceptanceCriteria": [
+    "The base-owned V4 runner decides this live acceptance step as the V4-TODO-014 Plan expects."
+  ],
+  "plannedPaths": [
+    "docs/plans/20260928-v4-todo-014-live-trust-change.md",
+    "docs/plans/20260928-v4-todo-014-live-trust-change.plan.json",
+    "docs/plans/authorizations/20260928-v4-todo-014-live-trust-record.json",
+    "integrations/github/ci-contract.json",
+    "tests/p0/Test-V4Contracts.ps1"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [],
+  "decisions": [
+    "Live acceptance step of Plan 20260928-v4-todo-014-trust-change-authorization (B2)."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "trust-change"
+  ]
+}
