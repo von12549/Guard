@@ -8,14 +8,15 @@ Current documents:
 | Document | Role | Status |
 | --- | --- | --- |
 | [00-architecture-decision-set.md](00-architecture-decision-set.md) | Product, trust, state, profile, stage, CI and planning decisions | Accepted v1 core and gate-audited V4-P9 UI boundary; remaining roadmap items deferred |
-| [01-v4-self-contained-guard-plugin.md](01-v4-self-contained-guard-plugin.md) | V4 implementation roadmap | P0–P9 complete; P10.1/P10.2 accepted; P10.3 not started |
-| [02-runtime-architecture.md](02-runtime-architecture.md) | Runtime, roots, detector composition, evidence, UI and trust diagrams | Published v1 architecture plus accepted P10.1 composition and P10.2 parity boundaries |
+| [01-v4-self-contained-guard-plugin.md](01-v4-self-contained-guard-plugin.md) | V4 implementation roadmap | P0–P9 complete; P10.1/P10.2 and P10.3 design accepted; P10.GATE open |
+| [02-runtime-architecture.md](02-runtime-architecture.md) | Runtime, roots, detector composition, evidence, UI and trust diagrams | Published v1 architecture plus accepted P10.1 composition, P10.2 parity and P10.3 inactive-cutover boundaries |
 | [03-genesis-bootstrap-and-autonomy.md](03-genesis-bootstrap-and-autonomy.md) | Finite V3 genesis and V4 autonomy transition | Dormant G1; activation not authorized |
 | [04-layerguard-provenance.md](04-layerguard-provenance.md) | Architecture-rule provenance and clean-room boundary | Accepted provenance record |
 | [05-p9-gate-audit.md](05-p9-gate-audit.md) | P9 certification, authority-boundary and first-release exclusion audit | PASS |
-| [06-ifx-profile-validation-program.md](06-ifx-profile-validation-program.md) | 1.1.x IFX Profile practice, parity and cutover-readiness program | In progress; P10.0–P10.2 accepted; P10.3 and activation not authorized |
+| [06-ifx-profile-validation-program.md](06-ifx-profile-validation-program.md) | 1.1.x IFX Profile practice, parity and cutover-readiness program | In progress; P10.0–P10.2 and P10.3 design accepted; P10.GATE and activation remain false |
 | [07-p10-0-baseline-acceptance.md](07-p10-0-baseline-acceptance.md) | Released 1.1.0 baseline and installed Web UI operator evidence | Local P10.0 pass |
 | [08-p10-1-extension-composition-compatibility.md](08-p10-1-extension-composition-compatibility.md) | Separate P10.1 entry-gap repair design and gates | Completed through accepted V4 Guards 1.1.4 + IFX 0.4.2 C6e-R1 evidence |
+| [09-p10-3-cutover-and-rollback-proposal.md](09-p10-3-cutover-and-rollback-proposal.md) | Inactive trusted-base cutover topology, coexistence ownership and exact rollback | Design and local rehearsal accepted; no remote mutation authorized or performed |
 | `20260923-v4-p10-1-candidate-version-certification` (formal Plan pair under `docs/guards/plans/`) | Historical 1.1.1 local candidate and certification gate | Superseded by exact published release checkpoint |
 | `20260923-v4-guards-1-1-1-release-publication` (formal Plan pair under `docs/guards/plans/`) | Authorized 1.1.1 publication and side-by-side installation | Historical publication complete; superseded by the 1.1.4 P10.1 record |
 | [TODO.md](TODO.md) | Explicit deferred scope, P9 first-release exclusions and revisit gates | Active backlog |

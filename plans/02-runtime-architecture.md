@@ -1,6 +1,6 @@
 # V4 runtime architecture
 
-Status: V4 v1 published; P10.1/P10.2 accepted; P10.3 and remote activation not authorized
+Status: V4 v1 published; P10.1/P10.2 and P10.3 design accepted; P10.GATE and remote activation not authorized
 
 Decision authority: `00-architecture-decision-set.md`
 
@@ -9,8 +9,10 @@ Decision authority: `00-architecture-decision-set.md`
 The synthetic prototype described below became the published public composition boundary and was
 subsequently exercised by the reviewed IFX bundle. C6e-R1 accepted the exact V4 Guards 1.1.4 + IFX
 0.4.2 composed installation, and P10.2-R2 accepted the independent 52-case V3/V4 parity matrix with
-zero gaps. P10.3 remains a separate, unstarted planning and authorization boundary; none of these
-records activate V4 or perform IFX cutover.
+zero gaps. P10.3 then accepted the inactive trusted-base cutover topology and local rollback rehearsal
+recorded in `09-p10-3-cutover-and-rollback-proposal.md`. It retains the V3 Linux check as a temporary
+bridge. None of these records installs a live workflow, changes a ruleset, activates V4 or performs
+IFX cutover.
 
 The Windows/offline Linux synthetic prototype composes a separately reviewed Profile/module bundle into a new
 sibling installation. Its external receipt binds the released base identity, bundle/review hashes,

@@ -36,15 +36,18 @@ separate reviewed decision and formal Plan; appearing here is not implementation
   and Targets remained unchanged. Binding decision SHA-256:
   `7c5ff243ec452958ffbb08ced46ae6e1a8320f586b9fb71ef0d98f2931934516`.
 
-- [ ] **V4-TODO-003 — IFX cutover and rollback**
+- [x] **V4-TODO-003 — IFX cutover and rollback design**
 
   Revisit only after parity and a Windows full certification. Define trusted-base activation, GitHub
   required contexts, Architecture Conformance detector-family cutover, recovery, one-time compatibility
   bridges and exact rollback. Remote changes need separate authorization.
 
-  Planned as V4-P10.3 design-only work after P10.2 and Windows-full. Its output cannot activate a
-  workflow, required context, ruleset or cutover; those remote mutations retain a separate exact Plan
-  and explicit authorization boundary.
+  Completed as V4-P10.3 design-only work on 2026-09-27. The inactive proposal, context/detector
+  ownership map, coexistence topology, five negative controls and V3-first rollback rehearsal were
+  accepted by decision SHA-256
+  `529e19b567c05619ec054117e2514c579a908a4e614355411fc28b6d52964964`.
+  No workflow, required context, ruleset or cutover was activated; those remote mutations retain a
+  separate exact Plan and explicit authorization boundary, and P10.GATE remains open.
 
 - [ ] **V4-TODO-004 — V3/V3_ifx freeze or retirement**
 

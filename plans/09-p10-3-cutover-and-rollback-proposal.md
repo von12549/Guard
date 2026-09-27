@@ -1,6 +1,6 @@
 # V4 P10.3 — IFX cutover and rollback proposal
 
-Status: `DESIGN AND LOCAL REHEARSAL IN PROGRESS — REMOTE ACTIVATION NOT AUTHORIZED`
+Status: `DESIGN AND LOCAL REHEARSAL ACCEPTED — REMOTE ACTIVATION NOT AUTHORIZED`
 
 Formal Plan: `20260927-v4-p10-3-cutover-and-rollback-design`.
 
@@ -15,6 +15,13 @@ P10.2 is bound by decision SHA-256
 `7c5ff243ec452958ffbb08ced46ae6e1a8320f586b9fb71ef0d98f2931934516`;
 the exact Windows-full report is bound by SHA-256
 `858b69949c0febc386557f8bb70287d2abe3a7c2af56e6f5aa20b2fbc7de9ff8`.
+
+The local rehearsal accepted this design with decision
+`p10-3-design-and-local-rehearsal-accepted`, recorded at
+`artifacts/guards/p10-ifx-114/p10-3-design-042/rehearsal/p10-3-decision.json`,
+SHA-256 `529e19b567c05619ec054117e2514c579a908a4e614355411fc28b6d52964964`.
+It proved 13 context-owner rows, nine detector-owner rows, five rejection
+controls and unchanged protected roots without a remote mutation.
 
 ## Read-only remote finding
 

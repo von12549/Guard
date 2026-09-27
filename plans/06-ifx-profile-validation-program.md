@@ -1,6 +1,6 @@
 # V4 P10 — IFX Profile validation program
 
-Status: `IN PROGRESS — P10.0–P10.2 accepted; P10.3 not started or authorized; remote activation not authorized`
+Status: `IN PROGRESS — P10.0–P10.2 and P10.3 design accepted; P10.GATE and remote activation not authorized`
 
 Formal planning checkpoint: `20260923-v4-ifx-profile-validation-program`
 
@@ -11,8 +11,10 @@ were already present and were verified without reinstalling or modifying the ins
 P10.1 entry-gap compatibility Plan: `20260923-v4-p10-extension-composition-compatibility`;
 durable design and gates: `08-p10-1-extension-composition-compatibility.md`. P10.1 completed through
 the accepted C6e-R1 decision for V4 Guards 1.1.4 + IFX 0.4.2. P10.2 completed through the accepted
-R2 parity decision with 52/52 cases, zero gaps and 15 explicit V4 fail-closed strengthenings. These
-records do not start P10.3, activate V4, publish anything, retire V3 or perform IFX cutover.
+R2 parity decision with 52/52 cases, zero gaps and 15 explicit V4 fail-closed strengthenings. P10.3
+completed its authorized design-only scope through an accepted inactive cutover proposal and local
+rollback rehearsal. These records do not pass P10.GATE, activate V4, publish anything, retire V3 or
+perform IFX cutover.
 
 Scope authority: V4-TODO-001, V4-TODO-002 and V4-TODO-003. V4-TODO-004 legacy retirement remains
 separate and cannot be pulled forward by this program.
@@ -199,9 +201,15 @@ script. Candidate V4 output is evidence, not its own acceptance authority.
 
 ## 7. P10.3 — V4-TODO-003 cutover and rollback design
 
-Planning status (2026-09-27): **not started and not authorized**. The accepted P10.1 and P10.2
-records satisfy their own completion gates, but this status update is not the separate formal Plan
-or explicit authorization required to execute P10.3.
+Completion record (2026-09-27): **design and local rehearsal accepted**. The formal Plan
+`20260927-v4-p10-3-cutover-and-rollback-design` bound the exact P10.1, P10.2, C6c and Windows-full
+records. The local state-machine rehearsal proved all 13 V3 contexts retained during coexistence,
+explicit ownership for every context and detector family, the always-present V4 aggregate contract,
+five fail-closed negative controls, exact V3-first rollback ordering and unchanged protected roots.
+The binding decision is
+`artifacts/guards/p10-ifx-114/p10-3-design-042/rehearsal/p10-3-decision.json`, SHA-256
+`529e19b567c05619ec054117e2514c579a908a4e614355411fc28b6d52964964`, decision
+`p10-3-design-and-local-rehearsal-accepted`.
 
 Entry requires completed P10.2 parity, no open blocking gap and a Windows-full certification of the
 exact proposed 1.1.x baseline. The proposal must specify:
@@ -215,7 +223,7 @@ exact proposed 1.1.x baseline. The proposal must specify:
 - rollback triggers, exact restore commit/tag, remote reversal order and local rehearsal evidence; and
 - the boundary keeping V4-TODO-004 retirement as the final, separate migration action.
 
-P10.3 authorizes documentation and local rehearsal only. Creating or modifying GitHub workflows,
+P10.3 authorized documentation and local rehearsal only. Creating or modifying GitHub workflows,
 required checks, rulesets, default branches or protected settings, and performing IFX cutover, require
 a later exact Plan and separate explicit authorization.
 
@@ -226,7 +234,7 @@ extension hashes, IFX target commit, corpus hash)`. Evidence from different tupl
 one result.
 
 - 1.1.0 is retained permanently as the initial immutable baseline.
-- The accepted P10.1/P10.2 tuple is V4 Guards 1.1.4 + `ifx_profile` 0.4.2 at IFX target commit
+- The accepted P10.1/P10.2/P10.3-design tuple is V4 Guards 1.1.4 + `ifx_profile` 0.4.2 at IFX target commit
   `40b4c0f85e5d8a63ac5af5c1da80d4d46ba32b82`, Package hash
   `739e2035b24f42a0d09719bd78d010de9320452086109fbdd95c064f67e5a6c1` and composition receipt
   SHA-256 `51f5fc11b7fa36e14d83eade699979e31de2d06d3134af9caad9a329fd043345`.
@@ -239,4 +247,6 @@ one result.
 P10.GATE passes only when P10.0–P10.3 evidence, including both installed Web UI hands-on records, is
 complete, the latest installation is reproduced from a public 1.1.x release, all parity gaps are closed,
 rollback is rehearsed and no V3 runtime dependency exists in V4. Passing P10.GATE means adoption-ready
-only; it does not activate anything remotely.
+only; it does not activate anything remotely. P10.GATE remains false after P10.3 because the exact IFX
+bundle has not been published as a remote-consumable trusted input, the inactive workflow has not been
+installed or negative-tested remotely, the coexistence window has not run, and the V3 Linux bridge remains.

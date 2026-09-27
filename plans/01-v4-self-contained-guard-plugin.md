@@ -1,6 +1,6 @@
 # V4 v1 — self-contained guard plugin
 
-Status: `V1.1 RELEASED — P10.1/P10.2 accepted; P10.3 and remote activation not authorized`
+Status: `V1.1 RELEASED — P10.1/P10.2 and P10.3 design accepted; P10.GATE and remote activation not authorized`
 
 Development base: `codex/v4-development-base`
 
@@ -332,14 +332,17 @@ program. This publication does not activate a workflow/ruleset or authorize IFX 
   gaps and 15 explicit V4 fail-closed strengthenings; decision:
   `artifacts/guards/p10-ifx-114/p10-2-r2-parity-042/p10-2-decision.json`, SHA-256
   `7c5ff243ec452958ffbb08ced46ae6e1a8320f586b9fb71ef0d98f2931934516`.
-- [ ] **V4-P10.3** After parity and Windows-full certification, produce the trusted-base cutover and
-  rollback proposal without applying remote changes.
+- [x] **V4-P10.3** After parity and Windows-full certification, produce the trusted-base cutover and
+  rollback proposal without applying remote changes. The design and local rehearsal were accepted by
+  `artifacts/guards/p10-ifx-114/p10-3-design-042/rehearsal/p10-3-decision.json`, SHA-256
+  `529e19b567c05619ec054117e2514c579a908a4e614355411fc28b6d52964964`; no workflow, ruleset,
+  required context, branch setting, activation or cutover was changed.
 - [ ] **V4-P10.GATE** Prove adoption readiness, immutable versioned installations, closed parity gaps
   and rehearsed rollback; remote activation remains separately authorized.
 
 The detailed program and stop conditions are in `06-ifx-profile-validation-program.md`. Accepted
-P10.1/P10.2 evidence closes V4-TODO-001/002. V4-TODO-003 remains open and unstarted, and this update
-does not pull V4-TODO-004 retirement into scope.
+P10.1/P10.2 evidence closes V4-TODO-001/002, and the accepted P10.3 design closes V4-TODO-003.
+P10.GATE remains open, and this update does not pull V4-TODO-004 retirement into scope.
 
 ## 6. PR and CI strategy
 
