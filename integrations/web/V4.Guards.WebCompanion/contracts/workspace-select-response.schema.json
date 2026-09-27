@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/web/workspace-select-response.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "status", "authority", "activeProjectId"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "const": "pass" },
+    "authority": { "const": "v4-host" },
+    "activeProjectId": { "type": "string", "pattern": "^[a-f0-9]{32}$" }
+  }
+}

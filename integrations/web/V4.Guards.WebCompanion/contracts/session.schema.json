@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/web/session.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "status", "authority", "allowedCommand", "allowedStages", "allowedQueries", "allowedProfiles", "activeProjectId", "targetCount", "roots"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "const": "ready" },
+    "authority": { "const": "v4-host" },
+    "allowedCommand": { "const": "stage.run" },
+    "allowedStages": {
+      "type": "array",
+      "const": ["bootstrap", "analysis", "pre", "post"]
+    },
+    "allowedQueries": {
+      "type": "array",
+      "const": ["query.runs", "query.evidence", "query.plans"]
+    },
+    "allowedProfiles": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" }
+    },
+    "activeProjectId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+    "targetCount": { "type": "integer", "minimum": 1 },
+    "roots": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "path", "access"],
+        "properties": {
+          "name": { "enum": ["PackageRoot", "TargetRoot", "StateRoot", "EvidenceRoot"] },
+          "path": { "type": "string", "minLength": 1 },
+          "access": { "enum": ["immutable", "read-only", "v4-owned mutable"] }
+        }
+      }
+    }
+  }
+}

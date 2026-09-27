@@ -1,0 +1,33 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p4c-roslyn-detectors",
+  "title": "Implement V4 Roslyn syntax and semantic detectors",
+  "goal": "Use package-owned Roslyn inspection to enforce five source claims without building or executing the target repository.",
+  "acceptanceCriteria": [
+    "Roslyn is loaded from a declared .NET SDK prerequisite with no network dependency.",
+    "Pre detects forbidden imports, disabled branches and declaration placement.",
+    "Post detects forbidden bound symbols and public member/payload types.",
+    "All five claims emit layered findings and non-zero coverage, while missing source fails explicitly.",
+    "No target build outputs are created and P0-P4B remain green.",
+    "Current V3 behavior remains unchanged with no active workflow or remote change."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p4c-roslyn-detectors.md",
+    "docs/guards/plans/20260922-v4-p4c-roslyn-detectors.plan.json",
+    "docs/guards/v4/modules/architecture-conformance/adapter.ps1",
+    "docs/guards/v4/modules/architecture-conformance/config.schema.json",
+    "docs/guards/v4/modules/architecture-conformance/dependencies.lock.json",
+    "docs/guards/v4/modules/architecture-conformance/module.json",
+    "docs/guards/v4/modules/registry.json",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/tests/p4/Test-V4RoslynDetectors.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

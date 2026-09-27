@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p4f-composite-architecture-gate",
+  "title": "Complete the V4 composite Architecture Conformance gate",
+  "goal": "Aggregate hash-bound architecture rules, baseline, severity and non-vacuous evidence through the synthetic profile and close P4.",
+  "acceptanceCriteria": [
+    "The host owns rule-plan validation, layered finding identity, severity, baseline, coverage and aggregate verdict.",
+    "Synthetic Post runs Build Evidence Provider before Architecture Conformance with fresh run-bound assemblies.",
+    "All twelve claims have clean, violating and missing-input evidence plus a development-only frozen-reference comparison.",
+    "Module failure, stale/missing/zero evidence, missing runtime and unsupported platform are structured blocking outcomes.",
+    "Generic modules retain product/runtime-path isolation and in-place/separated clean verdicts agree.",
+    "Current V3 behavior remains unchanged with no workflow, ruleset or remote change."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p4f-composite-architecture-gate.md",
+    "docs/guards/plans/20260922-v4-p4f-composite-architecture-gate.plan.json",
+    "docs/guards/v4/core/contracts/contracts-manifest.json",
+    "docs/guards/v4/core/contracts/finding-baseline.schema.json",
+    "docs/guards/v4/core/host/V4.Guards.Host/StageRuntime.cs",
+    "docs/guards/v4/core/runtime/Test-V4Package.ps1",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/profiles/catalog/synthetic_profile/baselines/none.json",
+    "docs/guards/v4/profiles/catalog/synthetic_profile/profile.json",
+    "docs/guards/v4/tests/p0/Test-V4Contracts.ps1",
+    "docs/guards/v4/tests/p1/Test-V4Package.ps1",
+    "docs/guards/v4/tests/p3/Test-V4StageOrchestration.ps1",
+    "docs/guards/v4/tests/p3/Test-V4Stages.ps1",
+    "docs/guards/v4/tests/p4/Test-V4ArchitectureAuthority.ps1",
+    "docs/guards/v4/tests/p4/Test-V4CompositeArchitecture.ps1",
+    "docs/guards/v4/tests/p4/Test-V4ProjectModel.ps1",
+    "docs/guards/v4/tests/p4/reference/v3-architecture-claims.json"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

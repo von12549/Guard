@@ -1,0 +1,42 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p6-linux-first-ci",
+  "title": "Implement V4 Linux-first trusted-base CI candidate",
+  "goal": "Complete the dormant-base P6 CI authority, trusted runner, immutable artifact reuse, Windows selection and required-verdict negative controls without activating remote workflow or ruleset state.",
+  "acceptanceCriteria": [
+    "The inactive workflow exposes stable v4-contract, v4-linux, v4-package and v4-required contexts with read-only permissions and cancellation.",
+    "A base-owned runner validates exact V4 Plan diff scope, executes the approved Linux suite without secrets and produces one hash-bound immutable artifact manifest.",
+    "Package and Windows jobs consume and verify the Linux-produced artifact rather than rebuilding or repackaging it.",
+    "A base-owned classifier selects Windows smoke for platform-sensitive paths and explicit full coverage for certification.",
+    "The required aggregator fails when mandatory Linux, package or selected Windows work is skipped or unsuccessful.",
+    "The candidate workflow and runner contain no IFX product, frontend, database or V3 candidate suite invocation.",
+    "Current V3 behavior remains unchanged and no active workflow, ruleset, push or other remote mutation occurs."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p6-linux-first-ci.md",
+    "docs/guards/plans/20260922-v4-p6-linux-first-ci.plan.json",
+    "docs/guards/v4/core/contracts/ci-artifact-manifest.schema.json",
+    "docs/guards/v4/core/contracts/ci-contract.schema.json",
+    "docs/guards/v4/core/contracts/contracts-manifest.json",
+    "docs/guards/v4/integrations/github/Get-V4WindowsSelection.ps1",
+    "docs/guards/v4/integrations/github/Invoke-V4TrustedBase.ps1",
+    "docs/guards/v4/integrations/github/Test-V4Required.ps1",
+    "docs/guards/v4/integrations/github/ci-contract.json",
+    "docs/guards/v4/integrations/github/proposed-v4-guards.yml",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/plans/03-genesis-bootstrap-and-autonomy.md",
+    "docs/guards/v4/tests/p0/Test-V4Contracts.ps1",
+    "docs/guards/v4/tests/p0/Test-V4GenesisProposal.ps1",
+    "docs/guards/v4/tests/p6/Test-V4ChangeClassifier.ps1",
+    "docs/guards/v4/tests/p6/Test-V4TrustedBase.ps1",
+    "docs/guards/v4/tests/p6/Test-V4WorkflowContract.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p0a-host-four-root-spike",
+  "title": "Prove the V4 trusted host and four-root boundary",
+  "goal": "Implement a local V4 P0 spike in which a .NET host safely runs one hash-bound synthetic PowerShell adapter using four explicit roots and produces equivalent structured verdicts from in-repository and separated package locations without changing V3, IFX or remote governance.",
+  "acceptanceCriteria": [
+    "The canonical V4 repository root spelling is docs/guards/v4 and the spike has a package-local .NET 10 build baseline with no external package dependency.",
+    "The host requires and canonicalizes PackageRoot, TargetRoot, StateRoot and EvidenceRoot and rejects unsafe overlap, path escape and links or reparse points.",
+    "The synthetic PowerShell adapter is selected by registered module ID, hash-verified and denied before execution when it requests a target write or another undeclared capability.",
+    "Only the host writes the normalized schema-valid result below EvidenceRoot; package and target authority hashes do not change.",
+    "In-repository and separated exact package copies produce equivalent normalized verdicts for the same synthetic target.",
+    "Hash drift, capability escalation, unsafe roots and malformed adapter output are structured fail-closed outcomes with stable preliminary exit categories.",
+    "Current V3 Validate and ifx-package-test remain green and no current workflow, required check, V3/V3_ifx authority or remote state changes."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p0a-host-four-root-spike.md",
+    "docs/guards/plans/20260922-v4-p0a-host-four-root-spike.plan.json",
+    "docs/guards/v4/build/NuGet.config",
+    "docs/guards/v4/build/V4.Build.props",
+    "docs/guards/v4/build/global.json",
+    "docs/guards/v4/core/contracts/module-spike.schema.json",
+    "docs/guards/v4/core/contracts/stage-result-spike.schema.json",
+    "docs/guards/v4/core/host/V4.Guards.Host/Program.cs",
+    "docs/guards/v4/core/host/V4.Guards.Host/V4.Guards.Host.csproj",
+    "docs/guards/v4/modules/synthetic-probe/adapter.ps1",
+    "docs/guards/v4/modules/synthetic-probe/module.json",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/tests/fixtures/synthetic-target/input.txt",
+    "docs/guards/v4/tests/p0/Test-V4HostSpike.ps1"
+  ],
+  "areaIds": [
+    "GuardDocs"
+  ],
+  "ruleIds": [],
+  "validationCommands": [
+    "ifx-package-test"
+  ],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d14-package-local-build-baseline.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d15-trusted-base-component-upgrade.json"
+  ]
+}

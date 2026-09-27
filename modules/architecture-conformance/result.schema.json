@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://guards.local/v4/modules/architecture-conformance/result.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "status", "findings", "coverage"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "enum": ["pass", "advisory", "fail", "error"] },
+    "exitCategory": { "enum": ["success", "invalid-input", "unsafe-path", "integrity-failure", "capability-denied", "adapter-failure", "prerequisite-missing", "findings-blocking", "internal-error"] },
+    "message": { "type": "string" },
+    "findings": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["ruleId", "subject", "evidenceKind", "detectorId", "severity"], "properties": { "ruleId": { "type": "string" }, "subject": { "type": "string" }, "evidenceKind": { "enum": ["project-model-raw", "source-syntax", "source-semantic", "compiled-assembly"] }, "detectorId": { "enum": ["project-model", "roslyn-syntax", "roslyn-semantic", "archunitnet"] }, "severity": { "enum": ["advisory", "blocking"] } } } },
+    "coverage": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["claimId", "matched", "minimum"], "properties": { "claimId": { "type": "string" }, "matched": { "type": "integer", "minimum": 0 }, "minimum": { "type": "integer", "minimum": 1 } } } }
+  }
+}

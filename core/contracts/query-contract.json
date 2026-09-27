@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1,
+  "apiVersion": "1.0",
+  "commands": [
+    { "id": "query.project", "syntax": "v4-guards query project --package-root <path> --target-root <path> --state-root <path> --evidence-root <path>", "stability": "experimental", "mutability": "read-only", "requiredRoots": ["PackageRoot", "TargetRoot", "StateRoot", "EvidenceRoot"], "resultSchema": "project-query" },
+    { "id": "query.profiles", "syntax": "v4-guards query profiles --package-root <path>", "stability": "experimental", "mutability": "read-only", "requiredRoots": ["PackageRoot"], "resultSchema": "profile-catalog-query" },
+    { "id": "query.doctor", "syntax": "v4-guards query doctor --package-root <path> --profile <id>", "stability": "experimental", "mutability": "read-only", "requiredRoots": ["PackageRoot"], "resultSchema": "prerequisite-query" },
+    { "id": "query.runs", "syntax": "v4-guards query runs --package-root <path> --state-root <path> --evidence-root <path> --project <id>", "stability": "experimental", "mutability": "read-only", "requiredRoots": ["PackageRoot", "StateRoot", "EvidenceRoot"], "resultSchema": "run-catalog-query" },
+    { "id": "query.evidence", "syntax": "v4-guards query evidence --package-root <path> --state-root <path> --evidence-root <path> --project <id> --run <id>", "stability": "experimental", "mutability": "read-only", "requiredRoots": ["PackageRoot", "StateRoot", "EvidenceRoot"], "resultSchema": "evidence-query" },
+    { "id": "query.plans", "syntax": "v4-guards query plans --package-root <path> --target-root <path> --plan-root <relative-path>", "stability": "experimental", "mutability": "read-only", "requiredRoots": ["PackageRoot", "TargetRoot"], "resultSchema": "plan-catalog-query" }
+  ]
+}

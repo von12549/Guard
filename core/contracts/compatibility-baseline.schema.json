@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/compatibility-baseline.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "pluginVersion", "apiVersion", "files"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "pluginVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "apiVersion": { "const": "1.0" },
+    "files": {
+      "type": "array", "minItems": 12,
+      "items": { "type": "object", "additionalProperties": false, "required": ["path", "role", "sha256"], "properties": {
+        "path": { "$ref": "#/definitions/path" }, "role": { "enum": ["cli", "configuration", "report"] }, "sha256": { "$ref": "#/definitions/sha256" }
+      } }
+    }
+  },
+  "definitions": {
+    "path": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

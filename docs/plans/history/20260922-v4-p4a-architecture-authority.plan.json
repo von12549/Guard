@@ -1,0 +1,48 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p4a-architecture-authority",
+  "title": "Package and hash-bind the V4 Architecture Conformance authorities",
+  "goal": "Register a generic Architecture Conformance module with a complete hash-bound claim matrix, rule plan and fixture catalog before detector execution is enabled.",
+  "acceptanceCriteria": [
+    "Module manifests bind package-validated authority files without granting new runtime capabilities.",
+    "The architecture-conformance module is registered for Pre/Post but remains unselected until detector implementation.",
+    "Every v1 architecture claim maps exactly to one rule with a valid detector, evidence kind, Stage and non-zero minimum.",
+    "Clean, violating and missing-input fixture roots exist for every claim.",
+    "The generic module package contains no IFX identifier or V3/V3_ifx runtime path.",
+    "P0-P3 and current V3 validation remain green with no active workflow or remote change."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p4a-architecture-authority.md",
+    "docs/guards/plans/20260922-v4-p4a-architecture-authority.plan.json",
+    "docs/guards/v4/core/contracts/contracts-manifest.json",
+    "docs/guards/v4/core/contracts/module.schema.json",
+    "docs/guards/v4/core/runtime/Test-V4Package.ps1",
+    "docs/guards/v4/modules/architecture-conformance/adapter.ps1",
+    "docs/guards/v4/modules/architecture-conformance/capability-matrix.json",
+    "docs/guards/v4/modules/architecture-conformance/config.schema.json",
+    "docs/guards/v4/modules/architecture-conformance/dependencies.lock.json",
+    "docs/guards/v4/modules/architecture-conformance/fixtures/clean/fixture.json",
+    "docs/guards/v4/modules/architecture-conformance/fixtures/manifest.json",
+    "docs/guards/v4/modules/architecture-conformance/fixtures/missing/fixture.json",
+    "docs/guards/v4/modules/architecture-conformance/fixtures/violating/fixture.json",
+    "docs/guards/v4/modules/architecture-conformance/module.json",
+    "docs/guards/v4/modules/architecture-conformance/rule-execution-plan.json",
+    "docs/guards/v4/modules/architecture-conformance/result.schema.json",
+    "docs/guards/v4/modules/registry.json",
+    "docs/guards/v4/modules/synthetic-probe/module.json",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/plans/04-layerguard-provenance.md",
+    "docs/guards/v4/tests/p0/Test-V4Contracts.ps1",
+    "docs/guards/v4/tests/p1/Test-V4Package.ps1",
+    "docs/guards/v4/tests/p1/Test-V4Registry.ps1",
+    "docs/guards/v4/tests/p4/Test-V4ArchitectureAuthority.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

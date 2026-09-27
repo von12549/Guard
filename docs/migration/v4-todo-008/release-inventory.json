@@ -1,0 +1,169 @@
+{
+  "schema": "v4-todo-008/release-inventory/1",
+  "repository": "von12549/IFX",
+  "policy": "All listed tags, releases and assets are immutable historical authorities at their IFX URLs; Guard never recreates them.",
+  "releases": [
+    {
+      "tag": "v4-guards-v1.0.0",
+      "tagObject": "79558b2c2fc099f7ebca05473cc16ecee5d54e9c",
+      "tagType": "tag",
+      "commit": "2186d0510cbcb3eddaf3dc56ff239f6558b9b115",
+      "ancestorOfSource": true,
+      "releaseUrl": "https://github.com/von12549/IFX/releases/tag/v4-guards-v1.0.0",
+      "name": "V4 Guards 1.0.0",
+      "draft": false,
+      "prerelease": false,
+      "publishedAt": "2026-09-22T06:49:29Z",
+      "immutable": true,
+      "assets": [
+        {
+          "name": "v4-guards-1.0.0.zip",
+          "size": 607880,
+          "digest": "sha256:56d49220ef055bfdb2c15777133e7c08bf86bdb34902ba4a905181757f5fd6b8",
+          "url": "https://github.com/von12549/IFX/releases/download/v4-guards-v1.0.0/v4-guards-1.0.0.zip"
+        },
+        {
+          "name": "v4-guards-1.0.0.zip.sha256",
+          "size": 86,
+          "digest": "sha256:3949ba1edb07a9ba8e2a20ac56f7cb8a935020ab61ffb50cf3b13117fdcb063b",
+          "url": "https://github.com/von12549/IFX/releases/download/v4-guards-v1.0.0/v4-guards-1.0.0.zip.sha256"
+        }
+      ]
+    },
+    {
+      "tag": "v4-guards-v1.1.0",
+      "tagObject": "b8b327993e2a0a728b5569984b2f781c46f07112",
+      "tagType": "tag",
+      "commit": "a81a12e0d1f476c563497f961fe41fccc53edfb6",
+      "ancestorOfSource": true,
+      "releaseUrl": "https://github.com/von12549/IFX/releases/tag/v4-guards-v1.1.0",
+      "name": "V4 Guards 1.1.0",
+      "draft": false,
+      "prerelease": false,
+      "publishedAt": "2026-09-22T15:34:29Z",
+      "immutable": true,
+      "assets": [
+        {
+          "name": "v4-guards-1.1.0.zip",
+          "size": 1009493,
+          "digest": "sha256:d7d3b1ef7f70bab3153c4d1253b8a1e6db2bdea13645fe6597d36c29432c9fbd",
+          "url": "https://github.com/von12549/IFX/releases/download/v4-guards-v1.1.0/v4-guards-1.1.0.zip"
+        },
+        {
+          "name": "v4-guards-1.1.0.zip.sha256",
+          "size": 86,
+          "digest": "sha256:227cb5b8594880b0b246d7127f75fcff79d55e3974d24109824d49d3cafbf2bb",
+          "url": "https://github.com/von12549/IFX/releases/download/v4-guards-v1.1.0/v4-guards-1.1.0.zip.sha256"
+        }
+      ]
+    },
+    {
+      "tag": "v4-guards-v1.1.1",
+      "tagObject": "6e6f5e5d05e6db1c317138805f070fdc760b5211",
+      "tagType": "tag",
+      "commit": "9a876b19427e326b4eafa5e661cfc07749258c4d",
+      "ancestorOfSource": true,
+      "releaseUrl": "https://github.com/von12549/IFX/releases/tag/v4-guards-v1.1.1",
+      "name": "V4 Guards 1.1.1",
+      "draft": false,
+      "prerelease": false,
+      "publishedAt": "2026-09-23T10:26:28Z",
+      "immutable": true,
+      "assets": [
+        {
+          "name": "v4-guards-1.1.1.zip",
+          "size": 1060427,
+          "digest": "sha256:c7055382c29f8c39e78114ecbf431e025f7909852c6f22bdf3c597a9a1a15631",
+          "url": "https://github.com/von12549/IFX/releases/download/v4-guards-v1.1.1/v4-guards-1.1.1.zip"
+        },
+        {
+          "name": "v4-guards-1.1.1.zip.sha256",
+          "size": 86,
+          "digest": "sha256:4420d3dca7005aa6e2f916d696b17a5c5387837a7f4914305f6e7ef884480139",
+          "url": "https://github.com/von12549/IFX/releases/download/v4-guards-v1.1.1/v4-guards-1.1.1.zip.sha256"
+        }
+      ]
+    },
+    {
+      "tag": "v4-guards-v1.1.2",
+      "tagObject": "e709172cadf5b091e9b9c550073af7d273500def",
+      "tagType": "tag",
+      "commit": "5bc176f61508fd01ddceb2d4e33ee34136493a35",
+      "ancestorOfSource": true,
+      "releaseUrl": "https://github.com/von12549/IFX/releases/tag/v4-guards-v1.1.2",
+      "name": "V4 Guards 1.1.2",
+      "draft": false,
+      "prerelease": false,
+      "publishedAt": "2026-09-23T11:54:13Z",
+      "immutable": true,
+      "assets": [
+        {
+          "name": "v4-guards-1.1.2.zip",
+          "size": 1069199,
+          "digest": "sha256:12270a26f923a86f49be4ee0d003f5493b2562891fd1484a4fac079f02b73c95",
+          "url": "https://github.com/von12549/IFX/releases/download/v4-guards-v1.1.2/v4-guards-1.1.2.zip"
+        },
+        {
+          "name": "v4-guards-1.1.2.zip.sha256",
+          "size": 86,
+          "digest": "sha256:7578b408e08ec69b22e69dc51151aab358575b41bec7d70081d31552847d7c92",
+          "url": "https://github.com/von12549/IFX/releases/download/v4-guards-v1.1.2/v4-guards-1.1.2.zip.sha256"
+        }
+      ]
+    },
+    {
+      "tag": "v4-guards-v1.1.3",
+      "tagObject": "78a9076630c8f5cdb4b3ac33d27e7544552450f3",
+      "tagType": "tag",
+      "commit": "90aa87b5c5a8e866db3384564518377d50fe997c",
+      "ancestorOfSource": true,
+      "releaseUrl": "https://github.com/von12549/IFX/releases/tag/v4-guards-v1.1.3",
+      "name": "V4 Guards 1.1.3",
+      "draft": false,
+      "prerelease": false,
+      "publishedAt": "2026-09-23T20:07:21Z",
+      "immutable": true,
+      "assets": [
+        {
+          "name": "v4-guards-1.1.3.zip",
+          "size": 1072188,
+          "digest": "sha256:28307116aca1361e9eed5fdcd284a58cdfdb8fd3728869f09dd13f4c9a49b02e",
+          "url": "https://github.com/von12549/IFX/releases/download/v4-guards-v1.1.3/v4-guards-1.1.3.zip"
+        },
+        {
+          "name": "v4-guards-1.1.3.zip.sha256",
+          "size": 86,
+          "digest": "sha256:7391da38ad7fdeb719d5a480a83e6c1b0946e984c6d95b471ec1a35b5e5eeca0",
+          "url": "https://github.com/von12549/IFX/releases/download/v4-guards-v1.1.3/v4-guards-1.1.3.zip.sha256"
+        }
+      ]
+    },
+    {
+      "tag": "v4-guards-v1.1.4",
+      "tagObject": "371278343e3f65a1128f6795e897391c76a60c5e",
+      "tagType": "tag",
+      "commit": "2185477ba89d7a3cef95c99bfe737bf98a70f39d",
+      "ancestorOfSource": true,
+      "releaseUrl": "https://github.com/von12549/IFX/releases/tag/v4-guards-v1.1.4",
+      "name": "V4 Guards 1.1.4",
+      "draft": false,
+      "prerelease": false,
+      "publishedAt": "2026-09-26T17:17:45Z",
+      "immutable": true,
+      "assets": [
+        {
+          "name": "v4-guards-1.1.4.zip",
+          "size": 1113639,
+          "digest": "sha256:dce037149d0fa38995e244ad417888a15d90809467e8ecc83708faef2b995c4d",
+          "url": "https://github.com/von12549/IFX/releases/download/v4-guards-v1.1.4/v4-guards-1.1.4.zip"
+        },
+        {
+          "name": "v4-guards-1.1.4.zip.sha256",
+          "size": 86,
+          "digest": "sha256:e5a105cd3e6945623f173035248af877803a0d21790f94060ebfb458863bf713",
+          "url": "https://github.com/von12549/IFX/releases/download/v4-guards-v1.1.4/v4-guards-1.1.4.zip.sha256"
+        }
+      ]
+    }
+  ]
+}

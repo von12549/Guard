@@ -1,0 +1,46 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p9e-offline-ui-certification",
+  "title": "Package and certify the V4 P9.5 offline Web Companion",
+  "goal": "Ship immutable embedded Web Companion assets in the deterministic offline V4 distribution and bind the P9 suite into Linux-complete and Windows-full certification.",
+  "acceptanceCriteria": [
+    "The Companion serves reviewed HTML, JavaScript and CSS bytes from embedded assembly resources with no loose runtime wwwroot dependency.",
+    "The deterministic distribution manifest and archive include an exact Companion payload and bind its entry assembly hash.",
+    "The installed launcher fixes the shipped PackageRoot and Host DLL and refuses authority overrides or non-string/shell-shaped arguments.",
+    "Installed lifecycle tests cover command injection, path escape, Markdown-XSS, hostile parent configuration, drift refusal, uninstall and identical reinstall.",
+    "Offline supply-chain validation includes the Web integration and permits no external package source or V3/IFX runtime dependency.",
+    "All P9 tests are hash-approved for Linux complete and Windows full certification.",
+    "Native Windows full and pinned network-disabled Linux complete checks pass against one clean commit.",
+    "P9.GATE, publication, activation, push, PR and all remote operations remain out of scope."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p9e-offline-ui-certification.md",
+    "docs/guards/plans/20260922-v4-p9e-offline-ui-certification.plan.json",
+    "docs/guards/v4/core/certification/Test-V4SupplyChain.ps1",
+    "docs/guards/v4/core/certification/compatibility-baseline.json",
+    "docs/guards/v4/core/contracts/contracts-manifest.json",
+    "docs/guards/v4/core/contracts/distribution-manifest.schema.json",
+    "docs/guards/v4/core/distribution/Invoke-V4InstalledWebCompanion.ps1",
+    "docs/guards/v4/core/distribution/New-V4Distribution.ps1",
+    "docs/guards/v4/docs/v1-certification.md",
+    "docs/guards/v4/integrations/github/ci-contract.json",
+    "docs/guards/v4/integrations/web/README.md",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/Program.cs",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/plans/02-runtime-architecture.md",
+    "docs/guards/v4/plans/README.md",
+    "docs/guards/v4/tests/p0/Test-V4Contracts.ps1",
+    "docs/guards/v4/tests/p7/Test-V4Distribution.ps1",
+    "docs/guards/v4/tests/p7/Test-V4Lifecycle.ps1",
+    "docs/guards/v4/tests/p9/Test-V4OfflineWebDistribution.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

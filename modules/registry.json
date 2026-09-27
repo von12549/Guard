@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "modules": [
+    {
+      "id": "architecture-conformance",
+      "manifestPath": "modules/architecture-conformance/module.json",
+      "manifestSha256": "1a1909a86ffb3f386cb7bfca14af6797a3f57360f85c9c8412c325126adec688",
+      "allowedCapabilities": {
+        "readRoots": ["TargetRoot", "StateRoot", "EvidenceRoot"],
+        "writeRoots": [],
+        "processes": ["pwsh", "dotnet"],
+        "network": false,
+        "maxTimeoutSeconds": 30
+      }
+    },
+    {
+      "id": "build-evidence-provider",
+      "manifestPath": "modules/build-evidence-provider/module.json",
+      "manifestSha256": "1bafc0b43381ce1483c1ff849c1b7fffa43cd1deb256e4f52bd00b10c4d58095",
+      "allowedCapabilities": {
+        "readRoots": ["PackageRoot", "TargetRoot"],
+        "writeRoots": ["StateRoot", "EvidenceRoot"],
+        "processes": ["pwsh", "dotnet"],
+        "network": false,
+        "maxTimeoutSeconds": 300
+      }
+    },
+    {
+      "id": "synthetic-probe",
+      "manifestPath": "modules/synthetic-probe/module.json",
+      "manifestSha256": "97d36d555a79d85743eab1c6e15d6d862e139a329f95048bf81463afc805e3c0",
+      "allowedCapabilities": {
+        "readRoots": ["TargetRoot", "EvidenceRoot"],
+        "writeRoots": [],
+        "processes": ["pwsh"],
+        "network": false,
+        "maxTimeoutSeconds": 30
+      }
+    }
+  ]
+}

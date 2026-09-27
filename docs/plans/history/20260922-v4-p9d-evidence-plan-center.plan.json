@@ -1,0 +1,40 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p9d-evidence-plan-center",
+  "title": "Implement the V4 P9.4 evidence viewer and read-only Plan Center",
+  "goal": "Add Host-projected structured run/evidence inspection and safe read-only V4-native and V3-historical Plan presentation without introducing a second integrity or verdict authority.",
+  "acceptanceCriteria": [
+    "Active-Target runs and evidence are selected only by validated Host-derived IDs and returned from P9.2 query projections unchanged.",
+    "Findings, coverage, modules, evidence files, authority hashes and raw Host JSON are presented without status reinterpretation.",
+    "Plan catalogs preserve Host classification, validation mode and hashes; browser requests select a Plan ID and never a path.",
+    "Plan detail bytes are confined beneath the active Target, link-free, size-bounded, strict UTF-8 and hash-matched to the Host catalog.",
+    "Markdown is rendered with text-only DOM construction and cannot execute HTML, links, images, scripts or event attributes.",
+    "V4-native Plans and V3-historical compatibility views are visibly and semantically distinct.",
+    "Windows and pinned network-disabled Linux tests prove read-only roots and preserve the P9.3 Stage Runner.",
+    "No P9.5 work, edit flow, Target mutation, reset, Git/PR action, remote access or remote activation is introduced."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p9d-evidence-plan-center.md",
+    "docs/guards/plans/20260922-v4-p9d-evidence-plan-center.plan.json",
+    "docs/guards/v4/integrations/web/README.md",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/Program.cs",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/contracts/plan-detail.schema.json",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/contracts/session.schema.json",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/wwwroot/app.js",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/wwwroot/index.html",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/wwwroot/styles.css",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/plans/02-runtime-architecture.md",
+    "docs/guards/v4/plans/README.md",
+    "docs/guards/v4/tests/p9/Test-V4WebCompanionSpike.ps1",
+    "docs/guards/v4/tests/p9/Test-V4EvidencePlanCenter.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

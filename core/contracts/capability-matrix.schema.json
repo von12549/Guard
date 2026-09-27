@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/capability-matrix.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "moduleId", "claims"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "moduleId": { "const": "architecture-conformance" },
+    "claims": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["claimId", "authority", "evidenceKinds", "earliestStage", "detectors", "fixtures", "minimumMatches", "knownLimits", "parityRule"], "properties": {
+      "claimId": { "type": "string", "pattern": "^[A-Z0-9][A-Z0-9._-]+$" },
+      "authority": { "type": "string", "minLength": 1 },
+      "evidenceKinds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["project-model-raw", "source-syntax", "source-semantic", "compiled-assembly"] } },
+      "earliestStage": { "enum": ["pre", "post"] },
+      "detectors": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+      "fixtures": { "type": "object", "additionalProperties": false, "required": ["clean", "violating", "missingInput"], "properties": { "clean": { "type": "string", "minLength": 1 }, "violating": { "type": "string", "minLength": 1 }, "missingInput": { "type": "string", "minLength": 1 } } },
+      "minimumMatches": { "type": "integer", "minimum": 1 },
+      "knownLimits": { "type": "array", "items": { "type": "string" } },
+      "parityRule": { "type": "string", "minLength": 1 }
+    } } }
+  }
+}

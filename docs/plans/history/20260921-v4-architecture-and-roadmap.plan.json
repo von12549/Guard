@@ -1,0 +1,45 @@
+{
+  "formatVersion": 1,
+  "id": "20260921-v4-architecture-and-roadmap",
+  "title": "Create the V4 architecture decision set and roadmap",
+  "goal": "Record the cancelled Plan 08 alternative and define the reviewed architecture, staged implementation plan and deferred backlog for a new self-contained V4 guard plugin without changing the active V3/V3_ifx runtime.",
+  "acceptanceCriteria": [
+    "Plan 08 is explicitly cancelled and P06-PCF-01 remains open for disposition by the future V4 program.",
+    "V4 planning documents live under docs/guards/v4/plans and distinguish accepted v1 decisions from explicitly deferred roadmap decisions.",
+    "The accepted runtime boundary defines a .NET CLI host, controlled PowerShell/.NET adapters, four explicit roots, module capabilities, target mutation receipts and base-owned CI verdicts.",
+    "V4 genesis uses V3 only for the formal bootstrap Plan, exact additive diff, current-guard non-interference, isolation and recovery; after an accepted seed establishes the development base, V4-only changes use base-owned V4 checks without a V3 runtime or IFX product-suite dependency.",
+    "Architecture Conformance is planned as a V4-owned composite over Project Model, Roslyn and ArchUnitNET evidence with claim-based parity and no V3/LayerGuard runtime dependency.",
+    "The V4 roadmap provides stable unchecked checklist IDs for every Phase item and gate, and the V4 runtime architecture document diagrams root, detector, Stage and CI trust boundaries.",
+    "The V4 v1 plan covers only the generic plugin, default and synthetic profiles, independent local stages, safe state/reset, Linux-first CI and plan-set support.",
+    "IFX profile practice, Web UI, fully bundled runtimes, standalone repository extraction, remote activation and V3/V3_ifx retirement are recorded in the V4 TODO with revisit gates.",
+    "No branch, workflow, ruleset, implementation, profile, trusted component, policy, authorization record or remote configuration changes in this planning checkpoint."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/08-v3-portable-package-layout-remediation.md",
+    "docs/guards/plans/20260921-v3-stage-plan06-closeout.md",
+    "docs/guards/plans/20260921-v3-stage-plan06-post-completion-finding.md",
+    "docs/guards/plans/20260921-v4-architecture-and-roadmap.md",
+    "docs/guards/plans/20260921-v4-architecture-and-roadmap.plan.json",
+    "docs/guards/v4/plans/00-architecture-decision-set.md",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/plans/02-runtime-architecture.md",
+    "docs/guards/v4/plans/README.md",
+    "docs/guards/v4/plans/TODO.md"
+  ],
+  "areaIds": [
+    "GuardDocs"
+  ],
+  "ruleIds": [],
+  "validationCommands": [
+    "ifx-package-test"
+  ],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d01-v3-ifx-distribution-boundary.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d14-package-local-build-baseline.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d15-trusted-base-component-upgrade.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260918-v3-stage-d28-ci-cost-controls-and-change-scope.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260921-v3-stage-d35-windows-portability-smoke.json"
+  ]
+}

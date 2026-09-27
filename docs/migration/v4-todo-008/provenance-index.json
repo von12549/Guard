@@ -1,0 +1,651 @@
+{
+  "schema": "v4-todo-008/provenance-index/1",
+  "authoritative": false,
+  "note": "Non-authoritative index. These IFX-owned files were extracted with the V4 history and are reachable in this repository's history, but they are not part of the active Guard tree. Their authoritative current versions are owned by IFX.",
+  "sourceRepository": "von12549/IFX",
+  "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+  "removedIfxOnlyPaths": [
+    {
+      "formerGuardPath": "integrations/github/ifx-cutover-proposal.json",
+      "formerIfxPath": "docs/guards/v4/integrations/github/ifx-cutover-proposal.json",
+      "sourceBlob": "1607ed7f82d51a683b27295e769914f77e9b3be5",
+      "sourceSha256": "d1a3f1cc4777560059a9b711fb5db3c23b87c68f5a7938bd6234a9b72e6348bb",
+      "lastIfxCommitTouchingPath": "9e71648c335693697dbddb0c80c3fb4d68620f3e",
+      "ifxSuccessorPath": "docs/guards/v4-adoption/integrations/github/ifx-cutover-proposal.json",
+      "ifxSuccessorCreatedAt": "V4-TODO-008 T7 (not yet created)"
+    },
+    {
+      "formerGuardPath": "integrations/github/proposed-v4-ifx-guardrails.yml",
+      "formerIfxPath": "docs/guards/v4/integrations/github/proposed-v4-ifx-guardrails.yml",
+      "sourceBlob": "48d975160b31e32ad7ea5f6cbe156a47c349e0a1",
+      "sourceSha256": "071372e067761a39b21eb0533670271c8333ce5956e9fa96b5a2a7b6c00ac662",
+      "lastIfxCommitTouchingPath": "9e71648c335693697dbddb0c80c3fb4d68620f3e",
+      "ifxSuccessorPath": "docs/guards/v4-adoption/integrations/github/proposed-v4-ifx-guardrails.yml",
+      "ifxSuccessorCreatedAt": "V4-TODO-008 T7 (not yet created)"
+    },
+    {
+      "formerGuardPath": "plans/06-ifx-profile-validation-program.md",
+      "formerIfxPath": "docs/guards/v4/plans/06-ifx-profile-validation-program.md",
+      "sourceBlob": "650752435ff8138c3ffae431692092962119d64f",
+      "sourceSha256": "d57c6d4a5868d0d14117bf3bbf7bf617c270724d784fae49649d6dcc61b80eca",
+      "lastIfxCommitTouchingPath": "ba0816321bcb04dba93136beea80f41f237517de",
+      "ifxSuccessorPath": "docs/guards/v4-adoption/plans/06-ifx-profile-validation-program.md",
+      "ifxSuccessorCreatedAt": "V4-TODO-008 T7 (not yet created)"
+    },
+    {
+      "formerGuardPath": "plans/07-p10-0-baseline-acceptance.md",
+      "formerIfxPath": "docs/guards/v4/plans/07-p10-0-baseline-acceptance.md",
+      "sourceBlob": "e6fe04c2713945ae1ace58b5ff4bd7f9eedd9905",
+      "sourceSha256": "0b198df428c202bfa239651599cf80cc9f081da8498cbbd773828a42d0e1d343",
+      "lastIfxCommitTouchingPath": "8e3e1c74f2dcef648e7c6a3a4521a13eb468bb3f",
+      "ifxSuccessorPath": "docs/guards/v4-adoption/plans/07-p10-0-baseline-acceptance.md",
+      "ifxSuccessorCreatedAt": "V4-TODO-008 T7 (not yet created)"
+    },
+    {
+      "formerGuardPath": "plans/08-p10-1-extension-composition-compatibility.md",
+      "formerIfxPath": "docs/guards/v4/plans/08-p10-1-extension-composition-compatibility.md",
+      "sourceBlob": "9a30886dcb638a09be854e2b059bfa1da931e3d1",
+      "sourceSha256": "acfb10192b2c29274bec309814a484b763f844d6667435cbb5bb89db998996cd",
+      "lastIfxCommitTouchingPath": "528ab6bf3c7ffc118a096526e2c0ee4c53444fc2",
+      "ifxSuccessorPath": "docs/guards/v4-adoption/plans/08-p10-1-extension-composition-compatibility.md",
+      "ifxSuccessorCreatedAt": "V4-TODO-008 T7 (not yet created)"
+    },
+    {
+      "formerGuardPath": "plans/09-p10-3-cutover-and-rollback-proposal.md",
+      "formerIfxPath": "docs/guards/v4/plans/09-p10-3-cutover-and-rollback-proposal.md",
+      "sourceBlob": "2f426829a14f867493238f9b7f6de042f46e40ff",
+      "sourceSha256": "fe9ead1274546ebc12785b87578fdced431a9e11d45bd923298afef03816a9ae",
+      "lastIfxCommitTouchingPath": "ba0816321bcb04dba93136beea80f41f237517de",
+      "ifxSuccessorPath": "docs/guards/v4-adoption/plans/09-p10-3-cutover-and-rollback-proposal.md",
+      "ifxSuccessorCreatedAt": "V4-TODO-008 T7 (not yet created)"
+    }
+  ],
+  "movedProductPlans": [
+    {
+      "from": "plans/00-architecture-decision-set.md",
+      "to": "docs/plans/product/00-architecture-decision-set.md",
+      "blob": "b1a17e66a263a1738f95fa772fdde2e0688f6966"
+    },
+    {
+      "from": "plans/01-v4-self-contained-guard-plugin.md",
+      "to": "docs/plans/product/01-v4-self-contained-guard-plugin.md",
+      "blob": "e1212f6eba9bd22d1314cdbcd84241345f468d17"
+    },
+    {
+      "from": "plans/02-runtime-architecture.md",
+      "to": "docs/plans/product/02-runtime-architecture.md",
+      "blob": "d63a1c2b040c32d98ce8acba86a97a40d5d672e1"
+    },
+    {
+      "from": "plans/03-genesis-bootstrap-and-autonomy.md",
+      "to": "docs/plans/product/03-genesis-bootstrap-and-autonomy.md",
+      "blob": "087ae94e265e215775a095fd82e59dde5c48c6d5"
+    },
+    {
+      "from": "plans/04-layerguard-provenance.md",
+      "to": "docs/plans/product/04-layerguard-provenance.md",
+      "blob": "6288d0f749063e89c567a631ce942ece1cafde12"
+    },
+    {
+      "from": "plans/05-p9-gate-audit.json",
+      "to": "docs/plans/product/05-p9-gate-audit.json",
+      "blob": "079ae65ec97b81f1b51769e9a280118a5ba0b976"
+    },
+    {
+      "from": "plans/05-p9-gate-audit.md",
+      "to": "docs/plans/product/05-p9-gate-audit.md",
+      "blob": "2b53ae8fc0d72316b1b6d20eef8ae5d612b904fd"
+    },
+    {
+      "from": "plans/README.md",
+      "to": "docs/plans/product/README.md",
+      "blob": "1ab3501b1d44dea0f24d720e3623a69d209c9439"
+    },
+    {
+      "from": "plans/TODO.md",
+      "to": "docs/plans/product/TODO.md",
+      "blob": "5de90ebdfb3478070447226eab4b4e4add917aca"
+    }
+  ],
+  "copiedPlans": [
+    {
+      "source": "docs/guards/plans/20260921-v4-architecture-and-roadmap.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "21a8d58655f0c365d4f3b7ae824c9c27cd8d7d40",
+      "sha256": "1740c7ba948861956feea2c16903036505e36b4a0853cab21492e893de403f64",
+      "destination": "docs/plans/history/20260921-v4-architecture-and-roadmap.md"
+    },
+    {
+      "source": "docs/guards/plans/20260921-v4-architecture-and-roadmap.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "7cc6b5a54bf554c48d76274fdbb87a5ba4ee1d44",
+      "sha256": "62908ff1c307d297d60d53a4427bae7e559ea15a52e5b3de061817f65b0fb1af",
+      "destination": "docs/plans/history/20260921-v4-architecture-and-roadmap.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p0a-host-four-root-spike.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "5d5168bee6498351c7915e6251b9dadd6c2f8c09",
+      "sha256": "018942e6afa163afac8dc1f575b50c4161c65af48eb08e3cd27db6152d6d3676",
+      "destination": "docs/plans/history/20260922-v4-p0a-host-four-root-spike.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p0a-host-four-root-spike.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "12b18d71b79c889ec5d1b66ba652ef815f0afacb",
+      "sha256": "1497f41b139c6033b2d9703b7ca6b78c0c686825d9f8619978d272c7f002681a",
+      "destination": "docs/plans/history/20260922-v4-p0a-host-four-root-spike.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p0b-contract-freeze.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "e2374d99b006c67b550c2c509e328ba6f55dcaa3",
+      "sha256": "398cee7afa0d80598e3684e8076396becc1053931d0d83773fe98c306a2f4e5b",
+      "destination": "docs/plans/history/20260922-v4-p0b-contract-freeze.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p0b-contract-freeze.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "4fecd7866436b3ddd4f53b77949d62a7d37e0133",
+      "sha256": "99b1666ba6df9b24f9ab22701a1088ed79cda53b26313b06d6dcf4e87acc0106",
+      "destination": "docs/plans/history/20260922-v4-p0b-contract-freeze.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p0c-genesis-autonomy-proposal.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "21d8aaf1c6387bb29a6c16b541bf02a2069bc439",
+      "sha256": "ffa5007b2269b1e7afe21c2351f7bc9af13ea5f9bba9bb47590685d616e95218",
+      "destination": "docs/plans/history/20260922-v4-p0c-genesis-autonomy-proposal.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p0c-genesis-autonomy-proposal.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "20fc131dbbb80a5694f2a3dba1f23c8b1608135d",
+      "sha256": "0fc5dbfb4a3dd2aa5438b476f3fd59f253b9f637910540638ce4ad20712cb449",
+      "destination": "docs/plans/history/20260922-v4-p0c-genesis-autonomy-proposal.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p1a-package-authority-skeleton.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "6af070c9332d95a8f6795215d03d212439bcdb55",
+      "sha256": "cc870f5aecf43dcc9160427ed7c23cea1ec7f4c5ac49d8a5f0d00bf3e9d43839",
+      "destination": "docs/plans/history/20260922-v4-p1a-package-authority-skeleton.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p1a-package-authority-skeleton.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "4c16138cb8f80f20983002359eb87fd6bfa88c4c",
+      "sha256": "650deb5db44ca9a39df209519b4a8b682e9542e8913af680c5b70fea3e8fa6db",
+      "destination": "docs/plans/history/20260922-v4-p1a-package-authority-skeleton.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p1b-module-registry-gate.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "ae7c3cf9293a4de19fa321e62b53b56a49d91eda",
+      "sha256": "e92665e2bd41d0a9560e38f41e8cd9d8eb4a6c07304b1793e3e74925d742385f",
+      "destination": "docs/plans/history/20260922-v4-p1b-module-registry-gate.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p1b-module-registry-gate.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "f12750568015374a7345af804040ea5cd6dc0335",
+      "sha256": "01dc844dcb870663fd948d9440c2f61cd1251333bae7a0164c6fe45787793651",
+      "destination": "docs/plans/history/20260922-v4-p1b-module-registry-gate.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p2a-state-transactions.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "ebb10b08a1f81a2bd725c7ed3cb70ed9ed4e74e8",
+      "sha256": "6adf5ad9e169d1c8a58fe2cd6043608d8083d28df37b6dea4b17ac4c34707db5",
+      "destination": "docs/plans/history/20260922-v4-p2a-state-transactions.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p2a-state-transactions.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "dd21a38b03c824bdcf902e42a87f8ec0422170c4",
+      "sha256": "1ecc227b0c49f213ee9721cad35fb14ea988006ffc9eec5e5c34b70c3fb74c08",
+      "destination": "docs/plans/history/20260922-v4-p2a-state-transactions.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p2b-safe-reset.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "3b5f305ab841984b9d5b5844774c1c6fe8b1013d",
+      "sha256": "9b6feef0f338f162b4d49c07d12e16a70272e00bf0a627b905238e6b0a5f8e1d",
+      "destination": "docs/plans/history/20260922-v4-p2b-safe-reset.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p2b-safe-reset.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "89c56e19a624ca466b20b8cd7758b9aa636320ab",
+      "sha256": "77f92ed545458a50b3a3082800f20df2e090725c86976afe8a42eedee066bd3e",
+      "destination": "docs/plans/history/20260922-v4-p2b-safe-reset.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p3a-direct-stages.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "225576467a7442893be725fea7fb862487b9d7fb",
+      "sha256": "d6822c1daf7c8818ab7a1e6b78405a03f7c67ac597783bd2b3fd948b216615f6",
+      "destination": "docs/plans/history/20260922-v4-p3a-direct-stages.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p3a-direct-stages.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "3be468f7304238ca7ce031a6c3ac5ff778643b11",
+      "sha256": "f589721f45dcb4bb994625619da84a225663e9d999682950020aa001967a5cbd",
+      "destination": "docs/plans/history/20260922-v4-p3a-direct-stages.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p3b-stage-orchestration.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "aeee5294abcdf6bca736ac93171d861e17957c57",
+      "sha256": "431e9d44c9f7b49c0514bd080445a5f0b879fdc2a181c1940b6b9221d8a99456",
+      "destination": "docs/plans/history/20260922-v4-p3b-stage-orchestration.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p3b-stage-orchestration.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "08f267171a769c2ea2639926fe43918060cea2a8",
+      "sha256": "8487d2540013f9622174c0f471a50bf969c7c71db63279cce7a4c5d1b31298f7",
+      "destination": "docs/plans/history/20260922-v4-p3b-stage-orchestration.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p4a-architecture-authority.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "5261067909abfc17496ecd5d6a9b84fa1aa6c9d6",
+      "sha256": "430bea9d4d09cd4ae794e777792f2d2cdea180145560252736767dc8e977071c",
+      "destination": "docs/plans/history/20260922-v4-p4a-architecture-authority.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p4a-architecture-authority.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "517dbec641fd168a5b1106f0ff0b264539246b43",
+      "sha256": "9a76e05fcb45d549c23c3c0a2302f222bf26dd67e85be036b39162fa9c8268b8",
+      "destination": "docs/plans/history/20260922-v4-p4a-architecture-authority.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p4b-project-model.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "ac1c7cb78a1d3dc2b24157061a8af82037ab6dbf",
+      "sha256": "edc73819576254fefd6e63e8749313f4c6f8f7f1beaf90456c686be996895d8c",
+      "destination": "docs/plans/history/20260922-v4-p4b-project-model.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p4b-project-model.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "99f99fbc7733c28ebf7653e413ad48d5fdb3c24e",
+      "sha256": "7510ac6b4bddf5159d4026c3fcfe00852c1761f5f2d1a5918e58103543a48fe1",
+      "destination": "docs/plans/history/20260922-v4-p4b-project-model.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p4c-roslyn-detectors.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "bf4a235b57b4f802bc82fadd2fa27724aa31c659",
+      "sha256": "fdc6dace53de5a920286700eb39fbb7cd3edee685158b037008d0b5c871a2541",
+      "destination": "docs/plans/history/20260922-v4-p4c-roslyn-detectors.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p4c-roslyn-detectors.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "d039a631972676747b9f7b7b0d63196cd8a227b8",
+      "sha256": "0d8705ed4c970ff70f92b9eb673e0a5435d55f362954cb0e0bdc9478d1af4c00",
+      "destination": "docs/plans/history/20260922-v4-p4c-roslyn-detectors.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p4d-archunitnet-adapter.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "9d315cf11bbf0bf54b9f9bc706ab3819aa61a901",
+      "sha256": "f0f02a31745df9daffd81b6f035f12911110be4b66ddbddd224bb189ad794606",
+      "destination": "docs/plans/history/20260922-v4-p4d-archunitnet-adapter.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p4d-archunitnet-adapter.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "00468f6f343dfaa50a65cc8c32529d7922f85407",
+      "sha256": "62ec3b9ad7b13c20c0fd8cc0e83ff68576402055296b4d0631c44a2e037ebda0",
+      "destination": "docs/plans/history/20260922-v4-p4d-archunitnet-adapter.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p4e-build-evidence-provider.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "f21982a8155233dd82840115f5819699a04bcdc5",
+      "sha256": "1b65e5994deebd9a900315b203b558ecf3c91777b3b96386672aa16bac0ec03e",
+      "destination": "docs/plans/history/20260922-v4-p4e-build-evidence-provider.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p4e-build-evidence-provider.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "b1e82ace9e2375a01779060b88b4f63a25b69208",
+      "sha256": "59dfee7af6f53c76c1361ddb6090d8b92d043f6154611ff77c1ce0ec2d4ded4d",
+      "destination": "docs/plans/history/20260922-v4-p4e-build-evidence-provider.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p4f-composite-architecture-gate.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "2e9b58f95beb2c3ffaee66fb300103028165cb08",
+      "sha256": "c2094845be775cd9d69ce0daea33f51cfc56cfd80859d6f2cfb0a48238f2f7d6",
+      "destination": "docs/plans/history/20260922-v4-p4f-composite-architecture-gate.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p4f-composite-architecture-gate.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "d7449bdf87d35a0c96ed3ac6e02b728767e097ef",
+      "sha256": "0b82b394d81dee091278e282cd5ce11fca68d5fdd2d1c41584b3f88513a927d2",
+      "destination": "docs/plans/history/20260922-v4-p4f-composite-architecture-gate.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p5-plan-composition.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "09ddadc75b4505272628d1eedda67c61bae7e73c",
+      "sha256": "ef7262fe4b0c3798335fa4b0c60a0c3252a3eda9e856b23df21cc64b64c208f7",
+      "destination": "docs/plans/history/20260922-v4-p5-plan-composition.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p5-plan-composition.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "3e2011453e33cafb17abcea6c09055f31429e1d0",
+      "sha256": "de9649208c329418a4729a20807144a0f1f5b88ca3f95e5826b94d545d26c561",
+      "destination": "docs/plans/history/20260922-v4-p5-plan-composition.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p6-linux-first-ci.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "dca4ba5b891e07fe93cfd0ca0af1f1032e21338d",
+      "sha256": "aaf35418cedaf5d1ff2ed2d3ae53135760a9fbdd4038fb50d5a3ac04ec2bb2cf",
+      "destination": "docs/plans/history/20260922-v4-p6-linux-first-ci.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p6-linux-first-ci.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "765f3d33e3eaee32e8e3450c893548a2ba241657",
+      "sha256": "21282b85c8e5da0056f1dc8ad8b8789da50bd9837ef0a425ec8aa5e8279c1294",
+      "destination": "docs/plans/history/20260922-v4-p6-linux-first-ci.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p7-packaging-lifecycle.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "73dd5a04034001736e87d8336fd3b011666acb94",
+      "sha256": "c0c033b3d9ffe531e174c8dd74b176dd95affc6f8e3d8bdbb61597b4c1c2bfcb",
+      "destination": "docs/plans/history/20260922-v4-p7-packaging-lifecycle.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p7-packaging-lifecycle.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "b36cb5490a766dabd81638730ed1d9a07ffcb10f",
+      "sha256": "03a4caa2134a49c993199940d54b3a23990dd767481e858e08cb9f8f7031d303",
+      "destination": "docs/plans/history/20260922-v4-p7-packaging-lifecycle.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p8-release-publication.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "2667e7b64fbf24837fbb7c2dacd92432df6b4308",
+      "sha256": "79ce85454a4a7c33b918f8fcebf3c40a25c9846968af4efa3b1a5a6695daa18a",
+      "destination": "docs/plans/history/20260922-v4-p8-release-publication.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p8-release-publication.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "31b3b2812ca7b9f906df7bebef33edc6061140b8",
+      "sha256": "6a7925c497c97884ceb3a8d90e261865ae60e6cbcd6c72e36bf0885303e74ee3",
+      "destination": "docs/plans/history/20260922-v4-p8-release-publication.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p8-release-readiness-closure.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "f576aad20351574f22cb66a633c4a899d9ed6671",
+      "sha256": "3c0be6a16062b86b9a9318345a238c8d56f0645065c1efb75fc55e1f11057498",
+      "destination": "docs/plans/history/20260922-v4-p8-release-readiness-closure.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p8-release-readiness-closure.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "cc4e6d68fe4ef636986188a2736a13efc9073128",
+      "sha256": "16641e35a86b47c8a7a8a2b1a69609242cd4e35da9581e6a97356b942994ea81",
+      "destination": "docs/plans/history/20260922-v4-p8-release-readiness-closure.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p8-v1-certification.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "7a80ab9c867a800c3a4ee799f18b916b21f76bdc",
+      "sha256": "233d00262a065c6e8f66147dc9bf2533e272238fc741b859d228bc592dfbbb0e",
+      "destination": "docs/plans/history/20260922-v4-p8-v1-certification.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p8-v1-certification.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "ffe95b6683682464d147b10a27c87d8ee50f5ab9",
+      "sha256": "ee4df4e11f9204a7ebdab4ecb0d946a59b99c0b135a980990b1af7020a516081",
+      "destination": "docs/plans/history/20260922-v4-p8-v1-certification.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p9-lightweight-web-ui-planning.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "512d2e62f21129fde06356ec8422f5c0b6a706e4",
+      "sha256": "9ab2ff2485b6d81fde59f32e8c42a9fc2ce54b5f31246ba82af7dd556f3a3860",
+      "destination": "docs/plans/history/20260922-v4-p9-lightweight-web-ui-planning.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p9-lightweight-web-ui-planning.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "2ca4e8fabf2426c1854f0cdf69e8bfe074f04451",
+      "sha256": "7c1b7b61904c3856514c9a114367063bb3088b7817165505992481296727a372",
+      "destination": "docs/plans/history/20260922-v4-p9-lightweight-web-ui-planning.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p9a-web-companion-spike.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "0f23a12d62b3bf14f5f09f93be587e8f8405bfe2",
+      "sha256": "460d85b62f002cd26878f6773dd98497d72aea58674cff8870187b737f059337",
+      "destination": "docs/plans/history/20260922-v4-p9a-web-companion-spike.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p9a-web-companion-spike.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "63ea1c72beb04c3569f073a2f263fcd31953a62c",
+      "sha256": "f9219275556cab695d0cb724d43e16371c238597b6043b7ff6db204e5a85929c",
+      "destination": "docs/plans/history/20260922-v4-p9a-web-companion-spike.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p9b-read-query-contracts.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "84582ad1d3ead741d0d5cda1393a5e606afaf1cc",
+      "sha256": "30c0b4f34c4d656ebb5624032830b6a115049c7f10a1f6666bcf95ddb7986780",
+      "destination": "docs/plans/history/20260922-v4-p9b-read-query-contracts.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p9b-read-query-contracts.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "6d6d0e08e4d48ebde3515ffac31ee0ec175d6f5b",
+      "sha256": "3b06876cd26c7376837b9d33f8f1a15d155db4b8513657b843858256eba2bb85",
+      "destination": "docs/plans/history/20260922-v4-p9b-read-query-contracts.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p9c-workspace-stage-runner.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "861beea2681d3867e83875d9e5c33c00c150c9a1",
+      "sha256": "ea719aa498113db0f3ecb5861d8162776073bd0d985abd49dd4d2b48b1ebce02",
+      "destination": "docs/plans/history/20260922-v4-p9c-workspace-stage-runner.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p9c-workspace-stage-runner.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "a0dba90456d40620ff5ba8a51e4d116eb466d905",
+      "sha256": "39d59ee20342c02e9a79d9792bc23ba32b4d2c4135bafdb8dcbcec2abcbf44aa",
+      "destination": "docs/plans/history/20260922-v4-p9c-workspace-stage-runner.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p9d-evidence-plan-center.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "f0dba72a17650a12cfc7ac28717669ae26107603",
+      "sha256": "7ce5993f6e2856c8b94b98c4ba7b99d383d05d55e033bee2a4dbdc18aff5d6e6",
+      "destination": "docs/plans/history/20260922-v4-p9d-evidence-plan-center.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p9d-evidence-plan-center.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "6e5acd9e2bb1ff3bde029e16fde843adb36e7725",
+      "sha256": "277a54140f7066bea277a4127b9571bf9dfb560df6de3bb5601a3d5f4a80768c",
+      "destination": "docs/plans/history/20260922-v4-p9d-evidence-plan-center.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p9e-offline-ui-certification.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "918b2535036ba0bb686cd1d626cae4f94b03e437",
+      "sha256": "b50656bd5523e9d00253b7efce0fb1a3ad65e3165c5812d9eb6d440a1e91ce72",
+      "destination": "docs/plans/history/20260922-v4-p9e-offline-ui-certification.md"
+    },
+    {
+      "source": "docs/guards/plans/20260922-v4-p9e-offline-ui-certification.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "a4878f6f87fb04d50e34bd63a27f3579452119ac",
+      "sha256": "be832575bd90b2f5c1a61d36ddeae0f05e7a3937e5a6c624e11f4310f224668c",
+      "destination": "docs/plans/history/20260922-v4-p9e-offline-ui-certification.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260923-v4-guards-1-1-1-release-publication.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "8838cba3207f87973dd67d71df155322b04fb581",
+      "sha256": "60dc03d047cd24baf63721f690c006ccde5e28bbd2a9e7e55a539c4b5d5c624e",
+      "destination": "docs/plans/history/20260923-v4-guards-1-1-1-release-publication.md"
+    },
+    {
+      "source": "docs/guards/plans/20260923-v4-guards-1-1-1-release-publication.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "a504a0fb6697de98d20d3943026353cdd28b0e9e",
+      "sha256": "523709767f09c13dea9af6f25d7c8b7cd51e1ad156291031ae76900b41994b58",
+      "destination": "docs/plans/history/20260923-v4-guards-1-1-1-release-publication.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260923-v4-guards-1-1-2-release-publication.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "d54c4ccac1f84db96c02489efaf4d3af8c528cdc",
+      "sha256": "679dab36f679a94397288c764e6c867899408f77df1acd15be15a08567e3dd5d",
+      "destination": "docs/plans/history/20260923-v4-guards-1-1-2-release-publication.md"
+    },
+    {
+      "source": "docs/guards/plans/20260923-v4-guards-1-1-2-release-publication.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "f9d92a1a163ee21a29f0af4829aa6a828c02df59",
+      "sha256": "23b57da11a6bb4fc685245f7209f58c87b8353e13ad482536c04bd6141c0d4f7",
+      "destination": "docs/plans/history/20260923-v4-guards-1-1-2-release-publication.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260923-v4-p9-gate-closure.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "61a26abed6f2da708293dd458d333a572aa9e2a7",
+      "sha256": "6cb2a8a86c49246dddb00223d76db8edd32c2c7465deb1bafcae9dda7865a159",
+      "destination": "docs/plans/history/20260923-v4-p9-gate-closure.md"
+    },
+    {
+      "source": "docs/guards/plans/20260923-v4-p9-gate-closure.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "928dfdffbd7dc504150f2022e00dd0c6f258e21d",
+      "sha256": "6f01afe379d6b25d27842c44d6f500d0b50bd1981c76f718da792b05490a763a",
+      "destination": "docs/plans/history/20260923-v4-p9-gate-closure.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260923-v4-target-scope-compatibility.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "52c69cc81f3c81390ec356d34a014635bf2cb539",
+      "sha256": "7fc5687072d23abb044d5bd47b37e486573182516cbd48c04c48135d5ad464d0",
+      "destination": "docs/plans/history/20260923-v4-target-scope-compatibility.md"
+    },
+    {
+      "source": "docs/guards/plans/20260923-v4-target-scope-compatibility.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "caaecfa587a0191d0e04c73c0f0dab77b1c724ed",
+      "sha256": "a5ea21e234960555c3034763e4233a200e9f75519d87d1d4ceb29db0e6183e04",
+      "destination": "docs/plans/history/20260923-v4-target-scope-compatibility.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260923-v4-v1-1-readme-release-candidate.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "11421cfe2f83d152233109e1a90378c7dfe262fa",
+      "sha256": "fedf6581e17d49d803da840adb2ee9f3884ce5ca11a53ecd2ff9703a777d6d03",
+      "destination": "docs/plans/history/20260923-v4-v1-1-readme-release-candidate.md"
+    },
+    {
+      "source": "docs/guards/plans/20260923-v4-v1-1-readme-release-candidate.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "2fef414c2d2a0e3097ae74345d5dcaab8e874194",
+      "sha256": "6042bdca4cc245aaa7092b8e227b64959cfe4be1c8b011c51d9a41b93a7ccbd0",
+      "destination": "docs/plans/history/20260923-v4-v1-1-readme-release-candidate.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260923-v4-v1-1-release-publication.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "8b8c85ace84732a949b05a36ed2f479d91900062",
+      "sha256": "7c557376f466c2d314c26f1b11cd2e497f76dad1631fcc6306da6e5d104978c6",
+      "destination": "docs/plans/history/20260923-v4-v1-1-release-publication.md"
+    },
+    {
+      "source": "docs/guards/plans/20260923-v4-v1-1-release-publication.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "cb09eb2362e54b69c67482ddd0ae71c1183abf51",
+      "sha256": "8a0283e2d8d5bcd6eb577dba5d580a297c66392551788114e5720a5b52e2683d",
+      "destination": "docs/plans/history/20260923-v4-v1-1-release-publication.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260924-v4-guards-1-1-3-path-isolation-release.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "af9a90d856b9a6c6b2d9a5c6026901bcfeb11cb9",
+      "sha256": "5001e78ad5cb0f861fdfece873dd08a69aec5a39749e8f1bf74a39acf29d34d3",
+      "destination": "docs/plans/history/20260924-v4-guards-1-1-3-path-isolation-release.md"
+    },
+    {
+      "source": "docs/guards/plans/20260924-v4-guards-1-1-3-path-isolation-release.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "e07a9e137797e9eb3e5e9b9d1d64b5c00be76a9e",
+      "sha256": "ada628f017316664d36380d8243d27085dad7e6943ac397be31e76624ff7c47d",
+      "destination": "docs/plans/history/20260924-v4-guards-1-1-3-path-isolation-release.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260927-v4-guards-1-1-4-release-reconciliation.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "50c966f906055c313b431a6999bce1fdc0c951bf",
+      "sha256": "671eaf50d7f994f0777b76eb64234aae37f82817e933e34bce231ee5101a2227",
+      "destination": "docs/plans/history/20260927-v4-guards-1-1-4-release-reconciliation.md"
+    },
+    {
+      "source": "docs/guards/plans/20260927-v4-guards-1-1-4-release-reconciliation.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "b82bd42b973786076a8678e1380491ecf499f703",
+      "sha256": "2173bc0318c684e4cbba9b966263ed1bca6df8c1c8dc452477bbe6a4610d6250",
+      "destination": "docs/plans/history/20260927-v4-guards-1-1-4-release-reconciliation.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260927-v4-guards-1-1-4-workspace-evidence-release.md",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "9dea8e8501d59d1b00e69238b8079f9b71308ea9",
+      "sha256": "b820c8b47f433dd56d8e2cbb60255a9e0d722b87ab9ddc7139b9058abe87d626",
+      "destination": "docs/plans/history/20260927-v4-guards-1-1-4-workspace-evidence-release.md"
+    },
+    {
+      "source": "docs/guards/plans/20260927-v4-guards-1-1-4-workspace-evidence-release.plan.json",
+      "sourceCommit": "80f7b6b65fb06897444a6a36c604c42c93c834e4",
+      "blob": "e0fc81ad6a65250fb57d1882497b28a54fd9a357",
+      "sha256": "ae2adfefdb25662ea1404ff594d74eb56af9190535de8836be543696921de33a",
+      "destination": "docs/plans/history/20260927-v4-guards-1-1-4-workspace-evidence-release.plan.json"
+    },
+    {
+      "source": "docs/guards/plans/20260927-v4-todo-008-claude-code-handoff.md",
+      "sourceCommit": "af2bd603a31be362128a881f684847e40bb7ce5a",
+      "blob": "af5e74679e104829594f8a97761fb6d5af948e5a",
+      "sha256": "bdb80dfdca44e25f36b1410628e0e71d7b9dbb54e62664777bf2184ebd2d09b5",
+      "destination": "docs/plans/migration/20260927-v4-todo-008-claude-code-handoff.md"
+    },
+    {
+      "source": "docs/guards/plans/20260927-v4-todo-008-standalone-repository-extraction.md",
+      "sourceCommit": "af2bd603a31be362128a881f684847e40bb7ce5a",
+      "blob": "86740c0651b77efbb0ca9698f13d6c721d21522e",
+      "sha256": "3057a4326fc4de0e66bf8c9da103ca0326ccb6bc3fa1df75eef00a7019683b2b",
+      "destination": "docs/plans/migration/20260927-v4-todo-008-standalone-repository-extraction.md"
+    },
+    {
+      "source": "docs/guards/plans/20260927-v4-todo-008-standalone-repository-extraction.plan.json",
+      "sourceCommit": "af2bd603a31be362128a881f684847e40bb7ce5a",
+      "blob": "ce749d35eb40301a927a055b19158d1e16bba41d",
+      "sha256": "652c062c07eba7e631dcc792ca5e8be473330a6bade7b2c967e695d5408b9ff6",
+      "destination": "docs/plans/migration/20260927-v4-todo-008-standalone-repository-extraction.plan.json"
+    }
+  ]
+}

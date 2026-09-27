@@ -1,0 +1,19 @@
+{
+  "formatVersion": 1,
+  "moduleId": "architecture-conformance",
+  "matrixSha256": "23dc6e5dc499492a439bf8c7338796d0bfb1acaf94509d55f7894f912389520b",
+  "rules": [
+    { "ruleId": "ARCH.PROJECT_REFERENCE", "claimId": "ARCH.PROJECT_REFERENCE", "stage": "pre", "detectors": ["project-model"], "evidenceKinds": ["project-model-raw"], "severity": "blocking", "baseline": null, "minimumMatches": 1 },
+    { "ruleId": "ARCH.PACKAGE_REFERENCE", "claimId": "ARCH.PACKAGE_REFERENCE", "stage": "pre", "detectors": ["project-model"], "evidenceKinds": ["project-model-raw"], "severity": "blocking", "baseline": null, "minimumMatches": 1 },
+    { "ruleId": "ARCH.TARGET_FRAMEWORK", "claimId": "ARCH.TARGET_FRAMEWORK", "stage": "pre", "detectors": ["project-model"], "evidenceKinds": ["project-model-raw"], "severity": "blocking", "baseline": null, "minimumMatches": 1 },
+    { "ruleId": "ARCH.GRAPH_COMPLETENESS", "claimId": "ARCH.GRAPH_COMPLETENESS", "stage": "pre", "detectors": ["project-model"], "evidenceKinds": ["project-model-raw"], "severity": "blocking", "baseline": null, "minimumMatches": 1 },
+    { "ruleId": "ARCH.SOURCE_IMPORT", "claimId": "ARCH.SOURCE_IMPORT", "stage": "pre", "detectors": ["roslyn-syntax"], "evidenceKinds": ["source-syntax"], "severity": "blocking", "baseline": null, "minimumMatches": 1 },
+    { "ruleId": "ARCH.DISABLED_BRANCH", "claimId": "ARCH.DISABLED_BRANCH", "stage": "pre", "detectors": ["roslyn-syntax"], "evidenceKinds": ["source-syntax"], "severity": "blocking", "baseline": null, "minimumMatches": 1 },
+    { "ruleId": "ARCH.DECLARATION_PLACEMENT", "claimId": "ARCH.DECLARATION_PLACEMENT", "stage": "pre", "detectors": ["roslyn-syntax"], "evidenceKinds": ["source-syntax"], "severity": "blocking", "baseline": null, "minimumMatches": 1 },
+    { "ruleId": "ARCH.FORBIDDEN_SYMBOL", "claimId": "ARCH.FORBIDDEN_SYMBOL", "stage": "post", "detectors": ["roslyn-semantic"], "evidenceKinds": ["source-semantic"], "severity": "blocking", "baseline": null, "minimumMatches": 1 },
+    { "ruleId": "ARCH.MEMBER_PAYLOAD", "claimId": "ARCH.MEMBER_PAYLOAD", "stage": "post", "detectors": ["roslyn-semantic"], "evidenceKinds": ["source-semantic"], "severity": "blocking", "baseline": null, "minimumMatches": 1 },
+    { "ruleId": "ARCH.TYPE_DEPENDENCY", "claimId": "ARCH.TYPE_DEPENDENCY", "stage": "post", "detectors": ["archunitnet"], "evidenceKinds": ["compiled-assembly"], "severity": "blocking", "baseline": null, "minimumMatches": 1 },
+    { "ruleId": "ARCH.IMPLEMENTATION_LOCATION", "claimId": "ARCH.IMPLEMENTATION_LOCATION", "stage": "post", "detectors": ["archunitnet"], "evidenceKinds": ["compiled-assembly"], "severity": "blocking", "baseline": null, "minimumMatches": 1 },
+    { "ruleId": "ARCH.ASSEMBLY_PLACEMENT", "claimId": "ARCH.ASSEMBLY_PLACEMENT", "stage": "post", "detectors": ["archunitnet"], "evidenceKinds": ["compiled-assembly"], "severity": "blocking", "baseline": null, "minimumMatches": 1 }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p3b-stage-orchestration",
+  "title": "Add visible V4 Stage dependencies and certify clean-reset execution",
+  "goal": "Make earlier-Stage orchestration explicitly opt-in and visible, then certify every Stage across direct positive, negative and clean-reset cases.",
+  "acceptanceCriteria": [
+    "Direct Stage execution remains the default and reports only the requested Stage.",
+    "The optional --with-dependencies switch runs the canonical earlier Stages and reports the exact attempted order.",
+    "Dependency orchestration stops at the first structured failure without hiding or inventing Stage execution.",
+    "Each of Bootstrap, Analysis, Pre and Post passes positive, blocking, missing-input and post-reset execution tests.",
+    "The CLI and Stage result contracts remain strict and hash-bound in the contract manifest.",
+    "P0-P3A and current V3 validation remain green with no active workflow or remote change."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p3b-stage-orchestration.md",
+    "docs/guards/plans/20260922-v4-p3b-stage-orchestration.plan.json",
+    "docs/guards/v4/core/contracts/cli-contract.json",
+    "docs/guards/v4/core/contracts/contracts-manifest.json",
+    "docs/guards/v4/core/contracts/stage-result.schema.json",
+    "docs/guards/v4/core/host/V4.Guards.Host/StageRuntime.cs",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/tests/p0/Test-V4Contracts.ps1",
+    "docs/guards/v4/tests/p3/Test-V4StageOrchestration.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d14-package-local-build-baseline.json"
+  ]
+}

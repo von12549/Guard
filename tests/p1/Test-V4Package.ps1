@@ -1,0 +1,169 @@
+[CmdletBinding()]
+param()
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+$packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+$repoRoot = $packageRoot
+$workRoot = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant())
+if(-not(Test-Path -LiteralPath (Join-Path $workRoot '.git'))){[void][IO.Directory]::CreateDirectory($workRoot);& git -C $workRoot init -q;& git -C $workRoot -c user.name=v4-guards-test -c user.email=v4-guards-test@example.invalid -c commit.gpgsign=false commit -q --allow-empty -m 'V4 test work root';if($LASTEXITCODE){throw 'V4 test work root initialization failed.'}}
+$checker = Join-Path $packageRoot 'core/runtime/Test-V4Package.ps1'
+$fixtureRoot = Join-Path $workRoot 'p1a'
+$failures = [Collections.Generic.List[string]]::new()
+
+function Invoke-Check([string] $Root) {
+    $command = '$ErrorActionPreference=''Stop'';try{& $env:V4_TEST_CHECKER -PackageRoot $env:V4_TEST_ROOT}catch{[Console]::Error.WriteLine($_.Exception.Message);exit 1}'
+    $start = [Diagnostics.ProcessStartInfo]::new((Get-Command pwsh -ErrorAction Stop).Source)
+    $start.UseShellExecute = $false; $start.RedirectStandardOutput = $true; $start.RedirectStandardError = $true; $start.CreateNoWindow = $true
+    $start.Environment['V4_TEST_CHECKER'] = $checker; $start.Environment['V4_TEST_ROOT'] = $Root
+    foreach ($argument in @('-NoLogo','-NoProfile','-NonInteractive','-Command',$command)) { [void]$start.ArgumentList.Add($argument) }
+    $process = [Diagnostics.Process]::Start($start); $stdout = $process.StandardOutput.ReadToEndAsync(); $stderr = $process.StandardError.ReadToEndAsync()
+    $process.WaitForExit(); [Threading.Tasks.Task]::WaitAll(@($stdout,$stderr))
+    [pscustomobject]@{ Code = $process.ExitCode; Output = ($stdout.Result + "`n" + $stderr.Result).Trim() }
+}
+
+function New-Case([string] $Name) {
+    $caseRoot = Join-Path $fixtureRoot $Name
+    if (Test-Path -LiteralPath $caseRoot) { Remove-Item -LiteralPath $caseRoot -Recurse -Force }
+    New-Item -ItemType Directory -Path $caseRoot -Force | Out-Null
+    $copy = Join-Path $caseRoot 'package'
+    Copy-Item -LiteralPath $packageRoot -Destination $copy -Recurse -Force
+    return $copy
+}
+
+function Write-Json([string] $Path, $Value) {
+    [IO.File]::WriteAllText($Path, ($Value | ConvertTo-Json -Depth 100) + "`n", [Text.UTF8Encoding]::new($false))
+}
+
+function Update-RegistryHash([string] $Root, [string] $ModuleId) {
+    $registryPath = Join-Path $Root 'modules/registry.json'
+    $registry = Get-Content -Raw $registryPath | ConvertFrom-Json -AsHashtable -Depth 100
+    $entry = @($registry.modules | Where-Object id -CEQ $ModuleId)
+    if ($entry.Count -ne 1) { throw "Registry entry not found: $ModuleId" }
+    $entry[0].manifestSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $Root $entry[0].manifestPath)).Hash.ToLowerInvariant()
+    Write-Json $registryPath $registry
+}
+
+function Expect-Failure([string] $Name, [scriptblock] $Mutation, [string] $Pattern) {
+    $copy = New-Case $Name
+    & $Mutation $copy
+    $result = Invoke-Check $copy
+    if ($result.Code -eq 0) { $failures.Add("$Name unexpectedly passed"); return }
+    if ($result.Output -notmatch $Pattern) { $failures.Add("$Name failed for the wrong reason: $($result.Output)") }
+}
+
+if (Test-Path -LiteralPath $fixtureRoot) { Remove-Item -LiteralPath $fixtureRoot -Recurse -Force }
+New-Item -ItemType Directory -Path $fixtureRoot -Force | Out-Null
+
+$positive = Invoke-Check $packageRoot
+if ($positive.Code -ne 0) {
+    $failures.Add("positive package failed: $($positive.Output)")
+    $positiveDocument = $null
+} else {
+    $positiveDocument = $positive.Output | ConvertFrom-Json
+    if ($positiveDocument.status -ne 'pass' -or $positiveDocument.profiles.Count -ne 2 -or $positiveDocument.modules.Count -ne 3) {
+        $failures.Add('positive package result identity is incorrect')
+    }
+    if (@($positiveDocument.authorityFiles | Where-Object path -CEQ 'README.md').Count -ne 1) {
+        $failures.Add('root README is not exact package authority')
+    }
+}
+
+$mutable = New-Case 'mutable-exclusion'
+foreach ($relative in @('state/noise.json','.work/noise.json','artifacts/noise.json')) {
+    $path = Join-Path $mutable $relative
+    New-Item -ItemType Directory -Path (Split-Path -Parent $path) -Force | Out-Null
+    [IO.File]::WriteAllText($path, "mutable`n", [Text.UTF8Encoding]::new($false))
+}
+$mutableResult = Invoke-Check $mutable
+if ($mutableResult.Code -ne 0) {
+    $failures.Add("mutable-root exclusion failed: $($mutableResult.Output)")
+} elseif ($null -ne $positiveDocument -and ($mutableResult.Output | ConvertFrom-Json).packageHash -cne $positiveDocument.packageHash) {
+    $failures.Add('mutable V4 data changed the package hash')
+}
+
+$readmeDrift = New-Case 'readme-hash-binding'
+[IO.File]::AppendAllText((Join-Path $readmeDrift 'README.md'), "`nREADME drift probe`n", [Text.UTF8Encoding]::new($false))
+$readmeDriftResult = Invoke-Check $readmeDrift
+if ($readmeDriftResult.Code -ne 0) {
+    $failures.Add("README hash-binding probe failed: $($readmeDriftResult.Output)")
+} elseif ($null -ne $positiveDocument -and ($readmeDriftResult.Output | ConvertFrom-Json).packageHash -ceq $positiveDocument.packageHash) {
+    $failures.Add('root README bytes did not change the package hash')
+}
+
+$empty = New-Case 'empty-package'
+Remove-Item -LiteralPath (Join-Path $empty 'modules/synthetic-probe') -Recurse -Force
+Remove-Item -LiteralPath (Join-Path $empty 'modules/architecture-conformance') -Recurse -Force
+Remove-Item -LiteralPath (Join-Path $empty 'modules/build-evidence-provider') -Recurse -Force
+Remove-Item -LiteralPath (Join-Path $empty 'profiles/catalog/synthetic_profile') -Recurse -Force
+$emptyRegistryPath = Join-Path $empty 'modules/registry.json'
+$emptyRegistry = Get-Content -Raw $emptyRegistryPath | ConvertFrom-Json -AsHashtable -Depth 100
+$emptyRegistry.modules = @(); Write-Json $emptyRegistryPath $emptyRegistry
+$emptyResult = Invoke-Check $empty
+if ($emptyResult.Code -ne 0) { $failures.Add("empty package failed: $($emptyResult.Output)") }
+else {
+    $emptyDocument = $emptyResult.Output | ConvertFrom-Json
+    if (($emptyDocument.profiles -join ',') -cne 'default' -or $emptyDocument.modules.Count -ne 0) {
+        $failures.Add('empty package did not resolve only the default profile')
+    }
+}
+
+Expect-Failure 'unknown-plugin-field' {
+    param($copy)
+    $path = Join-Path $copy 'plugin.json'; $json = Get-Content -Raw $path | ConvertFrom-Json -AsHashtable
+    $json.unexpected = $true; Write-Json $path $json
+} 'plugin manifest does not satisfy'
+
+Expect-Failure 'missing-package-readme' {
+    param($copy)
+    Remove-Item -LiteralPath (Join-Path $copy 'README.md') -Force
+} 'package README is missing'
+
+Expect-Failure 'duplicate-profile-id' {
+    param($copy)
+    Copy-Item -LiteralPath (Join-Path $copy 'profiles/catalog/default') -Destination (Join-Path $copy 'profiles/catalog/duplicate') -Recurse
+} 'duplicate profile ID'
+
+Expect-Failure 'catalog-path-escape' {
+    param($copy)
+    $path = Join-Path $copy 'plugin.json'; $json = Get-Content -Raw $path | ConvertFrom-Json -AsHashtable
+    $json.profilesCatalog = '../outside'; Write-Json $path $json
+} 'plugin manifest does not satisfy'
+
+Expect-Failure 'raw-profile-command' {
+    param($copy)
+    $path = Join-Path $copy 'profiles/catalog/synthetic_profile/profile.json'; $json = Get-Content -Raw $path | ConvertFrom-Json -AsHashtable
+    $json.command = 'pwsh evil.ps1'; Write-Json $path $json
+} 'profile synthetic_profile does not satisfy'
+
+Expect-Failure 'undeclared-module' {
+    param($copy)
+    $path = Join-Path $copy 'profiles/catalog/synthetic_profile/profile.json'; $json = Get-Content -Raw $path | ConvertFrom-Json -AsHashtable
+    $json.moduleSelections[0].id = 'missing-module'; $json.stageConfiguration.analysis.modules = @('missing-module'); Write-Json $path $json
+} 'selects undeclared module'
+
+Expect-Failure 'target-root-write' {
+    param($copy)
+    $path = Join-Path $copy 'modules/synthetic-probe/module.json'; $json = Get-Content -Raw $path | ConvertFrom-Json -AsHashtable
+    $json.capabilities.writeRoots = @('TargetRoot'); Write-Json $path $json; Update-RegistryHash $copy 'synthetic-probe'
+} 'module synthetic-probe does not satisfy'
+
+Expect-Failure 'adapter-hash-drift' {
+    param($copy)
+    [IO.File]::AppendAllText((Join-Path $copy 'modules/synthetic-probe/adapter.ps1'), "`n# drift`n", [Text.UTF8Encoding]::new($false))
+} 'adapter hash drift'
+
+Expect-Failure 'invalid-baseline' {
+    param($copy)
+    $path = Join-Path $copy 'profiles/catalog/synthetic_profile/baselines/none.json'; $json = Get-Content -Raw $path | ConvertFrom-Json -AsHashtable
+    $json.unexpected = $true; Write-Json $path $json
+} 'profile synthetic_profile baseline does not satisfy'
+
+foreach ($path in @('state/probe.json','.work/probe.json','artifacts/probe.json')) {
+    & git -C $repoRoot check-ignore -q -- $path
+    if ($LASTEXITCODE -ne 0) { $failures.Add("mutable path is not ignored: $path") }
+}
+
+if ($failures.Count -gt 0) { throw ($failures -join "`n") }
+Write-Host 'V4 P1A package tests passed: required root README, schema-valid authorities, empty package, mutable exclusion and nine fail-closed negatives.'

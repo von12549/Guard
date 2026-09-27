@@ -1,0 +1,7 @@
+{
+  "formatVersion": 1,
+  "requirements": [
+    { "runtime": "pwsh", "versionRange": ">=7.4" },
+    { "runtime": "dotnet", "versionRange": ">=10.0 <11.0" }
+  ]
+}

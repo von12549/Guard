@@ -1,0 +1,8 @@
+{
+  "formatVersion": 1,
+  "cases": [
+    { "id": "clean", "root": "modules/architecture-conformance/fixtures/clean", "expected": "pass" },
+    { "id": "violating", "root": "modules/architecture-conformance/fixtures/violating", "expected": "findings-blocking" },
+    { "id": "missing", "root": "modules/architecture-conformance/fixtures/missing", "expected": "prerequisite-missing" }
+  ]
+}

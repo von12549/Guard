@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/query-contract.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "apiVersion", "commands"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "apiVersion": { "const": "1.0" },
+    "commands": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "syntax", "stability", "mutability", "requiredRoots", "resultSchema"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^query\\.[a-z-]+$" },
+          "syntax": { "type": "string", "minLength": 1 },
+          "stability": { "const": "experimental" },
+          "mutability": { "const": "read-only" },
+          "requiredRoots": { "type": "array", "uniqueItems": true, "items": { "enum": ["PackageRoot", "TargetRoot", "StateRoot", "EvidenceRoot"] } },
+          "resultSchema": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" }
+        }
+      }
+    }
+  }
+}

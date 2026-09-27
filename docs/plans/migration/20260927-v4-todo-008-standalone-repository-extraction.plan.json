@@ -1,0 +1,72 @@
+{
+  "formatVersion": 1,
+  "id": "20260927-v4-todo-008-standalone-repository-extraction",
+  "title": "Extract V4 Guards into the standalone Guard repository",
+  "goal": "Define an auditable multi-repository program for preserving V4 history in von12549/Guard, validating the standalone product, rebinding IFX as a consumer, and cleaning duplicated V4 product source from IFX without activation or V3 retirement.",
+  "acceptanceCriteria": [
+    "The clean Guard destination, IFX source commit, V4 subtree tree object, repository remotes and feasibility constraints are bound before execution.",
+    "Every V4 source and Plan path receives exactly one product, IFX-consumer, historical, retained-evidence or post-gate-cleanup disposition; IFX-only files remain in extracted history but are removed from the active Guard tree during T4.",
+    "The Guard repository preserves both its initial lineage and an auditable extracted V4 history with a machine-readable original-to-extracted commit map.",
+    "Standalone source paths, plans, CI contracts and tests no longer depend on the IFX docs/guards/v4 layout or implicit release repository identity.",
+    "Generic regression, trusted-base negative controls, deterministic packaging, lifecycle, supply-chain, Windows-full and Linux-complete validation pass against one exact Guard commit before publication.",
+    "A separately authorized new Guard release is independently verified without rewriting V4 1.1.0 through 1.1.4 historical releases.",
+    "IFX is rebound to the exact Guard repository release while IFX-specific Profile, Bundle, review, P10 evidence, coexistence and rollback authority remain in IFX.",
+    "Duplicated V4 product source is removed from IFX only after standalone release and IFX consumer revalidation, with provenance and rollback receipts retained.",
+    "V4 activation, P10.GATE, ruleset changes and V3/V3_ifx retirement remain false and outside this Plan."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260927-v4-todo-008-standalone-repository-extraction.md",
+    "docs/guards/plans/20260927-v4-todo-008-standalone-repository-extraction.plan.json",
+    "docs/guards/plans/20260927-v4-todo-008-claude-code-handoff.md",
+    "docs/guards/v4/plans/00-architecture-decision-set.md",
+    "docs/guards/v4/plans/README.md",
+    "docs/guards/v4/plans/TODO.md"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "History extraction can lose commit provenance or accidentally import IFX, V3, secret or ignored content.",
+    "The OneDrive-hosted destination can experience concurrent sync changes to Git metadata during a bulk import and therefore requires an operator pause and full-hydration attestation.",
+    "Source-layout assumptions in tests, CI and release tooling can survive extraction and create hidden IFX coupling.",
+    "Moving mixed product and IFX plans can transfer consumer-specific authority into the generic product or lose historical context.",
+    "Publishing or cleaning IFX too early can leave no accepted trusted source or rollback path.",
+    "A standalone candidate could be allowed to judge its own trusted-base changes.",
+    "Combining extraction with activation or V3 retirement would collapse independent trust and rollback boundaries."
+  ],
+  "decisions": [
+    "Use the existing public von12549/Guard repository and preserve its initial main lineage.",
+    "Extract docs/guards/v4 history from exact IFX commit 80f7b6b65fb06897444a6a36c604c42c93c834e4 (V4 tree af913836d83c071b9c0a769c6c84da4fb727b971) in a disposable no-hardlink clone; Amendment A1 (640c5756) preserved the in-subtree V4-AD-019 acceptance commit and Amendment A2 of 2026-09-27 adds the reconciled published 1.1.4 release lineage (20260927-v4-guards-1-1-4-release-reconciliation).",
+    "Use git subtree split rather than requiring unavailable git filter-repo, and preserve the original-to-extracted commit map.",
+    "Move generic product plans and TODOs to Guard docs/plans while retaining IFX/P10 adoption authority and evidence in IFX.",
+    "Retain IFX-only bytes in extracted Git history for provenance, delete them from the active Guard tree in T4, and create their current IFX successors under docs/guards/v4-adoption only in T7.",
+    "Persist all tranche evidence below D:/IFX-Root/v4-todo-008-evidence; temporary clones may be deleted only after their records are copied and hash-verified there.",
+    "Treat local Windows acceptance with Linux pending as an intermediate T5 checkpoint; only exact-commit Linux-complete evidence from an authorized T6 CI run completes T5.",
+    "Publish only a new standalone semantic version; never recreate or mutate V4 1.1.0 through 1.1.4 tags or assets.",
+    "Switch canonical development authority only after Guard review, exact-commit certification, standalone release verification and an IFX handoff decision.",
+    "Delete duplicated IFX V4 product source only after IFX consumes and revalidates the standalone release.",
+    "Require separate explicit authorization for every remote write, release publication and protected IFX cleanup tranche.",
+    "Leave V4 activation, P10.GATE and V3/V3_ifx retirement to later Plans."
+  ],
+  "validationCommands": [
+    "v4-native-plan-validate",
+    "source-and-destination-identity-audit",
+    "git-fsck-source-export-and-destination",
+    "migration-path-disposition-zero-gap-check",
+    "history-commit-map-and-tree-equivalence-check",
+    "standalone-p0-through-p9-regression",
+    "trusted-base-positive-and-self-judgment-negative-controls",
+    "deterministic-distribution-double-build",
+    "windows-full-and-linux-complete-certification",
+    "standalone-release-install-receipt-and-uninstall",
+    "ifx-standalone-consumer-composition-and-parity-revalidation",
+    "ifx-post-cleanup-live-reference-and-v3-regression-check"
+  ],
+  "dependencies": [
+    "20260927-v4-p10-3-cutover-and-rollback-design",
+    "20260927-v4-guards-1-1-4-release-reconciliation"
+  ],
+  "boundaries": [
+    "trust-change"
+  ]
+}

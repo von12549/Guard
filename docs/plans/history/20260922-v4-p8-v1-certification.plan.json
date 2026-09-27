@@ -1,0 +1,48 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p8-v1-certification",
+  "title": "Certify the V4 v1 candidate",
+  "goal": "Produce real Linux complete and Windows full certification evidence, freeze compatibility and recovery authorities, and prove the full V1 acceptance boundary without release publication or activation.",
+  "acceptanceCriteria": [
+    "A platform-native runner produces schema-valid hash-bound reports from real Linux and Windows executions and refuses platform mismatch.",
+    "One clean external synthetic project completes Bootstrap, Analysis, Pre and Post followed by accepted factory reset without PackageRoot or TargetRoot mutation.",
+    "Supply-chain validation covers dependency locks, offline restore policy, exact package/archive contents and the absence of IFX, V3 or LayerGuard runtime paths.",
+    "Stable CLI, configuration and report authorities are frozen in an exact compatibility baseline and a generated recovery artifact binds the P7 restore seed.",
+    "The v1 record remains a local candidate with releaseAuthorized, activeIfxCutover and ifxProfileIncluded all false.",
+    "No release, tag, active workflow, ruleset, push, remote mutation or IFX cutover occurs."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p8-v1-certification.md",
+    "docs/guards/plans/20260922-v4-p8-v1-certification.plan.json",
+    "docs/guards/v4/core/certification/compatibility-baseline.json",
+    "docs/guards/v4/core/certification/Dockerfile.linux",
+    "docs/guards/v4/core/certification/Invoke-V4PlatformCertification.ps1",
+    "docs/guards/v4/core/certification/Invoke-V4V1Certification.ps1",
+    "docs/guards/v4/core/certification/Test-V4SupplyChain.ps1",
+    "docs/guards/v4/core/contracts/compatibility-baseline.schema.json",
+    "docs/guards/v4/core/contracts/platform-certification.schema.json",
+    "docs/guards/v4/core/contracts/recovery-artifact.schema.json",
+    "docs/guards/v4/core/contracts/v1-certification.schema.json",
+    "docs/guards/v4/core/contracts/contracts-manifest.json",
+    "docs/guards/v4/core/runtime/Test-V4Package.ps1",
+    "docs/guards/v4/docs/v1-certification.md",
+    "docs/guards/v4/integrations/github/ci-contract.json",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/tests/p0/Test-V4Contracts.ps1",
+    "docs/guards/v4/tests/p0/Test-V4HostSpike.ps1",
+    "docs/guards/v4/tests/p1/Test-V4Package.ps1",
+    "docs/guards/v4/tests/p1/Test-V4Registry.ps1",
+    "docs/guards/v4/tests/p4/Test-V4BuildEvidence.ps1",
+    "docs/guards/v4/tests/p8/Test-V4CompatibilityBaseline.ps1",
+    "docs/guards/v4/tests/p8/Test-V4SupplyChain.ps1",
+    "docs/guards/v4/tests/p8/Test-V4V1Acceptance.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "formatVersion": 1,
+  "id": "20260923-v4-v1-1-readme-release-candidate",
+  "title": "Build the V4 Guards 1.1.0 README release candidate",
+  "goal": "Ship a hash-bound root project README and version the completed P9 Web Companion as a certified V4 Guards 1.1.0 candidate without changing the stable API or activating IFX adoption.",
+  "acceptanceCriteria": [
+    "The root V4 README is canonical, required package authority and present in deterministic installed distributions.",
+    "Product, Host and Web Companion versions are 1.1.0 while API 1.0 and unchanged module/Profile component versions remain compatible.",
+    "Release notes and maintained documentation describe the shipped P9 surface and its exclusions accurately.",
+    "All changed tests are hash-bound by the CI contract and package compatibility authorities are refreshed exactly.",
+    "Windows-full and Linux-complete certification pass against one clean commit and package hash.",
+    "No publication, IFX profile, cutover, workflow/ruleset activation or Reset UI expansion occurs in the candidate change."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260923-v4-v1-1-readme-release-candidate.md",
+    "docs/guards/plans/20260923-v4-v1-1-readme-release-candidate.plan.json",
+    "docs/guards/v4/README.md",
+    "docs/guards/v4/core/certification/compatibility-baseline.json",
+    "docs/guards/v4/core/host/V4.Guards.Host/V4.Guards.Host.csproj",
+    "docs/guards/v4/core/runtime/Test-V4Package.ps1",
+    "docs/guards/v4/docs/queries.md",
+    "docs/guards/v4/docs/1.1.0-release-notes.md",
+    "docs/guards/v4/docs/v1-certification.md",
+    "docs/guards/v4/integrations/github/ci-contract.json",
+    "docs/guards/v4/integrations/web/README.md",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj",
+    "docs/guards/v4/plugin.json",
+    "docs/guards/v4/tests/p1/Test-V4Package.ps1",
+    "docs/guards/v4/tests/p7/Test-V4Distribution.ps1",
+    "docs/guards/v4/tests/p7/Test-V4Lifecycle.ps1",
+    "docs/guards/v4/tests/p8/Test-V4StableCli.ps1",
+    "docs/guards/v4/tests/p9/Test-V4OfflineWebDistribution.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

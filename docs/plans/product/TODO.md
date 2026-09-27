@@ -1,0 +1,126 @@
+# V4 deferred roadmap
+
+This file is the authority for work deliberately excluded from V4 v1. A checked item requires a
+separate reviewed decision and formal Plan; appearing here is not implementation authorization.
+
+## Consumer adoption (moved to IFX)
+
+V4-TODO-001 through V4-TODO-004 were the IFX adoption backlog: `ifx_profile` practice, parallel
+parity, cutover and rollback design, and V3/V3_ifx freeze or retirement. That work belongs to the IFX
+consumer and is maintained in the IFX repository (`von12549/IFX`). After V4-TODO-008 T7 it lives
+under `docs/guards/v4-adoption/`; until then it is in `docs/guards/v4/plans/`. The four identifiers
+stay reserved and are not reused here. When the backlog moved on 2026-09-27, 001, 002 and 003 were
+complete (P10.1, P10.2-R2 and the P10.3 design were accepted) and 004 was open. Their full text
+remains in this repository's history.
+
+Product defects or capabilities that a consumer's adoption requires are tracked below as ordinary
+product items.
+
+## Deferred user experience
+
+- [x] **V4-TODO-005 — Lightweight Web UI**
+
+  Revisit gate met after V4 Guards 1.0.0 stabilized the CLI, JSON Schema, Stage result and state
+  transaction contracts. V4-AD-017 is accepted and the work is promoted to V4-P9 by
+  `20260922-v4-p9-lightweight-web-ui-planning`. V4-P9.GATE passed under
+  `20260923-v4-p9-gate-closure`; the exact evidence is recorded in `05-p9-gate-audit.md`.
+  The UI is only an observation window and button panel over allowlisted V4 public contracts. It defines
+  no guard capability or verdict, executes nothing outside `v4-guards`, does not directly edit authority
+  files and cannot turn an empty/no-op profile into a successful coverage claim.
+
+### V4-P9 first-release exclusions memo
+
+The following are deliberately excluded from the first Lightweight Web UI release. Each requires a
+later reviewed decision and exact Plan; listing it here is not implementation authorization.
+
+P9.GATE confirmed every item below is absent. The separately authorized repository push of the audited
+source branch is a delivery action by the maintainer and does not add a Git operation to the UI.
+
+- editing installed Profile or other package authorities;
+- directly editing or saving Plan authorities in `TargetRoot`;
+- any Target mutation or generated Target file adoption;
+- Git commit, push, pull-request or merge operations;
+- GitHub workflow, required-check or ruleset activation;
+- Reset Apply (Reset Preview may be considered only after the read/query boundary is stable);
+- multi-project dashboard, aggregation or parallel project execution;
+- live terminal, arbitrary command input or raw CLI argument forwarding;
+- non-loopback or remote Web UI access;
+- automatic Profile/module discovery, download or installation;
+- IFX-specific Profile, policy, cutover or operational actions.
+
+- [ ] **V4-TODO-006 — Multi-project dashboard**
+
+  Revisit after project-instance identity and concurrency are proven. Cover parallel runs, cancellation,
+  log streaming and isolated project state without creating a remote control plane by accident.
+
+## Deferred distribution and ecosystem
+
+- [ ] **V4-TODO-007 — Fully bundled runtimes**
+
+  Revisit after v1 portability measurements. Evaluate .NET self-contained publishing and the cost of
+  bundling or replacing PowerShell/Node dependencies across supported OS/architecture combinations.
+
+- [ ] **V4-TODO-008 — Standalone V4 repository — IN PROGRESS**
+
+  Revisit before the first external stable release. Extract V4 from the IFX incubation repository or
+  record why a monorepo distribution remains preferable. Preserve provenance and deterministic history.
+
+  Formally started on 2026-09-27 under
+  `20260927-v4-todo-008-standalone-repository-extraction`. The existing clean public repository
+  `von12549/Guard` is feasible as the destination. The program preserves extracted Git history,
+  validates the standalone product, publishes only a new immutable version under separate authority,
+  rebinds IFX as a consumer and cleans duplicated IFX product source only after that consumer gate.
+  Claude Code is the requested executor. Project start does not authorize implementation, remote
+  writes, release publication, IFX protected deletion, V4 activation or V3 retirement.
+
+  The authorized local tranches (T0–T5) are carried out in this repository on the branch
+  `codex/v4-todo-008-standalone`. The execution record is
+  `docs/plans/migration/20260927-v4-todo-008-execution-checklist.md`, and provenance is in
+  `docs/migration/v4-todo-008/`. The matching IFX-side TODO entry stays in IFX, which remains the
+  canonical source until the canonical-source switch.
+
+- [ ] **V4-TODO-009 — Profile/module marketplace and signatures**
+
+  Revisit after local install/uninstall/version compatibility is stable. Define discovery, download,
+  signatures, revocation, trust roots, offline behavior and capability review before allowing remote
+  extension installation.
+
+- [ ] **V4-TODO-010 — Automatic update and downgrade policy**
+
+  Revisit with standalone distribution. Updates must be staged, verified and rollback-capable;
+  incompatible downgrade and schema rollback fail closed.
+
+## Deferred CI and governance
+
+- [ ] **V4-TODO-011 — Remote V4 ruleset activation**
+
+  Revisit after repeated success of the V4 development workflow and final check-name freeze. Creating
+  or editing GitHub rulesets remains a separately authorized remote operation.
+
+- [ ] **V4-TODO-012 — Windows full-run frequency review**
+
+  Revisit after real V4 run-duration data exists. Ordinary CI remains Linux-first with conditional
+  Windows smoke; increase or reduce full cadence only with evidence and without weakening release
+  certification.
+
+- [ ] **V4-TODO-013 — Plan-set limits and parallel agent policy**
+
+  Revisit after real multi-plan PRs. Decide member-count/size limits, shared-path policy and whether
+  independent member plans may be authored concurrently. Authorization and activation boundaries may
+  never be collapsed for convenience.
+
+## Explicitly not deferred
+
+The following belong to V4 v1 and must not be moved here to shorten implementation:
+
+- authority/state separation;
+- path-confined reset with Preview and explicit acceptance;
+- default and synthetic profiles;
+- independent Bootstrap/Analysis/Pre/Post execution;
+- module capability and hash declarations;
+- deterministic package/isolation tests;
+- Linux complete coverage, conditional Windows smoke and milestone Windows full certification;
+- trusted-base promotion and head-self-judgment prevention.
+- composite Architecture Conformance with Project Model, Roslyn and ArchUnitNET evidence layers;
+- capability-matrix parity and non-vacuous architecture fixtures;
+- isolated, explicit and fresh build evidence for compiled architecture checks.

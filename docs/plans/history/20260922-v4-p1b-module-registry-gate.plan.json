@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p1b-module-registry-gate",
+  "title": "Close the V4 P1 module registry and authority gate",
+  "goal": "Add a strict hash-bound module registry and enforce an independent maximum capability grant for every installed module.",
+  "acceptanceCriteria": [
+    "The module registry schema is strict and hash-bound by the contracts manifest.",
+    "Every installed module has exactly one registry entry binding its ID, manifest path/hash and allowed capabilities.",
+    "Unknown registry fields, duplicate IDs, path escape, manifest drift and undisclosed module directories fail closed.",
+    "A module cannot self-grant an unregistered root, process, network capability or timeout.",
+    "The empty package and all prior P0/P1A tests remain green.",
+    "Current V3 validation remains green with no active workflow or remote change."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p1b-module-registry-gate.md",
+    "docs/guards/plans/20260922-v4-p1b-module-registry-gate.plan.json",
+    "docs/guards/v4/core/contracts/contracts-manifest.json",
+    "docs/guards/v4/core/contracts/module-registry.schema.json",
+    "docs/guards/v4/core/runtime/Test-V4Package.ps1",
+    "docs/guards/v4/modules/registry.json",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/tests/p0/Test-V4Contracts.ps1",
+    "docs/guards/v4/tests/p1/Test-V4Package.ps1",
+    "docs/guards/v4/tests/p1/Test-V4Registry.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d15-trusted-base-component-upgrade.json"
+  ]
+}

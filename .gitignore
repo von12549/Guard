@@ -1,0 +1,5 @@
+# PackageRoot is the repository root in the standalone Guard checkout.
+# V4-owned mutable data (state, work and evidence) must never enter package authority.
+/state/
+/.work/
+/artifacts/

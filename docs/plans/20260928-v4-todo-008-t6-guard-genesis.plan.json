@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-v4-todo-008-t6-guard-genesis",
+  "title": "Establish the Guard genesis seed, GitHub platform certification and trusted-base workflow (V4-TODO-008 T6)",
+  "goal": "Bootstrap the first trusted V4 base in von12549/Guard from the migration branch through an operator-accepted genesis seed, obtain exact-commit Linux-complete and Windows-full platform certification on GitHub runners, and then activate base-owned trusted-base verdicts for all later changes.",
+  "acceptanceCriteria": [
+    "The migration branch is pushed and reviewed through a PR to main without any candidate-supplied workflow.",
+    "A workflow_dispatch-only certification workflow committed separately on main certifies the exact PR head on Linux (complete) and Windows (full) with one matching packageHash.",
+    "The seed is merged into main only after operator acceptance of the recorded evidence, making main the first trusted Guard base.",
+    "The trusted-base PR workflow is activated on main from the inactive specimen with branch and path-filter changes only, so later verdicts come from the base-owned runner.",
+    "No secrets, content-write permissions, rulesets, tags or releases are introduced by this Plan."
+  ],
+  "plannedPaths": [
+    "docs/plans/20260928-v4-todo-008-t6-guard-genesis.md",
+    "docs/plans/20260928-v4-todo-008-t6-guard-genesis.plan.json",
+    "docs/plans/migration/20260927-v4-todo-008-execution-checklist.md"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "A candidate-supplied workflow could judge its own change.",
+    "Certification on GitHub runners could diverge from the local package identity.",
+    "Activating the PR workflow before the seed is accepted would give an untrusted base judging authority."
+  ],
+  "decisions": [
+    "Amendment A3: the migration PR is a genesis seed accepted by the operator on recorded evidence; trusted-base CI verdicts apply from the first post-seed change.",
+    "Keep ci-contract targetBranch and schema constants unchanged; the runner does not read targetBranch and workflows are outside package authority.",
+    "Commit the certification and trusted-base workflows directly on main as separate operator-authorized commits, never inside a candidate PR.",
+    "Merge the seed with a merge commit after certification of the exact PR head."
+  ],
+  "validationCommands": [
+    "v4-native-plan-validate",
+    "github-linux-complete-and-windows-full-certification-at-pr-head",
+    "package-hash-identity-check"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "authorization"
+  ]
+}

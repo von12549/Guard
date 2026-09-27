@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/plugin.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "id", "version", "apiVersion", "contractsManifest", "profilesCatalog", "modulesCatalog", "defaultProfile"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "id": { "const": "v4-guards" },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$" },
+    "apiVersion": { "const": "1.0" },
+    "contractsManifest": { "const": "core/contracts/contracts-manifest.json" },
+    "profilesCatalog": { "const": "profiles/catalog" },
+    "modulesCatalog": { "const": "modules" },
+    "defaultProfile": { "const": "default" }
+  }
+}

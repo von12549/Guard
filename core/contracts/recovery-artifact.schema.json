@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/recovery-artifact.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["formatVersion", "candidateCommit", "restoreCommit", "packageHash", "archiveSha256", "compatibilityBaselineSha256", "strategy", "verificationCommands", "remoteRollbackRequired"],
+  "properties": {
+    "formatVersion": { "const": 1 }, "candidateCommit": { "$ref": "#/definitions/commit" }, "restoreCommit": { "$ref": "#/definitions/commit" },
+    "packageHash": { "$ref": "#/definitions/sha256" }, "archiveSha256": { "$ref": "#/definitions/sha256" }, "compatibilityBaselineSha256": { "$ref": "#/definitions/sha256" },
+    "strategy": { "const": "restore-reviewed-source-checkpoint" },
+    "verificationCommands": { "type": "array", "minItems": 3, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "remoteRollbackRequired": { "const": false }
+  },
+  "definitions": { "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }, "commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" } }
+}

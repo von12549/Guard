@@ -1,0 +1,26 @@
+{
+  "formatVersion": 1,
+  "id": "20260923-v4-guards-1-1-2-release-publication",
+  "title": "Publish the certified V4 Guards 1.1.2 scope compatibility patch",
+  "goal": "Produce a release-safe, recertified 1.1.2 source archive and publish/install it without accepting the incomplete IFX bundle or changing prior releases.",
+  "acceptanceCriteria": [
+    "Only declared package documentation changes; stable API, executable authorities, versions and built-in Profiles remain unchanged.",
+    "Exact Formal Pre/Diff, Windows-full, offline Linux-complete, deterministic archive and candidate certification pass on one clean source commit.",
+    "Remote annotated tag and final Release contain only the verified ZIP and SHA-256 sidecar; a new receipted sibling installation passes complete verification while prior releases remain immutable."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260923-v4-guards-1-1-2-release-publication.md",
+    "docs/guards/plans/20260923-v4-guards-1-1-2-release-publication.plan.json",
+    "docs/guards/v4/README.md",
+    "docs/guards/v4/docs/1.1.2-candidate-notes.md",
+    "docs/guards/v4/docs/1.1.2-release-notes.md"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}

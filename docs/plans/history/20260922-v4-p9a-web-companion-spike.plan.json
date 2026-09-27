@@ -1,0 +1,40 @@
+{
+  "formatVersion": 1,
+  "id": "20260922-v4-p9a-web-companion-spike",
+  "title": "Prove the V4 P9.1 local Web Companion boundary",
+  "goal": "Implement and certify a loopback-only, non-authoritative Web Companion that invokes one allowlisted V4 Stage flow while preserving four-root confinement and Host verdict authority.",
+  "acceptanceCriteria": [
+    "The Web Companion binds only to loopback and protects mutation with an HTTP-only same-site session plus exact same-origin validation.",
+    "Browser input cannot select an executable, shell text, working directory, raw CLI arguments, roots or a non-allowlisted command.",
+    "One synthetic Target-to-result request invokes the stable V4 Host stage.run contract and returns the Host JSON and exit code without reinterpretation.",
+    "PackageRoot and TargetRoot remain unchanged and runtime writes remain confined to explicit StateRoot and EvidenceRoot paths.",
+    "Request injection, session/origin failure and mutable-root overlap fail closed on Windows and Linux.",
+    "No V4 Host capability, policy, profile, module, rule, baseline, verdict, workflow, ruleset or remote state changes."
+  ],
+  "plannedPaths": [
+    "docs/guards/plans/20260922-v4-p9a-web-companion-spike.md",
+    "docs/guards/plans/20260922-v4-p9a-web-companion-spike.plan.json",
+    "docs/guards/v4/integrations/web/README.md",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/Program.cs",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/contracts/session.schema.json",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/contracts/stage-run-request.schema.json",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/contracts/stage-run-response.schema.json",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/wwwroot/app.js",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/wwwroot/index.html",
+    "docs/guards/v4/integrations/web/V4.Guards.WebCompanion/wwwroot/styles.css",
+    "docs/guards/v4/plans/01-v4-self-contained-guard-plugin.md",
+    "docs/guards/v4/plans/02-runtime-architecture.md",
+    "docs/guards/v4/plans/README.md",
+    "docs/guards/v4/tests/p9/Dockerfile.linux",
+    "docs/guards/v4/tests/p9/Test-V4WebCompanionSpike.ps1"
+  ],
+  "areaIds": ["GuardDocs"],
+  "ruleIds": [],
+  "validationCommands": ["ifx-package-test"],
+  "decisionPaths": [
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d07-migration-unit-and-order.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260916-v3-stage-d09-trusted-base-guard-execution.json",
+    "docs/guards/V3_ifx/shared/decisions/history/20260920-v3-stage-d34-layerguard-post-ownership.json"
+  ]
+}
