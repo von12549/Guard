@@ -42,7 +42,7 @@
     { "path": "tests/p6/Test-V4ChangeClassifier.ps1", "sha256": "03bc7f59df52825a6853264458ec9a49b5421ba3f2303b87ae7690e3b0a9d8d0", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "tests/p6/Test-V4TrustedBase.ps1", "sha256": "872da519136ac24f1c5179f770395b7c3741e096e7b0e8c31e82a99034e46f66", "linux": false, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p6/Test-V4WorkflowContract.ps1", "sha256": "f7d682ac2a58f1f407ead0a72904327f30aac06f91c906a4aa71e1e026e33d8e", "linux": true, "windowsSmoke": true, "windowsFull": true },
-    { "path": "tests/p7/Test-V4Distribution.ps1", "sha256": "861ce79ab94024a23aa5a557cd0215a58d02fdbe25b345373638eba226f79469", "linux": true, "windowsSmoke": true, "windowsFull": true },
+    { "path": "tests/p7/Test-V4Distribution.ps1", "sha256": "3d5fb570a2b0e603baf3e10a1e5c682378de74655ebc92e89fbccfe4e4012fc2", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "tests/p7/Test-V4Documentation.ps1", "sha256": "bcd7d2ae66f8df3dc22093194412a351e00fc16eb3ba6fb61cf70851e2999014", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p7/Test-V4Lifecycle.ps1", "sha256": "aae3119ced801f7b4e2347ed64abd65c0fce189391eee78413fd82bb8e75956b", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "tests/p8/Test-V4CompatibilityBaseline.ps1", "sha256": "db05553cc2e4ca703d6c8be4315c210d33f771f74ead0b34ee160518692ee847", "linux": true, "windowsSmoke": true, "windowsFull": true },
