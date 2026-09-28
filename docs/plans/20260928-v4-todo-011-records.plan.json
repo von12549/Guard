@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-v4-todo-011-records",
+  "title": "V4-TODO-011 phase 2 records (C5)",
+  "goal": "Record G2_V4_AUTONOMOUS and the ruleset controls as the positive-control PR.",
+  "acceptanceCriteria": [
+    "The base-owned V4 runner decides this live acceptance step as the V4-TODO-014 Plan expects."
+  ],
+  "plannedPaths": [
+    "docs/migration/v4-todo-008/migration-receipt.json",
+    "docs/plans/20260928-guard-v4-workflow-activation.md",
+    "docs/plans/20260928-v4-todo-011-phase2-ruleset.md",
+    "docs/plans/20260928-v4-todo-011-records.md",
+    "docs/plans/20260928-v4-todo-011-records.plan.json",
+    "docs/plans/migration/20260927-v4-todo-008-execution-checklist.md",
+    "docs/plans/product/03-genesis-bootstrap-and-autonomy.md",
+    "docs/plans/product/TODO.md"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [],
+  "decisions": [
+    "Live acceptance step of Plan 20260928-v4-todo-014-trust-change-authorization (B2)."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

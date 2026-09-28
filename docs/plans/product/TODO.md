@@ -105,7 +105,26 @@ source branch is a delivery action by the maintainer and does not add a Git oper
 
 ## Deferred CI and governance
 
-- [ ] **V4-TODO-011 — Remote V4 ruleset activation**
+- [x] **V4-TODO-011 — Remote V4 ruleset activation — COMPLETE (2026-09-28), `G2_V4_AUTONOMOUS`**
+
+  **Phase 2 complete (2026-09-28)** under `20260928-v4-todo-011-phase2-ruleset`:
+
+  - **Ruleset.** The ruleset `v4-main-autonomy` (id `24096101`, https://github.com/von12549/Guard/rules/24096101) is active on `main`. It
+    was created byte-for-byte from the reviewed specimen `docs/plans/activation/guard-main-ruleset.json`:
+    - `v4-required` is required, from GitHub Actions only (integration 15368), with strict up-to-date
+      checking;
+    - a PR is required, with 0 approvals and merge commits only;
+    - deletion and force-push of `main` are blocked;
+    - the only bypass is the repository admin, and only when merging a pull request.
+  - **Fork workflow runs.** The Actions fork-PR approval policy is `all_external_contributors`. A
+    workflow modified in a fork cannot run without the operator's approval.
+  - **Negative control.** PR #17 failed `v4-contract` ("Root Plan paths do not exactly match the
+    candidate diff") and `v4-required`. It reported `mergeStateStatus: BLOCKED`, and a non-admin merge
+    was refused ("the base branch policy prohibits the merge"). It was closed unmerged.
+  - **Positive control.** The records PR that updated this entry merged without bypass.
+  - **Bypass use.** Governed by V4-TODO-008 checklist O19.
+
+  Original scope (kept for history):
 
   Revisit after repeated success of the V4 development workflow and final check-name freeze. Creating
   or editing GitHub rulesets remains a separately authorized remote operation.
@@ -179,6 +198,20 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   Evaluate whether V4 should offer the two-step authorization as a product capability, so that a
   target can protect its own Profile and bundle changes. The outcome is to decide scope, the contract
   and whether it belongs in the public CLI.
+
+- [ ] **V4-TODO-016 — Code-owner review for workflow and authorization changes**
+
+  Revisit when Guard has a second maintainer. Add `CODEOWNERS` for `.github/**`,
+  `docs/plans/authorizations/**` and `integrations/github/**`, then enable code-owner review in
+  `v4-main-autonomy`.
+
+  With one maintainer, a required approval cannot be satisfied, because authors cannot approve their
+  own PRs. Review is currently realized in three ways:
+
+  - CI scope: `.github/**` is outside `allowedChangedPatterns`, so it needs the logged admin bypass
+    (O19);
+  - sole-writer merges;
+  - fork-run approval.
 
 - [ ] **V4-TODO-012 — Windows full-run frequency review**
 

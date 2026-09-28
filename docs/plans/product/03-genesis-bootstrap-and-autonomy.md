@@ -132,7 +132,14 @@ The sections above record the IFX incubation design. In the standalone Guard rep
   - Phase 1 (complete): the genesis record, the active workflow at `.github/workflows/v4-guards.yml`,
     and negative- and positive-control PRs. The resulting state is `G1_V4_WORKFLOW_ACTIVE`, in which
     base-owned verdicts run but are advisory.
-  - Phase 2 (V4-TODO-011): the ruleset that requires `v4-required`. It reaches `G2_V4_AUTONOMOUS`.
+  - Phase 2 (V4-TODO-011, complete on 2026-09-28): the ruleset `v4-main-autonomy` requires
+    `v4-required` from GitHub Actions with strict up-to-date checking. The negative-control PR #17 was
+    refused by the ruleset, and the records PR merged without bypass. **Guard is in
+    `G2_V4_AUTONOMOUS`.**
+    - Workflow and authority review is realized as described in
+      `20260928-v4-todo-011-phase2-ruleset` §2.2: CI scope, the logged admin bypass (checklist O19),
+      sole-writer merges and fork-run approval.
+    - Recovery (§7): set the ruleset's enforcement to `disabled` and restore the fork approval policy.
 - §6 item 4 (IFX `v3-ifx-guardrails.yml`) does not apply to Guard.
 
 ### 8.1 Trust changes (V4-TODO-014)
