@@ -128,7 +128,9 @@
     "Guard main: 73a0653 certification workflow; b022f9e8 active V4 workflow + genesis record",
     "Guard: PR #2 merged (118644e3); PR #3 negative control closed",
     "Guard: PR #5 merged (a02ee3c6) under O16",
-    "Guard: tag v4-guards-v1.1.5 and GitHub Release V4 Guards 1.1.5"
+    "Guard: tag v4-guards-v1.1.5 and GitHub Release V4 Guards 1.1.5",
+    "Guard: PR #7 merged (0b29783) under O16 (V4-TODO-014 bootstrap)",
+    "Guard: PR #8 live negative closed; PRs #9, #10, #11, #13, #14 merged; PR #12 merged under O16 (runner PATHEXT fix)"
   ],
   "publicContractDifferences": [],
   "declaredDifferences": [
@@ -143,7 +145,7 @@
   "nextAuthorizationRequired": [
     "T7 IFX consumer rebinding (A-IFX-REBIND)",
     "T8 IFX cleanup (A-IFX-DELETE)",
-    "V4-TODO-014, then V4-TODO-011 phase 2 ruleset"
+    "V4-TODO-011 phase 2 ruleset (V4-TODO-014 done)"
   ],
   "release": {
     "version": "1.1.5",

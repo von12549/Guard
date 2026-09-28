@@ -1,6 +1,6 @@
 # V4-TODO-014 — Trusted-base authorization for approved-test and trusted-component changes
 
-Status: `APPROVED 2026-09-28 — B1 and B2 authorized ("授权B1和B2"); B1 bootstrap in progress`
+Status: `COMPLETE 2026-09-28 — B1 (PR #7) and B2 (PRs #8–#12, #13, #14 and the records PR) done; see §10`
 
 Formal Plan ID: `20260928-v4-todo-014-trust-change-authorization`.
 
@@ -192,3 +192,23 @@ No ruleset, tag or release is created.
 - Before merge: close the PR.
 - After merge: revert through a PR. The revert touches protected paths, so it needs an authorization
   record. If the mechanism itself is broken, the revert is accepted once under O16 and the use is recorded.
+
+## 10. Outcome (2026-09-28)
+
+| Step | PR | Result |
+| --- | --- | --- |
+| B1 bootstrap | #7 | Accepted under O16 (expected drift of 5 declared tests). Certification run 36342238399: Linux 33/33, Windows 34/34, package `79d12a1b`. Merged as `0b29783` |
+| B2.1 live negative | #8 | `v4-contract` rejected "Approved test hash drift without trust-change authorization: tests/p0/Test-V4Contracts.ps1". Closed unmerged |
+| B2.2 authorization | #9 | All checks green (`authorization-added`). Merged |
+| B2.3 trust change | #10 | First run failed only in `v4-windows`, on a pre-existing runner defect: the isolated child environment lacked `PATHEXT` (O18). After the fix, all checks were green including Windows smoke, with `authorized` and `verdictComponents` (run 36359282105). Merged |
+| Fix: authorization | #11 | All checks green. Merged |
+| Fix: trust change | #12 | `v4-contract` `authorized`; `v4-linux` and `v4-package` green; `v4-windows` failed on the unfixed base runner. Accepted once under O16 by the §9 broken-mechanism clause. Certification run 36358564876: Linux 33/33, Windows 34/34, package `19c9c7f0` |
+| P6 probe: authorization | #13 | All checks green. Merged |
+| P6 probe: trust change | #14 | All checks green (run 36360790400). Merged. P6 now fails if the runner's isolated children cannot resolve `git` |
+| B2.4 records | this PR | V4-TODO-014 complete; V4-TODO-011 phase 2 scope extended; V4-TODO-015 added; O16 retired; O17 and O18 closed |
+
+Deviations from this Plan:
+
+- Implementation added three runner-executed files to the verdict tier (§3.1).
+- An extra O16 use for PR #12 under §9. It was confirmed by the operator on the PR.
+- A P6 regression control. The operator approved fix steps 1–4.
