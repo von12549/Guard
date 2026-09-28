@@ -1,0 +1,28 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-v4-todo-017-runner-longpaths-record",
+  "planId": "20260928-v4-todo-017-runner-longpaths",
+  "reason": "V4-TODO-017 (checklist O8): the trusted runner passed core.longpaths=true only to the isolated clone command, so later Git commands misread tracked paths beyond MAX_PATH as deleted. Every runner Git command now passes the setting and the isolated clone persists it. P6 adds a long-path regression case; the CI contract rebinds only the P6 hash.",
+  "entries": [
+    {
+      "path": "integrations/github/ci-contract.json",
+      "baseSha256": "d2b0b0816eeb5f1173ed6d2e954a6fa2d74921da18b17260141cebf4c7af7c24",
+      "headSha256": "129911851349fc1f7cec956a5b9a34433daec8a4783bb6aa21b9af4c3afb3cec"
+    },
+    {
+      "path": "integrations/github/Invoke-V4TrustedBase.ps1",
+      "baseSha256": "121a50cb1e2f64eab7682f6927661a80eca24700aaeffca5450f50a07a3ddc3a",
+      "headSha256": "88b60a77b9fff2294eaf1644730149f99e2d3928765794c147bcc09d2651c9e4"
+    },
+    {
+      "path": "tests/p6/Test-V4TrustedBase.ps1",
+      "baseSha256": "0df49baf8ff165de9f54a713d5340347ca1b4aa508ab572827a7ce5a2f7052d2",
+      "headSha256": "872da519136ac24f1c5179f770395b7c3741e096e7b0e8c31e82a99034e46f66"
+    }
+  ],
+  "acceptedBy": {
+    "kind": "human-review",
+    "authority": "operator (von12549) — Guard product phase G1 (V4-TODO-017) approved 2026-09-28",
+    "candidateHostVerdictAllowed": false
+  }
+}
