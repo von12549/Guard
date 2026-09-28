@@ -108,12 +108,33 @@
       "superseded": {
         "T6.6": "20260928-guard-v4-workflow-activation (phase 1 complete)"
       }
+    },
+    "T7": {
+      "status": "pass",
+      "plan": "IFX docs/guards/plans/20260928-v4-todo-008-t7-ifx-consumer-rebinding",
+      "run": "T7-rebind/20260928T041048Z",
+      "SHA256SUMS": "08f117e33cfb9053958c57cb1b9f6f6c2467630b8507914889bdda97435339bc",
+      "ifxCommit": "fe007b52bcc747eccae562524a3c779fd6acd3e5",
+      "ifxReceipt": {
+        "path": "docs/guards/v4-adoption/migration/v4-todo-008-ifx-rebinding-receipt.json",
+        "sha256": "e8c1665ef3d2eaea0ee27fd0fcab5d17573bdaad8394d6c470b6900c76554048"
+      },
+      "consumer": {
+        "release": "v4-guards-v1.1.5",
+        "archiveSha256": "74c371ebca73186d5ef636669a226960982c5c28b13532bc5972cbcdffee3976",
+        "bundle": "ifx-profile-candidate 0.4.3",
+        "bundleManifestSha256": "24c325acfe42723f9683b7da73a9dc61abac3e738711657841fa483ae56fdc03",
+        "composedPackageHash": "25fd95fa4f8e56190aa5993ddc7efde99c3aafd8a185fbb7cdaead8efa1369c6",
+        "targetCommit": "1fcc07838c4c37a2ee8518a27f8966f8f5a095f5"
+      },
+      "parity": "52/52, zero gaps, 15 strengthenings (semantically identical to 1.1.4 R2)",
+      "linuxAdvisory": "O20"
     }
   },
   "boundaries": {
-    "standaloneSourceAccepted": false,
+    "standaloneSourceAccepted": true,
     "standaloneReleasePublished": true,
-    "ifxConsumerRebound": false,
+    "ifxConsumerRebound": true,
     "ifxCoreSourceRemoved": false,
     "v4Activated": false,
     "p10GatePassed": false,
@@ -132,7 +153,9 @@
     "Guard: PR #7 merged (0b29783) under O16 (V4-TODO-014 bootstrap)",
     "Guard: PR #8 live negative closed; PRs #9, #10, #11, #13, #14 merged; PR #12 merged under O16 (runner PATHEXT fix)",
     "Guard: PR #16 merged (b40db5b); Actions fork-PR approval policy set to all_external_contributors",
-    "Guard: ruleset v4-main-autonomy (24096101) created on main (G2_V4_AUTONOMOUS); negative-control PR #17 refused and closed"
+    "Guard: ruleset v4-main-autonomy (24096101) created on main (G2_V4_AUTONOMOUS); negative-control PR #17 refused and closed",
+    "IFX codex/v4-development-base fast-forward 42b666ac..fe007b52 (T7 R10, authorized 2026-09-28)",
+    "Guard: T7 records PR (this change)"
   ],
   "publicContractDifferences": [],
   "declaredDifferences": [
@@ -145,7 +168,6 @@
     "integrations/github/proposed-v4-guards.yml"
   ],
   "nextAuthorizationRequired": [
-    "T7 IFX consumer rebinding (A-IFX-REBIND)",
     "T8 IFX cleanup (A-IFX-DELETE)"
   ],
   "release": {
