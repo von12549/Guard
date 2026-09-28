@@ -1,0 +1,30 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-todo-consumer-backlog-and-o8-o14",
+  "title": "Product TODO: IFX backlog pointer and O8/O14 items",
+  "goal": "Point the consumer-adoption note to the IFX backlog and track checklist items O8 and O14 as product TODO items.",
+  "acceptanceCriteria": [
+    "Only the product TODO, the execution checklist and this Plan pair change, and the PR passes v4-required and merges without bypass."
+  ],
+  "plannedPaths": [
+    "docs/plans/20260928-todo-consumer-backlog-and-o8-o14.md",
+    "docs/plans/20260928-todo-consumer-backlog-and-o8-o14.plan.json",
+    "docs/plans/migration/20260927-v4-todo-008-execution-checklist.md",
+    "docs/plans/product/TODO.md"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [],
+  "decisions": [
+    "Record O8 and O14 as V4-TODO-017 and V4-TODO-018 without changing product code."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}
