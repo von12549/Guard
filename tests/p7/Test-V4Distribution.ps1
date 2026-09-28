@@ -90,6 +90,43 @@ if ($a.Code -eq 0 -and $b.Code -eq 0) {
     } finally { $zip.Dispose() }
     $tamperRun = Run $installer @('-Mode','Install','-ArchivePath',$tampered,'-InstallRoot',(Join-Path $runRoot 'tampered-install'),'-ReceiptPath',(Join-Path $runRoot 'tampered-receipt.json'))
     if ($tamperRun.Code -eq 0 -or $tamperRun.Output -notmatch 'hash drift') { $failures.Add("tampered payload was not rejected: $($tamperRun.Output)") }
+
+    # V4-TODO-018: an independent build from a second clone at another location yields the same archive.
+    $independentRoot = Join-Path $runRoot 'independent-build-location/second-checkout'
+    $independentPackage = Join-Path $independentRoot 'package-root'
+    & git -c core.longpaths=true clone --quiet --no-local --config core.longpaths=true $repoRoot $independentPackage
+    if ($LASTEXITCODE) { throw 'P7 independent clone failed.' }
+    & git -c core.longpaths=true -C $independentPackage checkout --quiet --detach $sourceCommit
+    if ($LASTEXITCODE) { throw 'P7 independent checkout failed.' }
+    if ([IO.Path]::GetFullPath($independentPackage) -eq $packageRoot) { throw 'P7 independent build location is not independent.' }
+    $independentBuildRoot = Join-Path $independentPackage 'build'
+    $independentArtifacts = Join-Path $independentRoot 'artifacts'
+    $independentProperties = @($properties | Where-Object { $_ -notlike '-p:CustomBeforeMicrosoftCommonProps=*' }) + "-p:CustomBeforeMicrosoftCommonProps=$(Join-Path $independentBuildRoot 'V4.Build.props')"
+    Push-Location $independentBuildRoot
+    try {
+        foreach ($relativeProject in @('core/host/V4.Guards.Host/V4.Guards.Host.csproj','integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj')) {
+            $independentProject = Join-Path $independentPackage $relativeProject
+            & dotnet restore $independentProject --configfile (Join-Path $independentBuildRoot 'NuGet.config') --artifacts-path $independentArtifacts -nologo @independentProperties
+            if ($LASTEXITCODE) { throw "P7 independent restore failed: $relativeProject" }
+            & dotnet build $independentProject --no-restore --configuration Release --artifacts-path $independentArtifacts -nologo @independentProperties
+            if ($LASTEXITCODE) { throw "P7 independent build failed: $relativeProject" }
+        }
+    } finally { Pop-Location }
+    $c = Run $builder @('-PackageRoot',$independentPackage,'-HostRoot',(Join-Path $independentArtifacts 'bin/V4.Guards.Host/release'),'-CompanionRoot',(Join-Path $independentArtifacts 'bin/V4.Guards.WebCompanion/release'),'-OutputDirectory',(Join-Path $runRoot 'out-independent'),'-SourceCommit',$sourceCommit)
+    if ($c.Code -ne 0) { $failures.Add("independent distribution failed: $($c.Output)") }
+    else {
+        $resultC = $c.Output | ConvertFrom-Json
+        if ($resultC.packageHash -cne $resultA.packageHash) { $failures.Add('independent checkout has a different packageHash; run P7 on a clean commit') }
+        elseif ($resultC.archiveSha256 -cne $resultA.archiveSha256) {
+            $zipA = [IO.Compression.ZipFile]::OpenRead($resultA.archivePath); $zipC = [IO.Compression.ZipFile]::OpenRead($resultC.archivePath)
+            try {
+                $digest = { param($zip) $map=@{}; foreach ($e in $zip.Entries) { $s=$e.Open(); try { $map[$e.FullName]=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($s)) } finally { $s.Dispose() } }; $map }
+                $entriesA = & $digest $zipA; $entriesC = & $digest $zipC
+                $differing = @(@($entriesA.Keys) + @($entriesC.Keys) | Sort-Object -Unique | Where-Object { $entriesA[$_] -cne $entriesC[$_] })
+            } finally { $zipA.Dispose(); $zipC.Dispose() }
+            $failures.Add("independent build location changed the archive: $($differing -join ', ')")
+        }
+    }
 }
 
 $positiveReport = Join-Path $runRoot 'prerequisites-positive.json'
@@ -101,4 +138,4 @@ $negative = Run $prerequisites @('-PackageRoot',$packageRoot,'-Profile','synthet
 if ($negative.Code -ne 15 -or -not (Test-Json -LiteralPath $negativeReport -SchemaFile (Join-Path $packageRoot 'core/contracts/prerequisite-report.schema.json') -ErrorAction SilentlyContinue) -or (Get-Content -Raw $negativeReport) -notmatch 'prerequisite-missing') { $failures.Add("missing prerequisite was not reported structurally: $($negative.Output)") }
 
 if ($failures.Count) { throw ($failures -join "`n") }
-Write-Host 'V4 P7 distribution tests passed: deterministic archive, provenance, sidecar, tamper rejection and declared prerequisites.'
+Write-Host 'V4 P7 distribution tests passed: deterministic archive, build-location-independent archive, provenance, sidecar, tamper rejection and declared prerequisites.'

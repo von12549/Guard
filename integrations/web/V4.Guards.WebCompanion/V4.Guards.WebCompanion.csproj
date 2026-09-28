@@ -8,9 +8,10 @@
     <RootNamespace>V4.Guards.WebCompanion</RootNamespace>
     <Version>1.1.5</Version>
     <AssemblyVersion>1.1.5.0</AssemblyVersion>
-    <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\..\..\..\..'))=/_/</PathMap>
+    <PathMap>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '..', '..', '..'))=/_/</PathMap>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
+    <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
   </PropertyGroup>
   <ItemGroup>
     <Content Remove="wwwroot\**\*" />

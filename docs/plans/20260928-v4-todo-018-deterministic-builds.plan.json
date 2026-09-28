@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-v4-todo-018-deterministic-builds",
+  "title": "Build-location-independent Host and Companion builds (V4-TODO-018)",
+  "goal": "Make independent Release builds of one commit produce the same distribution archive, add a P7 regression control and consume the base-held authorization.",
+  "acceptanceCriteria": [
+    "The base-owned V4 runner decides this step as the V4-TODO-014 two-PR trust-change flow expects.",
+    "Two independent builds of the head from different locations produce a byte-identical archive (P7)."
+  ],
+  "plannedPaths": [
+    "core/host/V4.Guards.Host/V4.Guards.Host.csproj",
+    "docs/plans/20260928-v4-todo-018-deterministic-builds.md",
+    "docs/plans/20260928-v4-todo-018-deterministic-builds.plan.json",
+    "docs/plans/authorizations/20260928-v4-todo-018-deterministic-builds-record.json",
+    "integrations/github/ci-contract.json",
+    "integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj",
+    "tests/p7/Test-V4Distribution.ps1"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [],
+  "decisions": [
+    "Trust-change step of the V4-TODO-014 two-PR flow for V4-TODO-018."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "trust-change"
+  ]
+}
