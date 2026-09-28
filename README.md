@@ -1,9 +1,10 @@
 # V4 Guards
 
 V4 Guards is a self-contained, profile-driven guard package for inspecting repositories through four
-independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.1.6` makes the
-trusted-base runner long-path safe and makes independent Host and Web Companion builds of one commit
-produce the same archive; earlier releases remain immutable.
+independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.1.6` adds
+trusted-base authorization for protected CI changes, makes the trusted-base runner long-path safe and
+makes independent Host and Web Companion builds of one commit produce the same archive; earlier releases
+remain immutable.
 The stable V4 1.0 command API and local, non-authoritative Web Companion are preserved.
 
 V4 Guards is developed in this standalone repository (`von12549/Guard`). It was incubated in the IFX
@@ -74,7 +75,8 @@ approve or include the incomplete IFX bundle; see the release notes.
 Version `1.1.3` prevents the Build Evidence Provider's isolated .NET CLI home from being
 registered in the Windows User PATH. It adds no Profile, module, rule or IFX candidate content.
 
-Version `1.1.6` passes `core.longpaths=true` to every trusted-base runner Git command (V4-TODO-017)
+Version `1.1.6` adds the trusted-base authorization for approved-test and runner changes
+(V4-TODO-014), passes `core.longpaths=true` to every trusted-base runner Git command (V4-TODO-017)
 and makes independent Host and Web Companion builds of one commit produce a byte-identical archive
 (V4-TODO-018). The archive no longer ships the Companion's static web assets manifests. See the
 [1.1.6 release notes](docs/1.1.6-release-notes.md).

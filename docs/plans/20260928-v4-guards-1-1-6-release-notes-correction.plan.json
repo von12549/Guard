@@ -1,0 +1,32 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-v4-guards-1-1-6-release-notes-correction",
+  "title": "Correct the V4 Guards 1.1.6 release notes before publication (G3 A1)",
+  "goal": "Make the 1.1.6 release notes, README and release Plan state the exact content of 1.1.6 compared with the published 1.1.5 before the release is tagged.",
+  "acceptanceCriteria": [
+    "The release notes list V4-TODO-014, V4-TODO-017 and V4-TODO-018 and the exact archive entry changes against 1.1.5.",
+    "v4-contract, v4-linux, v4-package and v4-required pass."
+  ],
+  "plannedPaths": [
+    "README.md",
+    "docs/1.1.6-release-notes.md",
+    "docs/plans/20260928-v4-guards-1-1-6-release-notes-correction.md",
+    "docs/plans/20260928-v4-guards-1-1-6-release-notes-correction.plan.json",
+    "docs/plans/20260928-v4-guards-1-1-6-release.md"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [],
+  "decisions": [
+    "Correct the notes before R4; the corrected merge commit becomes the release commit and R2/R3 are repeated."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

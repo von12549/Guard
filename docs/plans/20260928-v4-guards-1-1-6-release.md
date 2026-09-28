@@ -1,6 +1,6 @@
 # V4 Guards 1.1.6 — stable base release with V4-TODO-017 and V4-TODO-018 (G3)
 
-Status: `R1 — version bump PR (R0 merged as #26, efc5c8b)`
+Status: `A1 — release notes corrected before R4 (R0 #26, R1 #27 merged; no tag or release yet)`
 
 Formal Plan ID: `20260928-v4-guards-1-1-6-release`.
 
@@ -13,8 +13,13 @@ PRs #24/#25) are merged. 1.1.6 publishes them as the stable Guard base on which 
 Publish **V4 Guards 1.1.6** from `von12549/Guard`. 1.1.6 is the next unused version; `v4-guards-v1.1.5`
 and all earlier tags stay immutable.
 
-Compared with 1.1.5, 1.1.6 contains exactly:
+Compared with 1.1.5, 1.1.6 contains exactly (corrected by Amendment A1, §8):
 
+- **V4-TODO-014**, merged after 1.1.5 was released (PRs #7–#15): trusted-base authorization for
+  approved-test and runner changes. It adds `integrations/github/trust-policy.json` and
+  `core/contracts/trust-change-authorization.schema.json`, adds `verdictComponents` to
+  `core/contracts/ci-artifact-manifest.schema.json`, and fixes the runner's `PATHEXT` handling for
+  Windows children.
 - **V4-TODO-017 (O8)**: every trusted-runner Git command passes `core.longpaths=true`, and the isolated
   clone persists it. P6 has a long-path regression case.
 - **V4-TODO-018 (O14)**: Host and Web Companion builds are build-location independent. The Host is built
@@ -23,13 +28,18 @@ Compared with 1.1.5, 1.1.6 contains exactly:
   archive.
 - **Version metadata** `1.1.6`, the documentation and the new `docs/1.1.6-release-notes.md`.
 
-The public CLI, query and schema contracts, modules, Profiles and the four-root contract are unchanged.
-Stable API stays `1.0`. Host and Companion source code is unchanged since 1.1.5; only their project files
+The public CLI contract, query contracts, modules, Profiles and the four-root contract are unchanged.
+Stable API stays `1.0`. The only contract changes are the repository CI contracts listed above; the
+Host does not read them. Host and Companion source code is unchanged since 1.1.5; only their project files
 changed (G2).
 
-User-visible archive change: the archive has 140 entries instead of 142, because
-`companion/v4-web-companion.staticwebassets.runtime.json` and `…staticwebassets.endpoints.json` are no
-longer shipped. The Companion serves its UI from embedded resources only.
+User-visible archive change: the archive has 141 entries, and 1.1.5 had 140.
+
+- Removed: `companion/v4-web-companion.staticwebassets.runtime.json` and `…staticwebassets.endpoints.json`.
+  The Companion serves its UI from embedded resources only.
+- Added: `package/integrations/github/trust-policy.json`,
+  `package/core/contracts/trust-change-authorization.schema.json` and
+  `package/docs/1.1.6-release-notes.md`.
 
 Out of scope:
 
@@ -159,3 +169,25 @@ Acceptance for R1:
   new R0 record.
 - After R4: the release is immutable. Defects are fixed by 1.1.7. The tag and assets are never deleted or
   replaced.
+
+## 8. Amendment A1 — scope correction before R4 (2026-09-28)
+
+R3 at the first release commit `d3f5e92` compared the archive with the published 1.1.5 archive
+(`74c371eb…`). The comparison showed that the R1 release notes and §1 of this Plan understated the scope:
+
+- they listed only V4-TODO-017 and V4-TODO-018, but V4-TODO-014 was also merged after 1.1.5 was released;
+- they gave the archive size as "140 instead of 142". That count compared with `b757b79`, not with 1.1.5.
+
+Everything else at `d3f5e92` passed:
+
+- R2 run 36415348900: Linux 33 and Windows 34, `packageHash` `61912a6b…`;
+- the independent-location, same-input and A/B archives are byte-identical (`b7722e19…`);
+- Host and Companion IL are identical to 1.1.5.
+
+Because the release notes ship inside the archive and a release is immutable, R4 was not run. A
+documentation-only PR under Plan `20260928-v4-guards-1-1-6-release-notes-correction` corrects
+`docs/1.1.6-release-notes.md`, `README.md` and this Plan. These are not protected paths.
+
+The correction changes package authority, so its `main` merge commit becomes the release commit. R2 and
+R3 are repeated there, with the same acceptance and stop conditions. The `d3f5e92` evidence stays on file,
+marked superseded, and is not used for publication. Restore commit `243cdc8…` is unchanged.
