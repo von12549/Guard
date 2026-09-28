@@ -7,9 +7,9 @@ separate reviewed decision and formal Plan; appearing here is not implementation
 
 V4-TODO-001 through V4-TODO-004 were the IFX adoption backlog: `ifx_profile` practice, parallel
 parity, cutover and rollback design, and V3/V3_ifx freeze or retirement. That work belongs to the IFX
-consumer and is maintained in the IFX repository (`von12549/IFX`) under `docs/guards/v4-adoption/`
-(moved there by V4-TODO-008 T7 on 2026-09-28). The four identifiers
-stay reserved and are not reused here. When the backlog moved on 2026-09-27, 001, 002 and 003 were
+consumer and is maintained in the IFX repository (`von12549/IFX`): the backlog is
+`docs/guards/TODO.md` and the adoption records are under `docs/guards/v4-adoption/` (moved there by
+V4-TODO-008 T7 on 2026-09-28). The four identifiers stay reserved and are not reused here. When the backlog moved on 2026-09-27, 001, 002 and 003 were
 complete (P10.1, P10.2-R2 and the P10.3 design were accepted) and 004 was open. Their full text
 remains in this repository's history.
 
@@ -106,6 +106,15 @@ source branch is a delivery action by the maintainer and does not add a Git oper
 
   Revisit with standalone distribution. Updates must be staged, verified and rollback-capable;
   incompatible downgrade and schema rollback fail closed.
+
+- [ ] **V4-TODO-018 — Build-location-independent Host and Companion builds (checklist O14)**
+
+  An independent Host build embeds its PDB path, and the Companion's `staticwebassets.runtime.json`
+  embeds the absolute source `wwwroot` path. Archives are byte-identical for the same Host and
+  Companion input, which is the 1.1.x release contract, but two independent builds differ in three
+  archive entries. Evaluate PathMap and deterministic source paths so that independent builds from
+  the same commit produce the same archive. A change alters release bytes, so it needs its own product
+  Plan and a new version.
 
 ## Deferred CI and governance
 
@@ -233,6 +242,16 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   Revisit after real multi-plan PRs. Decide member-count/size limits, shared-path policy and whether
   independent member plans may be authored concurrently. Authorization and activation boundaries may
   never be collapsed for convenience.
+
+- [ ] **V4-TODO-017 — Long paths in the runner's post-test `git status` (checklist O8)**
+
+  Latent defect, present since 1.1.4. `Invoke-V4TrustedBase` Linux mode clones the Target with
+  `core.longpaths=true`, but its post-test `git status` on the Target does not. On a deep Target path
+  below a long root, the status check reports a false `M` ("Filename too long") and certification
+  fails. Current mitigation: run certification from a short root. Fix it by applying the same long-path
+  setting to every Git command the runner issues on the Target. The runner is a verdict component, so
+  the fix goes through the trust-change authorization of V4-TODO-014 and needs a P6 regression
+  control.
 
 ## Explicitly not deferred
 
