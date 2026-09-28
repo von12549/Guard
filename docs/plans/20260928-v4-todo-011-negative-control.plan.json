@@ -1,0 +1,28 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-v4-todo-011-negative-control",
+  "title": "V4-TODO-011 phase 2 negative control (C4)",
+  "goal": "Prove that the main ruleset refuses a PR whose v4-required verdict failed.",
+  "acceptanceCriteria": [
+    "The base-owned V4 runner decides this live acceptance step as the V4-TODO-014 Plan expects."
+  ],
+  "plannedPaths": [
+    "docs/plans/20260928-v4-todo-011-negative-control.md",
+    "docs/plans/20260928-v4-todo-011-negative-control.plan.json"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [],
+  "decisions": [
+    "Live acceptance step of Plan 20260928-v4-todo-014-trust-change-authorization (B2)."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}
