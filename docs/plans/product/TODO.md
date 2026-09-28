@@ -128,33 +128,57 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   `allowedChangedPatterns`, but GitHub runs a PR's merged workflow definition. Phase 2 must therefore add
   a `main` ruleset that requires `v4-required`, enforces strict up-to-date checks, and requires review
   of workflow and authority changes. Phase 2 reaches `G2_V4_AUTONOMOUS` and remains separately authorized.
-  Phase 2 is blocked by V4-TODO-014: a ruleset that requires `v4-required` would otherwise block every
-  approved-test, CI-contract or runner change.
+  Phase 2 was blocked by V4-TODO-014. That prerequisite is satisfied: V4-TODO-014 was completed on
+  2026-09-28, so approved-test, CI-contract and runner changes now pass `v4-required` through
+  authorization records. The phase 2 ruleset must also require review of:
 
-- [ ] **V4-TODO-014 — Trusted-base authorization for approved-test and runner changes**
+  - `.github/**`, because GitHub runs a pull request's merged workflow definition and the runner cannot
+    protect it;
+  - `docs/plans/authorizations/**`, because authorization records are human-review authority.
 
-  The base-owned runner validates a candidate's approved tests against the **base** CI contract. It has
-  no way to authorize a legitimate change to approved tests, the CI contract or the runner itself, so
-  every such PR fails `v4-linux` and `v4-required` with "Approved test hash drift". This first happened
-  on PR #5 (the 1.1.5 version bump), because the product version is hard-coded in the P7, P8 and P10
-  tests.
+- [x] **V4-TODO-014 — Trusted-base authorization for approved-test and runner changes — COMPLETE (2026-09-28)**
 
-  Until this item is resolved, such PRs are accepted by operator review under the recorded rule
-  (V4-TODO-008 checklist O16):
+  Plan: `docs/plans/20260928-v4-todo-014-trust-change-authorization.md`.
 
-  1. The drift is limited exactly to the declared test paths, and every other CI-contract field is
-     unchanged.
-  2. `v4-contract` passes.
-  3. Exact-head dispatch certification passes Linux-complete and Windows-full with one `packageHash`.
-  4. The operator confirms acceptance on the PR.
+  - The base-owned `integrations/github/trust-policy.json` protects three tiers:
+    - verdict components;
+    - certification components;
+    - every approved test.
+  - A change to a protected path needs two PRs:
+    1. a single-use record under `docs/plans/authorizations/`, added by an `authorization` Plan;
+    2. a `trust-change` diff that consumes the record with exact base and head hashes.
+  - Every verdict carries `verdictComponents`.
+  - P7, P8 and P10 read the version from `plugin.json`.
+  - Bootstrap: PR #7 (`0b29783`), the last planned O16 acceptance.
+  - Live acceptance on GitHub:
+    - PR #8, an unauthorized approved-test edit, was rejected and closed;
+    - PR #9 added the authorization;
+    - PR #10, the consuming trust change, passed every check including Windows smoke.
+  - The first live Windows smoke exposed a pre-existing runner defect. The runner allowlist omitted
+    `PATHEXT`, so Windows children could not resolve `git`.
+    - PRs #11 and #12 fixed it through the new mechanism. PR #12 was accepted once under O16, by the
+      Plan §9 broken-mechanism clause, because the unfixed base runner judged it.
+    - PRs #13 and #14 added a P6 regression probe through the mechanism, all green.
+  - O16 is retired and O17 is closed.
 
-  Resolution scope:
+- [ ] **V4-TODO-015 — Trust-change authorization for target projects (evaluate)**
 
-  - Design a single-use, base-held authorization bound to exact candidate hashes, analogous to the V3
-    P11 `weaken-policy` and `change-trusted-base` records.
-  - Make the P7, P8 and P10 version assertions read `plugin.json` instead of hard-coding the version.
+  Guard's own gate now protects its judge with base-held, single-use authorization records
+  (V4-TODO-014). Target projects have an analogous exposure in their integration layer:
 
-  This item is a prerequisite for V4-TODO-011 phase 2.
+  - the pinned Guard release (repository, tag and asset SHA-256);
+  - their Profile, bundle and review records;
+  - their own workflow.
+
+  For IFX, V4-TODO-008 T7 covers the minimum:
+
+  - pin `von12549/Guard` explicitly with an asset hash;
+  - keep the Profile, bundle and review inputs in the IFX trust domain;
+  - protect the IFX workflow through IFX review and rulesets.
+
+  Evaluate whether V4 should offer the two-step authorization as a product capability, so that a
+  target can protect its own Profile and bundle changes. The outcome is to decide scope, the contract
+  and whether it belongs in the public CLI.
 
 - [ ] **V4-TODO-012 — Windows full-run frequency review**
 
@@ -164,7 +188,8 @@ source branch is a delivery action by the maintainer and does not add a Git oper
 
   Run-duration data collection started on 2026-09-28, when the V4 workflow became active on `main`
   (`b022f9e8`). The dispatch certification run times (Linux-complete about 7 minutes, Windows-full about
-  8 minutes) are the first data points.
+  8 minutes) are the first data points. The first PR-path Windows smoke that passed (PR #10, run
+  36359282105) took 4 minutes 44 seconds.
 
 - [ ] **V4-TODO-013 — Plan-set limits and parallel agent policy**
 

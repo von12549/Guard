@@ -178,3 +178,12 @@ GitHub runs the workflow definition of the pull request's merge result, so the r
 `.github/**`. That review requirement, together with review of `docs/plans/authorizations/**`, belongs
 to the V4-TODO-011 phase 2 ruleset.
 
+The mechanism was accepted on GitHub on 2026-09-28:
+
+- PR #8, an unauthorized approved-test edit, was rejected;
+- PR #9 added an authorization record;
+- PR #10 consumed that record and passed every check.
+
+The first live Windows smoke also exposed and fixed a runner defect: the `PATHEXT` allowlist
+(PRs #11 and #12).
+
