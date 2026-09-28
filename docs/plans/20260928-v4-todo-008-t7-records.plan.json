@@ -28,8 +28,6 @@
     "v4-package",
     "v4-required"
   ],
-  "dependencies": [
-    "20260927-v4-todo-008-standalone-repository-extraction"
-  ],
+  "dependencies": [],
   "boundaries": []
 }
