@@ -7,8 +7,8 @@ separate reviewed decision and formal Plan; appearing here is not implementation
 
 V4-TODO-001 through V4-TODO-004 were the IFX adoption backlog: `ifx_profile` practice, parallel
 parity, cutover and rollback design, and V3/V3_ifx freeze or retirement. That work belongs to the IFX
-consumer and is maintained in the IFX repository (`von12549/IFX`). After V4-TODO-008 T7 it lives
-under `docs/guards/v4-adoption/`; until then it is in `docs/guards/v4/plans/`. The four identifiers
+consumer and is maintained in the IFX repository (`von12549/IFX`) under `docs/guards/v4-adoption/`
+(moved there by V4-TODO-008 T7 on 2026-09-28). The four identifiers
 stay reserved and are not reused here. When the backlog moved on 2026-09-27, 001, 002 and 003 were
 complete (P10.1, P10.2-R2 and the P10.3 design were accepted) and 004 was open. Their full text
 remains in this repository's history.
@@ -90,7 +90,11 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   - T6.7 is done. **V4 Guards 1.1.5** was published from this repository on 2026-09-28
     (`https://github.com/von12549/Guard/releases/tag/v4-guards-v1.1.5`): tag `v4-guards-v1.1.5` on `a02ee3c6`, archive SHA-256 `74c371ebca73186d…`,
     package `e8cd32697709e8ca…`. A fresh download was verified with install, four Stages and uninstall.
-  - Remaining: T7 IFX consumer rebinding and T8 IFX cleanup.
+  - T7 is done (2026-09-28). IFX consumes V4 Guards 1.1.5 from this repository's release (IFX
+    `codex/v4-development-base` `fe007b52`). The handoff receipt is
+    `docs/guards/v4-adoption/migration/v4-todo-008-ifx-rebinding-receipt.json` in IFX, and this repository
+    is the canonical V4 source.
+  - Remaining: T8 IFX cleanup of the duplicated `docs/guards/v4` (A-IFX-DELETE).
 
 - [ ] **V4-TODO-009 — Profile/module marketplace and signatures**
 

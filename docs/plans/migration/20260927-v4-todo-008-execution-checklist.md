@@ -1,6 +1,6 @@
 # V4-TODO-008 execution checklist
 
-Status: `T0–T5 PASS; T6.1–T6.5 DONE (seed merged); T6.6 SUPERSEDED BY THE ACTIVATION PLAN (phase 1 complete); T6.7 DONE — V4 GUARDS 1.1.5 PUBLISHED; T7/T8 NOT AUTHORIZED`
+Status: `T0–T5 PASS; T6.1–T6.5 DONE (seed merged); T6.6 SUPERSEDED BY THE ACTIVATION PLAN (phase 1 complete); T6.7 DONE — V4 GUARDS 1.1.5 PUBLISHED; T7 DONE — IFX REBOUND TO 1.1.5; T8 NOT AUTHORIZED`
 
 Executor: **Claude Code**. Operator: the repository owner (`von12549`).
 
@@ -196,7 +196,7 @@ Claude Code never pauses, kills or reconfigures OneDrive. It only records proces
 | A-MERGE | Merge the Guard PR / update Guard `main` | **Authorized 2026-09-28** ("授权T6.5合并和T6.6激活"); PR #1 merged as `65cf6cde` |
 | A-ACT | Activation Plan `20260928-guard-v4-workflow-activation` steps A, C, D and E | **Authorized 2026-09-28** ("授权执行A、C、D、E"). A: PR #2 → `118644e3`; C: `b022f9e8`; D: PR #3 rejected; E: records PR |
 | A-RELEASE | Create a tag/release/asset for the new standalone version | **Authorized 2026-09-28** ("授权执行R1–R5"). Tag `v4-guards-v1.1.5` → `a02ee3c6`; release https://github.com/von12549/Guard/releases/tag/v4-guards-v1.1.5 |
-| A-IFX-REBIND | T7 IFX consumer rebinding commits | Not authorized |
+| A-IFX-REBIND | T7 IFX consumer rebinding commits | **Authorized 2026-09-28**: "开始T7" (planning), then "授权A-IFX-REBIND本地部分，执行R0–R3和R5–R9"; R4 human review "1 接受" (after "先查Linux超时"); R10 "授权执行R10". Local commits `1548bb62..fe007b52` pushed fast-forward `42b666ac..fe007b52` |
 | A-IFX-REMOTE-O13-O5 | O13: push `codex/v4-development-base` (`286e453d..af2bd603`). O5: push, PR and merge its two-step V3_ifx fix into `codex/v4-development-base` | **Authorized 2026-09-28** ("授权执行O13/O5的推送，PR和合并"; then "关闭 PR，改为直接推送两个分支到开发分支"). O13 done. O5 done: PR von12549/IFX#108 closed without merge; the operator merged `707b3019` and `42b666ac` directly and pushed them |
 | A-IFX-PUSH (O1) | Fast-forward push of `codex/v4-development-base` to IFX `origin` | **Authorized 2026-09-27** ("O1：授权推送"); done `6b80fc04..286e453d`. Any further IFX push needs new authorization |
 | A-IFX-DELETE | T8 protected removal of `docs/guards/v4` from IFX | Not authorized |
@@ -464,13 +464,35 @@ V4-TODO-011). T6.7 release is pending a separate publication Plan.
 
 ### T7 — IFX consumer rebinding (A-IFX-REBIND)
 
-- [ ] Create an IFX successor Plan and migration receipt with the Guard repository, commit, tag,
+- [x] Create an IFX successor Plan and migration receipt with the Guard repository, commit, tag,
       archive hash, distribution manifest and decisions.
-- [ ] `git mv` the IFX-owned plans 06–09 and the two integration files to `docs/guards/v4-adoption/`.
-- [ ] Make the inactive IFX workflow specimen fetch explicitly from `von12549/Guard`.
-- [ ] Add a P10.3 successor design/rehearsal. Do not edit the accepted P10.1–P10.3 decisions.
-- [ ] Run IFX composition, Windows-full, parity/compatibility and rollback rehearsal against the new release.
-- [ ] V3 required contexts and V3 source stay unchanged.
+- [x] `git mv` the IFX-owned plans 06–09 and the two integration files to `docs/guards/v4-adoption/`.
+- [x] Make the inactive IFX workflow specimen fetch explicitly from `von12549/Guard`.
+- [x] Add a P10.3 successor design/rehearsal. Do not edit the accepted P10.1–P10.3 decisions.
+- [x] Run IFX composition, Windows-full, parity/compatibility and rollback rehearsal against the new release.
+- [x] V3 required contexts and V3 source stay unchanged.
+
+**T7 result: `pass`** under IFX Plan `20260928-v4-todo-008-t7-ifx-consumer-rebinding`, IFX
+`codex/v4-development-base` `fe007b52` (pushed). Evidence `T7-rebind/20260928T041048Z` (`SHA256SUMS`
+`08f117e3…`) and `T7-R10/<run>`. Results:
+
+- R1: 1.1.5 installed from the Guard release; archive `74c371eb…`, package `e8cd3269…`.
+- R2: 1.1.4 → 1.1.5 differs only in the declared T4 files, version fields and binaries.
+- R3: the IFX bundle cannot be reused, because 0.4.2 declares `baseVersion` 1.1.4 and its review binds the
+  1.1.4 archive. A successor `ifx-profile-candidate` 0.4.3 was built at Target commit `1fcc0783`
+  (Amendments A1, A2). Only three Profile files and the manifest differ from 0.4.2; the 36 modules
+  are identical. C6c Windows product certification and controls pass (191/191 core cases).
+- R4: the operator accepted review packet `178480b3…` (production review `7619c12e…`).
+- R5: composition `25fd95fa…`; clean Pre passes, the deliberate violation blocks, Host queries agree.
+- R6: parity 52/52, zero gaps, 15 strengthenings, semantically identical to the accepted 1.1.4 R2.
+- R7: six files moved to `docs/guards/v4-adoption`; the successor specimen fetches only from
+  `von12549/Guard` with the archive SHA-256 pinned; P10.3 successor rehearsal passes with seven
+  executed negative controls.
+- R8: handoff decision and receipt `docs/guards/v4-adoption/migration/v4-todo-008-ifx-rebinding-receipt.json`
+  (`e8c1665e…`); `docs/guards/v4` is marked non-canonical.
+- R9: V3_ifx `Validate` passes; V3, V3_ifx and `.github` are unchanged; fsck passes.
+- Disclosure (O20): Linux remains a non-blocking advisory. For 0.4.3 the `ifx-database-evidence` module
+  exceeds its 60 s timeout in the Linux container.
 
 ### T8 — IFX cleanup (A-IFX-DELETE)
 
@@ -506,6 +528,7 @@ clone. Never repair it in place.
 | O17 | Improvement point from PR #5: "Approved test hash drift: tests/p7/Test-V4Distribution.ps1". The check is correct and must stay. The base runner validates candidate approved tests against the **base** CI contract, which is the protection against candidate test weakening. Two gaps made a routine release fail it. (a) There is no authorization channel for legitimate changes to approved tests, the CI contract or the runner. (b) P7/P8/P10 hard-code the product version, so every version bump edits protected tests. Resolution: V4-TODO-014 adds single-use base-held authorization records bound to exact candidate hashes (analogous to V3 P11), and version assertions read `plugin.json`. It must precede V4-TODO-011 phase 2, because a ruleset requiring `v4-required` would otherwise block every trust change. Until then O16 applies. | **Closed 2026-09-28** by V4-TODO-014 (bootstrap PR #7; live acceptance PRs #8–#10) |
 | O16 | Operator-acceptance rule for approved-test, CI-contract and runner changes while V4-TODO-014 is open. Accept only when: the drift is exactly the declared test paths and every other contract field is unchanged; `v4-contract` passes; exact-head dispatch certification passes Linux-complete and Windows-full with one `packageHash`; and the operator confirms on the PR. Applied to PR #5 (1.1.5 R1), PR #7 (V4-TODO-014 bootstrap) and PR #12 (runner `PATHEXT` fix, under the Plan §9 broken-mechanism clause, because the unfixed base runner judged it). | **Retired 2026-09-28**: V4-TODO-014 is complete. Protected changes now use authorization records; any further operator override needs a new, explicitly recorded decision |
 | O18 | The first PR-path Windows smoke (PR #10, run 36344152342) exposed a pre-existing runner defect. `Invoke-V4TrustedBase` `Invoke-Isolated` restored an environment allowlist without `PATHEXT`, so Windows children could not resolve `git` (P1 failed). Certification was unaffected because `Invoke-V4PlatformCertification` includes `PATHEXT`. Earlier Guard PRs had never run `v4-windows`. | **Closed 2026-09-28**: fixed by PRs #11/#12 (authorization, then trust change, accepted under O16 once). P6 probe regression control added by PRs #13/#14 |
+| O20 | Linux advisory regression found in T7: the `ifx-database-evidence` module of the IFX bundle exceeds its declared 60 s timeout in the pinned Linux container (73–85 s measured over the Windows bind mount, reproduced 3/3 in isolation). Workload and module bytes are identical to 0.4.2, whose Linux direct-post passed. Windows passes. Linux stays a non-blocking advisory (C6c22) and the V3 Linux bridge stays required. | Recorded; IFX follow-up (later bundle version under its own Plan) |
 | O19 | Ruleset bypass rule. It replaces the retired O16 and is effective from `G2_V4_AUTONOMOUS` on 2026-09-28. The `v4-main-autonomy` admin bypass (`pull_request` mode, merge only) may be used for exactly two cases: (a) a PR limited to `.github/**`, or to other paths outside V4 CI scope, after operator review; (b) recovery under V4-TODO-014 Plan §9 when the verdict mechanism itself is broken. Each use requires explicit operator confirmation on that PR. Code changes also require exact-head dispatch certification (Linux-complete and Windows-full with one `packageHash`). Each use is recorded here. Claude never merges with `--admin` without that per-PR confirmation. | Recorded (rule); uses: none |
 | O14 | Pre-existing (1.1.x) build-location dependence: an independent Host build embeds its PDB path, and the Companion's `staticwebassets.runtime.json` embeds the absolute source `wwwroot` path. Archives are byte-identical for the same Host/Companion input, which is the established 1.1.x release contract. Independent builds therefore differ in 3 archive entries. A later product Plan may add PathMap/deterministic source paths. This migration does not change it. | Recorded |
 | O13 | The IFX commits `17a1d56c`, `80f7b6b6` and `af2bd603` were local only; the extracted Guard history maps to `80f7b6b6`. | Closed 2026-09-28: fast-forward push `286e453d..af2bd603` to `origin/codex/v4-development-base`. All three commits are publicly reachable |
@@ -521,7 +544,7 @@ clone. Never repair it in place.
 | --- | --- | --- | --- |
 | 1 | ~~V4-TODO-014 Plan: trusted-base authorization for approved-test and runner changes; version assertions read `plugin.json` (O17)~~ **Done 2026-09-28** (PRs #7–#12, #13, #14) | none | Done |
 | 2 | ~~V4-TODO-011 phase 2: ruleset on `main` requiring `v4-required`, strict up-to-date checking and review of `.github/**`, `docs/plans/authorizations/**` and other authority changes~~ **Done 2026-09-28**: ruleset `v4-main-autonomy` (`24096101`), `G2_V4_AUTONOMOUS` | #1 | Done (C1–C5) |
-| 3 | T7: IFX consumer rebinding to V4 Guards 1.1.5, with the handoff decision, P10.3 successor, composition/parity/rollback rehearsal and `docs/guards/v4-adoption` moves. It sets `standaloneSourceAccepted` and `ifxConsumerRebound` | Release 1.1.5 (done) | A-IFX-REBIND |
+| 3 | ~~T7: IFX consumer rebinding to V4 Guards 1.1.5, with the handoff decision, P10.3 successor, composition/parity/rollback rehearsal and `docs/guards/v4-adoption` moves. It sets `standaloneSourceAccepted` and `ifxConsumerRebound`~~ **Done 2026-09-28**: IFX `fe007b52` | Release 1.1.5 (done) | Done (R0–R10) |
 | 4 | T8: protected IFX cleanup of the duplicated `docs/guards/v4` product source (`ifxCoreSourceRemoved`) | #3 | A-IFX-DELETE |
 | 5 | Product follow-ups: O8 (runner post-test `git status` without long paths) and O14 (build-location-dependent Host/Companion builds) | none | Separate product Plans |
 
@@ -547,6 +570,7 @@ v3Retired=false
 | --- | --- | --- | --- |
 | 2026-09-27 | pre-T0 | Plans read. Read-only identity check. A1 rebinding decided. P-1/P-2 attested. Checklist created (untracked). | — |
 | 2026-09-28 | T6 | T6.1 push `79596c37`; T6.2 PR #1; T6.3 dispatch-only certification workflow on `main` `73a0653`; T6.4 run 36326273549 passed Linux 33/33 and Windows 34/34 (package `491e7eb4`), so T5 overall is pass; T6.5 seed merged as `65cf6cde` (A3). | `T6-remote/<run>` |
+| 2026-09-28 | T7 | IFX Plan `20260928-v4-todo-008-t7-ifx-consumer-rebinding`: R0–R9 local (1.1.5 installed from the Guard release; successor bundle 0.4.3; operator accepted the review after a Linux timeout diagnostic; composition, parity 52/52 and the P10.3 successor rehearsal pass; adoption records moved; handoff receipt). R10: IFX fast-forward push `42b666ac..fe007b52`; this records PR. `standaloneSourceAccepted` and `ifxConsumerRebound` are true. | `T7-rebind/20260928T041048Z`, `T7-R10/<run>` |
 | 2026-09-28 | V4-TODO-011 phase 2 | C1: PR #16 merged as `b40db5b`. C2: fork-PR approval set to `all_external_contributors`. C3: ruleset `v4-main-autonomy` (`24096101`) created from the specimen; readback matches. C4: negative PR #17 was BLOCKED, the non-admin merge was refused, and the PR was closed. C5: the records PR merged without bypass. The state is now `G2_V4_AUTONOMOUS`. | `TODO-011-phase2/<run>` |
 | 2026-09-28 | V4-TODO-014 | B1: PR #7 accepted under O16 and merged as `0b29783`. Exact-head certification run 36342238399 passed Linux 33/33 and Windows 34/34 (package `79d12a1b`); the local Windows-full sweep passed 34/34. B2: live negative PR #8 was rejected ("Approved test hash drift without trust-change authorization") and closed; authorization PR #9 merged; trust-change PR #10 was first blocked by the `PATHEXT` defect (O18). Fix: authorization PR #11, then trust change PR #12, accepted under O16 (Plan §9) on certification run 36358564876 (package `19c9c7f0`). PR #10 then re-ran green, including Windows smoke (run 36359282105), and merged. P6 probe: PRs #13/#14 (run 36360790400). | `TODO-014/<run>` |
 | 2026-09-28 | T6.7 | R1 PR #5 accepted under O16 and merged as `a02ee3c6`. R2 run 36331614650: Linux 33/33, Windows 34/34, package `e8cd3269`. R3: A/B archive `74c371eb` byte-identical; V1 candidate and recovery certification pass. R4: tag `v4-guards-v1.1.5` and release published. R5: fresh download is byte-identical; install, four Stages and uninstall pass. | `T6.7-release/<run>` |
