@@ -1,0 +1,33 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-v4-guards-1-1-6-release-records",
+  "title": "Record the V4 Guards 1.1.6 release (G3 R5)",
+  "goal": "Record the published V4 Guards 1.1.6 release and close V4-TODO-017 and V4-TODO-018.",
+  "acceptanceCriteria": [
+    "v4-contract, v4-linux, v4-package and v4-required pass."
+  ],
+  "plannedPaths": [
+    "docs/plans/20260928-v4-guards-1-1-6-release-records.md",
+    "docs/plans/20260928-v4-guards-1-1-6-release-records.plan.json",
+    "docs/plans/20260928-v4-guards-1-1-6-release.md",
+    "docs/plans/20260928-v4-todo-017-runner-longpaths.md",
+    "docs/plans/20260928-v4-todo-018-deterministic-builds.md",
+    "docs/plans/migration/20260927-v4-todo-008-execution-checklist.md",
+    "docs/plans/product/TODO.md"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [],
+  "decisions": [
+    "Documentation-only records step R5 of the 1.1.6 release Plan."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

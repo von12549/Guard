@@ -1,6 +1,6 @@
 # V4-TODO-018 — build-location-independent Host and Companion builds (O14)
 
-Status: `TRUST-CHANGE PR — V4-TODO-018 G2`
+Status: `COMPLETE 2026-09-28 — merged in #25 (243cdc8), released in V4 Guards 1.1.6 (https://github.com/von12549/Guard/releases/tag/v4-guards-v1.1.6)`
 
 Formal Plan ID: `20260928-v4-todo-018-deterministic-builds`.
 

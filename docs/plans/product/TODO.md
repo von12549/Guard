@@ -98,7 +98,7 @@ source branch is a delivery action by the maintainer and does not add a Git oper
     receipt `docs/guards/v4-adoption/migration/v4-todo-008-ifx-cleanup-receipt.json` in IFX).
   - Final boundaries: `standaloneSourceAccepted`, `standaloneReleasePublished`, `ifxConsumerRebound` and
     `ifxCoreSourceRemoved` are true; `v4Activated`, `p10GatePassed` and `v3Retired` stay false. Follow-ups
-    are V4-TODO-017/018 here and IFX-V4-001..003 in the IFX backlog.
+    were V4-TODO-017/018 here (done, V4 Guards 1.1.6) and IFX-V4-001..003 in the IFX backlog.
 
 - [ ] **V4-TODO-009 — Profile/module marketplace and signatures**
 
@@ -111,7 +111,18 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   Revisit with standalone distribution. Updates must be staged, verified and rollback-capable;
   incompatible downgrade and schema rollback fail closed.
 
-- [ ] **V4-TODO-018 — Build-location-independent Host and Companion builds (checklist O14)**
+- [x] **V4-TODO-018 — Build-location-independent Host and Companion builds (checklist O14) — COMPLETE (2026-09-28), V4 Guards 1.1.6**
+
+  Plan: `docs/plans/20260928-v4-todo-018-deterministic-builds.md`.
+
+  - The Host is built without debug information and with a repository-root `PathMap`.
+  - The Companion has a repository-root `PathMap` and no static web assets manifests.
+  - P7 builds a second clone at another location and requires the same archive.
+  - PRs #24 (authorization) and #25 (trust change, `243cdc8`). Certification run 36407934314.
+  - Released in 1.1.6: the archive is byte-identical when built from two clean clones at different
+    locations.
+
+  Original entry:
 
   An independent Host build embeds its PDB path, and the Companion's `staticwebassets.runtime.json`
   embeds the absolute source `wwwroot` path. Archives are byte-identical for the same Host and
@@ -247,7 +258,16 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   independent member plans may be authored concurrently. Authorization and activation boundaries may
   never be collapsed for convenience.
 
-- [ ] **V4-TODO-017 — Long paths in the runner's post-test `git status` (checklist O8)**
+- [x] **V4-TODO-017 — Long paths in the runner's post-test `git status` (checklist O8) — COMPLETE (2026-09-28), V4 Guards 1.1.6**
+
+  Plan: `docs/plans/20260928-v4-todo-017-runner-longpaths.md`.
+
+  - Every runner Git command passes `core.longpaths=true`, and the isolated clone persists it.
+  - P6 has a long-path regression case that fails against the unfixed runner.
+  - PRs #22 (authorization) and #23 (trust change, `b757b79`). Certification run 36397069502.
+  - Released in 1.1.6.
+
+  Original entry:
 
   Latent defect, present since 1.1.4. `Invoke-V4TrustedBase` Linux mode clones the Target with
   `core.longpaths=true`, but its post-test `git status` on the Target does not. On a deep Target path
