@@ -1,6 +1,6 @@
 # Guard V4 trusted-base workflow activation (03 §6, V4-TODO-011 phase 1)
 
-Status: `PHASE 1 COMPLETE ON MERGE OF THE RECORDS PR — A: PR #2 → 118644e3; B+C: b022f9e8; D: PR #3 rejected as designed; E: records PR (positive control). Phase 2 (ruleset) remains V4-TODO-011`
+Status: `PHASE 1 COMPLETE ON MERGE OF THE RECORDS PR — A: PR #2 → 118644e3; B+C: b022f9e8; D: PR #3 rejected as designed; E: records PR (positive control). Phase 2 COMPLETE 2026-09-28 (`20260928-v4-todo-011-phase2-ruleset`, ruleset `v4-main-autonomy`): G2_V4_AUTONOMOUS`
 
 Formal Plan ID: `20260928-guard-v4-workflow-activation`.
 

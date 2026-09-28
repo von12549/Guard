@@ -130,7 +130,9 @@
     "Guard: PR #5 merged (a02ee3c6) under O16",
     "Guard: tag v4-guards-v1.1.5 and GitHub Release V4 Guards 1.1.5",
     "Guard: PR #7 merged (0b29783) under O16 (V4-TODO-014 bootstrap)",
-    "Guard: PR #8 live negative closed; PRs #9, #10, #11, #13, #14 merged; PR #12 merged under O16 (runner PATHEXT fix)"
+    "Guard: PR #8 live negative closed; PRs #9, #10, #11, #13, #14 merged; PR #12 merged under O16 (runner PATHEXT fix)",
+    "Guard: PR #16 merged (b40db5b); Actions fork-PR approval policy set to all_external_contributors",
+    "Guard: ruleset v4-main-autonomy (24096101) created on main (G2_V4_AUTONOMOUS); negative-control PR #17 refused and closed"
   ],
   "publicContractDifferences": [],
   "declaredDifferences": [
@@ -144,8 +146,7 @@
   ],
   "nextAuthorizationRequired": [
     "T7 IFX consumer rebinding (A-IFX-REBIND)",
-    "T8 IFX cleanup (A-IFX-DELETE)",
-    "V4-TODO-011 phase 2 ruleset (V4-TODO-014 done)"
+    "T8 IFX cleanup (A-IFX-DELETE)"
   ],
   "release": {
     "version": "1.1.5",

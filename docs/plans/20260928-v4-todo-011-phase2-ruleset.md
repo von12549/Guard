@@ -1,6 +1,6 @@
 # V4-TODO-011 phase 2 — `main` ruleset and `G2_V4_AUTONOMOUS`
 
-Status: `APPROVED 2026-09-28 — C1–C5 authorized ("授权执行C1–C5")`
+Status: `COMPLETE 2026-09-28 — G2_V4_AUTONOMOUS; see §8`
 
 Formal Plan ID: `20260928-v4-todo-011-phase2-ruleset`.
 
@@ -124,3 +124,13 @@ Stop if any of the following occurs:
 
 - **C1–C5** as listed in section 3.
 - **Out of scope:** tags, releases, bypass use, workflow edits, and T7 or T8.
+
+## 8. Outcome (2026-09-28)
+
+| Step | Result |
+| --- | --- |
+| C1 | PR #16 was green (run 36374092003) and merged as `b40db5b` |
+| C2 | The fork-PR approval policy changed from `first_time_contributors` to `all_external_contributors` (GET readback) |
+| C3 | The ruleset `v4-main-autonomy` was created (id `24096101`) from the merged specimen (SHA-256 `a32361a6…`). Every specimen field reads back identically. `rules/branches/main` lists exactly deletion, non_fast_forward, pull_request and required_status_checks from `24096101`. The API also returned two server defaults that are not in the specimen: `required_reviewers: []` and `require_extra_approval_for_unattributed_changes: true` |
+| C4 | Negative control PR #17 failed `v4-contract` ("Root Plan paths do not exactly match the candidate diff") and `v4-required` (run 36374899561). It reported `mergeStateStatus: BLOCKED`, and `gh pr merge` without `--admin` was refused ("the base branch policy prohibits the merge"). Closed unmerged |
+| C5 | This records PR was the positive control. It was green and `CLEAN`, and merged without bypass |
