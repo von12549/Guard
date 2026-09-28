@@ -1,6 +1,6 @@
 # V4 Guards 1.1.6 — stable base release with V4-TODO-017 and V4-TODO-018 (G3)
 
-Status: `A1 — release notes corrected before R4 (R0 #26, R1 #27 merged; no tag or release yet)`
+Status: `COMPLETE 2026-09-28 — V4 Guards 1.1.6 published (https://github.com/von12549/Guard/releases/tag/v4-guards-v1.1.6)`
 
 Formal Plan ID: `20260928-v4-guards-1-1-6-release`.
 
@@ -191,3 +191,19 @@ documentation-only PR under Plan `20260928-v4-guards-1-1-6-release-notes-correct
 The correction changes package authority, so its `main` merge commit becomes the release commit. R2 and
 R3 are repeated there, with the same acceptance and stop conditions. The `d3f5e92` evidence stays on file,
 marked superseded, and is not used for publication. Restore commit `243cdc8…` is unchanged.
+
+## 9. Outcome (2026-09-28)
+
+| Step | Result |
+| --- | --- |
+| R0 | #26 merged (`efc5c8b`), trust status `authorization-added` |
+| R1 | #27 merged (`d3f5e92`); exact-head certification run 36413232149 passed |
+| A1 | #28 merged (`960678f`), release notes corrected |
+| R2 | Run 36418700269 at `960678f`: Linux-complete 33 and Windows-full 34 pass; `packageHash` `a09469f7…` |
+| R3 | Archive `92f1ec54…`. It is byte-identical from two clean clones at different locations and for the same input. Against 1.1.5 it has 140 → 141 entries and identical Host and Companion IL. V1 candidate and recovery certification pass |
+| R4 | Annotated tag `v4-guards-v1.1.6` (object `6fb6f72`) → `960678f`; GitHub Release with exactly the ZIP and its sidecar |
+| R5 | The fresh download is byte-identical to R3. Install from it reports version `1.1.6`; Bootstrap, Analysis, Pre and Post pass on an external synthetic Target, and the verified uninstall leaves 0 items. This records PR |
+
+Evidence: `D:\IFX-Root\v4-todo-008-evidence\G3-release\20260928T102912Z` (SHA256SUMS index).
+
+1.1.6 is the stable Guard base for the IFX phase: I1 rebinds IFX to 1.1.6 under its own IFX Plan.
