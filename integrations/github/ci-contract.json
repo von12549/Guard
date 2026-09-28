@@ -40,7 +40,7 @@
     { "path": "tests/p5/Test-V4PlanDiff.ps1", "sha256": "476bfaea9498338d29d380ef487a7a7dd1938998ca9348a09086494f4b0aba5a", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p5/Test-V4PlanRuntime.ps1", "sha256": "f732534a912c5dde5767a5b4446a6e09b994ef124fb32b81963c89c708bde0b0", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "tests/p6/Test-V4ChangeClassifier.ps1", "sha256": "03bc7f59df52825a6853264458ec9a49b5421ba3f2303b87ae7690e3b0a9d8d0", "linux": true, "windowsSmoke": true, "windowsFull": true },
-    { "path": "tests/p6/Test-V4TrustedBase.ps1", "sha256": "960a5cbfb7af9dcb437bef88432af360af01c5bb41cb71c28324544ec2322990", "linux": false, "windowsSmoke": false, "windowsFull": true },
+    { "path": "tests/p6/Test-V4TrustedBase.ps1", "sha256": "0df49baf8ff165de9f54a713d5340347ca1b4aa508ab572827a7ce5a2f7052d2", "linux": false, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p6/Test-V4WorkflowContract.ps1", "sha256": "f7d682ac2a58f1f407ead0a72904327f30aac06f91c906a4aa71e1e026e33d8e", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "tests/p7/Test-V4Distribution.ps1", "sha256": "861ce79ab94024a23aa5a557cd0215a58d02fdbe25b345373638eba226f79469", "linux": true, "windowsSmoke": true, "windowsFull": true },
     { "path": "tests/p7/Test-V4Documentation.ps1", "sha256": "bcd7d2ae66f8df3dc22093194412a351e00fc16eb3ba6fb61cf70851e2999014", "linux": true, "windowsSmoke": false, "windowsFull": true },
