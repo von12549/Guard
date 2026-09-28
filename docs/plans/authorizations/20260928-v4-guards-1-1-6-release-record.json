@@ -1,0 +1,18 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-v4-guards-1-1-6-release-record",
+  "planId": "20260928-v4-guards-1-1-6-release",
+  "reason": "V4 Guards 1.1.6 (G3 R1) bumps the product version to 1.1.6. The compatibility baseline binds the plugin.json SHA-256, so only that one hash changes; pluginVersion 1.1.0 and apiVersion 1.0 stay unchanged. No approved test or CI contract hash changes.",
+  "entries": [
+    {
+      "path": "core/certification/compatibility-baseline.json",
+      "baseSha256": "f2785af92f8fd7635570f477e5c697d1fae6275ba0df1041f7b405aea63a99db",
+      "headSha256": "3abaa9849e6778681d1addce3958c6dbc1b3f0718cb55d8a449daa61c0657fae"
+    }
+  ],
+  "acceptedBy": {
+    "kind": "human-review",
+    "authority": "operator (von12549) — Guard product phase G3 (V4 Guards 1.1.6 release) R0 approved 2026-09-28",
+    "candidateHostVerdictAllowed": false
+  }
+}
