@@ -1,0 +1,48 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-v4-guards-1-1-6-release",
+  "title": "Publish V4 Guards 1.1.6 with V4-TODO-017 and V4-TODO-018 (G3)",
+  "goal": "Bump product metadata to 1.1.6 through a V4-judged trust-change pull request, certify the exact release commit on Linux and Windows, build an archive that is byte-identical across independent build locations, publish an immutable GitHub Release and verify it from a clean consumer environment.",
+  "acceptanceCriteria": [
+    "The base-owned V4 runner decides this step as the V4-TODO-014 two-PR trust-change flow expects, consuming the R0 authorization.",
+    "The version-bump pull request passes v4-contract, v4-linux, v4-package, v4-windows and v4-required and an exact-head dispatch certification, and is merged normally.",
+    "Linux-complete and Windows-full certification of the exact release commit pass with one packageHash equal to the certified pull-request head.",
+    "Archives built from two clean clones at different locations are byte-identical, two distributions of one input are byte-identical, and V1 candidate and recovery certification pass.",
+    "Annotated tag v4-guards-v1.1.6 and a final GitHub Release with exactly the archive and its SHA-256 sidecar are published without overwriting any ref or asset.",
+    "A fresh download matches the certified archive, installs, runs all four Stages on an external synthetic Target and uninstalls with a verified receipt; the records are updated through a V4-judged pull request."
+  ],
+  "plannedPaths": [
+    "README.md",
+    "core/certification/compatibility-baseline.json",
+    "core/host/V4.Guards.Host/V4.Guards.Host.csproj",
+    "docs/1.1.6-release-notes.md",
+    "docs/plans/20260928-v4-guards-1-1-6-release.md",
+    "docs/plans/20260928-v4-guards-1-1-6-release.plan.json",
+    "docs/plans/authorizations/20260928-v4-guards-1-1-6-release-record.json",
+    "docs/v1-certification.md",
+    "integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj",
+    "plugin.json"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "A release could be tagged on a commit other than the certified one.",
+    "Publication is irreversible; any defect must be fixed by a new version."
+  ],
+  "decisions": [
+    "Trust-change step of the V4-TODO-014 two-PR flow for the V4 Guards 1.1.6 release.",
+    "Version 1.1.6 is the next unused version; 1.1.5 and earlier stay immutable.",
+    "Only V4-TODO-017 and V4-TODO-018 ship; other roadmap items stay deferred."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "trust-change"
+  ]
+}
