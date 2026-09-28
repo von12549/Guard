@@ -1,6 +1,6 @@
 # V4-TODO-008 execution checklist
 
-Status: `T0–T5 PASS; T6.1–T6.5 DONE (seed merged); T6.6 SUPERSEDED BY THE ACTIVATION PLAN (phase 1 complete); T6.7 DONE — V4 GUARDS 1.1.5 PUBLISHED; T7 DONE — IFX REBOUND TO 1.1.5; T8 NOT AUTHORIZED`
+Status: `T0–T5 PASS; T6.1–T6.5 DONE (seed merged); T6.6 SUPERSEDED BY THE ACTIVATION PLAN (phase 1 complete); T6.7 DONE — V4 GUARDS 1.1.5 PUBLISHED; T7 DONE — IFX REBOUND TO 1.1.5; T8 DONE — V4-TODO-008 COMPLETE`
 
 Executor: **Claude Code**. Operator: the repository owner (`von12549`).
 
@@ -199,7 +199,7 @@ Claude Code never pauses, kills or reconfigures OneDrive. It only records proces
 | A-IFX-REBIND | T7 IFX consumer rebinding commits | **Authorized 2026-09-28**: "开始T7" (planning), then "授权A-IFX-REBIND本地部分，执行R0–R3和R5–R9"; R4 human review "1 接受" (after "先查Linux超时"); R10 "授权执行R10". Local commits `1548bb62..fe007b52` pushed fast-forward `42b666ac..fe007b52` |
 | A-IFX-REMOTE-O13-O5 | O13: push `codex/v4-development-base` (`286e453d..af2bd603`). O5: push, PR and merge its two-step V3_ifx fix into `codex/v4-development-base` | **Authorized 2026-09-28** ("授权执行O13/O5的推送，PR和合并"; then "关闭 PR，改为直接推送两个分支到开发分支"). O13 done. O5 done: PR von12549/IFX#108 closed without merge; the operator merged `707b3019` and `42b666ac` directly and pushed them |
 | A-IFX-PUSH (O1) | Fast-forward push of `codex/v4-development-base` to IFX `origin` | **Authorized 2026-09-27** ("O1：授权推送"); done `6b80fc04..286e453d`. Any further IFX push needs new authorization |
-| A-IFX-DELETE | T8 protected removal of `docs/guards/v4` from IFX | Not authorized |
+| A-IFX-DELETE | T8 protected removal of `docs/guards/v4` from IFX | **Authorized 2026-09-28**: "授权" (planning), then "授权A-IFX-DELETE本地部分，执行S0–S8"; S9 "授权开始S9". IFX `896bca24..2141f040` pushed fast-forward `cdb53d18..2141f040` |
 | Out of scope | V4 activation, IFX workflow/ruleset/required-context change, P10.GATE, V3/V3_ifx retirement | Never under V4-TODO-008 |
 
 One approval never implies the next. Record each approval here with its date and exact wording.
@@ -496,11 +496,32 @@ V4-TODO-011). T6.7 release is pending a separate publication Plan.
 
 ### T8 — IFX cleanup (A-IFX-DELETE)
 
-- [ ] Remove only paths classified `obsolete-after-gate`.
-- [ ] Verify there is no live reference to `docs/guards/v4` outside historical records and evidence.
-- [ ] Verify V3 and IFX application build/tests are unchanged, IFX consumes the exact Guard release
+- [x] Remove only paths classified `obsolete-after-gate`.
+- [x] Verify there is no live reference to `docs/guards/v4` outside historical records and evidence.
+- [x] Verify V3 and IFX application build/tests are unchanged, IFX consumes the exact Guard release
       from a clean environment, and the P10.3 successor rollback still works.
-- [ ] Commit a cleanup receipt with retained/deleted inventories and the rollback commit.
+- [x] Commit a cleanup receipt with retained/deleted inventories and the rollback commit.
+
+**T8 result: `pass`** under IFX Plan `20260928-v4-todo-008-t8-ifx-cleanup`, IFX
+`codex/v4-development-base` `2141f040` (pushed). Evidence `T8-cleanup/20260928T070603Z` (`SHA256SUMS`
+`bf8f3196…`) and `T8-S9/<run>`. Results:
+
+- S2: cleanup commit `ae42e11d` removed exactly the 169 `obsolete-after-gate` files (tree `5282001c`),
+  two ignored fixtures and three stale `.gitignore` lines. Rollback: `git revert ae42e11d`.
+- S3: cleanup receipt `docs/guards/v4-adoption/migration/v4-todo-008-ifx-cleanup-receipt.json`
+  (`fe371eda…`) with deleted and retained inventories; `ifxCoreSourceRemoved=true`.
+- S4: the 109 files that still name `docs/guards/v4` are all historical (Plans, evidence, migration
+  records, inventories, accepted pre-T7 verifiers) or assert its absence; zero live references.
+- S5: `src`, `tests`, `tools`, V3, V3_ifx, `.github` and `IFX.sln` unchanged; V3_ifx `Validate` and
+  Quality Solution pass (81 projects, 1277/1277 tests).
+- S6: from a clean environment IFX downloads and verifies `v4-guards-1.1.5.zip`, installs it with the
+  release's own installer, composes 0.4.3 (package `25fd95fa…`, identical to T7) and passes Pre on the
+  post-cleanup commit.
+- S7: the P10.3 successor rehearsal passes after cleanup; premature cleanup without the T8 receipt is
+  rejected.
+- Disclosure (IFX-V4-003): the accepted C6c Linux leg installs V4 from the Target's `docs/guards/v4`; it
+  was used that way in T7 R3 (receipt equality with Windows asserted) and must be replaced before the
+  next C6c run.
 
 ## 9. Stop conditions (quick reference)
 
@@ -545,7 +566,7 @@ clone. Never repair it in place.
 | 1 | ~~V4-TODO-014 Plan: trusted-base authorization for approved-test and runner changes; version assertions read `plugin.json` (O17)~~ **Done 2026-09-28** (PRs #7–#12, #13, #14) | none | Done |
 | 2 | ~~V4-TODO-011 phase 2: ruleset on `main` requiring `v4-required`, strict up-to-date checking and review of `.github/**`, `docs/plans/authorizations/**` and other authority changes~~ **Done 2026-09-28**: ruleset `v4-main-autonomy` (`24096101`), `G2_V4_AUTONOMOUS` | #1 | Done (C1–C5) |
 | 3 | ~~T7: IFX consumer rebinding to V4 Guards 1.1.5, with the handoff decision, P10.3 successor, composition/parity/rollback rehearsal and `docs/guards/v4-adoption` moves. It sets `standaloneSourceAccepted` and `ifxConsumerRebound`~~ **Done 2026-09-28**: IFX `fe007b52` | Release 1.1.5 (done) | Done (R0–R10) |
-| 4 | T8: protected IFX cleanup of the duplicated `docs/guards/v4` product source (`ifxCoreSourceRemoved`) | #3 | A-IFX-DELETE |
+| 4 | ~~T8: protected IFX cleanup of the duplicated `docs/guards/v4` product source (`ifxCoreSourceRemoved`)~~ **Done 2026-09-28**: IFX `ae42e11d` | #3 | Done (S0–S9) |
 | 5 | Product follow-ups: O8 (runner post-test `git status` without long paths) and O14 (build-location-dependent Host/Companion builds), tracked as V4-TODO-017 and V4-TODO-018 | none | Separate product Plans |
 
 ## 11. Tranche report template
@@ -570,6 +591,7 @@ v3Retired=false
 | --- | --- | --- | --- |
 | 2026-09-27 | pre-T0 | Plans read. Read-only identity check. A1 rebinding decided. P-1/P-2 attested. Checklist created (untracked). | — |
 | 2026-09-28 | T6 | T6.1 push `79596c37`; T6.2 PR #1; T6.3 dispatch-only certification workflow on `main` `73a0653`; T6.4 run 36326273549 passed Linux 33/33 and Windows 34/34 (package `491e7eb4`), so T5 overall is pass; T6.5 seed merged as `65cf6cde` (A3). | `T6-remote/<run>` |
+| 2026-09-28 | T8 | IFX Plan `20260928-v4-todo-008-t8-ifx-cleanup`: cleanup commit `ae42e11d` removed the 169 obsolete-after-gate files of `docs/guards/v4`; cleanup receipt; zero live references; V3 and the application unchanged (1277/1277 tests); clean-environment consumer check and post-cleanup rehearsal pass. S9: IFX fast-forward push `cdb53d18..2141f040`; this records PR. **V4-TODO-008 complete.** | `T8-cleanup/20260928T070603Z`, `T8-S9/<run>` |
 | 2026-09-28 | T7 | IFX Plan `20260928-v4-todo-008-t7-ifx-consumer-rebinding`: R0–R9 local (1.1.5 installed from the Guard release; successor bundle 0.4.3; operator accepted the review after a Linux timeout diagnostic; composition, parity 52/52 and the P10.3 successor rehearsal pass; adoption records moved; handoff receipt). R10: IFX fast-forward push `42b666ac..fe007b52`; this records PR. `standaloneSourceAccepted` and `ifxConsumerRebound` are true. | `T7-rebind/20260928T041048Z`, `T7-R10/<run>` |
 | 2026-09-28 | V4-TODO-011 phase 2 | C1: PR #16 merged as `b40db5b`. C2: fork-PR approval set to `all_external_contributors`. C3: ruleset `v4-main-autonomy` (`24096101`) created from the specimen; readback matches. C4: negative PR #17 was BLOCKED, the non-admin merge was refused, and the PR was closed. C5: the records PR merged without bypass. The state is now `G2_V4_AUTONOMOUS`. | `TODO-011-phase2/<run>` |
 | 2026-09-28 | V4-TODO-014 | B1: PR #7 accepted under O16 and merged as `0b29783`. Exact-head certification run 36342238399 passed Linux 33/33 and Windows 34/34 (package `79d12a1b`); the local Windows-full sweep passed 34/34. B2: live negative PR #8 was rejected ("Approved test hash drift without trust-change authorization") and closed; authorization PR #9 merged; trust-change PR #10 was first blocked by the `PATHEXT` defect (O18). Fix: authorization PR #11, then trust change PR #12, accepted under O16 (Plan §9) on certification run 36358564876 (package `19c9c7f0`). PR #10 then re-ran green, including Windows smoke (run 36359282105), and merged. P6 probe: PRs #13/#14 (run 36360790400). | `TODO-014/<run>` |

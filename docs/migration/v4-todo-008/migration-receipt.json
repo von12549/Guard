@@ -129,13 +129,28 @@
       },
       "parity": "52/52, zero gaps, 15 strengthenings (semantically identical to 1.1.4 R2)",
       "linuxAdvisory": "O20"
+    },
+    "T8": {
+      "status": "pass",
+      "plan": "IFX docs/guards/plans/20260928-v4-todo-008-t8-ifx-cleanup",
+      "run": "T8-cleanup/20260928T070603Z",
+      "SHA256SUMS": "bf8f31969d03d3ac0452a669693cbed098631c66271ae5c024efc852755d4105",
+      "cleanupCommit": "ae42e11d",
+      "ifxCommit": "2141f040989b52b426e1d8e630a57dd037334815",
+      "ifxReceipt": {
+        "path": "docs/guards/v4-adoption/migration/v4-todo-008-ifx-cleanup-receipt.json",
+        "sha256": "fe371edac2167bbd4ff60377b02b2f04ae942f99c312d0d2376d46be8daaf2a7"
+      },
+      "deletedTrackedFiles": 169,
+      "rollback": "git revert ae42e11d",
+      "verification": "zero live references; V3/application unchanged, 1277/1277 tests; clean-environment consumer check and post-cleanup rehearsal pass"
     }
   },
   "boundaries": {
     "standaloneSourceAccepted": true,
     "standaloneReleasePublished": true,
     "ifxConsumerRebound": true,
-    "ifxCoreSourceRemoved": false,
+    "ifxCoreSourceRemoved": true,
     "v4Activated": false,
     "p10GatePassed": false,
     "v3Retired": false
@@ -155,7 +170,9 @@
     "Guard: PR #16 merged (b40db5b); Actions fork-PR approval policy set to all_external_contributors",
     "Guard: ruleset v4-main-autonomy (24096101) created on main (G2_V4_AUTONOMOUS); negative-control PR #17 refused and closed",
     "IFX codex/v4-development-base fast-forward 42b666ac..fe007b52 (T7 R10, authorized 2026-09-28)",
-    "Guard: T7 records PR (this change)"
+    "Guard: T7 records PR #19 merged (67ea830)",
+    "IFX codex/v4-development-base fast-forward cdb53d18..2141f040 (T8 S9, authorized 2026-09-28)",
+    "Guard: T8 records PR (this change)"
   ],
   "publicContractDifferences": [],
   "declaredDifferences": [
@@ -167,9 +184,7 @@
     "integrations/github/ci-contract.json",
     "integrations/github/proposed-v4-guards.yml"
   ],
-  "nextAuthorizationRequired": [
-    "T8 IFX cleanup (A-IFX-DELETE)"
-  ],
+  "nextAuthorizationRequired": [],
   "release": {
     "version": "1.1.5",
     "tag": "v4-guards-v1.1.5",
@@ -186,5 +201,6 @@
     "v1Certification": "pass",
     "restoreCommit": "ca781ad8c68feb20762ca1567196496c47ba2def",
     "downloadVerification": "byte-identical; install + four Stages + verified uninstall pass"
-  }
+  },
+  "status": "complete"
 }

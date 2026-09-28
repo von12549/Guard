@@ -60,7 +60,7 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   Revisit after v1 portability measurements. Evaluate .NET self-contained publishing and the cost of
   bundling or replacing PowerShell/Node dependencies across supported OS/architecture combinations.
 
-- [ ] **V4-TODO-008 — Standalone V4 repository — IN PROGRESS**
+- [x] **V4-TODO-008 — Standalone V4 repository — COMPLETE (2026-09-28)**
 
   Revisit before the first external stable release. Extract V4 from the IFX incubation repository or
   record why a monorepo distribution remains preferable. Preserve provenance and deterministic history.
@@ -94,7 +94,11 @@ source branch is a delivery action by the maintainer and does not add a Git oper
     `codex/v4-development-base` `fe007b52`). The handoff receipt is
     `docs/guards/v4-adoption/migration/v4-todo-008-ifx-rebinding-receipt.json` in IFX, and this repository
     is the canonical V4 source.
-  - Remaining: T8 IFX cleanup of the duplicated `docs/guards/v4` (A-IFX-DELETE).
+  - T8 is done (2026-09-28): IFX removed the duplicated `docs/guards/v4` (cleanup commit `ae42e11d`,
+    receipt `docs/guards/v4-adoption/migration/v4-todo-008-ifx-cleanup-receipt.json` in IFX).
+  - Final boundaries: `standaloneSourceAccepted`, `standaloneReleasePublished`, `ifxConsumerRebound` and
+    `ifxCoreSourceRemoved` are true; `v4Activated`, `p10GatePassed` and `v3Retired` stay false. Follow-ups
+    are V4-TODO-017/018 here and IFX-V4-001..003 in the IFX backlog.
 
 - [ ] **V4-TODO-009 — Profile/module marketplace and signatures**
 
