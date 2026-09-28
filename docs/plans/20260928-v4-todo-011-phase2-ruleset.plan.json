@@ -1,0 +1,42 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-v4-todo-011-phase2-ruleset",
+  "title": "Install the main ruleset requiring v4-required and reach G2_V4_AUTONOMOUS (V4-TODO-011 phase 2)",
+  "goal": "Complete 03 section 6 items 6-8 for Guard: install a reviewed branch ruleset on main that requires the exact v4-required context from GitHub Actions with strict up-to-date checking, merge-only PRs and an admin-only PR bypass, require approval for external fork workflow runs, and prove it with negative and positive control pull requests.",
+  "acceptanceCriteria": [
+    "The ruleset returned by the API equals the reviewed specimen docs/plans/activation/guard-main-ruleset.json: v4-required from integration 15368, strict policy, pull_request with merge only, deletion and non_fast_forward, admin bypass in pull_request mode.",
+    "The Actions fork pull request approval policy is all_external_contributors.",
+    "A negative-control PR fails v4-required and a non-admin merge attempt is refused with mergeStateStatus BLOCKED; it is closed unmerged.",
+    "A positive-control records PR is green and CLEAN and merges without bypass.",
+    "Records declare G2_V4_AUTONOMOUS, complete V4-TODO-011, add the O19 bypass rule and a code-owner review follow-up, with no tag, release, workflow or product change."
+  ],
+  "plannedPaths": [
+    "docs/plans/20260928-v4-todo-011-phase2-ruleset.md",
+    "docs/plans/20260928-v4-todo-011-phase2-ruleset.plan.json",
+    "docs/plans/activation/guard-main-ruleset.json"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "A single maintainer cannot satisfy required approving reviews; review of .github and authorization records is realized through CI scope, sole-writer merges, the logged admin bypass and fork-run approval.",
+    "PRs outside the workflow paths filter receive no v4-required and need the bypass.",
+    "An overly broad bypass would weaken the gate; bypass is limited to admin, pull_request mode and the O19 conditions."
+  ],
+  "decisions": [
+    "Only the aggregate v4-required context is required, pinned to the GitHub Actions app (integration 15368).",
+    "Strict up-to-date checking makes the judged base equal current main.",
+    "Merge commits only; zero required approvals; admin bypass only via pull requests.",
+    "The ruleset is applied from a reviewed specimen stored under docs/plans/activation."
+  ],
+  "validationCommands": [
+    "v4-native-plan-validate",
+    "ruleset-api-readback",
+    "negative-control-merge-refusal",
+    "positive-control-merge"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "activation"
+  ]
+}
