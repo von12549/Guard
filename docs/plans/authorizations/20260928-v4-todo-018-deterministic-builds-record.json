@@ -1,0 +1,23 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-v4-todo-018-deterministic-builds-record",
+  "planId": "20260928-v4-todo-018-deterministic-builds",
+  "reason": "V4-TODO-018 (checklist O14): independent Release builds of one commit from different directories differ in three archive entries (the Host PDB path, the Companion static web assets content root and the distribution manifest). The Host and Companion project files become build-location independent. P7 adds a regression control that builds a second clone at another location and requires the same archive; the CI contract rebinds only the P7 hash.",
+  "entries": [
+    {
+      "path": "integrations/github/ci-contract.json",
+      "baseSha256": "129911851349fc1f7cec956a5b9a34433daec8a4783bb6aa21b9af4c3afb3cec",
+      "headSha256": "d8676c1448f2b5ee02fe21dd84a50bffc13feb1c0e1eb53cc1f088371cce99e2"
+    },
+    {
+      "path": "tests/p7/Test-V4Distribution.ps1",
+      "baseSha256": "861ce79ab94024a23aa5a557cd0215a58d02fdbe25b345373638eba226f79469",
+      "headSha256": "3d5fb570a2b0e603baf3e10a1e5c682378de74655ebc92e89fbccfe4e4012fc2"
+    }
+  ],
+  "acceptedBy": {
+    "kind": "human-review",
+    "authority": "operator (von12549) — Guard product phase G2 (V4-TODO-018) approved 2026-09-28",
+    "candidateHostVerdictAllowed": false
+  }
+}
