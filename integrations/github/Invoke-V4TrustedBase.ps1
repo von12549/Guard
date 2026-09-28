@@ -55,12 +55,12 @@ function Write-Json([string] $Path, $Value) {
     finally { if ([IO.File]::Exists($temporary)) { [IO.File]::Delete($temporary) } }
 }
 function Invoke-Git([string] $Repository, [string[]] $Arguments) {
-    $output = @(& git -C $Repository @Arguments 2>&1); if ($LASTEXITCODE) { Fail "Git failed ($($Arguments -join ' ')): $($output -join "`n")" }
+    $output = @(& git -c core.longpaths=true -C $Repository @Arguments 2>&1); if ($LASTEXITCODE) { Fail "Git failed ($($Arguments -join ' ')): $($output -join "`n")" }
     return @($output | ForEach-Object { [string]$_ })
 }
 function Get-ChangedPaths {
     $start = [Diagnostics.ProcessStartInfo]::new('git'); $start.UseShellExecute = $false; $start.RedirectStandardOutput = $true; $start.RedirectStandardError = $true; $start.CreateNoWindow = $true
-    foreach ($argument in @('-C',$head,'-c','core.quotepath=false','diff','--name-only','--no-renames','-z',"$BaseSha...$HeadSha",'--')) { [void]$start.ArgumentList.Add($argument) }
+    foreach ($argument in @('-C',$head,'-c','core.longpaths=true','-c','core.quotepath=false','diff','--name-only','--no-renames','-z',"$BaseSha...$HeadSha",'--')) { [void]$start.ArgumentList.Add($argument) }
     $process = [Diagnostics.Process]::Start($start); if ($null -eq $process) { Fail 'Git diff did not start.' }
     $stdout = $process.StandardOutput.ReadToEndAsync(); $stderr = $process.StandardError.ReadToEndAsync(); if (-not $process.WaitForExit(30000)) { $process.Kill($true); Fail 'Git diff timed out.' }
     [Threading.Tasks.Task]::WaitAll(@($stdout,$stderr)); if ($process.ExitCode) { Fail "Git diff failed: $($stderr.Result.Trim())" }
@@ -93,9 +93,9 @@ function Test-ApprovedTests([string] $Repository, [string] $Property, [hashtable
 function New-IsolatedHead([string] $State) {
     $target = Join-Path $State 'target'
     if ([IO.Directory]::Exists($target)) { Fail "Isolated target already exists: $target" 17 }
-    $clone = Invoke-Isolated 'git' @('-c','core.longpaths=true','clone','--quiet','--no-local',$head,$target) $State 300
+    $clone = Invoke-Isolated 'git' @('-c','core.longpaths=true','clone','--quiet','--no-local','--config','core.longpaths=true',$head,$target) $State 300
     if ($clone.Code) { Fail "Isolated target clone failed: $($clone.Error)" }
-    $checkout = Invoke-Isolated 'git' @('-C',$target,'checkout','--quiet','--detach',$HeadSha) $State 120
+    $checkout = Invoke-Isolated 'git' @('-c','core.longpaths=true','-C',$target,'checkout','--quiet','--detach',$HeadSha) $State 120
     if ($checkout.Code) { Fail "Isolated target checkout failed: $($checkout.Error)" }
     return $target
 }

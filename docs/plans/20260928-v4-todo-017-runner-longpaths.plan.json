@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "id": "20260928-v4-todo-017-runner-longpaths",
+  "title": "Long paths in the trusted runner (V4-TODO-017)",
+  "goal": "Make every trusted-runner Git command long-path safe, add a P6 regression control and consume the base-held authorization.",
+  "acceptanceCriteria": [
+    "The base-owned V4 runner decides this step as the V4-TODO-014 two-PR trust-change flow expects."
+  ],
+  "plannedPaths": [
+    "docs/plans/20260928-v4-todo-017-runner-longpaths.md",
+    "docs/plans/20260928-v4-todo-017-runner-longpaths.plan.json",
+    "docs/plans/authorizations/20260928-v4-todo-017-runner-longpaths-record.json",
+    "integrations/github/Invoke-V4TrustedBase.ps1",
+    "integrations/github/ci-contract.json",
+    "tests/p6/Test-V4TrustedBase.ps1"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [],
+  "decisions": [
+    "Trust-change step of the V4-TODO-014 two-PR flow for V4-TODO-017."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "trust-change"
+  ]
+}
