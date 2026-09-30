@@ -11,5 +11,9 @@
     <PathMap>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '..', '..', '..'))=/_/</PathMap>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
+    <UseAppHost>true</UseAppHost>
+    <PublishSingleFile>false</PublishSingleFile>
+    <PublishTrimmed>false</PublishTrimmed>
+    <PublishReadyToRun>false</PublishReadyToRun>
   </PropertyGroup>
 </Project>
