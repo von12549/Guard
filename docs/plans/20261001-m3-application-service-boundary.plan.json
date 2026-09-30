@@ -1,0 +1,29 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m3-application-service-boundary",
+  "title": "Implement the typed M3 application-service boundary",
+  "goal": "Expose a closed schema-versioned Host operation surface without creating a browser command or path gateway.",
+  "acceptanceCriteria": [
+    "Every exposed operation has one V4-AD-040 class and a stable vetted identifier.",
+    "Host results bind project package Target and payload identities and reject unknown fields or operation IDs.",
+    "The first M3 surface exposes queries and previews only; apply and remote operations remain unavailable handoffs.",
+    "Focused positive and negative contract tests pass without Target or PackageRoot mutation."
+  ],
+  "plannedPaths": [
+    "core/application/contracts/application-service-contract.json",
+    "core/application/contracts/application-service-contract.schema.json",
+    "core/application/contracts/application-preview.schema.json",
+    "core/host/V4.Guards.Host/ApplicationRuntime.cs",
+    "core/host/V4.Guards.Host/Program.cs",
+    "core/application/validation/Test-V4ApplicationBoundary.ps1",
+    "docs/plans/20261001-m3-application-service-boundary.md",
+    "docs/plans/20261001-m3-application-service-boundary.plan.json"
+  ],
+  "areas": ["application", "contracts", "host", "tests"],
+  "risks": ["A generic application gateway could bypass typed root and capability validation."],
+  "decisions": ["Expose a closed Host-owned operation registry and no raw command transport."],
+  "validationCommands": ["pwsh -NoProfile -File core/application/validation/Test-V4ApplicationBoundary.ps1", "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1", "pwsh -NoProfile -File tests/p1/Test-V4Package.ps1"],
+  "dependencies": [],
+  "boundaries": []
+}
+

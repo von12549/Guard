@@ -1,0 +1,29 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m3-authority-lifecycle-handoffs",
+  "title": "Implement authority and lifecycle handoff previews",
+  "goal": "Project Profile Plan Module and immutable lifecycle next steps without adding an apply or raw-command surface.",
+  "acceptanceCriteria": [
+    "Profile Plan and Module items use Host-derived identities and declare exact availability and next boundaries.",
+    "Lifecycle preview distinguishes verify compose select rollback retention and remote activation without performing them.",
+    "Unavailable M4/M5 or Target-trust capabilities remain explicit handoffs and cannot be invoked.",
+    "No browser-controlled path command environment Target write installation selection cleanup Git or remote operation exists."
+  ],
+  "plannedPaths": [
+    "core/application/contracts/authority-handoff.schema.json",
+    "core/application/contracts/lifecycle-preview.schema.json",
+    "core/host/V4.Guards.Host/ApplicationRuntime.cs",
+    "core/application/validation/Test-V4ApplicationBoundary.ps1",
+    "docs/application-workbench.md",
+    "docs/plans/20261001-m3-authority-lifecycle-handoffs.md",
+    "docs/plans/20261001-m3-authority-lifecycle-handoffs.plan.json",
+    "docs/plans/product/TODO.md"
+  ],
+  "areas": ["application", "contracts", "documentation", "distribution", "host", "tests"],
+  "risks": ["A preview or handoff could be mistaken for applied or authorized lifecycle state."],
+  "decisions": ["Return descriptive Host-owned next operations and keep every apply capability unavailable."],
+  "validationCommands": ["pwsh -NoProfile -File core/application/validation/Test-V4ApplicationBoundary.ps1", "pwsh -NoProfile -File tests/p7/Test-V4Lifecycle.ps1", "pwsh -NoProfile -File tests/p7/Test-V4Documentation.ps1"],
+  "dependencies": [],
+  "boundaries": []
+}
+
