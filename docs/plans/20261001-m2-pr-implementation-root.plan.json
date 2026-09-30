@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m2-pr-implementation-root",
+  "title": "Own the M2 PR Profile authority implementation paths",
+  "goal": "Provide unique exact path ownership for M2 contracts Host behavior and tests in the PR root plan-set.",
+  "acceptanceCriteria": [
+    "Inert discovery is deterministic bounded and cannot execute or mutate Target code.",
+    "Drafts remain snapshot-bound StateRoot data and empty coverage remains visibly unprotected.",
+    "Review validation fails closed on stale identity schema capability configuration fixture coverage or policy drift.",
+    "Promotion emits only a portable candidate compatible with the existing sibling composer and records all unperformed authority boundaries.",
+    "Focused and affected regression suites pass without changing the frozen stable CLI compatibility baseline."
+  ],
+  "plannedPaths": [
+    "core/contracts/contracts-manifest.json",
+    "core/contracts/profile-authority-contract.json",
+    "core/contracts/profile-authority-contract.schema.json",
+    "core/contracts/profile-discovery.schema.json",
+    "core/contracts/profile-draft.schema.json",
+    "core/contracts/profile-promotion.schema.json",
+    "core/contracts/profile-review.schema.json",
+    "core/contracts/profile-validation.schema.json",
+    "core/host/V4.Guards.Host/ProfileRuntime.cs",
+    "core/host/V4.Guards.Host/Program.cs",
+    "tests/p0/Test-V4Contracts.ps1",
+    "tests/p11/Test-V4ProfileAuthority.ps1"
+  ],
+  "areas": ["contracts", "host", "profile", "tests"],
+  "risks": [
+    "Discovery could cross a link or inspect content outside its allowlist.",
+    "A stale or self-authored review could convert recommendations into apparent policy.",
+    "Candidate output could be mistaken for an installed or selected composition."
+  ],
+  "decisions": [
+    "Keep the M2 command surface experimental and separate from the frozen stable CLI contract.",
+    "Require exact snapshot draft review Module configuration capability and fixture bindings.",
+    "Emit a promotion candidate without Target apply composition selection or CI activation."
+  ],
+  "validationCommands": [
+    "pwsh -NoProfile -File tests/p11/Test-V4ProfileAuthority.ps1",
+    "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1",
+    "pwsh -NoProfile -File tests/p1/Test-V4Package.ps1",
+    "pwsh -NoProfile -File tests/p5/Test-V4PlanRuntime.ps1",
+    "pwsh -NoProfile -File tests/p8/Test-V4CompatibilityBaseline.ps1",
+    "pwsh -NoProfile -File tests/p8/Test-V4StableCli.ps1",
+    "pwsh -NoProfile -File tests/p10/Test-V4ExtensionComposition.ps1"
+  ],
+  "dependencies": ["20261001-m2-pr-documentation-root"],
+  "boundaries": []
+}
