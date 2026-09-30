@@ -1,0 +1,33 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-installed-launcher",
+  "title": "Implement installed launchers with automatic PackageRoot resolution",
+  "goal": "Launch the RID-native installed Host and Companion from a canonical receipted layout without caller-supplied PackageRoot.",
+  "acceptanceCriteria": [
+    "Root-level launchers derive the distribution root and PackageRoot only from their own canonical location.",
+    "The launcher selects the RID-native self-contained executable and preserves explicit four-root Host invocation.",
+    "Tampered, relocated-without-receipt and mismatched override layouts fail closed.",
+    "Hostile working directories and parent configuration do not influence authority selection."
+  ],
+  "plannedPaths": [
+    "core/distribution/Invoke-V4Installed.ps1",
+    "core/distribution/Invoke-V4InstalledWebCompanion.ps1",
+    "core/distribution/New-V4Distribution.ps1",
+    "core/distribution/guard-web.ps1",
+    "core/distribution/guard.ps1",
+    "docs/plans/20261001-m1-installed-launcher.md",
+    "docs/plans/20261001-m1-installed-launcher.plan.json",
+    "tests/m1/Test-V4InstalledLauncher.ps1"
+  ],
+  "areas": ["distribution", "launcher", "tests"],
+  "risks": ["Path-based authority discovery could accept an attacker-controlled sibling.", "Launcher generation could break deterministic archives."],
+  "decisions": ["Derive PackageRoot from launcher location and verify layout before use.", "Keep explicit diagnostic overrides fail-closed."],
+  "validationCommands": [
+    "pwsh -NoProfile -File tests/m1/Test-V4InstalledLauncher.ps1",
+    "pwsh -NoProfile -File tests/p7/Test-V4Distribution.ps1",
+    "pwsh -NoProfile -File tests/p7/Test-V4Lifecycle.ps1",
+    "pwsh -NoProfile -File tests/p9/Test-V4OfflineWebDistribution.ps1"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

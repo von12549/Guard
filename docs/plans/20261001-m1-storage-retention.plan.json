@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-storage-retention",
+  "title": "Implement automatic cleanup and bounded storage retention",
+  "goal": "Preview and safely apply protected-reference-aware retention for runtime work Evidence diagnostics and caches with restart-safe receipts.",
+  "acceptanceCriteria": [
+    "Cleanup classifies every candidate and keep/delete reason and never evicts protected authority or referenced data.",
+    "Age count and capacity policies are deterministic and configurable with the accepted provisional defaults.",
+    "Apply accepts an exact preview hash and rechecks leases references canonical paths and links.",
+    "Deletion uses owned restart-safe tombstones and emits an exact schema-valid receipt.",
+    "Installed and ordinary State measurements are reported without turning provisional limits into compatibility promises."
+  ],
+  "plannedPaths": [
+    "core/contracts/cleanup-policy.schema.json",
+    "core/contracts/cleanup-preview.schema.json",
+    "core/contracts/cleanup-receipt.schema.json",
+    "core/contracts/contracts-manifest.json",
+    "core/distribution/Invoke-V4Cleanup.ps1",
+    "docs/plans/20261001-m1-storage-retention.md",
+    "docs/plans/20261001-m1-storage-retention.plan.json",
+    "tests/m1/Test-V4StorageRetention.ps1"
+  ],
+  "areas": ["cleanup", "contracts", "distribution", "retention", "tests"],
+  "risks": ["Unsafe deletion could remove unowned or protected data.", "Concurrent runs can invalidate a preview.", "Provisional limits could be treated as stable promises."],
+  "decisions": ["Use exact preview/apply with durable tombstones and receipts.", "Protected references override capacity targets.", "Age/count rules retain the smaller eligible set."],
+  "validationCommands": [
+    "pwsh -NoProfile -File tests/m1/Test-V4StorageRetention.ps1",
+    "pwsh -NoProfile -File tests/p2/Test-V4Reset.ps1",
+    "pwsh -NoProfile -File tests/p7/Test-V4Lifecycle.ps1",
+    "pwsh -NoProfile -File core/runtime/Test-V4Package.ps1 -PackageRoot ."
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

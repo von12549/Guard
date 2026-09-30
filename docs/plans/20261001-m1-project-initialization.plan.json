@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-project-initialization",
+  "title": "Implement project initialization and derived mutable roots",
+  "goal": "Preview and apply a stable external project context with safe OS-derived StateRoot and EvidenceRoot defaults while leaving TargetRoot untouched.",
+  "acceptanceCriteria": [
+    "Init requires an explicit TargetRoot and derives stable OS-specific external roots.",
+    "Relocation and independent overrides receive canonical path ownership overlap permission and link checks.",
+    "Preview/apply uses an exact stale-resistant hash and writes only external receipted context data.",
+    "Low-level Host operations still receive four explicit roots and Init never writes TargetRoot."
+  ],
+  "plannedPaths": [
+    "core/contracts/cli-contract.json",
+    "core/contracts/contracts-manifest.json",
+    "core/contracts/init-receipt.schema.json",
+    "core/contracts/project-context.schema.json",
+    "core/host/V4.Guards.Host/InitializationRuntime.cs",
+    "core/host/V4.Guards.Host/Program.cs",
+    "core/host/V4.Guards.Host/StateRuntime.cs",
+    "docs/commands.md",
+    "docs/plans/20261001-m1-project-initialization.md",
+    "docs/plans/20261001-m1-project-initialization.plan.json",
+    "tests/m1/Test-V4ProjectInitialization.ps1"
+  ],
+  "areas": ["contracts", "host", "initialization", "state", "tests"],
+  "risks": ["Derived paths could overlap Target or package authority.", "OS identity differences could destabilize project context."],
+  "decisions": ["Init is external-only and preview/apply.", "Use one project container with sibling state and evidence roots."],
+  "validationCommands": [
+    "pwsh -NoProfile -File tests/m1/Test-V4ProjectInitialization.ps1",
+    "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1",
+    "pwsh -NoProfile -File tests/p2/Test-V4StateTransactions.ps1",
+    "pwsh -NoProfile -File tests/p2/Test-V4Reset.ps1",
+    "pwsh -NoProfile -File tests/p4/Test-V4ProjectModel.ps1",
+    "pwsh -NoProfile -File tests/p8/Test-V4StableCli.ps1",
+    "pwsh -NoProfile -File tests/p7/Test-V4Documentation.ps1"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

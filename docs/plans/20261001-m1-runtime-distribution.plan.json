@@ -1,0 +1,46 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-runtime-distribution",
+  "title": "Implement RID-specific self-contained distribution measurements",
+  "goal": "Publish and measure deterministic RID-specific self-contained Host and Web Companion distributions without release publication or implicit runtime downloads.",
+  "acceptanceCriteria": [
+    "The distribution manifest binds a supported RID and self-contained deployment model.",
+    "Host and Companion publish trees contain native application hosts and are rejected when framework-dependent or RID-inconsistent.",
+    "A schema-valid report records publish/archive sizes, file counts, durations and cold start probes.",
+    "Identical inputs produce byte-identical archives and the current-RID Host starts without invoking the machine dotnet command.",
+    "No release, install, workflow, approved-test or remote state changes occur."
+  ],
+  "plannedPaths": [
+    "core/contracts/contracts-manifest.json",
+    "core/contracts/distribution-manifest.schema.json",
+    "core/contracts/distribution-measurement.schema.json",
+    "core/distribution/New-V4Distribution.ps1",
+    "core/distribution/Publish-V4SelfContainedDistribution.ps1",
+    "core/host/V4.Guards.Host/V4.Guards.Host.csproj",
+    "docs/plans/20261001-m1-runtime-distribution.md",
+    "docs/plans/20261001-m1-runtime-distribution.plan.json",
+    "integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj",
+    "tests/m1/Test-V4SelfContainedDistribution.ps1"
+  ],
+  "areas": ["distribution", "contracts", "host", "web-companion", "tests"],
+  "risks": [
+    "RID runtime packs may be unavailable offline.",
+    "Self-contained output may be mistaken for a fully bundled zero-prerequisite product.",
+    "Publish paths or timestamps may make archives nondeterministic."
+  ],
+  "decisions": [
+    "Keep Module runtimes external.",
+    "Measure before considering trimming, single-file or ReadyToRun.",
+    "Do not modify protected package certification or approved-test paths in this checkpoint."
+  ],
+  "validationCommands": [
+    "pwsh -NoProfile -File tests/m1/Test-V4SelfContainedDistribution.ps1",
+    "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1",
+    "pwsh -NoProfile -File tests/p7/Test-V4Distribution.ps1",
+    "pwsh -NoProfile -File tests/p7/Test-V4Lifecycle.ps1",
+    "pwsh -NoProfile -File tests/p8/Test-V4SupplyChain.ps1",
+    "pwsh -NoProfile -File core/runtime/Test-V4Package.ps1 -PackageRoot ."
+  ],
+  "dependencies": [],
+  "boundaries": []
+}
