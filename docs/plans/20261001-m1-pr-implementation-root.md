@@ -10,6 +10,8 @@ Dependency: `20261001-m1-pr-documentation-root`.
 
 Own the exact product and test paths implementing M1.1 self-contained RID publishing/measurement and
 M1.2 installed launcher/PackageRoot resolution in PR #30.
+This includes preserving the existing receipted Companion path for composition packages by binding its
+launch to the package hash produced by successful receipt verification.
 
 ## Scope and boundary
 

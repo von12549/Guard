@@ -12,6 +12,7 @@
   "plannedPaths": [
     "core/distribution/Invoke-V4Installed.ps1",
     "core/distribution/Invoke-V4InstalledWebCompanion.ps1",
+    "core/distribution/Invoke-V4ReceiptedWebCompanion.ps1",
     "core/distribution/New-V4Distribution.ps1",
     "core/distribution/Resolve-V4InstalledLayout.ps1",
     "core/distribution/Test-V4Prerequisites.ps1",
@@ -26,6 +27,7 @@
   "risks": ["Path-based authority discovery could accept an attacker-controlled sibling.", "Launcher generation could break deterministic archives."],
   "decisions": [
     "Derive PackageRoot from launcher location and verify layout before use.",
+    "Let the receipted Companion entry point bind a composed PackageRoot to the exact hash returned by the verified receipt proof and use its provenance copy of the base manifest, while ordinary installed launchers remain bound to the root base distribution manifest.",
     "Keep explicit diagnostic overrides fail-closed.",
     "Self-contained launch removes only Host-owned dotnet requirements; Module-declared prerequisites remain authoritative.",
     "Execution completed locally on the native current RID without Target release or remote changes."

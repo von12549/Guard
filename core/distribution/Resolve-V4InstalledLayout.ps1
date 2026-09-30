@@ -4,7 +4,8 @@ function Resolve-V4InstalledLayout {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][string] $PackageRoot,
-        [switch] $RequireCompanion
+        [switch] $RequireCompanion,
+        [string] $ExpectedPackageHash = ''
     )
 
     function Hash([string] $Path) { (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant() }
@@ -25,21 +26,34 @@ function Resolve-V4InstalledLayout {
     if (-not [IO.Directory]::Exists($package)) { throw 'Derived PackageRoot is missing.' }
     $distribution = [IO.Directory]::GetParent($package).FullName
     $manifestPath = Join-Path $distribution 'distribution-manifest.json'
+    $receiptBound = -not [string]::IsNullOrWhiteSpace($ExpectedPackageHash)
+    $usingProvenanceManifest = $false
+    if (-not [IO.File]::Exists($manifestPath) -and $receiptBound) {
+        $manifestPath = Join-Path $distribution 'provenance/base-distribution-manifest.json'
+        $usingProvenanceManifest = $true
+    }
     $schemaPath = Join-Path $package 'core/contracts/distribution-manifest.schema.json'
     if (-not [IO.File]::Exists($manifestPath) -or
         -not (Test-Json -LiteralPath $manifestPath -SchemaFile $schemaPath -ErrorAction SilentlyContinue)) {
         throw 'Installed distribution manifest is missing or invalid.'
     }
     $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
-    if ([string]$manifest.rootDirectory -cne [IO.Path]::GetFileName($distribution)) {
+    if (-not $usingProvenanceManifest -and [string]$manifest.rootDirectory -cne [IO.Path]::GetFileName($distribution)) {
         throw 'Installed distribution root identity does not match its manifest.'
     }
     $pwshPath = if ($IsWindows) { Join-Path $PSHOME 'pwsh.exe' } else { Join-Path $PSHOME 'pwsh' }
     $checkOutput = @(& $pwshPath -NoLogo -NoProfile -NonInteractive -File (Join-Path $package 'core/runtime/Test-V4Package.ps1') -PackageRoot $package 2>&1)
     if ($LASTEXITCODE -ne 0) { throw "Installed PackageRoot validation failed: $($checkOutput -join "`n")" }
     $packageResult = ($checkOutput -join "`n") | ConvertFrom-Json
-    if ([string]$packageResult.packageHash -cne [string]$manifest.source.packageHash) {
-        throw 'Installed PackageRoot hash does not match the distribution manifest.'
+    $actualPackageHash = [string]$packageResult.packageHash
+    if (-not $receiptBound) {
+        if ($actualPackageHash -cne [string]$manifest.source.packageHash) {
+            throw 'Installed PackageRoot hash does not match the distribution manifest.'
+        }
+    } else {
+        if ($ExpectedPackageHash -cnotmatch '^[a-f0-9]{64}$' -or $actualPackageHash -cne $ExpectedPackageHash) {
+            throw 'Installed PackageRoot hash does not match the verified receipt proof.'
+        }
     }
 
     $runtimePath = Join-Path $package 'core/distribution/runtime-manifest.json'

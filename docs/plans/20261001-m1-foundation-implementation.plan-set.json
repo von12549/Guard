@@ -13,7 +13,7 @@
       "order": 2,
       "planId": "20261001-m1-pr-implementation-root",
       "path": "docs/plans/20261001-m1-pr-implementation-root.plan.json",
-      "sha256": "0b66be22020297d2ccb4f17ee2a0509bb1062a019cadc3c32f75d1a090a6bee3",
+      "sha256": "e060dc52f3e238fb5c02ec2963795916c4d6b909d6f0a9f13a11c7c15fe6866b",
       "dependsOn": [
         "20261001-m1-pr-documentation-root"
       ]
@@ -24,6 +24,7 @@
       ".gitignore",
       "core/distribution/Invoke-V4Installed.ps1",
       "core/distribution/Invoke-V4InstalledWebCompanion.ps1",
+      "core/distribution/Invoke-V4ReceiptedWebCompanion.ps1",
       "core/distribution/New-V4Distribution.ps1",
       "core/distribution/Publish-V4SelfContainedDistribution.ps1",
       "core/distribution/Resolve-V4InstalledLayout.ps1",
@@ -103,5 +104,5 @@
     ],
     "boundaries": []
   },
-  "compositionHash": "281ef50a4d6ca52d318cd337f3ff19f998f3f921b9ae8ee5599e9cfadf369c19"
+  "compositionHash": "d72b0daafaaa4722da266b293e175063f839759669aedbcc94b722b3f37bb6ac"
 }

@@ -12,6 +12,7 @@
   "plannedPaths": [
     "core/distribution/Invoke-V4Installed.ps1",
     "core/distribution/Invoke-V4InstalledWebCompanion.ps1",
+    "core/distribution/Invoke-V4ReceiptedWebCompanion.ps1",
     "core/distribution/New-V4Distribution.ps1",
     "core/distribution/Publish-V4SelfContainedDistribution.ps1",
     "core/distribution/Resolve-V4InstalledLayout.ps1",

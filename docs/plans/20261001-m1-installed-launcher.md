@@ -20,6 +20,10 @@ derived PackageRoot. Validate manifest/receipt layout before execution and keep 
 to the selected Profile. A self-contained package removes only the Host-owned `dotnet` prerequisite;
 Module-declared `dotnet` requirements remain enforced. The Companion process boundary accepts either the
 legacy Host DLL through the current dotnet executable or the exact installed native Host apphost.
+For composed installations, the receipted Companion entry point first verifies the composition/base
+receipt and then binds layout resolution to the exact PackageRoot hash returned by that proof. Ordinary
+installed launchers remain bound to the root base distribution manifest and expose no receipt bypass;
+only the verified receipt path may resolve a composed installation's provenance copy of that manifest.
 
 ## Acceptance and tests
 
