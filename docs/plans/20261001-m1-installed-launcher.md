@@ -1,6 +1,6 @@
 # M1.2 — installed launcher and PackageRoot resolution
 
-Status: `IMPLEMENTATION PLAN — READY; not yet executed`
+Status: `IMPLEMENTATION CHECKPOINT — IMPLEMENTED AND LOCALLY VALIDATED 2026-10-01`
 
 Formal Plan ID: `20261001-m1-installed-launcher`.
 
@@ -17,7 +17,9 @@ four-root Host arguments. Callers no longer supply PackageRoot for an ordinary i
 Add source launcher templates, place them at the archive root through the deterministic builder, and
 tighten the installed invocation scripts so an optional diagnostic override must equal the canonical
 derived PackageRoot. Validate manifest/receipt layout before execution and keep prerequisite checks tied
-to the selected Profile.
+to the selected Profile. A self-contained package removes only the Host-owned `dotnet` prerequisite;
+Module-declared `dotnet` requirements remain enforced. The Companion process boundary accepts either the
+legacy Host DLL through the current dotnet executable or the exact installed native Host apphost.
 
 ## Acceptance and tests
 

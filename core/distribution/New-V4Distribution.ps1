@@ -102,6 +102,12 @@ try {
         [IO.File]::Copy($source, $destination, $false)
         $files.Add([ordered]@{ path="package/$relative"; kind='package'; sha256=Hash $destination; size=(Get-Item $destination).Length })
     }
+    foreach ($launcherName in @('guard.ps1','guard-web.ps1')) {
+        $source = Join-Path $package "core/distribution/$launcherName"
+        $destination = Join-Path $payloadRoot "package/$launcherName"
+        [IO.File]::Copy($source, $destination, $false)
+        $files.Add([ordered]@{ path="package/$launcherName"; kind='package'; sha256=Hash $destination; size=(Get-Item $destination).Length })
+    }
     foreach ($file in $hostFiles) {
         $relative = [IO.Path]::GetRelativePath($hostDirectory, $file.FullName).Replace('\','/')
         $destination = Join-Path $payloadRoot ("host/$relative")

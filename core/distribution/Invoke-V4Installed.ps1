@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string] $PackageRoot = (Join-Path $PSScriptRoot '../..'),
+    [string] $PackageRoot = '',
     [string] $Profile = 'default',
     [Parameter(Mandatory)][string] $PrerequisiteReportPath,
     [Parameter(Mandatory)][string] $HostArgumentsJson
@@ -9,10 +9,16 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$package = [IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath($PackageRoot))
-$distributionRoot = [IO.Directory]::GetParent($package).FullName
-$hostDll = Join-Path $distributionRoot 'host/v4-guards.dll'
-if (-not [IO.File]::Exists($hostDll)) { [Console]::Error.WriteLine('Installed host/v4-guards.dll is missing.'); exit 12 }
+$derivedPackage = [IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..')))
+if (-not [string]::IsNullOrWhiteSpace($PackageRoot) -and
+    [IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath($PackageRoot)) -cne $derivedPackage) {
+    [Console]::Error.WriteLine('PackageRoot override does not match the installed launcher location.'); exit 11
+}
+$package = $derivedPackage
+try {
+    . (Join-Path $PSScriptRoot 'Resolve-V4InstalledLayout.ps1')
+    $layout = Resolve-V4InstalledLayout -PackageRoot $package
+} catch { [Console]::Error.WriteLine($_.Exception.Message); exit 12 }
 
 try {
     $arguments = @($HostArgumentsJson | ConvertFrom-Json -Depth 20)
@@ -25,12 +31,19 @@ try {
 
 $pwshPath = if ($IsWindows) { Join-Path $PSHOME 'pwsh.exe' } else { Join-Path $PSHOME 'pwsh' }
 $prerequisiteScript = Join-Path $package 'core/distribution/Test-V4Prerequisites.ps1'
-$null = & $pwshPath -NoLogo -NoProfile -NonInteractive -File $prerequisiteScript -PackageRoot $package -Profile $Profile -ReportPath $PrerequisiteReportPath
+$prerequisiteArguments = @('-PackageRoot',$package,'-Profile',$Profile,'-ReportPath',$PrerequisiteReportPath)
+if ($layout.SelfContained) { $prerequisiteArguments += @('-ExcludeHostRuntime','dotnet') }
+$null = & $pwshPath -NoLogo -NoProfile -NonInteractive -File $prerequisiteScript @prerequisiteArguments
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $report = Get-Content -Raw -LiteralPath $PrerequisiteReportPath | ConvertFrom-Json
+$hostPath = [string]$layout.HostPath
+if ($layout.SelfContained) {
+    & $hostPath @arguments
+    exit $LASTEXITCODE
+}
 $dotnet = @($report.requirements | Where-Object { $_.runtime -eq 'dotnet' -and $_.status -eq 'pass' } | Select-Object -First 1)
 if ($dotnet.Count -ne 1 -or [string]::IsNullOrWhiteSpace([string]$dotnet[0].executablePath)) {
     [Console]::Error.WriteLine('A validated dotnet executable is unavailable.'); exit 15
 }
-& $dotnet[0].executablePath $hostDll @arguments
+& $dotnet[0].executablePath $hostPath @arguments
 exit $LASTEXITCODE
