@@ -1,6 +1,6 @@
 # M2.4 — Reviewed Profile promotion candidate
 
-Status: `IMPLEMENTATION PLAN — READY 2026-10-01`
+Status: `IMPLEMENTATION PLAN — IMPLEMENTED 2026-10-01`
 
 Formal Plan ID: `20261001-m2-promotion-candidate`.
 
@@ -26,3 +26,6 @@ installation, activate CI, publish or change remote state.
 Stop on stale validation, output overlap, existing destination, unsupported bundle content or Target
 drift. Resume with a fresh review or a new empty output path. Recovery removes only the marker-owned
 staging/candidate directory; later immutable composition recovery remains owned by P10 lifecycle.
+
+Implementation evidence: the focused M2 test proves schema-valid atomic candidate output, duplicate
+destination rejection, unchanged Target bytes and explicit non-claims for composition/CI state.

@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/profile-draft.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "status", "authority", "draftId", "storagePath", "project", "targetSnapshotSha256", "discoverySha256", "generator", "candidateProfile", "candidateProfileSha256", "recommendations", "unresolvedPolicy", "coverage"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "const": "draft" },
+    "authority": { "const": "state-draft-non-authoritative" },
+    "draftId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+    "storagePath": { "type": "string", "minLength": 1 },
+    "project": {
+      "type": "object", "additionalProperties": false, "required": ["id", "targetCanonicalPath"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+        "targetCanonicalPath": { "type": "string", "minLength": 1 }
+      }
+    },
+    "targetSnapshotSha256": { "$ref": "#/definitions/sha256" },
+    "discoverySha256": { "$ref": "#/definitions/sha256" },
+    "generator": {
+      "type": "object", "additionalProperties": false, "required": ["id", "version"],
+      "properties": { "id": { "const": "v4-profile-scaffold" }, "version": { "const": "1.0.0" } }
+    },
+    "candidateProfile": { "type": "object" },
+    "candidateProfileSha256": { "$ref": "#/definitions/sha256" },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["id", "kind", "rationale", "confidence"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "kind": { "enum": ["consider-module", "review-framework", "review-project-root"] },
+          "moduleId": { "type": ["string", "null"], "pattern": "^[a-z0-9-]+$" },
+          "rationale": { "type": "string", "minLength": 1 },
+          "confidence": { "enum": ["low", "medium", "high"] }
+        }
+      }
+    },
+    "unresolvedPolicy": {
+      "type": "array", "minItems": 6, "uniqueItems": true,
+      "items": { "enum": ["gate-selection", "severity", "exceptions", "baselines", "unsupported-coverage", "ambiguous-modules"] }
+    },
+    "coverage": {
+      "type": "object", "additionalProperties": false, "required": ["status", "selectedModuleCount", "enabledStageCount"],
+      "properties": {
+        "status": { "const": "unprotected" },
+        "selectedModuleCount": { "const": 0 },
+        "enabledStageCount": { "const": 0 }
+      }
+    }
+  },
+  "definitions": { "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } }
+}

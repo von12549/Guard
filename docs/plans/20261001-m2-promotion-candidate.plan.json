@@ -10,11 +10,10 @@
     "TargetRoot remains byte-identical and no composition selection CI remote or release action occurs."
   ],
   "plannedPaths": [
-    "core/contracts/cli-contract.json",
     "core/contracts/contracts-manifest.json",
     "core/contracts/profile-promotion.schema.json",
     "core/host/V4.Guards.Host/ProfileRuntime.cs",
-    "docs/commands.md",
+    "docs/profile-authority.md",
     "docs/plans/20261001-m2-promotion-candidate.md",
     "docs/plans/20261001-m2-promotion-candidate.plan.json",
     "docs/plans/product/TODO.md",

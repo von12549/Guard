@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/profile-validation.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "status", "operation", "draftSha256", "reviewSha256", "targetSnapshotSha256", "profile", "moduleBindings", "fixtures", "coverage", "readiness"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "const": "pass" },
+    "operation": { "const": "profile-validate" },
+    "draftSha256": { "$ref": "#/definitions/sha256" },
+    "reviewSha256": { "$ref": "#/definitions/sha256" },
+    "targetSnapshotSha256": { "$ref": "#/definitions/sha256" },
+    "profile": {
+      "type": "object", "additionalProperties": false, "required": ["id", "version", "candidateProfileSha256"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "candidateProfileSha256": { "$ref": "#/definitions/sha256" }
+      }
+    },
+    "moduleBindings": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/definitions/moduleBinding" } },
+    "fixtures": {
+      "type": "object", "additionalProperties": false, "required": ["positive", "negative", "allMatched"],
+      "properties": {
+        "positive": { "type": "integer", "minimum": 1 },
+        "negative": { "type": "integer", "minimum": 1 },
+        "allMatched": { "const": true }
+      }
+    },
+    "coverage": {
+      "type": "object", "additionalProperties": false, "required": ["status", "selectedModuleCount", "enabledStageCount", "nonVacuous"],
+      "properties": {
+        "status": { "enum": ["protected", "unprotected"] },
+        "selectedModuleCount": { "type": "integer", "minimum": 0 },
+        "enabledStageCount": { "type": "integer", "minimum": 0 },
+        "nonVacuous": { "type": "boolean" }
+      }
+    },
+    "readiness": {
+      "type": "object", "additionalProperties": false, "required": ["status", "targetAdoptionRequired", "compositionRequired", "ciActivationRequired"],
+      "properties": {
+        "status": { "const": "ready-for-promotion" },
+        "targetAdoptionRequired": { "const": true },
+        "compositionRequired": { "const": true },
+        "ciActivationRequired": { "const": true }
+      }
+    }
+  },
+  "definitions": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "moduleBinding": {
+      "type": "object", "additionalProperties": false, "required": ["id", "manifestSha256", "configSha256", "allowedCapabilitiesSha256"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "manifestSha256": { "$ref": "#/definitions/sha256" },
+        "configSha256": { "$ref": "#/definitions/sha256" },
+        "allowedCapabilitiesSha256": { "$ref": "#/definitions/sha256" }
+      }
+    }
+  }
+}

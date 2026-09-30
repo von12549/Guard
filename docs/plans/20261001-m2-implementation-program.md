@@ -1,6 +1,6 @@
 # M2 implementation program — Profile discovery, draft, review and promotion
 
-Status: `IMPLEMENTATION PROGRAM — READY 2026-10-01`
+Status: `IMPLEMENTATION PROGRAM — IMPLEMENTED 2026-10-01`
 
 Formal Plan ID: `20261001-m2-implementation-program`.
 
@@ -39,3 +39,9 @@ Plan; never reuse a stale draft, review or promotion candidate.
 
 Revert the four checkpoints in reverse order. Generated StateRoot drafts and candidate bundles are
 non-authoritative disposable local artifacts; no Target, selected installation or remote state changes.
+
+## Implementation result
+
+All four local checkpoints are implemented by the Host and bound contracts. Focused M2, contract,
+package, generated-documentation and stable-CLI regressions pass. Target adoption, composition
+execution/selection and CI activation remain intentionally unperformed boundaries.

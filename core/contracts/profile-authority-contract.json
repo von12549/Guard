@@ -1,0 +1,40 @@
+{
+  "formatVersion": 1,
+  "apiVersion": "1.0",
+  "commands": [
+    {
+      "id": "profile.discover",
+      "syntax": "v4-guards profile discover --package-root <path> --target-root <path>",
+      "mutability": "read-only",
+      "requiredRoots": ["PackageRoot", "TargetRoot"],
+      "resultSchema": "profile-discovery"
+    },
+    {
+      "id": "profile.draft",
+      "syntax": "v4-guards profile draft --package-root <path> --target-root <path> --state-root <path> --profile <id>",
+      "mutability": "state-write",
+      "requiredRoots": ["PackageRoot", "TargetRoot", "StateRoot"],
+      "resultSchema": "profile-draft"
+    },
+    {
+      "id": "profile.validate",
+      "syntax": "v4-guards profile validate --package-root <path> --target-root <path> --state-root <path> --draft <path> --review <path>",
+      "mutability": "read-only",
+      "requiredRoots": ["PackageRoot", "TargetRoot", "StateRoot"],
+      "resultSchema": "profile-validation"
+    },
+    {
+      "id": "profile.promote",
+      "syntax": "v4-guards profile promote --package-root <path> --target-root <path> --state-root <path> --draft <path> --review <path> --output-root <path> --base-archive-sha256 <sha256>",
+      "mutability": "candidate-write",
+      "requiredRoots": ["PackageRoot", "TargetRoot", "StateRoot"],
+      "resultSchema": "profile-promotion"
+    }
+  ],
+  "boundaries": {
+    "targetWrite": false,
+    "compositionSelection": false,
+    "ciActivation": false,
+    "remoteMutation": false
+  }
+}

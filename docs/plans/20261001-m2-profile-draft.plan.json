@@ -10,7 +10,6 @@
     "Atomic idempotent StateRoot writes reject conflicts and never change TargetRoot."
   ],
   "plannedPaths": [
-    "core/contracts/cli-contract.json",
     "core/contracts/contracts-manifest.json",
     "core/contracts/profile-draft.schema.json",
     "core/host/V4.Guards.Host/ProfileRuntime.cs",

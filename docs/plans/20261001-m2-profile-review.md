@@ -1,6 +1,6 @@
 # M2.3 — Profile validation, fixtures and explicit review
 
-Status: `IMPLEMENTATION PLAN — READY 2026-10-01`
+Status: `IMPLEMENTATION PLAN — IMPLEMENTED 2026-10-01`
 
 Formal Plan ID: `20261001-m2-profile-review`.
 
@@ -26,3 +26,6 @@ TargetRoot, install/select a composition or activate CI.
 Stop on any stale binding, schema/capability/hash drift, missing fixture class, mismatch or unresolved
 decision. Resume only with a fresh draft and separately authored review record. Recovery deletes no input;
 revert the contracts/runtime changes.
+
+Implementation evidence: the focused M2 test proves exact review bindings, positive/negative fixture
+requirements, stale-snapshot rejection and fail-closed rejection of protected no-op coverage.

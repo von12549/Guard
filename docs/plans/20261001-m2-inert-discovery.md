@@ -1,6 +1,6 @@
 # M2.1 — Deterministic inert Profile discovery
 
-Status: `IMPLEMENTATION PLAN — READY 2026-10-01`
+Status: `IMPLEMENTATION PLAN — IMPLEMENTED 2026-10-01`
 
 Formal Plan ID: `20261001-m2-inert-discovery`.
 
@@ -24,3 +24,6 @@ and adds no draft, policy inference, Target file, composition, CI or remote acti
 Stop on a link/reparse point, unreadable allowlisted file, limit breach, Target drift or need to execute a
 Target tool. Resume after removing the unsafe input or revising this Plan. Recovery is a code/contract
 revert; discovery writes nothing.
+
+Implementation evidence: `tests/p11/Test-V4ProfileAuthority.ps1` proves byte-deterministic facts,
+allowlist limits, target-execution denial and unchanged Target bytes.

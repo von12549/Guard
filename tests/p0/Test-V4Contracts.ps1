@@ -165,7 +165,7 @@ if (@($query.commands | Where-Object { $_.stability -cne 'experimental' -or $_.m
 $expectedQuerySchemas = @('project-query','profile-catalog-query','prerequisite-query','run-catalog-query','evidence-query','plan-catalog-query')
 if ((@($query.commands | ForEach-Object resultSchema) -join ',') -cne ($expectedQuerySchemas -join ',')) { $failures.Add('Query result schema mapping drifted') }
 
-$schemaNames = @('capability-matrix','ci-artifact-manifest','ci-contract','cli-contract','compatibility-baseline','composition-manifest','composition-receipt','distribution-manifest','evidence-query','extension-bundle','extension-review','finding-baseline','genesis-record','install-receipt','module-registry','module','plan-catalog-query','plan-set','plan','platform-certification','plugin','prerequisite-query','prerequisite-report','profile-catalog-query','profile','project-query','query-contract','recovery-artifact','reset-manifest','rule-execution-plan','run-catalog-query','runtime-requirements','stage-result','state','trust-change-authorization','v1-certification','workspace-evidence')
+$schemaNames = @('capability-matrix','ci-artifact-manifest','ci-contract','cli-contract','compatibility-baseline','composition-manifest','composition-receipt','distribution-manifest','evidence-query','extension-bundle','extension-review','finding-baseline','genesis-record','install-receipt','module-registry','module','plan-catalog-query','plan-set','plan','platform-certification','plugin','prerequisite-query','prerequisite-report','profile-authority-contract','profile-catalog-query','profile-discovery','profile-draft','profile-promotion','profile-review','profile-validation','profile','project-query','query-contract','recovery-artifact','reset-manifest','rule-execution-plan','run-catalog-query','runtime-requirements','stage-result','state','trust-change-authorization','v1-certification','workspace-evidence')
 foreach ($name in $schemaNames) {
     $schema = Get-Content -Raw (Schema $name) | ConvertFrom-Json -AsHashtable -Depth 50
     if ($schema.'$schema' -ne 'http://json-schema.org/draft-07/schema#' -or $schema.additionalProperties -ne $false -or -not $schema.ContainsKey('$id')) {
@@ -173,7 +173,7 @@ foreach ($name in $schemaNames) {
     }
 }
 
-$expectedManifestPaths = @($schemaNames | ForEach-Object { "core/contracts/$_.schema.json" }) + @('core/contracts/cli-contract.json','core/contracts/query-contract.json') | Sort-Object
+$expectedManifestPaths = @($schemaNames | ForEach-Object { "core/contracts/$_.schema.json" }) + @('core/contracts/cli-contract.json','core/contracts/profile-authority-contract.json','core/contracts/query-contract.json') | Sort-Object
 $manifest = Get-Content -Raw (Join-Path $contractRoot 'contracts-manifest.json') | ConvertFrom-Json -AsHashtable -Depth 20
 $manifestPaths = @($manifest.files | ForEach-Object path | Sort-Object)
 if (($manifestPaths -join ',') -cne ($expectedManifestPaths -join ',')) { $failures.Add('Contract manifest path set is not exact') }

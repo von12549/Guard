@@ -10,7 +10,6 @@
     "Accepted review records bind all identities and explicitly resolve every human policy category and ambiguous Module choice."
   ],
   "plannedPaths": [
-    "core/contracts/cli-contract.json",
     "core/contracts/contracts-manifest.json",
     "core/contracts/profile-review.schema.json",
     "core/contracts/profile-validation.schema.json",
