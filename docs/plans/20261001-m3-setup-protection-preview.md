@@ -32,4 +32,3 @@ been applied.
 Implementation evidence: the Host returns all seven required protection components separately and
 keeps `protected` false whenever any proof fails or remains unverified. Setup lists seven ordered steps,
 marks apply unavailable and keeps CI candidate generation, Target adoption and enforcement outside M3.
-

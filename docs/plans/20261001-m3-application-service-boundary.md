@@ -30,4 +30,3 @@ Implementation evidence: `application preview --operation <setup|protection|auth
 accepts only the six fixed roots/options, validates a hash-bound experimental contract catalog and
 returns deterministic schema-valid Host documents. The focused test proves unknown operation, option
 and command injection refusal plus unchanged PackageRoot and TargetRoot.
-

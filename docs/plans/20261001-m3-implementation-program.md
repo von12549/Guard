@@ -52,4 +52,3 @@ All four local checkpoints are implemented through one Host-owned preview comman
 loopback Companion. Focused M3 security/identity tests and affected P9 distribution/UI regressions pass.
 Every confirmation receipt records `applied: false`; Target adoption, composition selection, CI
 activation, repository enforcement, publication and merge remain intentionally unperformed.
-

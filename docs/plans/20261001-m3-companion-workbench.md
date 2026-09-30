@@ -33,4 +33,3 @@ independent 256-bit CSRF token. Confirmation reruns the Host, rejects a changed 
 a schema-valid local receipt with `applied: false` and all four unperformed authority boundaries. The
 focused suite covers missing/wrong security inputs, body limits, cancellation recovery, stale refusal,
 exact Host-result hashing and root immutability.
-

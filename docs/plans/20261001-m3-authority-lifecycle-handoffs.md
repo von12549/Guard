@@ -31,4 +31,3 @@ Implementation evidence: Profile and Module entries bind installed manifest hash
 the exact Host-projected Markdown/JSON pair; lifecycle returns current package authority plus seven
 typed actions. Only read-only verification is available, while composition, selection, rollback,
 retention apply and remote activation remain unavailable.
-
