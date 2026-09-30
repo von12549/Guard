@@ -23,7 +23,7 @@ legacy Host DLL through the current dotnet executable or the exact installed nat
 
 ## Acceptance and tests
 
-`tests/m1/Test-V4InstalledLauncher.ps1` covers relocation, hostile working directory, missing/tampered
+`core/distribution/validation/Test-V4InstalledLauncher.ps1` covers relocation, hostile working directory, missing/tampered
 layout, override mismatch, argument preservation and both Host/Companion launchers. Re-run P7 distribution
 and lifecycle plus P9 offline Companion tests.
 

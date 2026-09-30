@@ -19,7 +19,7 @@
     "docs/plans/20261001-m1-runtime-distribution.md",
     "docs/plans/20261001-m1-runtime-distribution.plan.json",
     "integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj",
-    "tests/m1/Test-V4SelfContainedDistribution.ps1"
+    "core/distribution/validation/Test-V4SelfContainedDistribution.ps1"
   ],
   "areas": ["distribution", "contracts", "host", "web-companion", "tests"],
   "risks": [
@@ -35,7 +35,7 @@
     "Execution completed locally on the native current RID without release publication."
   ],
   "validationCommands": [
-    "pwsh -NoProfile -File tests/m1/Test-V4SelfContainedDistribution.ps1",
+    "pwsh -NoProfile -File core/distribution/validation/Test-V4SelfContainedDistribution.ps1",
     "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1",
     "pwsh -NoProfile -File tests/p7/Test-V4Distribution.ps1",
     "pwsh -NoProfile -File tests/p7/Test-V4Lifecycle.ps1",

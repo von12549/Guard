@@ -20,7 +20,7 @@
     "docs/plans/20261001-m1-installed-launcher.md",
     "docs/plans/20261001-m1-installed-launcher.plan.json",
     "integrations/web/V4.Guards.WebCompanion/Program.cs",
-    "tests/m1/Test-V4InstalledLauncher.ps1"
+    "core/distribution/validation/Test-V4InstalledLauncher.ps1"
   ],
   "areas": ["distribution", "launcher", "tests"],
   "risks": ["Path-based authority discovery could accept an attacker-controlled sibling.", "Launcher generation could break deterministic archives."],
@@ -31,7 +31,7 @@
     "Execution completed locally on the native current RID without Target release or remote changes."
   ],
   "validationCommands": [
-    "pwsh -NoProfile -File tests/m1/Test-V4InstalledLauncher.ps1",
+    "pwsh -NoProfile -File core/distribution/validation/Test-V4InstalledLauncher.ps1",
     "pwsh -NoProfile -File tests/p7/Test-V4Distribution.ps1",
     "pwsh -NoProfile -File tests/p7/Test-V4Lifecycle.ps1",
     "pwsh -NoProfile -File tests/p9/Test-V4OfflineWebDistribution.ps1"

@@ -24,11 +24,12 @@ and language toolchains remain declared external prerequisites.
   then builds and measures the archive without downloading, releasing or installing it.
 - Keep trimming, single-file, ReadyToRun and runtime bundling disabled unless separately measured and
   accepted. Supported first-pass RIDs are `win-x64`, `win-arm64`, `linux-x64` and `linux-arm64`.
-- Add a new, non-approved-test-path M1 suite so existing base-held approved tests are not silently edited.
+- Add a distribution-local validation script outside the base-discovered `tests/**` approved set so
+  existing base-held approved tests and `ci-contract.json` are not silently changed.
 
 ## Acceptance and tests
 
-`tests/m1/Test-V4SelfContainedDistribution.ps1` proves the native current RID publishes and starts
+`core/distribution/validation/Test-V4SelfContainedDistribution.ps1` proves the native current RID publishes and starts
 without a machine `dotnet` command, rejects framework-dependent inputs/RID mismatch, emits valid
 measurements and creates byte-identical archives from identical inputs. Run it with P0 contracts, P7
 distribution/lifecycle, P8 supply-chain and package validation.

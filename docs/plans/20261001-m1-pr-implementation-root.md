@@ -20,5 +20,5 @@ remote activation.
 
 ## Validation and recovery
 
-Run both M1 focused suites and affected P0/P7/P8/P9/package regressions. Revert M1.2 then M1.1 if
+Run both distribution-local M1 validation scripts and affected P0/P7/P8/P9/package regressions. Revert M1.2 then M1.1 if
 recovery is required; only external disposable test artifacts exist.

@@ -13,7 +13,7 @@
       "order": 2,
       "planId": "20261001-m1-pr-implementation-root",
       "path": "docs/plans/20261001-m1-pr-implementation-root.plan.json",
-      "sha256": "ba4d52cb1dea1767e2892672bccc219bb27fd9c4b772df4d289d0c933366552d",
+      "sha256": "0b66be22020297d2ccb4f17ee2a0509bb1062a019cadc3c32f75d1a090a6bee3",
       "dependsOn": [
         "20261001-m1-pr-documentation-root"
       ]
@@ -32,6 +32,8 @@
       "core/distribution/contracts/distribution-runtime.schema.json",
       "core/distribution/guard-web.ps1",
       "core/distribution/guard.ps1",
+      "core/distribution/validation/Test-V4InstalledLauncher.ps1",
+      "core/distribution/validation/Test-V4SelfContainedDistribution.ps1",
       "core/host/V4.Guards.Host/V4.Guards.Host.csproj",
       "docs/plans/20261001-m1-foundation-decisions.md",
       "docs/plans/20261001-m1-foundation-decisions.plan.json",
@@ -72,9 +74,7 @@
       "docs/plans/product/README.md",
       "docs/plans/product/TODO.md",
       "integrations/web/V4.Guards.WebCompanion/Program.cs",
-      "integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj",
-      "tests/m1/Test-V4InstalledLauncher.ps1",
-      "tests/m1/Test-V4SelfContainedDistribution.ps1"
+      "integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj"
     ],
     "areas": [
       "GuardDocs",
@@ -94,8 +94,8 @@
     ],
     "validationCommands": [
       "exact plan-set diff",
-      "pwsh -NoProfile -File tests/m1/Test-V4InstalledLauncher.ps1",
-      "pwsh -NoProfile -File tests/m1/Test-V4SelfContainedDistribution.ps1",
+      "pwsh -NoProfile -File core/distribution/validation/Test-V4InstalledLauncher.ps1",
+      "pwsh -NoProfile -File core/distribution/validation/Test-V4SelfContainedDistribution.ps1",
       "pwsh -NoProfile -File tests/p7/Test-V4Distribution.ps1",
       "pwsh -NoProfile -File tests/p7/Test-V4Lifecycle.ps1",
       "pwsh -NoProfile -File tests/p9/Test-V4OfflineWebDistribution.ps1",
@@ -103,5 +103,5 @@
     ],
     "boundaries": []
   },
-  "compositionHash": "6bb936a862a8e1bdfacd16e7a0af7c9182c36c39dee4c31a958e26312ed25814"
+  "compositionHash": "281ef50a4d6ca52d318cd337f3ff19f998f3f921b9ae8ee5599e9cfadf369c19"
 }

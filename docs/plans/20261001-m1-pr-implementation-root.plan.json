@@ -25,15 +25,15 @@
     "docs/plans/20261001-m1-pr-implementation-root.plan.json",
     "integrations/web/V4.Guards.WebCompanion/Program.cs",
     "integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj",
-    "tests/m1/Test-V4InstalledLauncher.ps1",
-    "tests/m1/Test-V4SelfContainedDistribution.ps1"
+    "core/distribution/validation/Test-V4InstalledLauncher.ps1",
+    "core/distribution/validation/Test-V4SelfContainedDistribution.ps1"
   ],
   "areas": ["distribution", "host", "launcher", "tests", "web-companion"],
   "risks": ["A PR-level wrapper could obscure detailed child acceptance if reviewed alone."],
   "decisions": ["Retain detailed child Plans and use this member only for exact PR path ownership."],
   "validationCommands": [
-    "pwsh -NoProfile -File tests/m1/Test-V4SelfContainedDistribution.ps1",
-    "pwsh -NoProfile -File tests/m1/Test-V4InstalledLauncher.ps1",
+    "pwsh -NoProfile -File core/distribution/validation/Test-V4SelfContainedDistribution.ps1",
+    "pwsh -NoProfile -File core/distribution/validation/Test-V4InstalledLauncher.ps1",
     "pwsh -NoProfile -File tests/p7/Test-V4Distribution.ps1",
     "pwsh -NoProfile -File tests/p7/Test-V4Lifecycle.ps1",
     "pwsh -NoProfile -File tests/p9/Test-V4OfflineWebDistribution.ps1"

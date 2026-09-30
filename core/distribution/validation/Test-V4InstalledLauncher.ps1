@@ -4,7 +4,7 @@ param()
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+$packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
 $publisher = Join-Path $packageRoot 'core/distribution/Publish-V4SelfContainedDistribution.ps1'
 $installer = Join-Path $packageRoot 'core/distribution/Install-V4Distribution.ps1'
 $sourceCommit = (git -C $packageRoot rev-parse HEAD).Trim().ToLowerInvariant()
