@@ -1,6 +1,6 @@
 # M3.1 — Typed application-service boundary
 
-Status: `IMPLEMENTATION PLAN — AUTHORIZED 2026-10-01; IMPLEMENTATION IN PROGRESS`
+Status: `IMPLEMENTATION PLAN — IMPLEMENTED 2026-10-01`
 
 Formal Plan ID: `20261001-m3-application-service-boundary`.
 
@@ -25,4 +25,9 @@ Stop if an operation needs arbitrary paths, commands, environment or a contract 
 M1/M2/M4/M5. Resume only after narrowing the operation to typed existing authority or a separate
 authorized dependency Plan. Recovery reverts the Host dispatcher and contracts; preview reads have no
 state to roll back.
+
+Implementation evidence: `application preview --operation <setup|protection|authorities|lifecycle>`
+accepts only the six fixed roots/options, validates a hash-bound experimental contract catalog and
+returns deterministic schema-valid Host documents. The focused test proves unknown operation, option
+and command injection refusal plus unchanged PackageRoot and TargetRoot.
 

@@ -1,6 +1,6 @@
 # M3.4 — Secured Companion Workbench
 
-Status: `IMPLEMENTATION PLAN — AUTHORIZED 2026-10-01; IMPLEMENTATION IN PROGRESS`
+Status: `IMPLEMENTATION PLAN — IMPLEMENTED 2026-10-01`
 
 Formal Plan ID: `20261001-m3-companion-workbench`.
 
@@ -27,4 +27,10 @@ Stop on any missing session/origin/CSRF/size/stale/cancellation negative, Host-r
 new filesystem write primitive. Resume after the focused test proves the refusal occurs before Host
 execution. Recovery reverts routes/assets/contracts; no Target, selected installation or remote state
 requires rollback.
+
+Implementation evidence: the two new POST routes require the session cookie, exact loopback Origin and
+independent 256-bit CSRF token. Confirmation reruns the Host, rejects a changed preview hash and returns
+a schema-valid local receipt with `applied: false` and all four unperformed authority boundaries. The
+focused suite covers missing/wrong security inputs, body limits, cancellation recovery, stale refusal,
+exact Host-result hashing and root immutability.
 

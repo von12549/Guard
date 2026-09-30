@@ -1,6 +1,6 @@
 # M3.2 — Setup preview and non-vacuous protection status
 
-Status: `IMPLEMENTATION PLAN — AUTHORIZED 2026-10-01; IMPLEMENTATION IN PROGRESS`
+Status: `IMPLEMENTATION PLAN — IMPLEMENTED 2026-10-01`
 
 Formal Plan ID: `20261001-m3-setup-protection-preview`.
 
@@ -28,4 +28,8 @@ Stop if protection would require guessing from file presence, trusting browser v
 remote service. Resume when exact Host-readable evidence or a separately authorized certification
 contract exists. Recovery removes the query/preview contract and UI projection; no Setup action has
 been applied.
+
+Implementation evidence: the Host returns all seven required protection components separately and
+keeps `protected` false whenever any proof fails or remains unverified. Setup lists seven ordered steps,
+marks apply unavailable and keeps CI candidate generation, Target adoption and enforcement outside M3.
 

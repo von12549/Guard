@@ -1,6 +1,6 @@
 # M3 implementation program — local application boundary and Workbench
 
-Status: `IMPLEMENTATION PROGRAM — AUTHORIZED 2026-10-01; IMPLEMENTATION IN PROGRESS`
+Status: `IMPLEMENTATION PROGRAM — IMPLEMENTED 2026-10-01`
 
 Formal Plan ID: `20261001-m3-implementation-program`.
 
@@ -45,4 +45,11 @@ a stale preview token.
 Revert the four checkpoints in reverse order. Preview documents and receipts are process-local or
 StateRoot/EvidenceRoot-owned test artifacts and grant no Target, selected-installation or remote
 authority. No protected state requires rollback.
+
+## Implementation result
+
+All four local checkpoints are implemented through one Host-owned preview command and the existing
+loopback Companion. Focused M3 security/identity tests and affected P9 distribution/UI regressions pass.
+Every confirmation receipt records `applied: false`; Target adoption, composition selection, CI
+activation, repository enforcement, publication and merge remain intentionally unperformed.
 

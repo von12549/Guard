@@ -1,6 +1,6 @@
 # M3.3 — Profile, Plan, Module and lifecycle handoffs
 
-Status: `IMPLEMENTATION PLAN — AUTHORIZED 2026-10-01; IMPLEMENTATION IN PROGRESS`
+Status: `IMPLEMENTATION PLAN — IMPLEMENTED 2026-10-01`
 
 Formal Plan ID: `20261001-m3-authority-lifecycle-handoffs`.
 
@@ -26,4 +26,9 @@ installation, selection, rollback, cleanup, Target mutation, Git or remote actio
 Stop if inventory identity cannot be derived from validated package/Host authority or if preview needs
 an operator-supplied filesystem path. Resume after adding the missing typed contract under separate
 authorization. Recovery reverts the projections; no installation or authority changed.
+
+Implementation evidence: Profile and Module entries bind installed manifest hashes; Plan entries bind
+the exact Host-projected Markdown/JSON pair; lifecycle returns current package authority plus seven
+typed actions. Only read-only verification is available, while composition, selection, rollback,
+retention apply and remote activation remain unavailable.
 

@@ -12,6 +12,7 @@
   "plannedPaths": [
     "integrations/web/V4.Guards.WebCompanion/Program.cs",
     "integrations/web/V4.Guards.WebCompanion/contracts/application-operation-request.schema.json",
+    "integrations/web/V4.Guards.WebCompanion/contracts/application-confirm-request.schema.json",
     "integrations/web/V4.Guards.WebCompanion/contracts/application-operation-response.schema.json",
     "integrations/web/V4.Guards.WebCompanion/contracts/application-receipt.schema.json",
     "integrations/web/V4.Guards.WebCompanion/contracts/session.schema.json",
