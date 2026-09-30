@@ -1,0 +1,45 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m3-ui-application-boundary-decision",
+  "title": "M3 expanded local UI and application-service boundary decisions",
+  "goal": "Record accepted D15-D19 decisions for UI topology, typed operations, protection status, CI activation separation and multi-project phasing.",
+  "acceptanceCriteria": [
+    "V4-AD-040 expands the existing local Web Companion without creating a second policy engine, backend product or remote control plane.",
+    "Every future UI operation is classified and constrained by typed service, session, origin, CSRF, size, stale-confirmation, cancellation and receipt rules.",
+    "Protected status requires non-vacuous installed authority and enforced CI rather than a local or no-op pass.",
+    "CI candidate generation remains separate from Target mutation, pull-request work, trust authorization and remote activation.",
+    "V4-TODO-006 records read-only-first multi-project phasing and V4-TODO-021 tracks expanded UI implementation.",
+    "No product code, route, contract, test, workflow, ruleset, package, consumer repository or remote state changes occur."
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-m3-ui-application-boundary-decision.md",
+    "docs/plans/20261001-m3-ui-application-boundary-decision.plan.json",
+    "docs/plans/product/00-architecture-decision-set.md",
+    "docs/plans/product/README.md",
+    "docs/plans/product/TODO.md"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "Expanding the UI could accidentally create a second execution or policy authority.",
+    "A generic browser-to-command gateway could bypass typed root and capability validation.",
+    "Setup convenience could collapse Target trust changes or remote activation into an implicit action.",
+    "Aggregate status could be expanded into unsafe parallel execution before isolation and resource ceilings exist."
+  ],
+  "decisions": [
+    "D15 accepts expansion of the existing local Web Companion instead of a second Setup application.",
+    "D16 accepts typed operation classes and explicit local-web security controls.",
+    "D17 accepts a non-vacuous definition of protected that includes required repository enforcement.",
+    "D18 accepts local CI candidate generation while preserving Target and remote activation boundaries.",
+    "D19 accepts read-only multi-project aggregation before any bounded parallel execution."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

@@ -1,0 +1,55 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-m5-decision-set-formalization",
+  "title": "Formalize the accepted M1-M5 decision set",
+  "goal": "Commit the accepted milestone decision records and their shared maintained indexes as one exact documentation checkpoint before product implementation.",
+  "acceptanceCriteria": [
+    "All seven M1-M5 milestone decision Markdown/JSON pairs are preserved and committed with the maintained architecture, product-index and backlog updates.",
+    "The discussion-memory directory is ignored and remains non-authoritative.",
+    "Every changed documentation path is declared by this root Plan and unknown build outputs remain unstaged.",
+    "No product, contract, test, workflow, ruleset, package, consumer repository, release or remote state changes occur."
+  ],
+  "plannedPaths": [
+    ".gitignore",
+    "docs/plans/20261001-m1-foundation-decisions.md",
+    "docs/plans/20261001-m1-foundation-decisions.plan.json",
+    "docs/plans/20261001-m1-m5-decision-set-formalization.md",
+    "docs/plans/20261001-m1-m5-decision-set-formalization.plan.json",
+    "docs/plans/20261001-m2-profile-authority-decision.md",
+    "docs/plans/20261001-m2-profile-authority-decision.plan.json",
+    "docs/plans/20261001-m3-ui-application-boundary-decision.md",
+    "docs/plans/20261001-m3-ui-application-boundary-decision.plan.json",
+    "docs/plans/20261001-m4-stage-and-evidence-decision.md",
+    "docs/plans/20261001-m4-stage-and-evidence-decision.plan.json",
+    "docs/plans/20261001-m5-module-ecosystem-decision.md",
+    "docs/plans/20261001-m5-module-ecosystem-decision.plan.json",
+    "docs/plans/20261001-m5-plan-governance-decision.md",
+    "docs/plans/20261001-m5-plan-governance-decision.plan.json",
+    "docs/plans/20261001-m5-target-trust-authorization-decision.md",
+    "docs/plans/20261001-m5-target-trust-authorization-decision.plan.json",
+    "docs/plans/product/00-architecture-decision-set.md",
+    "docs/plans/product/README.md",
+    "docs/plans/product/TODO.md"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "Shared product-document ownership across milestone records could make a composed Plan ambiguous without this root checkpoint.",
+    "Accepted decisions could be mistaken for implementation or remote-change authorization."
+  ],
+  "decisions": [
+    "Use one exact documentation root Plan for the shared M1-M5 formalization diff.",
+    "Keep milestone Plan pairs as semantic decision records and require separate exact Plans for implementation.",
+    "Keep discussion memory ignored and non-authoritative."
+  ],
+  "validationCommands": [
+    "Test-Json for every 20261001 decision Plan",
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

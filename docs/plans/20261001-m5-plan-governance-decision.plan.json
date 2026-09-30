@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m5-plan-governance-decision",
+  "title": "M5 Plan-set and Plan-pair governance decisions",
+  "goal": "Record accepted D28-D30 resource, ownership and authoring-authority decisions without changing the Plan runtime.",
+  "acceptanceCriteria": [
+    "V4-AD-045 records versioned initial Plan-set limits, exclusive changed-path ownership and concurrent-authoring reconciliation.",
+    "V4-AD-046 records executable JSON and matching review Markdown generated from one structured authoring model.",
+    "Only finalized operator-confirmed output reconciled to the exact diff may authorize implementation.",
+    "V4-TODO-013 remains open for enforcement and V4-TODO-024 tracks scaffold, analysis, finalization and Workbench implementation.",
+    "No product code, contract, Plan runtime, test, workflow, package, consumer repository or remote state changes occur."
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-m5-plan-governance-decision.md",
+    "docs/plans/20261001-m5-plan-governance-decision.plan.json",
+    "docs/plans/product/00-architecture-decision-set.md",
+    "docs/plans/product/README.md",
+    "docs/plans/product/TODO.md"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "Unbounded Plan sets could exhaust validation resources or overwhelm review.",
+    "Concurrent authors could claim the same path or finalize against different bases.",
+    "Generated Markdown or model output could be mistaken for executable authority."
+  ],
+  "decisions": [
+    "D28 accepts explicit member, byte, depth, path, command, entry and time ceilings.",
+    "D29 accepts concurrent authorship with exclusive finalized path ownership and exact rebase reconciliation.",
+    "D30 accepts one structured authoring model, executable JSON, matching review Markdown and deterministic Guard-owned validation."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

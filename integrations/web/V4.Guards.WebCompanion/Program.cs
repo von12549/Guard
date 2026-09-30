@@ -599,7 +599,7 @@ internal static class Program
     private static async Task<HostExecution> InvokeHost(CompanionOptions options, IReadOnlyList<string> arguments,
         CancellationToken requestAborted)
     {
-        var start = new ProcessStartInfo(options.DotnetHost)
+        var start = new ProcessStartInfo(options.HostExecutable)
         {
             UseShellExecute = false,
             RedirectStandardOutput = true,
@@ -607,7 +607,7 @@ internal static class Program
             CreateNoWindow = true,
             WorkingDirectory = options.PackageRoot
         };
-        start.ArgumentList.Add(options.HostPath);
+        if (options.HostAssembly is not null) start.ArgumentList.Add(options.HostAssembly);
         foreach (var value in arguments) start.ArgumentList.Add(value);
 
         var inherited = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
@@ -756,7 +756,7 @@ internal static class Program
     private sealed record UiAsset(byte[] Bytes, string ContentType);
 
     private sealed record CompanionOptions(string PackageRoot, string[] TargetRoots, string StateRoot,
-        string EvidenceRoot, string PlanRoot, string HostPath, string DotnetHost, int Port)
+        string EvidenceRoot, string PlanRoot, string HostExecutable, string? HostAssembly, int Port)
     {
         public static CompanionOptions Parse(string[] args)
         {
@@ -802,13 +802,20 @@ internal static class Program
                 ? configuredPlanRoot : "plans", "Plan root");
 
             var hostPath = ResolveFile(Required("host"), "V4 Host");
-            if (!string.Equals(Path.GetFileName(hostPath), "v4-guards.dll", StringComparison.Ordinal))
-                throw new CompanionException(10, "invalid-input", "The Host must be v4-guards.dll.");
-            var dotnetHost = Environment.ProcessPath;
-            if (string.IsNullOrWhiteSpace(dotnetHost) || !File.Exists(dotnetHost))
-                throw new CompanionException(15, "prerequisite-missing", "The current dotnet host path is unavailable.");
-            return new CompanionOptions(packageRoot, targetRoots, stateRoot, evidenceRoot, planRoot, hostPath,
-                Path.GetFullPath(dotnetHost), port);
+            var hostName = Path.GetFileName(hostPath);
+            if (string.Equals(hostName, "v4-guards.dll", StringComparison.Ordinal))
+            {
+                var dotnetHost = Environment.ProcessPath;
+                if (string.IsNullOrWhiteSpace(dotnetHost) || !File.Exists(dotnetHost))
+                    throw new CompanionException(15, "prerequisite-missing", "The current dotnet host path is unavailable.");
+                return new CompanionOptions(packageRoot, targetRoots, stateRoot, evidenceRoot, planRoot,
+                    Path.GetFullPath(dotnetHost), hostPath, port);
+            }
+            var expectedAppHost = OperatingSystem.IsWindows() ? "v4-guards.exe" : "v4-guards";
+            if (!string.Equals(hostName, expectedAppHost, StringComparison.Ordinal))
+                throw new CompanionException(10, "invalid-input", $"The Host must be v4-guards.dll or {expectedAppHost}.");
+            return new CompanionOptions(packageRoot, targetRoots, stateRoot, evidenceRoot, planRoot,
+                hostPath, null, port);
         }
 
         private static string ResolveRelativePath(string value, string label)

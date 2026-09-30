@@ -1,0 +1,42 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-foundation-decisions",
+  "title": "M1 foundation decisions for distribution, initialization and lifecycle",
+  "goal": "Record accepted D01-D10 decisions that unblock exact M1 implementation Plans without authorizing implementation.",
+  "acceptanceCriteria": [
+    "V4-AD-036 records self-contained .NET product runtimes with declared external Module prerequisites and rejects a fully bundled zero-prerequisite distribution.",
+    "V4-AD-037 records OS-specific Init defaults and overrides, explicit four-root Host invocation, Target-owned .guard governance and historical adoption separation.",
+    "V4-AD-038 records operator-supplied sibling version lifecycle plus bounded, protected and receipted cleanup and retention behavior.",
+    "V4-TODO-007, V4-TODO-010 and V4-TODO-019 distinguish accepted decisions from implementation that remains open.",
+    "No product code, contract, test, workflow, ruleset, package, consumer repository or remote state changes occur."
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-m1-foundation-decisions.md",
+    "docs/plans/20261001-m1-foundation-decisions.plan.json",
+    "docs/plans/product/00-architecture-decision-set.md",
+    "docs/plans/product/README.md",
+    "docs/plans/product/TODO.md"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "A documentation decision could be mistaken for implementation authorization.",
+    "Provisional retention limits could be mistaken for stable compatibility promises before measurement."
+  ],
+  "decisions": [
+    "D01 accepts self-contained .NET Host and Companion distributions while keeping Module-specific runtimes external.",
+    "D02 accepts OS-derived per-user StateRoot and EvidenceRoot defaults with Init preview and validated overrides.",
+    "D03 through D07 accept .guard active governance, separate adoption history, classified receipts, deferred external governance and non-mutating Init.",
+    "D08 and D09 accept operator-supplied sibling updates, explicit selection and compatibility-gated downgrade.",
+    "D10 accepts protected references, automatic successful-work cleanup, bounded retention, measured capacity defaults and receipted safe deletion."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

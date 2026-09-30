@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/distribution/contracts/distribution-runtime.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "rid", "deploymentModel", "features"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "rid": { "enum": ["win-x64", "win-arm64", "linux-x64", "linux-arm64"] },
+    "deploymentModel": { "const": "self-contained" },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["singleFile", "trimmed", "readyToRun"],
+      "properties": {
+        "singleFile": { "const": false },
+        "trimmed": { "const": false },
+        "readyToRun": { "const": false }
+      }
+    }
+  }
+}

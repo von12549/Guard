@@ -1,0 +1,43 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m2-profile-authority-decision",
+  "title": "M2 Profile authority decisions for discovery, draft and promotion",
+  "goal": "Record accepted D11-D14 decisions that separate inert discovery, non-authoritative drafting, reviewed Target governance and immutable Profile composition.",
+  "acceptanceCriteria": [
+    "V4-AD-039 limits discovery to deterministic inert observations and prohibits build, restore, download, target-code execution and policy inference.",
+    "Profile drafts remain StateRoot-owned non-authoritative data while reviewed active sources and immutable compositions have distinct authority locations.",
+    "Generated recommendations cannot silently resolve gate, severity, exception, baseline, unsupported-coverage or ambiguous Module choices.",
+    "Promotion requires validation, hashes, fixtures, coverage, human policy decisions, review and applicable target trust authorization.",
+    "V4-TODO-020 tracks implementation without claiming that the accepted decision is implemented.",
+    "No product code, contract, test, workflow, ruleset, package, consumer repository or remote state changes occur."
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-m2-profile-authority-decision.md",
+    "docs/plans/20261001-m2-profile-authority-decision.plan.json",
+    "docs/plans/product/00-architecture-decision-set.md",
+    "docs/plans/product/README.md",
+    "docs/plans/product/TODO.md"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "Discovery recommendations could be mistaken for accepted project policy.",
+    "A generated draft could be mistaken for executable or installed authority.",
+    "Profile promotion could be mistaken for CI activation or permission to mutate a consumer repository."
+  ],
+  "decisions": [
+    "D11 accepts a deterministic inert discovery allowlist and preserves unknown or ambiguous observations.",
+    "D12 accepts StateRoot-owned drafts, Target-owned reviewed sources and immutable sibling compositions as separate layers.",
+    "D13 accepts generated facts and labelled recommendations while reserving policy choices for explicit human decisions.",
+    "D14 accepts validation, fixtures, coverage, review and target authorization as promotion prerequisites."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

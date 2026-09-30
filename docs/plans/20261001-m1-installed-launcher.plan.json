@@ -1,0 +1,43 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-installed-launcher",
+  "title": "Implement installed launchers with automatic PackageRoot resolution",
+  "goal": "Launch the RID-native installed Host and Companion from a canonical receipted layout without caller-supplied PackageRoot.",
+  "acceptanceCriteria": [
+    "Root-level launchers derive the distribution root and PackageRoot only from their own canonical location.",
+    "The launcher selects the RID-native self-contained executable and preserves explicit four-root Host invocation.",
+    "A complete verified layout remains runnable after relocation while partial or tampered relocation and mismatched overrides fail closed.",
+    "Hostile working directories and parent configuration do not influence authority selection."
+  ],
+  "plannedPaths": [
+    "core/distribution/Invoke-V4Installed.ps1",
+    "core/distribution/Invoke-V4InstalledWebCompanion.ps1",
+    "core/distribution/Invoke-V4ReceiptedWebCompanion.ps1",
+    "core/distribution/New-V4Distribution.ps1",
+    "core/distribution/Resolve-V4InstalledLayout.ps1",
+    "core/distribution/Test-V4Prerequisites.ps1",
+    "core/distribution/guard-web.ps1",
+    "core/distribution/guard.ps1",
+    "docs/plans/20261001-m1-installed-launcher.md",
+    "docs/plans/20261001-m1-installed-launcher.plan.json",
+    "integrations/web/V4.Guards.WebCompanion/Program.cs",
+    "core/distribution/validation/Test-V4InstalledLauncher.ps1"
+  ],
+  "areas": ["distribution", "launcher", "tests"],
+  "risks": ["Path-based authority discovery could accept an attacker-controlled sibling.", "Launcher generation could break deterministic archives."],
+  "decisions": [
+    "Derive PackageRoot from launcher location and verify layout before use.",
+    "Let the receipted Companion entry point bind a composed PackageRoot to the exact hash returned by the verified receipt proof and use its provenance copy of the base manifest, while ordinary installed launchers remain bound to the root base distribution manifest.",
+    "Keep explicit diagnostic overrides fail-closed.",
+    "Self-contained launch removes only Host-owned dotnet requirements; Module-declared prerequisites remain authoritative.",
+    "Execution completed locally on the native current RID without Target release or remote changes."
+  ],
+  "validationCommands": [
+    "pwsh -NoProfile -File core/distribution/validation/Test-V4InstalledLauncher.ps1",
+    "pwsh -NoProfile -File tests/p7/Test-V4Distribution.ps1",
+    "pwsh -NoProfile -File tests/p7/Test-V4Lifecycle.ps1",
+    "pwsh -NoProfile -File tests/p9/Test-V4OfflineWebDistribution.ps1"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

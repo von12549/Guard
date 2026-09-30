@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-governance-adoption",
+  "title": "Implement governance adoption preview review and apply",
+  "goal": "Prepare and locally apply exact provenance-bound .guard governance candidates without combining Init, consumer trust-change or remote activation.",
+  "acceptanceCriteria": [
+    "Preview classifies exact .guard operations and historical adoption provenance without mutating TargetRoot.",
+    "Apply requires the accepted preview hash and unchanged Target snapshot and writes only .guard.",
+    "Links collisions stale previews and paths outside .guard fail closed.",
+    "An external receipt and exact recovery artifact preserve prior Target bytes.",
+    "No real consumer workflow PR ruleset or remote state changes occur."
+  ],
+  "plannedPaths": [
+    "core/contracts/adoption-preview.schema.json",
+    "core/contracts/adoption-receipt.schema.json",
+    "core/contracts/cli-contract.json",
+    "core/contracts/contracts-manifest.json",
+    "core/host/V4.Guards.Host/GovernanceRuntime.cs",
+    "core/host/V4.Guards.Host/Program.cs",
+    "docs/commands.md",
+    "docs/plans/20261001-m1-governance-adoption.md",
+    "docs/plans/20261001-m1-governance-adoption.plan.json",
+    "tests/m1/Test-V4GovernanceAdoption.ps1"
+  ],
+  "areas": ["contracts", "governance", "host", "tests"],
+  "risks": ["A local apply engine could be mistaken for authorization to change a consumer.", "Historical adoption data could accidentally become active authority."],
+  "decisions": ["Separate Init from Target adoption.", "Confine active governance to .guard and keep history non-authoritative."],
+  "validationCommands": [
+    "pwsh -NoProfile -File tests/m1/Test-V4GovernanceAdoption.ps1",
+    "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1",
+    "pwsh -NoProfile -File tests/p8/Test-V4StableCli.ps1",
+    "pwsh -NoProfile -File tests/p7/Test-V4Documentation.ps1"
+  ],
+  "dependencies": [],
+  "boundaries": ["engine-change"]
+}

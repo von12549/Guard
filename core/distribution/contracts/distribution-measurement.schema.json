@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/distribution/contracts/distribution-measurement.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "version", "runtime", "sourceCommit", "offlineRestore", "features", "sizes", "fileCounts", "durationsMs", "probes"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rid", "deploymentModel"],
+      "properties": {
+        "rid": { "enum": ["win-x64", "win-arm64", "linux-x64", "linux-arm64"] },
+        "deploymentModel": { "const": "self-contained" }
+      }
+    },
+    "sourceCommit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+    "offlineRestore": { "const": true },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["singleFile", "trimmed", "readyToRun"],
+      "properties": {
+        "singleFile": { "const": false },
+        "trimmed": { "const": false },
+        "readyToRun": { "const": false }
+      }
+    },
+    "sizes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hostPublishedBytes", "companionPublishedBytes", "archiveBytes"],
+      "properties": {
+        "hostPublishedBytes": { "type": "integer", "minimum": 1 },
+        "companionPublishedBytes": { "type": "integer", "minimum": 1 },
+        "archiveBytes": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "fileCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["host", "companion", "archive"],
+      "properties": {
+        "host": { "type": "integer", "minimum": 1 },
+        "companion": { "type": "integer", "minimum": 1 },
+        "archive": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "durationsMs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["restoreAndPublish", "archive", "hostColdStart"],
+      "properties": {
+        "restoreAndPublish": { "type": "integer", "minimum": 0 },
+        "archive": { "type": "integer", "minimum": 0 },
+        "hostColdStart": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "probes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hostVersion", "companionAppHost"],
+      "properties": {
+        "hostVersion": { "enum": ["pass", "fail"] },
+        "companionAppHost": { "enum": ["pass", "fail"] }
+      }
+    }
+  }
+}

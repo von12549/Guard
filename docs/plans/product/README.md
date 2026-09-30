@@ -7,7 +7,7 @@ Current documents:
 
 | Document | Role | Status |
 | --- | --- | --- |
-| [00-architecture-decision-set.md](00-architecture-decision-set.md) | Product, trust, state, profile, stage, CI and planning decisions | Accepted v1 core and gate-audited V4-P9 UI boundary; V4-AD-019 standalone extraction accepted |
+| [00-architecture-decision-set.md](00-architecture-decision-set.md) | Product, trust, state, profile, stage, CI and planning decisions | Accepted v1 core, gate-audited V4-P9 UI boundary and accepted post-v1 M1–M5 foundation decisions |
 | [01-v4-self-contained-guard-plugin.md](01-v4-self-contained-guard-plugin.md) | V4 implementation roadmap | P0–P9 complete; 1.1.4 released; consumer adoption owned by consumers |
 | [02-runtime-architecture.md](02-runtime-architecture.md) | Runtime, roots, detector composition, evidence, UI and trust diagrams | Published v1 architecture plus the public extension-composition boundary |
 | [03-genesis-bootstrap-and-autonomy.md](03-genesis-bootstrap-and-autonomy.md) | Finite V3 genesis and V4 autonomy transition (incubation period) | Dormant G1; activation not authorized |

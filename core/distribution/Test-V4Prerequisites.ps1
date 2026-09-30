@@ -3,7 +3,8 @@ param(
     [Parameter(Mandatory)][string] $PackageRoot,
     [string] $Profile = 'default',
     [Parameter(Mandatory)][string] $ReportPath,
-    [string] $RuntimeOverridesJson = ''
+    [string] $RuntimeOverridesJson = '',
+    [string[]] $ExcludeHostRuntime = @()
 )
 
 Set-StrictMode -Version Latest
@@ -86,6 +87,7 @@ try {
     $declared = [Collections.Generic.List[object]]::new()
     $hostRequirements = Read-Json $requirementsPath 'runtime requirements'
     foreach ($item in $hostRequirements.requirements) {
+        if ($ExcludeHostRuntime -ccontains [string]$item.runtime) { continue }
         $declared.Add([ordered]@{ runtime=[string]$item.runtime; versionRange=[string]$item.versionRange; source='host' })
     }
     $selectedModules = @($profileData.moduleSelections | ForEach-Object { [string]$_.id } | Sort-Object -Unique)

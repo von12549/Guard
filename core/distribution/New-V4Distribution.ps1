@@ -4,7 +4,9 @@ param(
     [Parameter(Mandatory)][string] $HostRoot,
     [Parameter(Mandatory)][string] $CompanionRoot,
     [Parameter(Mandatory)][string] $OutputDirectory,
-    [Parameter(Mandatory)][ValidatePattern('^[a-fA-F0-9]{40}$')][string] $SourceCommit
+    [Parameter(Mandatory)][ValidatePattern('^[a-fA-F0-9]{40}$')][string] $SourceCommit,
+    [ValidateSet('portable','win-x64','win-arm64','linux-x64','linux-arm64')][string] $RuntimeIdentifier = 'portable',
+    [ValidateSet('framework-dependent','self-contained')][string] $DeploymentModel = 'framework-dependent'
 )
 
 Set-StrictMode -Version Latest
@@ -41,19 +43,50 @@ if ([IO.File]::Exists($archivePath) -or [IO.File]::Exists($sidecarPath)) { throw
 
 $hostDll = Join-Path $hostDirectory 'v4-guards.dll'
 if (-not [IO.File]::Exists($hostDll)) { throw 'HostRoot does not contain v4-guards.dll.' }
-$hostFiles = @(Get-ChildItem -LiteralPath $hostDirectory -File -Recurse -Force | Where-Object { $_.Extension -in @('.dll','.json') } | Sort-Object FullName)
+$hostFiles = @(Get-ChildItem -LiteralPath $hostDirectory -File -Recurse -Force |
+    Where-Object { $DeploymentModel -eq 'self-contained' -or $_.Extension -in @('.dll','.json') } |
+    Sort-Object FullName)
 if (@($hostFiles | Where-Object Name -eq 'v4-guards.runtimeconfig.json').Count -ne 1 -or @($hostFiles | Where-Object Name -eq 'v4-guards.deps.json').Count -ne 1) {
     throw 'HostRoot must contain v4-guards.deps.json and v4-guards.runtimeconfig.json.'
 }
 $companionDll = Join-Path $companionDirectory 'v4-web-companion.dll'
 if (-not [IO.File]::Exists($companionDll)) { throw 'CompanionRoot does not contain v4-web-companion.dll.' }
-$companionFiles = @(Get-ChildItem -LiteralPath $companionDirectory -File -Recurse -Force | Where-Object { $_.Extension -in @('.dll','.json') } | Sort-Object FullName)
+$companionFiles = @(Get-ChildItem -LiteralPath $companionDirectory -File -Recurse -Force |
+    Where-Object { $DeploymentModel -eq 'self-contained' -or $_.Extension -in @('.dll','.json') } |
+    Sort-Object FullName)
 if (@($companionFiles | Where-Object Name -eq 'v4-web-companion.runtimeconfig.json').Count -ne 1 -or
     @($companionFiles | Where-Object Name -eq 'v4-web-companion.deps.json').Count -ne 1) {
     throw 'CompanionRoot must contain v4-web-companion.deps.json and v4-web-companion.runtimeconfig.json.'
 }
 if (@($companionFiles | Where-Object { $_.FullName -match '[\\/]wwwroot[\\/]' }).Count -ne 0) {
     throw 'CompanionRoot must not contain loose wwwroot assets.'
+}
+if ($DeploymentModel -eq 'self-contained') {
+    if ($RuntimeIdentifier -eq 'portable') { throw 'A self-contained distribution requires a concrete supported RuntimeIdentifier.' }
+    $hostApp = Join-Path $hostDirectory $(if ($RuntimeIdentifier.StartsWith('win-')) { 'v4-guards.exe' } else { 'v4-guards' })
+    $companionApp = Join-Path $companionDirectory $(if ($RuntimeIdentifier.StartsWith('win-')) { 'v4-web-companion.exe' } else { 'v4-web-companion' })
+    if (-not [IO.File]::Exists($hostApp) -or -not [IO.File]::Exists($companionApp)) {
+        throw "Self-contained publish roots must contain native application hosts for $RuntimeIdentifier."
+    }
+    foreach ($runtimeConfig in @((Join-Path $hostDirectory 'v4-guards.runtimeconfig.json'), (Join-Path $companionDirectory 'v4-web-companion.runtimeconfig.json'))) {
+        $configuration = Get-Content -Raw -LiteralPath $runtimeConfig | ConvertFrom-Json
+        $runtimeOptionNames = @($configuration.runtimeOptions.PSObject.Properties.Name)
+        if ($runtimeOptionNames -contains 'framework' -or $runtimeOptionNames -contains 'frameworks') {
+            throw 'Self-contained publish roots must not declare a shared framework dependency.'
+        }
+    }
+    $runtimeManifestPath = Join-Path $package 'core/distribution/runtime-manifest.json'
+    $runtimeSchemaPath = Join-Path $package 'core/distribution/contracts/distribution-runtime.schema.json'
+    if (-not [IO.File]::Exists($runtimeManifestPath) -or
+        -not (Test-Json -LiteralPath $runtimeManifestPath -SchemaFile $runtimeSchemaPath -ErrorAction SilentlyContinue)) {
+        throw 'Self-contained PackageRoot must contain a valid runtime manifest.'
+    }
+    $runtimeManifest = Get-Content -Raw -LiteralPath $runtimeManifestPath | ConvertFrom-Json
+    if ($runtimeManifest.rid -cne $RuntimeIdentifier -or $runtimeManifest.deploymentModel -cne 'self-contained') {
+        throw 'Runtime manifest does not match the requested self-contained distribution.'
+    }
+} elseif ($RuntimeIdentifier -ne 'portable') {
+    throw 'A framework-dependent distribution must use RuntimeIdentifier portable.'
 }
 
 $staging = Join-Path $output ('.v4-dist-' + [Guid]::NewGuid().ToString('N'))
@@ -68,6 +101,12 @@ try {
         [void][IO.Directory]::CreateDirectory((Split-Path -Parent $destination))
         [IO.File]::Copy($source, $destination, $false)
         $files.Add([ordered]@{ path="package/$relative"; kind='package'; sha256=Hash $destination; size=(Get-Item $destination).Length })
+    }
+    foreach ($launcherName in @('guard.ps1','guard-web.ps1')) {
+        $source = Join-Path $package "core/distribution/$launcherName"
+        $destination = Join-Path $payloadRoot "package/$launcherName"
+        [IO.File]::Copy($source, $destination, $false)
+        $files.Add([ordered]@{ path="package/$launcherName"; kind='package'; sha256=Hash $destination; size=(Get-Item $destination).Length })
     }
     foreach ($file in $hostFiles) {
         $relative = [IO.Path]::GetRelativePath($hostDirectory, $file.FullName).Replace('\','/')

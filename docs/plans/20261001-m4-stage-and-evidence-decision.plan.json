@@ -1,0 +1,43 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m4-stage-and-evidence-decision",
+  "title": "M4 Stage semantics, performance and Evidence trust decisions",
+  "goal": "Record accepted D20-D26 decisions without changing Stage behavior, CI selection or Evidence authority.",
+  "acceptanceCriteria": [
+    "V4-AD-041 defines versioned Stage roles, Module result kinds and visible dependency execution while preserving wire names and direct runs.",
+    "V4-AD-042 requires a measured baseline and coverage-equivalent optimization while retaining supported Windows certification boundaries.",
+    "V4-AD-043 limits initial authoritative reuse to policy-accepted trusted-CI Evidence and keeps local Evidence advisory.",
+    "V4-TODO-012 remains open for measured cadence review and V4-TODO-022 tracks Stage, timing and Evidence implementation.",
+    "No product code, contract, Module, test, workflow, selector, package, consumer repository or remote state changes occur."
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-m4-stage-and-evidence-decision.md",
+    "docs/plans/20261001-m4-stage-and-evidence-decision.plan.json",
+    "docs/plans/product/00-architecture-decision-set.md",
+    "docs/plans/product/README.md",
+    "docs/plans/product/TODO.md"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "Existing uniform Stage behavior could be silently reinterpreted instead of versioned.",
+    "Performance optimization could weaken required coverage or hide an aggregate check.",
+    "Content-equivalent local Evidence could be mistaken for trusted producer Evidence."
+  ],
+  "decisions": [
+    "D20 through D22 accept versioned Stage roles, four result kinds and explicit dependency execution.",
+    "D23 accepts measurement-first optimization with representative samples and provisional performance targets.",
+    "D24 retains current evidence-based Windows cadence until measurements justify change.",
+    "D25 accepts same-run and exact prior trusted-CI reuse initially.",
+    "D26 defers managed local attestation while retaining local advisory Evidence."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

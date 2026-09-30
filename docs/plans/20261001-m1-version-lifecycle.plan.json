@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-version-lifecycle",
+  "title": "Implement immutable sibling version lifecycle",
+  "goal": "Stage verify select and roll back operator-supplied RID packages with durable receipts and compatibility-gated downgrade.",
+  "acceptanceCriteria": [
+    "Operator-supplied packages stage into verified immutable version/RID siblings.",
+    "Selection changes only after certification and preserves the previous verified sibling until completion.",
+    "Interrupted selection is restart-safe and rollback is explicit and receipted.",
+    "Downgrade fails closed when retained context or state schemas are incompatible.",
+    "No discovery download background activation release or remote change occurs."
+  ],
+  "plannedPaths": [
+    "core/contracts/contracts-manifest.json",
+    "core/contracts/install-receipt.schema.json",
+    "core/contracts/version-lifecycle-receipt.schema.json",
+    "core/distribution/Install-V4Distribution.ps1",
+    "core/distribution/Manage-V4Version.ps1",
+    "docs/plans/20261001-m1-version-lifecycle.md",
+    "docs/plans/20261001-m1-version-lifecycle.plan.json",
+    "tests/m1/Test-V4VersionLifecycle.ps1"
+  ],
+  "areas": ["contracts", "distribution", "lifecycle", "tests"],
+  "risks": ["Pointer updates can be interrupted.", "Downgrade could make retained state unreadable.", "Cleanup could race selection."],
+  "decisions": ["Use operator-supplied immutable siblings and an external atomic selection receipt.", "Refuse destructive down-migration."],
+  "validationCommands": [
+    "pwsh -NoProfile -File tests/m1/Test-V4VersionLifecycle.ps1",
+    "pwsh -NoProfile -File tests/p7/Test-V4Lifecycle.ps1",
+    "pwsh -NoProfile -File tests/p8/Test-V4CompatibilityBaseline.ps1",
+    "pwsh -NoProfile -File tests/p10/Test-V4ExtensionComposition.ps1"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

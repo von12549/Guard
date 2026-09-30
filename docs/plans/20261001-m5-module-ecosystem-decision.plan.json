@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m5-module-ecosystem-decision",
+  "title": "M5 local Module lifecycle and deferred ecosystem decisions",
+  "goal": "Record accepted D31-D32 decisions for Agent-independent immutable Module lifecycle and explicit marketplace and CODEOWNERS revisit gates.",
+  "acceptanceCriteria": [
+    "V4-AD-047 records immutable local Module lifecycle operations and a read-only-first schema-driven UI scope.",
+    "Extension updates require new bundles or compositions and built-in Module updates remain Guard release changes.",
+    "V4-TODO-025 tracks local lifecycle implementation while V4-TODO-009 remains deferred behind it.",
+    "V4-TODO-016 remains conditional until a second maintainer can satisfy code-owner approval.",
+    "No product code, Module, bundle, UI, marketplace, signature, CODEOWNERS, ruleset, package or remote state changes occur."
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-m5-module-ecosystem-decision.md",
+    "docs/plans/20261001-m5-module-ecosystem-decision.plan.json",
+    "docs/plans/product/00-architecture-decision-set.md",
+    "docs/plans/product/README.md",
+    "docs/plans/product/TODO.md"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "Module tooling could mutate installed authority or silently broaden capabilities.",
+    "A browser authoring surface could expand into an arbitrary source-code or command gateway.",
+    "Signatures could be mistaken for complete marketplace or Evidence execution trust.",
+    "CODEOWNERS could create an unsatisfiable repository rule while only one maintainer exists."
+  ],
+  "decisions": [
+    "D31 accepts immutable Agent-independent local Module lifecycle operations and read-only-first UI scope.",
+    "D32 keeps marketplace and signature work deferred and CODEOWNERS conditional on a second maintainer."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

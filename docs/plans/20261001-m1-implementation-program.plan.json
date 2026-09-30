@@ -1,0 +1,44 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-implementation-program",
+  "title": "Sequence the M1 installation initialization and lifecycle implementation",
+  "goal": "Create exact independently executable M1 child Plans in dependency order without combining Target trust-change, remote activation or release publication.",
+  "acceptanceCriteria": [
+    "Six exact child Plan pairs cover runtime distribution, installed launchers, initialization, governance adoption, version lifecycle and storage retention.",
+    "Every child names exact code paths, tests, boundaries and stop/resume conditions.",
+    "The implementation order follows artifact and context dependencies while each sequential diff remains independently validatable.",
+    "No product code, Target, workflow, ruleset, release or remote state changes occur in this program checkpoint."
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-m1-governance-adoption.md",
+    "docs/plans/20261001-m1-governance-adoption.plan.json",
+    "docs/plans/20261001-m1-implementation-program.md",
+    "docs/plans/20261001-m1-implementation-program.plan.json",
+    "docs/plans/20261001-m1-installed-launcher.md",
+    "docs/plans/20261001-m1-installed-launcher.plan.json",
+    "docs/plans/20261001-m1-project-initialization.md",
+    "docs/plans/20261001-m1-project-initialization.plan.json",
+    "docs/plans/20261001-m1-runtime-distribution.md",
+    "docs/plans/20261001-m1-runtime-distribution.plan.json",
+    "docs/plans/20261001-m1-storage-retention.md",
+    "docs/plans/20261001-m1-storage-retention.plan.json",
+    "docs/plans/20261001-m1-version-lifecycle.md",
+    "docs/plans/20261001-m1-version-lifecycle.plan.json"
+  ],
+  "areas": ["GuardDocs"],
+  "risks": [
+    "A planning checkpoint could be mistaken for product implementation.",
+    "Cross-checkpoint dependencies could be hidden by combining remote or Target changes."
+  ],
+  "decisions": [
+    "Use six sequential exact implementation checkpoints.",
+    "Represent predecessor checkpoints in review Markdown rather than recomposing already-committed paths.",
+    "Keep Target trust-change, remote activation and release publication separate."
+  ],
+  "validationCommands": [
+    "Test-Json for all M1 implementation Plan JSON files",
+    "exact planned-path audit"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}
