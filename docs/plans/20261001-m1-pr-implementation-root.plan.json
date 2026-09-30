@@ -1,0 +1,43 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-pr-implementation-root",
+  "title": "Own the M1 PR distribution and launcher implementation paths",
+  "goal": "Provide unique exact path ownership for the M1.1 and M1.2 code and test portion of the M1 PR root plan-set.",
+  "acceptanceCriteria": [
+    "RID-specific self-contained publishing and measurements satisfy the M1.1 Plan.",
+    "Installed launcher PackageRoot derivation and native apphost selection satisfy the M1.2 Plan.",
+    "Legacy distribution lifecycle and offline Companion regressions remain green.",
+    "No M1.3-M1.6 Target release workflow ruleset or remote implementation is included."
+  ],
+  "plannedPaths": [
+    "core/distribution/Invoke-V4Installed.ps1",
+    "core/distribution/Invoke-V4InstalledWebCompanion.ps1",
+    "core/distribution/New-V4Distribution.ps1",
+    "core/distribution/Publish-V4SelfContainedDistribution.ps1",
+    "core/distribution/Resolve-V4InstalledLayout.ps1",
+    "core/distribution/Test-V4Prerequisites.ps1",
+    "core/distribution/contracts/distribution-measurement.schema.json",
+    "core/distribution/contracts/distribution-runtime.schema.json",
+    "core/distribution/guard-web.ps1",
+    "core/distribution/guard.ps1",
+    "core/host/V4.Guards.Host/V4.Guards.Host.csproj",
+    "docs/plans/20261001-m1-pr-implementation-root.md",
+    "docs/plans/20261001-m1-pr-implementation-root.plan.json",
+    "integrations/web/V4.Guards.WebCompanion/Program.cs",
+    "integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj",
+    "tests/m1/Test-V4InstalledLauncher.ps1",
+    "tests/m1/Test-V4SelfContainedDistribution.ps1"
+  ],
+  "areas": ["distribution", "host", "launcher", "tests", "web-companion"],
+  "risks": ["A PR-level wrapper could obscure detailed child acceptance if reviewed alone."],
+  "decisions": ["Retain detailed child Plans and use this member only for exact PR path ownership."],
+  "validationCommands": [
+    "pwsh -NoProfile -File tests/m1/Test-V4SelfContainedDistribution.ps1",
+    "pwsh -NoProfile -File tests/m1/Test-V4InstalledLauncher.ps1",
+    "pwsh -NoProfile -File tests/p7/Test-V4Distribution.ps1",
+    "pwsh -NoProfile -File tests/p7/Test-V4Lifecycle.ps1",
+    "pwsh -NoProfile -File tests/p9/Test-V4OfflineWebDistribution.ps1"
+  ],
+  "dependencies": ["20261001-m1-pr-documentation-root"],
+  "boundaries": []
+}

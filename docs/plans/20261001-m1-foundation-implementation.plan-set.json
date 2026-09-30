@@ -1,0 +1,107 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-foundation-implementation-set",
+  "members": [
+    {
+      "order": 1,
+      "planId": "20261001-m1-pr-documentation-root",
+      "path": "docs/plans/20261001-m1-pr-documentation-root.plan.json",
+      "sha256": "52822f4aee4521d798fae77afd5e3387f6a0d710d052d2320fe26fc286dbad2e",
+      "dependsOn": []
+    },
+    {
+      "order": 2,
+      "planId": "20261001-m1-pr-implementation-root",
+      "path": "docs/plans/20261001-m1-pr-implementation-root.plan.json",
+      "sha256": "ba4d52cb1dea1767e2892672bccc219bb27fd9c4b772df4d289d0c933366552d",
+      "dependsOn": [
+        "20261001-m1-pr-documentation-root"
+      ]
+    }
+  ],
+  "derivedUnion": {
+    "plannedPaths": [
+      ".gitignore",
+      "core/distribution/Invoke-V4Installed.ps1",
+      "core/distribution/Invoke-V4InstalledWebCompanion.ps1",
+      "core/distribution/New-V4Distribution.ps1",
+      "core/distribution/Publish-V4SelfContainedDistribution.ps1",
+      "core/distribution/Resolve-V4InstalledLayout.ps1",
+      "core/distribution/Test-V4Prerequisites.ps1",
+      "core/distribution/contracts/distribution-measurement.schema.json",
+      "core/distribution/contracts/distribution-runtime.schema.json",
+      "core/distribution/guard-web.ps1",
+      "core/distribution/guard.ps1",
+      "core/host/V4.Guards.Host/V4.Guards.Host.csproj",
+      "docs/plans/20261001-m1-foundation-decisions.md",
+      "docs/plans/20261001-m1-foundation-decisions.plan.json",
+      "docs/plans/20261001-m1-foundation-implementation.plan-set.json",
+      "docs/plans/20261001-m1-governance-adoption.md",
+      "docs/plans/20261001-m1-governance-adoption.plan.json",
+      "docs/plans/20261001-m1-implementation-program.md",
+      "docs/plans/20261001-m1-implementation-program.plan.json",
+      "docs/plans/20261001-m1-installed-launcher.md",
+      "docs/plans/20261001-m1-installed-launcher.plan.json",
+      "docs/plans/20261001-m1-m5-decision-set-formalization.md",
+      "docs/plans/20261001-m1-m5-decision-set-formalization.plan.json",
+      "docs/plans/20261001-m1-pr-documentation-root.md",
+      "docs/plans/20261001-m1-pr-documentation-root.plan.json",
+      "docs/plans/20261001-m1-pr-implementation-root.md",
+      "docs/plans/20261001-m1-pr-implementation-root.plan.json",
+      "docs/plans/20261001-m1-project-initialization.md",
+      "docs/plans/20261001-m1-project-initialization.plan.json",
+      "docs/plans/20261001-m1-runtime-distribution.md",
+      "docs/plans/20261001-m1-runtime-distribution.plan.json",
+      "docs/plans/20261001-m1-storage-retention.md",
+      "docs/plans/20261001-m1-storage-retention.plan.json",
+      "docs/plans/20261001-m1-version-lifecycle.md",
+      "docs/plans/20261001-m1-version-lifecycle.plan.json",
+      "docs/plans/20261001-m2-profile-authority-decision.md",
+      "docs/plans/20261001-m2-profile-authority-decision.plan.json",
+      "docs/plans/20261001-m3-ui-application-boundary-decision.md",
+      "docs/plans/20261001-m3-ui-application-boundary-decision.plan.json",
+      "docs/plans/20261001-m4-stage-and-evidence-decision.md",
+      "docs/plans/20261001-m4-stage-and-evidence-decision.plan.json",
+      "docs/plans/20261001-m5-module-ecosystem-decision.md",
+      "docs/plans/20261001-m5-module-ecosystem-decision.plan.json",
+      "docs/plans/20261001-m5-plan-governance-decision.md",
+      "docs/plans/20261001-m5-plan-governance-decision.plan.json",
+      "docs/plans/20261001-m5-target-trust-authorization-decision.md",
+      "docs/plans/20261001-m5-target-trust-authorization-decision.plan.json",
+      "docs/plans/product/00-architecture-decision-set.md",
+      "docs/plans/product/README.md",
+      "docs/plans/product/TODO.md",
+      "integrations/web/V4.Guards.WebCompanion/Program.cs",
+      "integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj",
+      "tests/m1/Test-V4InstalledLauncher.ps1",
+      "tests/m1/Test-V4SelfContainedDistribution.ps1"
+    ],
+    "areas": [
+      "GuardDocs",
+      "distribution",
+      "host",
+      "launcher",
+      "tests",
+      "web-companion"
+    ],
+    "risks": [
+      "A PR-level wrapper could be mistaken for new product authority.",
+      "A PR-level wrapper could obscure detailed child acceptance if reviewed alone."
+    ],
+    "decisions": [
+      "Retain detailed child Plans and use this member only for exact PR path ownership.",
+      "Use a two-member PR root plan-set solely to provide unique exact path ownership."
+    ],
+    "validationCommands": [
+      "exact plan-set diff",
+      "pwsh -NoProfile -File tests/m1/Test-V4InstalledLauncher.ps1",
+      "pwsh -NoProfile -File tests/m1/Test-V4SelfContainedDistribution.ps1",
+      "pwsh -NoProfile -File tests/p7/Test-V4Distribution.ps1",
+      "pwsh -NoProfile -File tests/p7/Test-V4Lifecycle.ps1",
+      "pwsh -NoProfile -File tests/p9/Test-V4OfflineWebDistribution.ps1",
+      "v4-contract"
+    ],
+    "boundaries": []
+  },
+  "compositionHash": "6bb936a862a8e1bdfacd16e7a0af7c9182c36c39dee4c31a958e26312ed25814"
+}
