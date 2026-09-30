@@ -4,7 +4,7 @@ param()
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+$packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
 $project = Join-Path $packageRoot 'core/host/V4.Guards.Host/V4.Guards.Host.csproj'
 $buildRoot = Join-Path $packageRoot 'build'
 $workBase = [IO.Path]::Combine([IO.Path]::GetTempPath(),'v4-guards-work',[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($packageRoot))).Substring(0,12).ToLowerInvariant())
@@ -49,7 +49,9 @@ function Expect-Code($Run, [int] $Code, [string] $Name, [string] $Pattern) {
     }
 }
 function Assert-Schema([string] $Path, [string] $Schema) {
-    if (-not (Test-Json -LiteralPath $Path -SchemaFile (Join-Path $packageRoot "core/contracts/$Schema.schema.json") -ErrorAction SilentlyContinue)) {
+    $schemaPath = Join-Path $packageRoot "core/profile/contracts/$Schema.schema.json"
+    if (-not (Test-Path -LiteralPath $schemaPath)) { $schemaPath = Join-Path $packageRoot "core/contracts/$Schema.schema.json" }
+    if (-not (Test-Json -LiteralPath $Path -SchemaFile $schemaPath -ErrorAction SilentlyContinue)) {
         $failures.Add("Schema validation failed: $Schema => $Path")
     }
 }
@@ -192,7 +194,7 @@ try {
     Assert (-not (Test-Path -LiteralPath (Join-Path $target '.guard'))) 'M2 created Target-owned .guard authority.'
     Assert (-not (Test-Path -LiteralPath $marker)) 'M2 executed Target code.'
 
-    $authorityContractPath = Join-Path $packageRoot 'core/contracts/profile-authority-contract.json'
+    $authorityContractPath = Join-Path $packageRoot 'core/profile/contracts/profile-authority-contract.json'
     Assert-Schema $authorityContractPath 'profile-authority-contract'
     $cli = Get-Content -Raw -LiteralPath $authorityContractPath | ConvertFrom-Json
     foreach ($id in @('profile.discover','profile.draft','profile.validate','profile.promote')) {

@@ -29,6 +29,10 @@ internal static class ProfileRuntime
     };
     private static readonly Regex ProfileIdPattern = new("^[a-z][a-z0-9_-]{0,62}$", RegexOptions.CultureInvariant);
     private static readonly Regex HashPattern = new("^[a-f0-9]{64}$", RegexOptions.CultureInvariant);
+    private static readonly HashSet<string> ExperimentalSchemaIds = new(StringComparer.Ordinal)
+    {
+        "profile-discovery", "profile-draft", "profile-review", "profile-validation", "profile-promotion"
+    };
     private static readonly HashSet<string> ExcludedDirectories = new(StringComparer.OrdinalIgnoreCase)
     {
         ".git", ".guard", ".vs", ".idea", "bin", "obj", "node_modules", "dist", "out", ".venv", "venv"
@@ -722,6 +726,11 @@ internal static class ProfileRuntime
 
     private static void ValidateNode(string packageRoot, string schemaId, JsonNode node)
     {
+        if (ExperimentalSchemaIds.Contains(schemaId))
+        {
+            ValidateExperimentalNode(packageRoot, schemaId, node);
+            return;
+        }
         var path = Path.Combine(Path.GetTempPath(), $"v4-profile-contract-{Guid.NewGuid():N}.json");
         try
         {
@@ -731,8 +740,30 @@ internal static class ProfileRuntime
         finally { if (File.Exists(path)) File.Delete(path); }
     }
 
-    private static void ValidateFile(string packageRoot, string schemaId, string path) =>
+    private static void ValidateFile(string packageRoot, string schemaId, string path)
+    {
+        if (ExperimentalSchemaIds.Contains(schemaId))
+        {
+            ValidateExperimentalNode(packageRoot, schemaId, ReadObject(path, schemaId));
+            return;
+        }
         ContractRuntime.ValidateRegisteredDocument(packageRoot, schemaId, path);
+    }
+
+    private static void ValidateExperimentalNode(string packageRoot, string schemaId, JsonNode node)
+    {
+        var contractPath = ResolveFileUnder(packageRoot, "core/profile/contracts/profile-authority-contract.json", "Profile authority contract");
+        var contract = ReadObject(contractPath, "Profile authority contract");
+        var entries = contract["schemas"]?.AsArray().Where(item =>
+            item is JsonObject entry && RequiredString(entry, "id") == schemaId).Select(item => item!.AsObject()).ToArray()
+            ?? throw Invalid("Profile authority schema catalog is missing.");
+        if (entries.Length != 1) throw Invalid($"Experimental Profile schema is not registered: {schemaId}");
+        var relative = RequiredString(entries[0], "path");
+        var schemaPath = ResolveFileUnder(packageRoot, relative, $"Profile schema {schemaId}");
+        if (HashFile(schemaPath) != RequiredString(entries[0], "sha256"))
+            throw Integrity($"Experimental Profile schema hash drift: {schemaId}");
+        ValidateArbitrarySchema(node, schemaPath, $"Profile document {schemaId}");
+    }
 
     private static void ValidateArbitrarySchema(JsonNode document, string schemaPath, string label)
     {

@@ -10,19 +10,18 @@
     "TargetRoot remains byte-identical and no composition selection CI remote or release action occurs."
   ],
   "plannedPaths": [
-    "core/contracts/contracts-manifest.json",
-    "core/contracts/profile-promotion.schema.json",
+    "core/profile/contracts/profile-promotion.schema.json",
     "core/host/V4.Guards.Host/ProfileRuntime.cs",
     "docs/profile-authority.md",
     "docs/plans/20261001-m2-promotion-candidate.md",
     "docs/plans/20261001-m2-promotion-candidate.plan.json",
     "docs/plans/product/TODO.md",
-    "tests/p11/Test-V4ProfileAuthority.ps1"
+    "core/profile/validation/Test-V4ProfileAuthority.ps1"
   ],
   "areas": ["contracts", "documentation", "host", "profile", "tests"],
   "risks": ["A candidate bundle could be mistaken for adopted Target governance or a selected installed composition."],
   "decisions": ["Emit a candidate and explicit boundary receipt; keep every Target and composition apply transaction separate."],
-  "validationCommands": ["pwsh -NoProfile -File tests/p11/Test-V4ProfileAuthority.ps1", "pwsh -NoProfile -File tests/p10/Test-V4ExtensionComposition.ps1", "pwsh -NoProfile -File tests/p1/Test-V4Package.ps1"],
+  "validationCommands": ["pwsh -NoProfile -File core/profile/validation/Test-V4ProfileAuthority.ps1", "pwsh -NoProfile -File tests/p10/Test-V4ExtensionComposition.ps1", "pwsh -NoProfile -File tests/p1/Test-V4Package.ps1"],
   "dependencies": [],
   "boundaries": []
 }

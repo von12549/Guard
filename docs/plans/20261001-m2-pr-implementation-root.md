@@ -13,8 +13,8 @@ review validation and promotion candidates.
 
 ## Scope and boundary
 
-Detailed behavior remains in the four child Plans. This root includes strict experimental contracts,
-registered hashes, Host routing/runtime, the contract-set assertion and the focused M2 matrix. It does
+Detailed behavior remains in the four child Plans. This root includes strict hash-catalogued experimental
+contracts, Host routing/runtime and the focused M2 matrix. It does
 not write TargetRoot, run or select the sibling composer, change stable CLI authority, activate CI,
 publish or merge.
 

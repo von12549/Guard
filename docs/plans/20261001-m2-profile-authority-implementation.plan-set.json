@@ -13,7 +13,7 @@
       "order": 2,
       "planId": "20261001-m2-pr-implementation-root",
       "path": "docs/plans/20261001-m2-pr-implementation-root.plan.json",
-      "sha256": "3d4435eec460389433c91b40073f3a303dff2194a78f82560fa248ab220e130c",
+      "sha256": "6d0d3715fb09dcec8078abbaae2ae3d97fdf27c241cd20cbe813533b9871abb5",
       "dependsOn": [
         "20261001-m2-pr-documentation-root"
       ]
@@ -21,16 +21,16 @@
   ],
   "derivedUnion": {
     "plannedPaths": [
-      "core/contracts/contracts-manifest.json",
-      "core/contracts/profile-authority-contract.json",
-      "core/contracts/profile-authority-contract.schema.json",
-      "core/contracts/profile-discovery.schema.json",
-      "core/contracts/profile-draft.schema.json",
-      "core/contracts/profile-promotion.schema.json",
-      "core/contracts/profile-review.schema.json",
-      "core/contracts/profile-validation.schema.json",
       "core/host/V4.Guards.Host/ProfileRuntime.cs",
       "core/host/V4.Guards.Host/Program.cs",
+      "core/profile/contracts/profile-authority-contract.json",
+      "core/profile/contracts/profile-authority-contract.schema.json",
+      "core/profile/contracts/profile-discovery.schema.json",
+      "core/profile/contracts/profile-draft.schema.json",
+      "core/profile/contracts/profile-promotion.schema.json",
+      "core/profile/contracts/profile-review.schema.json",
+      "core/profile/contracts/profile-validation.schema.json",
+      "core/profile/validation/Test-V4ProfileAuthority.ps1",
       "docs/plans/20261001-m2-implementation-program.md",
       "docs/plans/20261001-m2-implementation-program.plan.json",
       "docs/plans/20261001-m2-inert-discovery.md",
@@ -47,9 +47,7 @@
       "docs/plans/20261001-m2-promotion-candidate.md",
       "docs/plans/20261001-m2-promotion-candidate.plan.json",
       "docs/plans/product/TODO.md",
-      "docs/profile-authority.md",
-      "tests/p0/Test-V4Contracts.ps1",
-      "tests/p11/Test-V4ProfileAuthority.ps1"
+      "docs/profile-authority.md"
     ],
     "areas": [
       "GuardDocs",
@@ -73,10 +71,10 @@
     "validationCommands": [
       "Test-Json for all M2 Plan JSON files",
       "exact plan-set diff",
+      "pwsh -NoProfile -File core/profile/validation/Test-V4ProfileAuthority.ps1",
       "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1",
       "pwsh -NoProfile -File tests/p1/Test-V4Package.ps1",
       "pwsh -NoProfile -File tests/p10/Test-V4ExtensionComposition.ps1",
-      "pwsh -NoProfile -File tests/p11/Test-V4ProfileAuthority.ps1",
       "pwsh -NoProfile -File tests/p5/Test-V4PlanRuntime.ps1",
       "pwsh -NoProfile -File tests/p7/Test-V4Documentation.ps1",
       "pwsh -NoProfile -File tests/p8/Test-V4CompatibilityBaseline.ps1",
@@ -84,5 +82,5 @@
     ],
     "boundaries": []
   },
-  "compositionHash": "156de48dc422abae78be12e194ebf730342b7fb454ba395258fae7a6473725ef"
+  "compositionHash": "3dc87bae8c1f07e74637444686583b0add3b3a93e52141dfaccb8939672cf96c"
 }

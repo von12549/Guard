@@ -1,7 +1,7 @@
 # Profile discovery and reviewed promotion
 
 The experimental M2 Profile authority surface is defined by
-`core/contracts/profile-authority-contract.json`. It deliberately sits outside the stable `1.0` CLI
+`core/profile/contracts/profile-authority-contract.json`. It deliberately sits outside the stable `1.0` CLI
 compatibility baseline while its contracts are exercised and reviewed.
 
 ## Operations

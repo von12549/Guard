@@ -11,18 +11,16 @@
     "Focused and affected regression suites pass without changing the frozen stable CLI compatibility baseline."
   ],
   "plannedPaths": [
-    "core/contracts/contracts-manifest.json",
-    "core/contracts/profile-authority-contract.json",
-    "core/contracts/profile-authority-contract.schema.json",
-    "core/contracts/profile-discovery.schema.json",
-    "core/contracts/profile-draft.schema.json",
-    "core/contracts/profile-promotion.schema.json",
-    "core/contracts/profile-review.schema.json",
-    "core/contracts/profile-validation.schema.json",
     "core/host/V4.Guards.Host/ProfileRuntime.cs",
     "core/host/V4.Guards.Host/Program.cs",
-    "tests/p0/Test-V4Contracts.ps1",
-    "tests/p11/Test-V4ProfileAuthority.ps1"
+    "core/profile/contracts/profile-authority-contract.json",
+    "core/profile/contracts/profile-authority-contract.schema.json",
+    "core/profile/contracts/profile-discovery.schema.json",
+    "core/profile/contracts/profile-draft.schema.json",
+    "core/profile/contracts/profile-promotion.schema.json",
+    "core/profile/contracts/profile-review.schema.json",
+    "core/profile/contracts/profile-validation.schema.json",
+    "core/profile/validation/Test-V4ProfileAuthority.ps1"
   ],
   "areas": ["contracts", "host", "profile", "tests"],
   "risks": [
@@ -36,7 +34,7 @@
     "Emit a promotion candidate without Target apply composition selection or CI activation."
   ],
   "validationCommands": [
-    "pwsh -NoProfile -File tests/p11/Test-V4ProfileAuthority.ps1",
+    "pwsh -NoProfile -File core/profile/validation/Test-V4ProfileAuthority.ps1",
     "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1",
     "pwsh -NoProfile -File tests/p1/Test-V4Package.ps1",
     "pwsh -NoProfile -File tests/p5/Test-V4PlanRuntime.ps1",

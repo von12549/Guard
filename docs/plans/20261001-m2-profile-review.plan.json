@@ -10,18 +10,17 @@
     "Accepted review records bind all identities and explicitly resolve every human policy category and ambiguous Module choice."
   ],
   "plannedPaths": [
-    "core/contracts/contracts-manifest.json",
-    "core/contracts/profile-review.schema.json",
-    "core/contracts/profile-validation.schema.json",
+    "core/profile/contracts/profile-review.schema.json",
+    "core/profile/contracts/profile-validation.schema.json",
     "core/host/V4.Guards.Host/ProfileRuntime.cs",
     "docs/plans/20261001-m2-profile-review.md",
     "docs/plans/20261001-m2-profile-review.plan.json",
-    "tests/p11/Test-V4ProfileAuthority.ps1"
+    "core/profile/validation/Test-V4ProfileAuthority.ps1"
   ],
   "areas": ["contracts", "host", "profile", "tests"],
   "risks": ["A self-authored or stale review could silently convert recommendations into policy."],
   "decisions": ["Require an external human review record with exact hashes and explicit policy decisions."],
-  "validationCommands": ["pwsh -NoProfile -File tests/p11/Test-V4ProfileAuthority.ps1", "pwsh -NoProfile -File tests/p10/Test-V4ExtensionComposition.ps1"],
+  "validationCommands": ["pwsh -NoProfile -File core/profile/validation/Test-V4ProfileAuthority.ps1", "pwsh -NoProfile -File tests/p10/Test-V4ExtensionComposition.ps1"],
   "dependencies": [],
   "boundaries": []
 }

@@ -25,5 +25,5 @@ Stop on a link/reparse point, unreadable allowlisted file, limit breach, Target 
 Target tool. Resume after removing the unsafe input or revising this Plan. Recovery is a code/contract
 revert; discovery writes nothing.
 
-Implementation evidence: `tests/p11/Test-V4ProfileAuthority.ps1` proves byte-deterministic facts,
+Implementation evidence: `core/profile/validation/Test-V4ProfileAuthority.ps1` proves byte-deterministic facts,
 allowlist limits, target-execution denial and unchanged Target bytes.
