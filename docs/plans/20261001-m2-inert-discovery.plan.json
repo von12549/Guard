@@ -1,0 +1,28 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m2-inert-discovery",
+  "title": "Implement deterministic inert Profile discovery",
+  "goal": "Expose schema-valid snapshot-bound discovery facts without executing or mutating the Target.",
+  "acceptanceCriteria": [
+    "profile discover returns deterministic allowlisted facts with source detector and Target snapshot bindings.",
+    "Installed Module inventory and declared prerequisites are reported from validated PackageRoot authority.",
+    "Unknown and ambiguous inputs remain explicit and no Target build restore download execution or write is possible.",
+    "Focused positive and negative discovery tests pass and Target bytes remain unchanged."
+  ],
+  "plannedPaths": [
+    "core/profile/contracts/profile-authority-contract.json",
+    "core/profile/contracts/profile-authority-contract.schema.json",
+    "core/profile/contracts/profile-discovery.schema.json",
+    "core/host/V4.Guards.Host/ProfileRuntime.cs",
+    "core/host/V4.Guards.Host/Program.cs",
+    "docs/plans/20261001-m2-inert-discovery.md",
+    "docs/plans/20261001-m2-inert-discovery.plan.json",
+    "core/profile/validation/Test-V4ProfileAuthority.ps1"
+  ],
+  "areas": ["contracts", "host", "profile", "tests"],
+  "risks": ["Recursive discovery could cross a link or accidentally inspect executable or oversized content."],
+  "decisions": ["Use a closed inert file-name/extension allowlist and content-derived deterministic snapshots."],
+  "validationCommands": ["pwsh -NoProfile -File core/profile/validation/Test-V4ProfileAuthority.ps1", "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1", "pwsh -NoProfile -File tests/p1/Test-V4Package.ps1"],
+  "dependencies": [],
+  "boundaries": []
+}

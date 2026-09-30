@@ -1,0 +1,47 @@
+{
+  "formatVersion": 1,
+  "apiVersion": "1.0",
+  "commands": [
+    {
+      "id": "profile.discover",
+      "syntax": "v4-guards profile discover --package-root <path> --target-root <path>",
+      "mutability": "read-only",
+      "requiredRoots": ["PackageRoot", "TargetRoot"],
+      "resultSchema": "profile-discovery"
+    },
+    {
+      "id": "profile.draft",
+      "syntax": "v4-guards profile draft --package-root <path> --target-root <path> --state-root <path> --profile <id>",
+      "mutability": "state-write",
+      "requiredRoots": ["PackageRoot", "TargetRoot", "StateRoot"],
+      "resultSchema": "profile-draft"
+    },
+    {
+      "id": "profile.validate",
+      "syntax": "v4-guards profile validate --package-root <path> --target-root <path> --state-root <path> --draft <path> --review <path>",
+      "mutability": "read-only",
+      "requiredRoots": ["PackageRoot", "TargetRoot", "StateRoot"],
+      "resultSchema": "profile-validation"
+    },
+    {
+      "id": "profile.promote",
+      "syntax": "v4-guards profile promote --package-root <path> --target-root <path> --state-root <path> --draft <path> --review <path> --output-root <path> --base-archive-sha256 <sha256>",
+      "mutability": "candidate-write",
+      "requiredRoots": ["PackageRoot", "TargetRoot", "StateRoot"],
+      "resultSchema": "profile-promotion"
+    }
+  ],
+  "schemas": [
+    { "id": "profile-discovery", "path": "core/profile/contracts/profile-discovery.schema.json", "sha256": "df05eaec688915f09f26cb9732aea903d4a122b8264e860ffaddaaa9c7eb006e" },
+    { "id": "profile-draft", "path": "core/profile/contracts/profile-draft.schema.json", "sha256": "982003e38f3cd322f1ffaddad9bc6696e0fb2a9d3fa7db9b255b5ff65dbb0304" },
+    { "id": "profile-promotion", "path": "core/profile/contracts/profile-promotion.schema.json", "sha256": "e60d377fa3c65f3637f43bd1c06111353162ed91166d8fa58cbc89109d0d3ff8" },
+    { "id": "profile-review", "path": "core/profile/contracts/profile-review.schema.json", "sha256": "5dcad23f8d9c143df2bda9433c6a1619e5b276183c50d30967c73b04d3746829" },
+    { "id": "profile-validation", "path": "core/profile/contracts/profile-validation.schema.json", "sha256": "163bb8cba3e3f453214bfbf71028e4d9f152b9815cb11ecceafe0492a33505dd" }
+  ],
+  "boundaries": {
+    "targetWrite": false,
+    "compositionSelection": false,
+    "ciActivation": false,
+    "remoteMutation": false
+  }
+}

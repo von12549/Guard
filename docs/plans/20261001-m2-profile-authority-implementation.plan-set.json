@@ -1,0 +1,86 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m2-profile-authority-implementation-set",
+  "members": [
+    {
+      "order": 1,
+      "planId": "20261001-m2-pr-documentation-root",
+      "path": "docs/plans/20261001-m2-pr-documentation-root.plan.json",
+      "sha256": "2193cd1097dba034cebee428527e853d55257836c86a7f1fefaae1ca7170714c",
+      "dependsOn": []
+    },
+    {
+      "order": 2,
+      "planId": "20261001-m2-pr-implementation-root",
+      "path": "docs/plans/20261001-m2-pr-implementation-root.plan.json",
+      "sha256": "6d0d3715fb09dcec8078abbaae2ae3d97fdf27c241cd20cbe813533b9871abb5",
+      "dependsOn": [
+        "20261001-m2-pr-documentation-root"
+      ]
+    }
+  ],
+  "derivedUnion": {
+    "plannedPaths": [
+      "core/host/V4.Guards.Host/ProfileRuntime.cs",
+      "core/host/V4.Guards.Host/Program.cs",
+      "core/profile/contracts/profile-authority-contract.json",
+      "core/profile/contracts/profile-authority-contract.schema.json",
+      "core/profile/contracts/profile-discovery.schema.json",
+      "core/profile/contracts/profile-draft.schema.json",
+      "core/profile/contracts/profile-promotion.schema.json",
+      "core/profile/contracts/profile-review.schema.json",
+      "core/profile/contracts/profile-validation.schema.json",
+      "core/profile/validation/Test-V4ProfileAuthority.ps1",
+      "docs/plans/20261001-m2-implementation-program.md",
+      "docs/plans/20261001-m2-implementation-program.plan.json",
+      "docs/plans/20261001-m2-inert-discovery.md",
+      "docs/plans/20261001-m2-inert-discovery.plan.json",
+      "docs/plans/20261001-m2-pr-documentation-root.md",
+      "docs/plans/20261001-m2-pr-documentation-root.plan.json",
+      "docs/plans/20261001-m2-pr-implementation-root.md",
+      "docs/plans/20261001-m2-pr-implementation-root.plan.json",
+      "docs/plans/20261001-m2-profile-authority-implementation.plan-set.json",
+      "docs/plans/20261001-m2-profile-draft.md",
+      "docs/plans/20261001-m2-profile-draft.plan.json",
+      "docs/plans/20261001-m2-profile-review.md",
+      "docs/plans/20261001-m2-profile-review.plan.json",
+      "docs/plans/20261001-m2-promotion-candidate.md",
+      "docs/plans/20261001-m2-promotion-candidate.plan.json",
+      "docs/plans/product/TODO.md",
+      "docs/profile-authority.md"
+    ],
+    "areas": [
+      "GuardDocs",
+      "contracts",
+      "host",
+      "profile",
+      "tests"
+    ],
+    "risks": [
+      "A local promotion candidate could be mistaken for adopted Target authority or an active composition.",
+      "A stale or self-authored review could convert recommendations into apparent policy.",
+      "Candidate output could be mistaken for an installed or selected composition.",
+      "Discovery could cross a link or inspect content outside its allowlist."
+    ],
+    "decisions": [
+      "Emit a promotion candidate without Target apply composition selection or CI activation.",
+      "Keep V4-TODO-020 open for separately authorized Target adoption and lifecycle evidence.",
+      "Keep the M2 command surface experimental and separate from the frozen stable CLI contract.",
+      "Require exact snapshot draft review Module configuration capability and fixture bindings."
+    ],
+    "validationCommands": [
+      "Test-Json for all M2 Plan JSON files",
+      "exact plan-set diff",
+      "pwsh -NoProfile -File core/profile/validation/Test-V4ProfileAuthority.ps1",
+      "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1",
+      "pwsh -NoProfile -File tests/p1/Test-V4Package.ps1",
+      "pwsh -NoProfile -File tests/p10/Test-V4ExtensionComposition.ps1",
+      "pwsh -NoProfile -File tests/p5/Test-V4PlanRuntime.ps1",
+      "pwsh -NoProfile -File tests/p7/Test-V4Documentation.ps1",
+      "pwsh -NoProfile -File tests/p8/Test-V4CompatibilityBaseline.ps1",
+      "pwsh -NoProfile -File tests/p8/Test-V4StableCli.ps1"
+    ],
+    "boundaries": []
+  },
+  "compositionHash": "3dc87bae8c1f07e74637444686583b0add3b3a93e52141dfaccb8939672cf96c"
+}

@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/profile-authority-contract.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "apiVersion", "commands", "schemas", "boundaries"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "apiVersion": { "const": "1.0" },
+    "commands": {
+      "type": "array", "minItems": 4, "maxItems": 4,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "syntax", "mutability", "requiredRoots", "resultSchema"],
+        "properties": {
+          "id": { "enum": ["profile.discover", "profile.draft", "profile.validate", "profile.promote"] },
+          "syntax": { "type": "string", "minLength": 1 },
+          "mutability": { "enum": ["read-only", "state-write", "candidate-write"] },
+          "requiredRoots": { "type": "array", "uniqueItems": true, "items": { "enum": ["PackageRoot", "TargetRoot", "StateRoot"] } },
+          "resultSchema": { "enum": ["profile-discovery", "profile-draft", "profile-validation", "profile-promotion"] }
+        }
+      }
+    },
+    "schemas": {
+      "type": "array", "minItems": 5, "maxItems": 5, "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["id", "path", "sha256"],
+        "properties": {
+          "id": { "enum": ["profile-discovery", "profile-draft", "profile-review", "profile-validation", "profile-promotion"] },
+          "path": { "type": "string", "pattern": "^core/profile/contracts/[a-z-]+\\.schema\\.json$" },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        }
+      }
+    },
+    "boundaries": {
+      "type": "object", "additionalProperties": false,
+      "required": ["targetWrite", "compositionSelection", "ciActivation", "remoteMutation"],
+      "properties": {
+        "targetWrite": { "const": false },
+        "compositionSelection": { "const": false },
+        "ciActivation": { "const": false },
+        "remoteMutation": { "const": false }
+      }
+    }
+  }
+}

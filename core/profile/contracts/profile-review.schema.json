@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/profile-review.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "id", "decision", "acceptedBy", "draftSha256", "discoverySha256", "candidateProfileSha256", "targetSnapshotSha256", "policyDecisions", "ambiguousModuleChoices", "moduleBindings", "fixtures", "coverageDecision"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[0-9]{8}-[a-z0-9-]+$" },
+    "decision": { "const": "accepted" },
+    "acceptedBy": {
+      "type": "object", "additionalProperties": false, "required": ["authorityType", "authorityId", "candidateHostVerdictAllowed"],
+      "properties": {
+        "authorityType": { "const": "human-review" },
+        "authorityId": { "type": "string", "minLength": 1 },
+        "candidateHostVerdictAllowed": { "const": false }
+      }
+    },
+    "draftSha256": { "$ref": "#/definitions/sha256" },
+    "discoverySha256": { "$ref": "#/definitions/sha256" },
+    "candidateProfileSha256": { "$ref": "#/definitions/sha256" },
+    "targetSnapshotSha256": { "$ref": "#/definitions/sha256" },
+    "policyDecisions": {
+      "type": "object", "additionalProperties": false,
+      "required": ["gateSelection", "severity", "exceptions", "baselines", "unsupportedCoverage", "ambiguousModules"],
+      "properties": {
+        "gateSelection": { "$ref": "#/definitions/policyDecision" },
+        "severity": { "$ref": "#/definitions/policyDecision" },
+        "exceptions": { "$ref": "#/definitions/policyDecision" },
+        "baselines": { "$ref": "#/definitions/policyDecision" },
+        "unsupportedCoverage": { "$ref": "#/definitions/policyDecision" },
+        "ambiguousModules": { "$ref": "#/definitions/policyDecision" }
+      }
+    },
+    "ambiguousModuleChoices": {
+      "type": "array", "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["questionId", "decision", "rationale"],
+        "properties": {
+          "questionId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "decision": { "type": "string", "minLength": 1 },
+          "rationale": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "moduleBindings": {
+      "type": "array", "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["id", "manifestSha256", "configSha256", "allowedCapabilitiesSha256"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "manifestSha256": { "$ref": "#/definitions/sha256" },
+          "configSha256": { "$ref": "#/definitions/sha256" },
+          "allowedCapabilitiesSha256": { "$ref": "#/definitions/sha256" }
+        }
+      }
+    },
+    "fixtures": {
+      "type": "array", "minItems": 2, "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["id", "classification", "expected", "actual", "evidenceSha256"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "classification": { "enum": ["positive", "negative"] },
+          "expected": { "enum": ["pass", "findings-blocking", "prerequisite-missing"] },
+          "actual": { "enum": ["pass", "findings-blocking", "prerequisite-missing"] },
+          "evidenceSha256": { "$ref": "#/definitions/sha256" }
+        }
+      }
+    },
+    "coverageDecision": {
+      "type": "object", "additionalProperties": false, "required": ["status", "rationale"],
+      "properties": {
+        "status": { "enum": ["protected", "unprotected"] },
+        "rationale": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "definitions": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "policyDecision": {
+      "type": "object", "additionalProperties": false, "required": ["decision", "rationale"],
+      "properties": {
+        "decision": { "enum": ["accepted", "not-applicable"] },
+        "rationale": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

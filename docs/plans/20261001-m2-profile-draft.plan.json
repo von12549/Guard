@@ -1,0 +1,25 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m2-profile-draft",
+  "title": "Implement snapshot-bound non-authoritative Profile drafts",
+  "goal": "Persist deterministic conservative Profile scaffolds below StateRoot without creating executable authority.",
+  "acceptanceCriteria": [
+    "Draft identity binds project Target snapshot discovery and generator identities.",
+    "The candidate Profile is schema-valid conservative and visibly unprotected until policy is resolved.",
+    "Recommendations are labelled and do not silently select Modules gates severities exceptions rules or baselines.",
+    "Atomic idempotent StateRoot writes reject conflicts and never change TargetRoot."
+  ],
+  "plannedPaths": [
+    "core/profile/contracts/profile-draft.schema.json",
+    "core/host/V4.Guards.Host/ProfileRuntime.cs",
+    "docs/plans/20261001-m2-profile-draft.md",
+    "docs/plans/20261001-m2-profile-draft.plan.json",
+    "core/profile/validation/Test-V4ProfileAuthority.ps1"
+  ],
+  "areas": ["contracts", "host", "profile", "state", "tests"],
+  "risks": ["A generated draft could be mistaken for installed Profile authority."],
+  "decisions": ["Store drafts only below StateRoot and label empty coverage unprotected."],
+  "validationCommands": ["pwsh -NoProfile -File core/profile/validation/Test-V4ProfileAuthority.ps1", "pwsh -NoProfile -File tests/p8/Test-V4StableCli.ps1"],
+  "dependencies": [],
+  "boundaries": []
+}

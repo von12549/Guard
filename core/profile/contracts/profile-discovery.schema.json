@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/profile-discovery.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "status", "operation", "authority", "target", "detector", "facts", "questions", "limits", "prohibitions"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "const": "pass" },
+    "operation": { "const": "profile-discover" },
+    "authority": { "const": "v4-host-observation-only" },
+    "target": {
+      "type": "object", "additionalProperties": false,
+      "required": ["canonicalPath", "snapshotSha256", "observedFileCount"],
+      "properties": {
+        "canonicalPath": { "type": "string", "minLength": 1 },
+        "snapshotSha256": { "$ref": "#/definitions/sha256" },
+        "observedFileCount": { "type": "integer", "minimum": 0, "maximum": 10000 }
+      }
+    },
+    "detector": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "const": "v4-profile-discovery" },
+        "version": { "const": "1.0.0" }
+      }
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["kind", "sourcePath", "normalizedValue", "detectorId", "detectorVersion", "targetSnapshotSha256"],
+        "properties": {
+          "kind": { "enum": ["manifest", "language", "framework", "source-root", "test-root", "module", "prerequisite"] },
+          "sourcePath": { "type": "string", "minLength": 1 },
+          "normalizedValue": { "type": "string", "minLength": 1 },
+          "detectorId": { "type": "string", "minLength": 1 },
+          "detectorVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+          "targetSnapshotSha256": { "$ref": "#/definitions/sha256" }
+        }
+      }
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "kind", "sourcePaths", "message"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "kind": { "enum": ["ambiguous-project", "ambiguous-framework", "unsupported-manifest", "ambiguous-module"] },
+          "sourcePaths": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/definitions/relativePath" } },
+          "message": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "limits": {
+      "type": "object", "additionalProperties": false,
+      "required": ["maximumFiles", "maximumFileBytes"],
+      "properties": {
+        "maximumFiles": { "const": 10000 },
+        "maximumFileBytes": { "const": 1048576 }
+      }
+    },
+    "prohibitions": {
+      "type": "array", "minItems": 5, "uniqueItems": true,
+      "items": { "enum": ["build", "restore", "download", "execute-target-code", "mutate-target", "infer-policy"] }
+    }
+  },
+  "definitions": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "relativePath": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" }
+  }
+}

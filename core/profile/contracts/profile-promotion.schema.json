@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/profile-promotion.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "status", "kind", "draftSha256", "reviewSha256", "targetSnapshotSha256", "bundleRoot", "bundleManifestSha256", "extensionReviewPath", "extensionReviewSha256", "profilePath", "profileSha256", "coverageStatus", "boundaries"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "const": "pass" },
+    "kind": { "const": "profile-promotion-candidate" },
+    "draftSha256": { "$ref": "#/definitions/sha256" },
+    "reviewSha256": { "$ref": "#/definitions/sha256" },
+    "targetSnapshotSha256": { "$ref": "#/definitions/sha256" },
+    "bundleRoot": { "type": "string", "minLength": 1 },
+    "bundleManifestSha256": { "$ref": "#/definitions/sha256" },
+    "extensionReviewPath": { "type": "string", "minLength": 1 },
+    "extensionReviewSha256": { "$ref": "#/definitions/sha256" },
+    "profilePath": { "type": "string", "minLength": 1 },
+    "profileSha256": { "$ref": "#/definitions/sha256" },
+    "coverageStatus": { "enum": ["protected", "unprotected"] },
+    "boundaries": {
+      "type": "object", "additionalProperties": false,
+      "required": ["targetChanged", "compositionCreated", "compositionSelected", "ciActivated", "targetAdoptionRequired", "compositionRequired", "ciActivationRequired"],
+      "properties": {
+        "targetChanged": { "const": false },
+        "compositionCreated": { "const": false },
+        "compositionSelected": { "const": false },
+        "ciActivated": { "const": false },
+        "targetAdoptionRequired": { "const": true },
+        "compositionRequired": { "const": true },
+        "ciActivationRequired": { "const": true }
+      }
+    }
+  },
+  "definitions": { "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } }
+}

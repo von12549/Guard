@@ -149,6 +149,13 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   must not run as authority, empty coverage must remain visibly unprotected and CI activation remains a
   separate transaction.
 
+  Local M2 implementation completed on 2026-10-01 under `20261001-m2-implementation-program`: the Host
+  now provides strict experimental discovery, StateRoot draft, review validation and promotion-candidate
+  operations. The candidate is compatible with the existing immutable sibling composer, but M2 does not
+  invoke or select it. This backlog item intentionally remains open for the separately authorized Target
+  trust-change capability (`V4-TODO-023`), actual `.guard/` adoption and lifecycle selection evidence.
+  Workflow/ruleset activation and enforcement remain separate transactions.
+
 - [x] **V4-TODO-018 — Build-location-independent Host and Companion builds (checklist O14) — COMPLETE (2026-09-28), V4 Guards 1.1.6**
 
   Plan: `docs/plans/20260928-v4-todo-018-deterministic-builds.md`.
