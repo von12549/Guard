@@ -1,0 +1,65 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m3-pr-implementation-root",
+  "title": "Own the M3 PR application boundary implementation paths",
+  "goal": "Provide unique exact path ownership for M3 contracts Host behavior Companion Workbench and tests in the PR root plan-set.",
+  "acceptanceCriteria": [
+    "The typed application service exposes only the four catalogued setup protection authorities and lifecycle operations.",
+    "Protection status is non-vacuous and fails closed unless every required local and CI authority component passes.",
+    "Profile Plan Module and lifecycle handoffs preserve exact identifiers and hashes while unavailable actions stay explicit.",
+    "The loopback Companion requires a session exact origin independent CSRF bounded bodies current previews and cancellable serialized execution.",
+    "Confirmation re-runs the Host preview and emits an applied-false receipt with every unperformed authority boundary.",
+    "Focused and affected regression suites pass without changing the frozen stable CLI compatibility baseline."
+  ],
+  "plannedPaths": [
+    "core/application/contracts/application-preview.schema.json",
+    "core/application/contracts/application-service-contract.json",
+    "core/application/contracts/application-service-contract.schema.json",
+    "core/application/contracts/authority-handoff.schema.json",
+    "core/application/contracts/lifecycle-preview.schema.json",
+    "core/application/contracts/protection-status.schema.json",
+    "core/application/contracts/setup-preview.schema.json",
+    "core/application/validation/Test-V4ApplicationBoundary.ps1",
+    "core/host/V4.Guards.Host/ApplicationRuntime.cs",
+    "core/host/V4.Guards.Host/ProfileRuntime.cs",
+    "core/host/V4.Guards.Host/Program.cs",
+    "core/host/V4.Guards.Host/QueryRuntime.cs",
+    "integrations/web/V4.Guards.WebCompanion/Program.cs",
+    "integrations/web/V4.Guards.WebCompanion/contracts/application-confirm-request.schema.json",
+    "integrations/web/V4.Guards.WebCompanion/contracts/application-operation-request.schema.json",
+    "integrations/web/V4.Guards.WebCompanion/contracts/application-operation-response.schema.json",
+    "integrations/web/V4.Guards.WebCompanion/contracts/application-receipt.schema.json",
+    "integrations/web/V4.Guards.WebCompanion/contracts/session.schema.json",
+    "integrations/web/V4.Guards.WebCompanion/wwwroot/app.js",
+    "integrations/web/V4.Guards.WebCompanion/wwwroot/index.html",
+    "integrations/web/V4.Guards.WebCompanion/wwwroot/styles.css"
+  ],
+  "areas": ["application", "contracts", "host", "tests", "web"],
+  "risks": [
+    "A stale preview could be confirmed after its Package or Target inputs change.",
+    "A loopback caller could attempt cross-origin or oversized requests against the Companion.",
+    "Empty or partial evidence could be presented as protected.",
+    "A lifecycle preview could be mistaken for authorization to mutate Target or remote state."
+  ],
+  "decisions": [
+    "Keep the M3 application command surface experimental and separate from the frozen stable CLI contract.",
+    "Bind previews to catalogued schemas exact Package Target State Evidence and Plan identities and the current preview hash.",
+    "Require session exact loopback origin independent CSRF request limits serialization and cancellation in the Companion.",
+    "Expose only lifecycle verification while compose select rollback retention and remote activation remain unavailable."
+  ],
+  "validationCommands": [
+    "pwsh -NoProfile -File core/application/validation/Test-V4ApplicationBoundary.ps1",
+    "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1",
+    "pwsh -NoProfile -File tests/p1/Test-V4Package.ps1",
+    "pwsh -NoProfile -File tests/p7/Test-V4Documentation.ps1",
+    "pwsh -NoProfile -File tests/p8/Test-V4CompatibilityBaseline.ps1",
+    "pwsh -NoProfile -File tests/p8/Test-V4StableCli.ps1",
+    "pwsh -NoProfile -File tests/p9/Test-V4WebCompanionSpike.ps1",
+    "pwsh -NoProfile -File tests/p9/Test-V4WorkspaceStageRunner.ps1",
+    "pwsh -NoProfile -File tests/p9/Test-V4EvidencePlanCenter.ps1",
+    "pwsh -NoProfile -File tests/p9/Test-V4OfflineWebDistribution.ps1",
+    "pwsh -NoProfile -File tests/p10/Test-V4ExtensionComposition.ps1"
+  ],
+  "dependencies": ["20261001-m3-pr-documentation-root"],
+  "boundaries": []
+}

@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m3-pr-documentation-root",
+  "title": "Own the M3 PR planning and documentation paths",
+  "goal": "Provide unique exact path ownership for every M3 Plan documentation and backlog path in the PR root plan-set.",
+  "acceptanceCriteria": [
+    "The implementation program and four child Plan pairs retain detailed acceptance risks dependencies boundaries stop resume and recovery behavior.",
+    "The Workbench documentation distinguishes previews confirmations receipts and authoritative mutations.",
+    "V4-TODO-021 records the completed local M3 capability without claiming Target writes composition selection CI activation or remote lifecycle transactions.",
+    "This root and the composed plan-set provide exact unique ownership for every documentation path in the PR diff."
+  ],
+  "plannedPaths": [
+    "docs/application-workbench.md",
+    "docs/plans/20261001-m3-application-service-boundary.md",
+    "docs/plans/20261001-m3-application-service-boundary.plan.json",
+    "docs/plans/20261001-m3-authority-lifecycle-handoffs.md",
+    "docs/plans/20261001-m3-authority-lifecycle-handoffs.plan.json",
+    "docs/plans/20261001-m3-companion-workbench.md",
+    "docs/plans/20261001-m3-companion-workbench.plan.json",
+    "docs/plans/20261001-m3-implementation-program.md",
+    "docs/plans/20261001-m3-implementation-program.plan.json",
+    "docs/plans/20261001-m3-pr-documentation-root.md",
+    "docs/plans/20261001-m3-pr-documentation-root.plan.json",
+    "docs/plans/20261001-m3-pr-implementation-root.md",
+    "docs/plans/20261001-m3-pr-implementation-root.plan.json",
+    "docs/plans/20261001-m3-setup-protection-preview.md",
+    "docs/plans/20261001-m3-setup-protection-preview.plan.json",
+    "docs/plans/20261001-m3-ui-application-boundary-implementation.plan-set.json",
+    "docs/plans/product/TODO.md"
+  ],
+  "areas": ["GuardDocs", "application"],
+  "risks": ["A local preview or receipt could be mistaken for completed Target or remote authority."],
+  "decisions": ["Keep Target writes composition selection CI activation and remote lifecycle actions outside M3 authority."],
+  "validationCommands": [
+    "Test-Json for all M3 Plan JSON files",
+    "pwsh -NoProfile -File tests/p7/Test-V4Documentation.ps1",
+    "exact plan-set diff"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}
