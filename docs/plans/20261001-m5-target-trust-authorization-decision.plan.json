@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m5-target-trust-authorization-decision",
+  "title": "M5 target-project trust-change authorization decision",
+  "goal": "Accept a consumer-neutral base-held two-step authorization capability and close the V4-TODO-015 evaluation without implementing or activating it.",
+  "acceptanceCriteria": [
+    "V4-AD-044 defines a trusted-base protected set and a base-held single-use authorization record consumed by a separate trust-change Plan.",
+    "Candidate-only, missing, partial, reused, mismatched and self-authorizing records remain required negative cases for implementation.",
+    "V4-TODO-015 closes only as an evaluation and V4-TODO-023 tracks public contracts, behavior and certification.",
+    "Target application, pull-request delivery and workflow or ruleset activation remain separate operations.",
+    "No product code, contract, authorization record, protected path, workflow, ruleset, consumer repository or remote state changes occur."
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-m5-target-trust-authorization-decision.md",
+    "docs/plans/20261001-m5-target-trust-authorization-decision.plan.json",
+    "docs/plans/product/00-architecture-decision-set.md",
+    "docs/plans/product/README.md",
+    "docs/plans/product/TODO.md"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "A target could otherwise authorize a changed evaluator with candidate-controlled policy.",
+    "A decision-complete backlog item could be mistaken for an implemented public capability.",
+    "Authorization could be collapsed with Target application or remote activation."
+  ],
+  "decisions": [
+    "D27 accepts a consumer-neutral public target-project trust-change authorization capability based on Guard's base-held single-use two-step model."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

@@ -50,15 +50,30 @@ source branch is a delivery action by the maintainer and does not add a Git oper
 
 - [ ] **V4-TODO-006 — Multi-project dashboard**
 
-  Revisit after project-instance identity and concurrency are proven. Cover parallel runs, cancellation,
-  log streaming and isolated project state without creating a remote control plane by accident.
+  V4-AD-040 accepts a phased outcome. Revisit after project-instance identity and Evidence isolation are
+  proven. Implement read-only aggregate status first. Parallel execution remains a later increment and
+  requires per-project queues, cancellation, isolated logs/state/Evidence and fair CPU/memory/disk
+  ceilings without creating non-loopback access or a remote control plane. Keep this item open until the
+  implemented scope is certified or a later decision explicitly narrows it further.
+
+- [ ] **V4-TODO-021 — Expanded local Setup, status and lifecycle UI**
+
+  Implement V4-AD-040 through typed Host/application-service operations in the existing local Web
+  Companion. Cover setup previews, non-vacuous protection status, Profile/Plan/Module handoffs and
+  lifecycle previews without adding arbitrary path/command gateways. Target writes, pull requests,
+  target trust authorization, remote workflow/ruleset activation and enforcement certification remain
+  separate Plans and operations. Every new route requires session/origin/CSRF/size/stale-confirmation
+  negatives and exact Host-result identity.
 
 ## Deferred distribution and ecosystem
 
-- [ ] **V4-TODO-007 — Fully bundled runtimes**
+- [x] **V4-TODO-007 — Runtime distribution strategy — DECISION COMPLETE (2026-10-01)**
 
-  Revisit after v1 portability measurements. Evaluate .NET self-contained publishing and the cost of
-  bundling or replacing PowerShell/Node dependencies across supported OS/architecture combinations.
+  `20261001-m1-foundation-decisions` accepted V4-AD-036: publish RID-specific self-contained .NET Host
+  and Web Companion distributions, while PowerShell, Git, Node and language toolchains remain declared
+  external Module prerequisites unless separately accepted. The fully bundled, zero-prerequisite
+  alternative is rejected. This closes the strategy decision only; measurement and implementation
+  remain separately planned and are not complete merely because this item is checked.
 
 - [x] **V4-TODO-008 — Standalone V4 repository — COMPLETE (2026-09-28)**
 
@@ -102,14 +117,37 @@ source branch is a delivery action by the maintainer and does not add a Git oper
 
 - [ ] **V4-TODO-009 — Profile/module marketplace and signatures**
 
-  Revisit after local install/uninstall/version compatibility is stable. Define discovery, download,
-  signatures, revocation, trust roots, offline behavior and capability review before allowing remote
-  extension installation.
+  V4-AD-047 confirms this remains deferred until local Module lifecycle, install/uninstall/version
+  compatibility and rollback are stable. Before remote installation, separately define authenticated
+  discovery/download, signatures, trust roots, rotation/revocation, offline behavior, dependency
+  integrity, capability review and malicious-index handling. Extension authenticity is not Evidence
+  producer attestation.
 
 - [ ] **V4-TODO-010 — Automatic update and downgrade policy**
 
-  Revisit with standalone distribution. Updates must be staged, verified and rollback-capable;
-  incompatible downgrade and schema rollback fail closed.
+  The policy decision was accepted by `20261001-m1-foundation-decisions`: the first implementation uses
+  operator-supplied packages with automated verification, immutable sibling staging, explicit selection
+  and rollback. It does not perform background discovery, download or activation. Incompatible downgrade
+  and destructive schema rollback fail closed. Keep this item open until the lifecycle operations,
+  compatibility checks, rollback evidence and documentation are implemented and certified.
+
+- [ ] **V4-TODO-019 — Runtime storage cleanup and retention implementation**
+
+  Implement V4-AD-038's storage classes, active-run leases, protected retention references, pin/archive,
+  success cleanup, bounded failed/advisory retention, capacity policy, preview/apply, restart safety and
+  deletion receipts. Confirm or revise the provisional age/count/byte defaults with measurements. Prove
+  that automatic cleanup reaches bounded steady state and cannot remove active, accepted, pinned or
+  externally referenced Evidence. Certification fixtures and retained test clones must be managed
+  outside installed runtime data.
+
+- [ ] **V4-TODO-020 — Profile discovery, scaffold and reviewed promotion**
+
+  Implement V4-AD-039 as separately reviewable children: deterministic inert discovery; a
+  target-snapshot-bound non-authoritative draft under StateRoot; validation, diff and fixture operations;
+  explicit human policy decisions; Target trust authorization for accepted `.guard/` sources; and a new
+  immutable sibling composition with rollback selection. Discovery must not execute target code, drafts
+  must not run as authority, empty coverage must remain visibly unprotected and CI activation remains a
+  separate transaction.
 
 - [x] **V4-TODO-018 — Build-location-independent Host and Companion builds (checklist O14) — COMPLETE (2026-09-28), V4 Guards 1.1.6**
 
@@ -208,7 +246,7 @@ source branch is a delivery action by the maintainer and does not add a Git oper
     - PRs #13 and #14 added a P6 regression probe through the mechanism, all green.
   - O16 is retired and O17 is closed.
 
-- [ ] **V4-TODO-015 — Trust-change authorization for target projects (evaluate)**
+- [x] **V4-TODO-015 — Target-project trust-change authorization — DECISION COMPLETE (2026-10-01)**
 
   Guard's own gate now protects its judge with base-held, single-use authorization records
   (V4-TODO-014). Target projects have an analogous exposure in their integration layer:
@@ -223,13 +261,30 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   - keep the Profile, bundle and review inputs in the IFX trust domain;
   - protect the IFX workflow through IFX review and rulesets.
 
-  Evaluate whether V4 should offer the two-step authorization as a product capability, so that a
-  target can protect its own Profile and bundle changes. The outcome is to decide scope, the contract
-  and whether it belongs in the public CLI.
+  `20261001-m5-target-trust-authorization-decision` accepts V4-AD-044: Guard will provide a
+  consumer-neutral, base-held, single-use two-step authorization capability for protected target
+  governance. This closes the evaluation only. Public contracts, CLI/service behavior, target-neutral
+  fixtures and negative certification remain open under V4-TODO-023.
+
+- [ ] **V4-TODO-022 — Versioned Stage semantics, timing and trusted Evidence reuse**
+
+  Implement V4-AD-041 through V4-AD-043 as separately reviewable children: versioned Stage/result kinds,
+  Guard-owned readiness and analysis providers, dependency execution, timing instrumentation, measured
+  CI optimization, trusted-CI Evidence reuse and local advisory Evidence inspection. Preserve legacy
+  compatibility visibly, fail closed on stale/missing dependencies and prove that optimization cannot
+  suppress a relevant required gate. Managed local attestation remains deferred.
+
+- [ ] **V4-TODO-023 — Target-project trust-change authorization implementation**
+
+  Implement V4-AD-044's public schemas, base-policy protected-set declaration, authorization-record
+  creation/validation/consumption, CLI/service operations, judge identity and consumer-neutral fixtures.
+  Require missing, partial, candidate-only, reused, hash-mismatch and self-authorization negatives.
+  Target application, pull-request delivery and workflow/ruleset activation remain separate operations.
 
 - [ ] **V4-TODO-016 — Code-owner review for workflow and authorization changes**
 
-  Revisit when Guard has a second maintainer. Add `CODEOWNERS` for `.github/**`,
+  V4-AD-047 confirms this remains conditional. Revisit only when Guard has a second maintainer who can
+  satisfy approval. Add `CODEOWNERS` for `.github/**`,
   `docs/plans/authorizations/**` and `integrations/github/**`, then enable code-owner review in
   `v4-main-autonomy`.
 
@@ -243,9 +298,10 @@ source branch is a delivery action by the maintainer and does not add a Git oper
 
 - [ ] **V4-TODO-012 — Windows full-run frequency review**
 
-  Revisit after real V4 run-duration data exists. Ordinary CI remains Linux-first with conditional
-  Windows smoke; increase or reduce full cadence only with evidence and without weakening release
-  certification.
+  V4-AD-042 accepts the measurement and decision method while retaining the current cadence until the
+  required baseline exists. Ordinary CI remains Linux-first with conditional Windows smoke; Windows-full
+  remains required for milestones, releases, runtime/trust changes and explicit certification. Increase,
+  reduce or schedule additional full runs only with evidence and without weakening release certification.
 
   Run-duration data collection started on 2026-09-28, when the V4 workflow became active on `main`
   (`b022f9e8`). The dispatch certification run times (Linux-complete about 7 minutes, Windows-full about
@@ -254,9 +310,28 @@ source branch is a delivery action by the maintainer and does not add a Git oper
 
 - [ ] **V4-TODO-013 — Plan-set limits and parallel agent policy**
 
-  Revisit after real multi-plan PRs. Decide member-count/size limits, shared-path policy and whether
-  independent member plans may be authored concurrently. Authorization and activation boundaries may
-  never be collapsed for convenience.
+  V4-AD-045 accepts initial limits and generalizes “parallel agent” to concurrent authorship. Implement
+  and certify: 16 members, 1 MiB per Plan, 8 MiB aggregate input, dependency depth 8, 4,096 unique paths,
+  256 validation commands, 256 combined risk/decision entries and a 30-second certification-fixture
+  ceiling. Authors may work concurrently, but every finalized changed path has exactly one owner and
+  every member is reconciled to the exact base/head. Keep this item open until schemas/runtime/negative
+  tests and guidance enforce the limits. Authorization and activation boundaries remain separate.
+
+- [ ] **V4-TODO-024 — Plan-pair scaffold, analysis, finalize and Workbench**
+
+  Implement V4-AD-046 using one schema-versioned structured authoring model that renders executable JSON
+  and matching review Markdown. Support explicit proposal and finalized states, deterministic diagnostics,
+  exact-diff reconciliation and operator confirmation. Imported prose and Agent/model output remain
+  untrusted suggestions; Guard code owns schema, path, boundary, root-mutability and policy checks. The
+  UI cannot approve its own trust boundary or silently add changed paths.
+
+- [ ] **V4-TODO-025 — Agent-independent local Module lifecycle**
+
+  Implement V4-AD-047's immutable list/inspect/graph, scaffold, validate, test, diff, deterministic pack,
+  review preparation, compose and verify operations. Begin UI work with read-only inventory; later
+  schema-driven metadata/config editing may prepare candidates and run fixtures. Adapter source remains
+  repository/IDE work, extension updates create new compositions and built-in changes require a Guard
+  release. Marketplace work remains V4-TODO-009.
 
 - [x] **V4-TODO-017 — Long paths in the runner's post-test `git status` (checklist O8) — COMPLETE (2026-09-28), V4 Guards 1.1.6**
 
