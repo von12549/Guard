@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/application/contracts/application-service-contract.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "operations", "schemas"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "operations": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "class", "mutatesTarget", "remote", "available"],
+        "properties": {
+          "id": { "enum": ["setup", "protection", "authorities", "lifecycle"] },
+          "class": { "enum": ["query", "local-mutable-preview"] },
+          "mutatesTarget": { "const": false },
+          "remote": { "const": false },
+          "available": { "const": true }
+        }
+      }
+    },
+    "schemas": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path", "sha256"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]+$" },
+          "path": { "type": "string", "pattern": "^core/application/contracts/[a-z0-9-]+\\.schema\\.json$" },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        }
+      }
+    }
+  }
+}

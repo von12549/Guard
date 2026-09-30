@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/application/contracts/lifecycle-preview.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["current", "actions"],
+  "properties": {
+    "current": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["productId", "version", "packageAuthoritySha256", "compositionKind", "verified"],
+      "properties": {
+        "productId": { "const": "v4-guards" },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "packageAuthoritySha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "compositionKind": { "enum": ["base-package", "local-extension-composition"] },
+        "verified": { "type": "boolean" }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "operationClass", "available", "effect", "reason"],
+        "properties": {
+          "id": { "enum": ["verify", "compose", "select", "rollback", "retention-preview", "retention-apply", "remote-activation"] },
+          "operationClass": { "enum": ["query", "local-mutable-preview", "local-mutable-apply", "target-trust-change-candidate", "remote-change-candidate"] },
+          "available": { "type": "boolean" },
+          "effect": { "enum": ["none", "state-write", "installation-write", "selection-change", "deletion", "remote-change"] },
+          "reason": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

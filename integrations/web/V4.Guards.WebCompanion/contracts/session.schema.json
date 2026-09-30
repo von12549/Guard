@@ -3,11 +3,12 @@
   "$id": "https://ifx.local/v4/web/session.schema.json",
   "type": "object",
   "additionalProperties": false,
-  "required": ["formatVersion", "status", "authority", "allowedCommand", "allowedStages", "allowedQueries", "allowedProfiles", "activeProjectId", "targetCount", "roots"],
+  "required": ["formatVersion", "status", "authority", "csrfToken", "allowedCommand", "allowedStages", "allowedQueries", "allowedApplicationOperations", "allowedProfiles", "activeProjectId", "targetCount", "roots"],
   "properties": {
     "formatVersion": { "const": 1 },
     "status": { "const": "ready" },
     "authority": { "const": "v4-host" },
+    "csrfToken": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "allowedCommand": { "const": "stage.run" },
     "allowedStages": {
       "type": "array",
@@ -16,6 +17,10 @@
     "allowedQueries": {
       "type": "array",
       "const": ["query.runs", "query.evidence", "query.plans"]
+    },
+    "allowedApplicationOperations": {
+      "type": "array",
+      "const": ["setup", "protection", "authorities", "lifecycle"]
     },
     "allowedProfiles": {
       "type": "array",

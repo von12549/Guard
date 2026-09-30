@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/application/contracts/setup-preview.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["summary", "steps"],
+  "properties": {
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["initialized", "profileId", "protected", "applyAvailable"],
+      "properties": {
+        "initialized": { "type": "boolean" },
+        "profileId": { "type": ["string", "null"], "pattern": "^[a-z][a-z0-9_-]*$" },
+        "protected": { "type": "boolean" },
+        "applyAvailable": { "const": false }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "operationClass", "state", "available", "reason"],
+        "properties": {
+          "id": { "enum": ["initialize", "profile", "composition", "prerequisites", "coverage", "ci-candidate", "enforcement"] },
+          "operationClass": { "enum": ["query", "local-mutable-preview", "local-mutable-apply", "target-trust-change-candidate", "remote-change-candidate"] },
+          "state": { "enum": ["complete", "incomplete", "unverified", "not-authorized"] },
+          "available": { "type": "boolean" },
+          "reason": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

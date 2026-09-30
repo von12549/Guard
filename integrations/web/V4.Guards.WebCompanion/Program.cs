@@ -15,6 +15,7 @@ internal static class Program
     private const int MaxPlanFileBytes = 1_048_576;
     private static readonly string[] AllowedStages = ["bootstrap", "analysis", "pre", "post"];
     private static readonly string[] AllowedQueries = ["query.runs", "query.evidence", "query.plans"];
+    private static readonly string[] AllowedApplicationOperations = ["setup", "protection", "authorities", "lifecycle"];
     private static readonly Regex ProfilePattern = new("^[a-z][a-z0-9_-]*$", RegexOptions.CultureInvariant);
     private static readonly Regex ProjectIdPattern = new("^[a-f0-9]{32}$", RegexOptions.CultureInvariant);
     private static readonly Regex RunIdPattern = new("^[a-f0-9]{32}$", RegexOptions.CultureInvariant);
@@ -34,6 +35,7 @@ internal static class Program
             var options = CompanionOptions.Parse(args);
             var workspaceState = new WorkspaceState(options.TargetRoots[0]);
             var sessionSecret = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
+            var csrfToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
             var uiAssets = LoadUiAssets();
             using var runGate = new SemaphoreSlim(1, 1);
 
@@ -91,9 +93,11 @@ internal static class Program
                         formatVersion = 1,
                         status = "ready",
                         authority = "v4-host",
+                        csrfToken,
                         allowedCommand = "stage.run",
                         allowedStages = AllowedStages,
                         allowedQueries = AllowedQueries,
+                        allowedApplicationOperations = AllowedApplicationOperations,
                         allowedProfiles = workspace.Profiles.Select(profile => profile.Id).ToArray(),
                         activeProjectId = workspace.ActiveProjectId,
                         targetCount = workspace.Targets.Length,
@@ -294,6 +298,80 @@ internal static class Program
                 finally { runGate.Release(); }
             });
 
+            app.MapPost("/api/v1/application/preview", async (HttpContext context) =>
+            {
+                if (!IsAuthorizedApplicationRequest(context, sessionSecret, csrfToken))
+                    return Results.Json(Error("session-refused", "A same-origin loopback session and CSRF token are required."), JsonOptions, statusCode: 403);
+                ApplicationOperationRequest request;
+                try { request = await ReadApplicationOperationRequest(context.Request, context.RequestAborted); }
+                catch (RequestException ex)
+                {
+                    return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 400);
+                }
+                if (!await runGate.WaitAsync(0, context.RequestAborted))
+                    return Results.Json(Error("run-active", "Another Companion operation is active."), JsonOptions, statusCode: 409);
+                try
+                {
+                    var target = await ResolveTrustedTarget(options, workspaceState, request.ProjectId, context.RequestAborted);
+                    var execution = await InvokeApplicationPreview(options, target.TargetRoot, request.OperationId, context.RequestAborted);
+                    return Results.Json(ApplicationResponse(request, execution.Result), JsonOptions);
+                }
+                catch (RequestException ex)
+                {
+                    return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 400);
+                }
+                catch (HostInvocationException ex)
+                {
+                    return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 502);
+                }
+                finally { runGate.Release(); }
+            });
+
+            app.MapPost("/api/v1/application/confirm", async (HttpContext context) =>
+            {
+                if (!IsAuthorizedApplicationRequest(context, sessionSecret, csrfToken))
+                    return Results.Json(Error("session-refused", "A same-origin loopback session and CSRF token are required."), JsonOptions, statusCode: 403);
+                ApplicationConfirmationRequest request;
+                try { request = await ReadApplicationConfirmationRequest(context.Request, context.RequestAborted); }
+                catch (RequestException ex)
+                {
+                    return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 400);
+                }
+                if (!await runGate.WaitAsync(0, context.RequestAborted))
+                    return Results.Json(Error("run-active", "Another Companion operation is active."), JsonOptions, statusCode: 409);
+                try
+                {
+                    var target = await ResolveTrustedTarget(options, workspaceState, request.ProjectId, context.RequestAborted);
+                    var execution = await InvokeApplicationPreview(options, target.TargetRoot, request.OperationId, context.RequestAborted);
+                    var currentHash = execution.Result.GetProperty("previewHash").GetString()!;
+                    if (!FixedTimeEquals(currentHash, request.PreviewHash))
+                        return Results.Json(Error("stale-preview", "The Host preview identity changed; request a fresh preview."), JsonOptions, statusCode: 409);
+                    return Results.Json(new
+                    {
+                        formatVersion = 1,
+                        status = "confirmed",
+                        authority = "v4-companion-local-receipt",
+                        hostAuthority = "v4-host",
+                        operationId = request.OperationId,
+                        operationClass = execution.Result.GetProperty("operationClass").GetString(),
+                        projectId = request.ProjectId,
+                        previewHash = currentHash,
+                        hostResultSha256 = HashText(execution.Result.GetRawText()),
+                        applied = false,
+                        unperformed = new[] { "target-write", "composition-selection", "ci-activation", "remote-change" }
+                    }, JsonOptions);
+                }
+                catch (RequestException ex)
+                {
+                    return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 400);
+                }
+                catch (HostInvocationException ex)
+                {
+                    return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 502);
+                }
+                finally { runGate.Release(); }
+            });
+
             await app.StartAsync();
             var address = app.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()?
                 .Addresses.Single(value => value.StartsWith("http://127.0.0.1:", StringComparison.Ordinal));
@@ -480,6 +558,11 @@ internal static class Program
             (string.IsNullOrEmpty(origin.PathAndQuery) || origin.PathAndQuery == "/");
     }
 
+    private static bool IsAuthorizedApplicationRequest(HttpContext context, string expectedSecret, string expectedCsrf) =>
+        IsAuthorizedMutation(context, expectedSecret) &&
+        context.Request.Headers.TryGetValue("X-V4-CSRF", out var actualCsrf) &&
+        actualCsrf.Count == 1 && FixedTimeEquals(actualCsrf.ToString(), expectedCsrf);
+
     private static bool FixedTimeEquals(string left, string right)
     {
         var leftBytes = Encoding.UTF8.GetBytes(left);
@@ -538,6 +621,75 @@ internal static class Program
             throw new RequestException("invalid-input", "Project ID is invalid.");
         return new WorkspaceSelection(value.GetString()!);
     }
+
+    private static async Task<ApplicationOperationRequest> ReadApplicationOperationRequest(HttpRequest request, CancellationToken cancellationToken)
+    {
+        using var document = await ReadRequestObject(request, cancellationToken);
+        var root = document.RootElement;
+        RequireExactProperties(root, "operationId", "projectId");
+        return ValidateApplicationRequest(root);
+    }
+
+    private static async Task<ApplicationConfirmationRequest> ReadApplicationConfirmationRequest(HttpRequest request, CancellationToken cancellationToken)
+    {
+        using var document = await ReadRequestObject(request, cancellationToken);
+        var root = document.RootElement;
+        RequireExactProperties(root, "operationId", "projectId", "previewHash");
+        var parsed = ValidateApplicationRequest(root);
+        var hash = root.GetProperty("previewHash");
+        if (hash.ValueKind != JsonValueKind.String || !Regex.IsMatch(hash.GetString()!, "^[a-f0-9]{64}$", RegexOptions.CultureInvariant))
+            throw new RequestException("invalid-input", "Preview hash is invalid.");
+        return new ApplicationConfirmationRequest(parsed.OperationId, parsed.ProjectId, hash.GetString()!);
+    }
+
+    private static ApplicationOperationRequest ValidateApplicationRequest(JsonElement root)
+    {
+        var operation = root.GetProperty("operationId");
+        var project = root.GetProperty("projectId");
+        if (operation.ValueKind != JsonValueKind.String || project.ValueKind != JsonValueKind.String)
+            throw new RequestException("invalid-input", "Application request field types are invalid.");
+        var operationId = operation.GetString()!;
+        var projectId = project.GetString()!;
+        if (!AllowedApplicationOperations.Contains(operationId, StringComparer.Ordinal))
+            throw new RequestException("command-refused", "Application operation is not allowlisted.");
+        if (!ProjectIdPattern.IsMatch(projectId)) throw new RequestException("invalid-input", "Project ID is invalid.");
+        return new ApplicationOperationRequest(operationId, projectId);
+    }
+
+    private static async Task<WorkspaceTarget> ResolveTrustedTarget(CompanionOptions options, WorkspaceState state, string projectId,
+        CancellationToken cancellationToken)
+    {
+        var workspace = await BuildWorkspace(options, state, cancellationToken);
+        return workspace.Targets.SingleOrDefault(target => target.ProjectId == projectId)
+            ?? throw new RequestException("target-refused", "Project ID is not a trusted startup Target.");
+    }
+
+    private static Task<HostExecution> InvokeApplicationPreview(CompanionOptions options, string targetRoot, string operationId,
+        CancellationToken cancellationToken) => InvokeHost(options,
+        [
+            "application", "preview", "--operation", operationId,
+            "--package-root", options.PackageRoot, "--target-root", targetRoot,
+            "--state-root", options.StateRoot, "--evidence-root", options.EvidenceRoot,
+            "--plan-root", options.PlanRoot
+        ], cancellationToken).ContinueWith(task =>
+        {
+            var execution = task.GetAwaiter().GetResult();
+            if (execution.ExitCode != 0)
+                throw new HostInvocationException("host-preview-refused", $"The V4 Host preview failed with exit {execution.ExitCode}: {execution.Result.GetRawText()}");
+            return execution;
+        }, cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+
+    private static object ApplicationResponse(ApplicationOperationRequest request, JsonElement result) => new
+    {
+        formatVersion = 1,
+        status = "pass",
+        operationId = request.OperationId,
+        projectId = request.ProjectId,
+        hostResultSha256 = HashText(result.GetRawText()),
+        hostResult = result
+    };
+
+    private static string HashText(string value) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value))).ToLowerInvariant();
 
     private static async Task<JsonDocument> ReadRequestObject(HttpRequest request, CancellationToken cancellationToken)
     {
@@ -677,6 +829,8 @@ internal static class Program
 
     private sealed record StageRequest(string Stage, string Profile, bool WithDependencies);
     private sealed record WorkspaceSelection(string ProjectId);
+    private sealed record ApplicationOperationRequest(string OperationId, string ProjectId);
+    private sealed record ApplicationConfirmationRequest(string OperationId, string ProjectId, string PreviewHash);
     private sealed record HostExecution(int ExitCode, JsonElement Result);
     private sealed record ProjectQueryProjection(ProjectProjection Project);
     private sealed record ProjectProjection(string ProjectId, string TargetRoot, string TargetIdentityHash, bool Bound,

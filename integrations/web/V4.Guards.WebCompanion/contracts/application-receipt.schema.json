@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/web/application-receipt.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "status", "authority", "hostAuthority", "operationId", "operationClass", "projectId", "previewHash", "hostResultSha256", "applied", "unperformed"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "const": "confirmed" },
+    "authority": { "const": "v4-companion-local-receipt" },
+    "hostAuthority": { "const": "v4-host" },
+    "operationId": { "enum": ["setup", "protection", "authorities", "lifecycle"] },
+    "operationClass": { "enum": ["query", "local-mutable-preview"] },
+    "projectId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+    "previewHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "hostResultSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "applied": { "const": false },
+    "unperformed": {
+      "type": "array",
+      "const": ["target-write", "composition-selection", "ci-activation", "remote-change"]
+    }
+  }
+}

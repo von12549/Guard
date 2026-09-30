@@ -97,6 +97,61 @@
       </section>
     </div>
 
+    <section class="workbench" aria-labelledby="workbench-title">
+      <header class="workbench-header">
+        <div class="section-heading">
+          <h2 id="workbench-title">Protection Workbench</h2>
+          <p>Host-owned setup, protection, authority and lifecycle previews. Nothing here applies a change.</p>
+        </div>
+        <div class="workbench-state" id="workbench-state" role="status">Choose a preview</div>
+      </header>
+
+      <div class="operation-ledger" id="operation-ledger" aria-label="Application previews">
+        <button class="operation-choice selected" type="button" data-operation="protection" aria-pressed="true" disabled>
+          <span>Protection status</span><small>Seven required proofs</small>
+        </button>
+        <button class="operation-choice" type="button" data-operation="setup" aria-pressed="false" disabled>
+          <span>Setup preview</span><small>Ordered, no apply</small>
+        </button>
+        <button class="operation-choice" type="button" data-operation="authorities" aria-pressed="false" disabled>
+          <span>Authority handoffs</span><small>Profiles, Plans, Modules</small>
+        </button>
+        <button class="operation-choice" type="button" data-operation="lifecycle" aria-pressed="false" disabled>
+          <span>Lifecycle preview</span><small>Immutable sibling boundary</small>
+        </button>
+      </div>
+
+      <div class="workbench-layout">
+        <article class="preview-sheet" aria-labelledby="preview-title">
+          <div class="preview-heading">
+            <div>
+              <p id="preview-kicker">No Host preview</p>
+              <h3 id="preview-title">Select an operation above</h3>
+            </div>
+            <span id="preview-status" class="preview-status">Waiting</span>
+          </div>
+          <div id="application-preview" class="application-preview">
+            <p class="empty-guidance">The browser sends only a registered project ID and one vetted operation ID.</p>
+          </div>
+        </article>
+
+        <aside class="preview-identity" aria-labelledby="preview-identity-title">
+          <h3 id="preview-identity-title">Preview identity</h3>
+          <p>Confirmation reruns the Host and refuses any changed identity.</p>
+          <dl id="preview-proof" class="preview-proof">
+            <div><dt>Authority</dt><dd>v4-host</dd></div>
+            <div><dt>State</dt><dd>Waiting</dd></div>
+          </dl>
+          <button id="confirm-preview" class="confirm-preview" type="button" disabled>Confirm unchanged preview</button>
+          <p class="confirm-boundary">Confirmation records <code>applied: false</code>. Target, composition, CI and remote state remain unchanged.</p>
+          <pre id="application-receipt" class="application-receipt" tabindex="0">{
+  "status": "waiting",
+  "applied": false
+}</pre>
+        </aside>
+      </div>
+    </section>
+
     <section class="inspection-deck" aria-labelledby="inspection-title">
       <header class="inspection-header">
         <div class="section-heading">

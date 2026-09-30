@@ -25,6 +25,15 @@ const documentBody = document.querySelector("#document-body");
 const proofCaption = document.querySelector("#proof-caption");
 const proofBody = document.querySelector("#proof-body");
 const inspectionJson = document.querySelector("#inspection-json");
+const workbenchState = document.querySelector("#workbench-state");
+const operationChoices = [...document.querySelectorAll(".operation-choice")];
+const previewKicker = document.querySelector("#preview-kicker");
+const previewTitle = document.querySelector("#preview-title");
+const previewStatus = document.querySelector("#preview-status");
+const applicationPreview = document.querySelector("#application-preview");
+const previewProof = document.querySelector("#preview-proof");
+const confirmPreview = document.querySelector("#confirm-preview");
+const applicationReceipt = document.querySelector("#application-receipt");
 
 let workspace = null;
 let selectedStage = "analysis";
@@ -35,6 +44,9 @@ let planCatalog = null;
 let selectedRunId = null;
 let selectedPlanId = null;
 let inspectionVersion = 0;
+let csrfToken = null;
+let selectedOperation = "protection";
+let lastApplicationPreview = null;
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -146,6 +158,167 @@ function setBusy(value) {
   dependencies.disabled = value;
   renderTargets();
   renderStages();
+  for (const button of operationChoices) button.disabled = value || !workspace;
+  confirmPreview.disabled = value || !lastApplicationPreview;
+}
+
+function resetApplicationPreview(message = "Select an operation above") {
+  lastApplicationPreview = null;
+  previewKicker.textContent = "No Host preview";
+  previewTitle.textContent = message;
+  previewStatus.textContent = "Waiting";
+  previewStatus.className = "preview-status";
+  applicationPreview.replaceChildren(element("p", "empty-guidance", "The browser sends only a registered project ID and one vetted operation ID."));
+  previewProof.replaceChildren();
+  const authority = element("div");
+  authority.append(element("dt", "", "Authority"), element("dd", "", "v4-host"));
+  const state = element("div");
+  state.append(element("dt", "", "State"), element("dd", "", "Waiting"));
+  previewProof.append(authority, state);
+  confirmPreview.disabled = true;
+  applicationReceipt.textContent = JSON.stringify({ status: "waiting", applied: false }, null, 2);
+}
+
+function proofRow(label, value) {
+  const row = element("div");
+  row.append(element("dt", "", label), element("dd", "", value));
+  return row;
+}
+
+function renderStatusRows(items, labelKey = "id", statusKey = "status", detailKey = "evidence") {
+  const list = element("div", "status-ledger");
+  for (const item of items) {
+    const row = element("div", `status-row ${item[statusKey] || "unverified"}`);
+    const heading = element("div", "status-row-heading");
+    heading.append(element("strong", "", item[labelKey]), element("span", "", item[statusKey] || "unavailable"));
+    row.append(heading, element("p", "", item[detailKey] || item.reason || "No detail returned."));
+    list.append(row);
+  }
+  return list;
+}
+
+function renderAuthorityGroup(title, items) {
+  const group = element("section", "authority-group");
+  group.append(element("h4", "", `${title} (${items.length})`));
+  const list = element("div", "authority-list");
+  for (const item of items) {
+    const row = element("div", "authority-row");
+    row.append(
+      element("strong", "", item.id),
+      element("span", "", item.state),
+      element("code", "", item.sha256),
+      element("small", "", `${item.nextOperation} · ${item.available ? "available" : "unavailable"}`)
+    );
+    list.append(row);
+  }
+  group.append(list);
+  return group;
+}
+
+function renderApplicationPreview(envelope) {
+  const result = envelope.hostResult;
+  const payload = result.payload;
+  lastApplicationPreview = envelope;
+  previewKicker.textContent = `${result.operationClass} · ${result.projectId}`;
+  previewTitle.textContent = {
+    protection: "Protection is evidence, not a green light",
+    setup: "Setup sequence and authorization stops",
+    authorities: "Installed and Target-owned handoffs",
+    lifecycle: "Current package and unavailable applies"
+  }[result.operation];
+  previewStatus.textContent = result.operation === "protection" ? (payload.protected ? "Protected" : "Not protected") : "Preview only";
+  previewStatus.className = `preview-status ${result.operation === "protection" && payload.protected ? "pass" : "advisory"}`;
+  applicationPreview.replaceChildren();
+  if (result.operation === "protection") {
+    const summary = element("p", "preview-summary", payload.protected
+      ? "Every required protection proof is present."
+      : "One or more required proofs are missing or unverified; the Host refuses the protected claim.");
+    applicationPreview.append(summary, renderStatusRows(payload.components));
+  } else if (result.operation === "setup") {
+    applicationPreview.append(
+      element("p", "preview-summary", payload.summary.applyAvailable ? "Apply is available." : "This sequence is guidance only; apply remains unavailable."),
+      renderStatusRows(payload.steps, "id", "state", "reason")
+    );
+  } else if (result.operation === "authorities") {
+    applicationPreview.append(
+      renderAuthorityGroup("Profiles", payload.profiles),
+      renderAuthorityGroup("Plans", payload.plans),
+      renderAuthorityGroup("Modules", payload.modules),
+      element("p", "boundary-strip", `Separate authority: ${payload.boundaries.join(", ")}.`)
+    );
+  } else {
+    applicationPreview.append(
+      element("p", "preview-summary", `${payload.current.productId} ${payload.current.version} · ${payload.current.compositionKind} · ${payload.current.verified ? "verified installed authority" : "source package, not installed authority"}`),
+      renderStatusRows(payload.actions, "id", "available", "reason")
+    );
+  }
+  previewProof.replaceChildren(
+    proofRow("Preview", result.previewHash),
+    proofRow("Host result", envelope.hostResultSha256),
+    proofRow("Package authority", result.packageAuthoritySha256),
+    proofRow("Target snapshot", result.targetSnapshotSha256)
+  );
+  confirmPreview.disabled = busy;
+  workbenchState.textContent = "Host preview ready";
+  applicationReceipt.textContent = JSON.stringify({ status: "preview", previewHash: result.previewHash, applied: false }, null, 2);
+}
+
+async function loadApplicationPreview(operationId) {
+  const target = currentTarget();
+  if (!target || !csrfToken) return;
+  selectedOperation = operationId;
+  for (const button of operationChoices) {
+    const selected = button.dataset.operation === operationId;
+    button.classList.toggle("selected", selected);
+    button.setAttribute("aria-pressed", selected ? "true" : "false");
+  }
+  setBusy(true);
+  workbenchState.textContent = "Waiting for Host validation";
+  previewStatus.textContent = "Checking";
+  applicationPreview.replaceChildren(element("p", "empty-guidance", "Validating package authority and Target snapshot…"));
+  try {
+    const response = await fetch("/api/v1/application/preview", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", "X-V4-CSRF": csrfToken },
+      body: JSON.stringify({ operationId, projectId: target.projectId })
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.message || `HTTP ${response.status}`);
+    renderApplicationPreview(payload);
+  } catch (error) {
+    resetApplicationPreview("Preview unavailable");
+    previewStatus.textContent = "Unavailable";
+    previewStatus.className = "preview-status error";
+    applicationPreview.replaceChildren(element("p", "empty-guidance", error.message));
+    workbenchState.textContent = "Host preview refused";
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function confirmApplicationPreview() {
+  if (!lastApplicationPreview || !csrfToken) return;
+  const result = lastApplicationPreview.hostResult;
+  setBusy(true);
+  workbenchState.textContent = "Rechecking preview identity";
+  try {
+    const response = await fetch("/api/v1/application/confirm", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", "X-V4-CSRF": csrfToken },
+      body: JSON.stringify({ operationId: result.operation, projectId: result.projectId, previewHash: result.previewHash })
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.message || `HTTP ${response.status}`);
+    applicationReceipt.textContent = JSON.stringify(payload, null, 2);
+    workbenchState.textContent = "Unchanged preview confirmed; nothing applied";
+  } catch (error) {
+    applicationReceipt.textContent = JSON.stringify({ status: "error", message: error.message, applied: false }, null, 2);
+    workbenchState.textContent = "Confirmation refused";
+  } finally {
+    setBusy(false);
+  }
 }
 
 async function refreshWorkspace() {
@@ -536,6 +709,7 @@ async function selectTarget(projectId) {
     await refreshWorkspace();
     showResult(payload, "The active Target changed by Host-derived project ID.");
     resetInspection();
+    resetApplicationPreview("Target changed; request a fresh preview");
     await refreshInspection();
   } catch (error) {
     showResult({ status: "error", message: error.message }, "The Target selection was refused.");
@@ -548,8 +722,10 @@ async function connect() {
   try {
     const response = await fetch("/api/v1/session", { credentials: "same-origin" });
     if (!response.ok) throw new Error(`Session endpoint returned HTTP ${response.status}.`);
-    await response.json();
+    const session = await response.json();
+    csrfToken = session.csrfToken;
     await refreshWorkspace();
+    setBusy(false);
     setConnection("ready", "Loopback workspace ready");
     await refreshInspection();
   } catch (error) {
@@ -566,6 +742,8 @@ profileSelect.addEventListener("change", () => {
 dependencies.addEventListener("change", renderStages);
 runsTab.addEventListener("click", () => selectInspectionMode("runs"));
 plansTab.addEventListener("click", () => selectInspectionMode("plans"));
+for (const button of operationChoices) button.addEventListener("click", () => loadApplicationPreview(button.dataset.operation));
+confirmPreview.addEventListener("click", confirmApplicationPreview);
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
