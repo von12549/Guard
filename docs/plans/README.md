@@ -19,3 +19,10 @@ releases.
 
 Migration provenance (path dispositions, commit map, release inventory and receipt) lives under
 [`../migration/v4-todo-008/`](../migration/v4-todo-008/README.md).
+
+## Active remediation planning
+
+- [M1–M5 audit remediation and conditional 1.2.0 release program](20261001-m1-m5-remediation-and-1-2-0-release.md)
+  with its [verification checklist](20261001-m1-m5-remediation-checklist.md): all required repairs and
+  tests must pass and receive a post-remediation report before the 1.2.0 version update; the updated
+  release commit is then certified, published and independently verified. Execution is not yet complete.
