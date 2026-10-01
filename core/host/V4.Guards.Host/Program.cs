@@ -24,6 +24,7 @@ internal static class Program
         if (args.Length > 0 && args[0] == "plan") return PlanRuntime.Execute(args);
         if (args.Length > 0 && args[0] == "query") return QueryRuntime.Execute(args);
         if (args.Length > 0 && args[0] == "profile") return ProfileRuntime.Execute(args);
+        if (args.Length > 0 && args[0] == "application") return ApplicationRuntime.Execute(args);
 
         RootSet? roots = null;
         string? adapterHash = null;

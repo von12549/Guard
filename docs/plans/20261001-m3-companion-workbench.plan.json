@@ -1,0 +1,32 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m3-companion-workbench",
+  "title": "Implement the secured M3 Companion Workbench",
+  "goal": "Render exact Host setup protection handoff and lifecycle previews through the existing loopback Companion.",
+  "acceptanceCriteria": [
+    "The embedded Workbench renders Setup protection Profile Plan Module and lifecycle projections without computing authority in browser code.",
+    "Every new route enforces session Host Origin CSRF request-size stale-preview and cancellation behavior before Host execution.",
+    "Preview confirmation returns a local receipt with exact Host result identity and no apply side effect.",
+    "Positive and negative tests prove exact Host identity PackageRoot and TargetRoot immutability and absence of path command or remote gateways."
+  ],
+  "plannedPaths": [
+    "integrations/web/V4.Guards.WebCompanion/Program.cs",
+    "integrations/web/V4.Guards.WebCompanion/contracts/application-operation-request.schema.json",
+    "integrations/web/V4.Guards.WebCompanion/contracts/application-confirm-request.schema.json",
+    "integrations/web/V4.Guards.WebCompanion/contracts/application-operation-response.schema.json",
+    "integrations/web/V4.Guards.WebCompanion/contracts/application-receipt.schema.json",
+    "integrations/web/V4.Guards.WebCompanion/contracts/session.schema.json",
+    "integrations/web/V4.Guards.WebCompanion/wwwroot/index.html",
+    "integrations/web/V4.Guards.WebCompanion/wwwroot/app.js",
+    "integrations/web/V4.Guards.WebCompanion/wwwroot/styles.css",
+    "core/application/validation/Test-V4ApplicationBoundary.ps1",
+    "docs/plans/20261001-m3-companion-workbench.md",
+    "docs/plans/20261001-m3-companion-workbench.plan.json"
+  ],
+  "areas": ["application", "contracts", "tests", "web"],
+  "risks": ["A browser route could bypass Host authority or accept a stale preview."],
+  "decisions": ["Use one typed Host operation endpoint plus hash confirmation receipts and no apply route."],
+  "validationCommands": ["pwsh -NoProfile -File core/application/validation/Test-V4ApplicationBoundary.ps1", "pwsh -NoProfile -File tests/p9/Test-V4WebCompanionSpike.ps1", "pwsh -NoProfile -File tests/p9/Test-V4WorkspaceStageRunner.ps1", "pwsh -NoProfile -File tests/p9/Test-V4OfflineWebDistribution.ps1"],
+  "dependencies": [],
+  "boundaries": []
+}

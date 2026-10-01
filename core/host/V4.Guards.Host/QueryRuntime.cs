@@ -28,19 +28,7 @@ internal static class QueryRuntime
     {
         try
         {
-            var arguments = ParseArguments(args);
-            var outcome = arguments.Operation switch
-            {
-                "project" => Project(arguments),
-                "profiles" => Profiles(arguments),
-                "doctor" => Doctor(arguments),
-                "runs" => Runs(arguments),
-                "evidence" => Evidence(arguments),
-                "plans" => Plans(arguments),
-                _ => throw Invalid($"Unknown query operation: {arguments.Operation}")
-            };
-            ValidateOutput(outcome.PackageRoot, outcome.SchemaId, outcome.Document);
-            Console.WriteLine(JsonSerializer.Serialize(outcome.Document, JsonOptions));
+            Console.WriteLine(QueryForApplication(args).GetRawText());
             return 0;
         }
         catch (QueryException ex)
@@ -59,6 +47,23 @@ internal static class QueryRuntime
         {
             return Error(19, "internal-error", ex.Message);
         }
+    }
+
+    internal static JsonElement QueryForApplication(string[] args)
+    {
+        var arguments = ParseArguments(args);
+        var outcome = arguments.Operation switch
+        {
+            "project" => Project(arguments),
+            "profiles" => Profiles(arguments),
+            "doctor" => Doctor(arguments),
+            "runs" => Runs(arguments),
+            "evidence" => Evidence(arguments),
+            "plans" => Plans(arguments),
+            _ => throw Invalid($"Unknown query operation: {arguments.Operation}")
+        };
+        ValidateOutput(outcome.PackageRoot, outcome.SchemaId, outcome.Document);
+        return JsonSerializer.SerializeToElement(outcome.Document, JsonOptions);
     }
 
     private static QueryOutcome Project(Arguments arguments)

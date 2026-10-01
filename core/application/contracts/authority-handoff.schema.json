@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/application/contracts/authority-handoff.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profiles", "plans", "modules", "boundaries"],
+  "properties": {
+    "profiles": { "type": "array", "items": { "$ref": "#/definitions/item" } },
+    "plans": { "type": "array", "items": { "$ref": "#/definitions/item" } },
+    "modules": { "type": "array", "items": { "$ref": "#/definitions/item" } },
+    "boundaries": { "type": "array", "minItems": 4, "uniqueItems": true, "items": { "enum": ["target-adoption", "composition-selection", "ci-activation", "remote-enforcement", "plan-authoring", "module-lifecycle"] } }
+  },
+  "definitions": {
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "version", "sha256", "state", "nextOperation", "available"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["profile", "plan", "module"] },
+        "version": { "type": ["string", "null"] },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "state": { "enum": ["installed", "active", "available", "historical-read-only"] },
+        "nextOperation": { "type": "string", "pattern": "^[a-z][a-z0-9.-]+$" },
+        "available": { "type": "boolean" }
+      }
+    }
+  }
+}

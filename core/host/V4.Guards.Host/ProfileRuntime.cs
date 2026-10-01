@@ -86,6 +86,16 @@ internal static class ProfileRuntime
         }
     }
 
+    internal static JsonObject DiscoverForApplication(string packageRootValue, string targetRootValue)
+    {
+        var packageRoot = ResolveExistingDirectory(packageRootValue, "PackageRoot");
+        var targetRoot = ResolveExistingDirectory(targetRootValue, "TargetRoot");
+        EnsureDisjoint(packageRoot, targetRoot, "PackageRoot and TargetRoot");
+        var discovery = Discover(packageRoot, targetRoot);
+        ValidateNode(packageRoot, "profile-discovery", discovery);
+        return discovery;
+    }
+
     private static JsonObject DiscoverOperation(Arguments arguments)
     {
         arguments.RequireOnly("package-root", "target-root");

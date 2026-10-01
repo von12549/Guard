@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/web/application-operation-response.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "status", "operationId", "projectId", "hostResultSha256", "hostResult"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "const": "pass" },
+    "operationId": { "enum": ["setup", "protection", "authorities", "lifecycle"] },
+    "projectId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+    "hostResultSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "hostResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["formatVersion", "status", "authority", "operation", "operationClass", "projectId", "packageAuthoritySha256", "targetSnapshotSha256", "previewHash", "payload"],
+      "properties": {
+        "formatVersion": { "const": 1 },
+        "status": { "const": "preview" },
+        "authority": { "const": "v4-host" },
+        "operation": { "enum": ["setup", "protection", "authorities", "lifecycle"] },
+        "operationClass": { "enum": ["query", "local-mutable-preview"] },
+        "projectId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+        "packageAuthoritySha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "targetSnapshotSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "previewHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "payload": { "type": "object" }
+      }
+    }
+  }
+}

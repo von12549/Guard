@@ -56,7 +56,7 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   ceilings without creating non-loopback access or a remote control plane. Keep this item open until the
   implemented scope is certified or a later decision explicitly narrows it further.
 
-- [ ] **V4-TODO-021 — Expanded local Setup, status and lifecycle UI**
+- [x] **V4-TODO-021 — Expanded local Setup, status and lifecycle UI — LOCAL IMPLEMENTATION COMPLETE (2026-10-01)**
 
   Implement V4-AD-040 through typed Host/application-service operations in the existing local Web
   Companion. Cover setup previews, non-vacuous protection status, Profile/Plan/Module handoffs and
@@ -64,6 +64,14 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   target trust authorization, remote workflow/ruleset activation and enforcement certification remain
   separate Plans and operations. Every new route requires session/origin/CSRF/size/stale-confirmation
   negatives and exact Host-result identity.
+
+  M3 local implementation completed under `20261001-m3-implementation-program`. The Host now returns
+  strict setup, protection, Profile/Plan/Module handoff and immutable lifecycle previews. The existing
+  Companion transports those results through session/origin/CSRF-protected routes and confirms only an
+  unchanged preview with an `applied: false` receipt. Focused security/identity tests and the affected
+  P9 offline distribution suites pass. Target adoption, composition selection, CI candidate/application,
+  workflow/ruleset activation, remote enforcement certification, release and merge remain separate
+  explicitly unperformed operations.
 
 ## Deferred distribution and ecosystem
 

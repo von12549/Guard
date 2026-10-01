@@ -1,0 +1,29 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m3-implementation-program",
+  "title": "Sequence M3 typed local application boundary and Workbench implementation",
+  "goal": "Create exact M3 child Plans while keeping Target writes composition selection CI activation publication and merge outside this program.",
+  "acceptanceCriteria": [
+    "Four child Plan pairs cover the typed service boundary, Setup and protection previews, authority and lifecycle handoffs, and the secured Companion Workbench.",
+    "Every child declares exact code and test paths, risks, dependencies, boundaries and stop resume recovery behavior.",
+    "No product code, Target, workflow, ruleset, trusted-test inventory, installed selection, release or remote state changes occur in this planning checkpoint."
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-m3-implementation-program.md",
+    "docs/plans/20261001-m3-implementation-program.plan.json",
+    "docs/plans/20261001-m3-application-service-boundary.md",
+    "docs/plans/20261001-m3-application-service-boundary.plan.json",
+    "docs/plans/20261001-m3-setup-protection-preview.md",
+    "docs/plans/20261001-m3-setup-protection-preview.plan.json",
+    "docs/plans/20261001-m3-authority-lifecycle-handoffs.md",
+    "docs/plans/20261001-m3-authority-lifecycle-handoffs.plan.json",
+    "docs/plans/20261001-m3-companion-workbench.md",
+    "docs/plans/20261001-m3-companion-workbench.plan.json"
+  ],
+  "areas": ["GuardDocs"],
+  "risks": ["A planning checkpoint could be mistaken for implemented Setup or protection authority."],
+  "decisions": ["Use four ordered child checkpoints and keep every Target, trust, selection and remote apply operation separate."],
+  "validationCommands": ["Test-Json for all M3 implementation Plan JSON files", "exact planned-path audit"],
+  "dependencies": [],
+  "boundaries": []
+}
