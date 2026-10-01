@@ -10,7 +10,8 @@ Formal Plan ID: `20261001-v4-guards-1-2-0-fixture-authorization`。
 
 本 PR 只增加 single-use 记录
 `docs/plans/authorizations/20261001-v4-guards-1-2-0-fixture-record.json`，不修改测试、
-版本、baseline 或远端发布状态。consuming Plan `20261001-v4-guards-1-2-0-release` 将负例值改为
+版本、baseline 或远端发布状态。独立 consuming Plan
+`20261001-v4-guards-1-2-0-fixture-fix` 将负例值改为
 “当前基准主版本 + 1”，使断言对未来版本保持不兼容且不削弱覆盖：
 
 | 文件 | base SHA-256 | authorized head SHA-256 |

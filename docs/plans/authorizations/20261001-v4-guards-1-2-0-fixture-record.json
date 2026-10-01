@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "id": "20261001-v4-guards-1-2-0-fixture-record",
-  "planId": "20261001-v4-guards-1-2-0-release",
+  "planId": "20261001-v4-guards-1-2-0-fixture-fix",
   "reason": "The 1.2.0 candidate exposed a version-coupled negative fixture: its incompatible baseVersion was hard-coded to 1.2.0 and became compatible when the product reached 1.2.0. The authorized change derives an always-different major version while preserving the expected Bundle/review/base identity mismatch boundary.",
   "entries": [
     {
