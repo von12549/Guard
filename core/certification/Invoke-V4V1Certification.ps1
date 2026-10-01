@@ -15,6 +15,9 @@ $ErrorActionPreference = 'Stop'
 function Hash([string] $Path) { (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant() }
 function Read-Json([string] $Path) { Get-Content -Raw -LiteralPath $Path | ConvertFrom-Json -AsHashtable -Depth 100 }
 function Write-Json([string] $Path,$Value){[void][IO.Directory]::CreateDirectory((Split-Path -Parent $Path));[IO.File]::WriteAllText($Path,(($Value|ConvertTo-Json -Depth 100).Replace("`r`n","`n")+"`n"),[Text.UTF8Encoding]::new($false))}
+function Entry-Hash($Entry){$sha=[Security.Cryptography.SHA256]::Create();$stream=$Entry.Open();try{[Convert]::ToHexString($sha.ComputeHash($stream)).ToLowerInvariant()}finally{$stream.Dispose();$sha.Dispose()}}
+function Entry-Text($Entry){$reader=[IO.StreamReader]::new($Entry.Open(),[Text.Encoding]::UTF8,$true);try{$reader.ReadToEnd()}finally{$reader.Dispose()}}
+function Identity-Hash($Files){$identity=@($Files|Sort-Object { [string]$_.path }|ForEach-Object{"$($_.path):$($_.sha256)"})-join"`n";[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($identity))).ToLowerInvariant()}
 
 $root=[IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath($PackageRoot));$output=[IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath($OutputDirectory));[void][IO.Directory]::CreateDirectory($output)
 $platformSchema=Join-Path $root 'core/contracts/platform-certification.schema.json'
@@ -42,8 +45,29 @@ foreach($file in $baseline.files){if((Hash (Join-Path $root ([string]$file.path)
 
 Add-Type -AssemblyName System.IO.Compression
 $archive=[IO.Path]::GetFullPath($ArchivePath);$zip=[IO.Compression.ZipFile]::OpenRead($archive)
-try{$manifestEntry=@($zip.Entries|Where-Object Name -eq 'distribution-manifest.json');if($manifestEntry.Count-ne1){throw 'Archive distribution manifest is missing.'};$reader=[IO.StreamReader]::new($manifestEntry[0].Open());try{$manifest=$reader.ReadToEnd()|ConvertFrom-Json -AsHashtable -Depth 100}finally{$reader.Dispose()}}finally{$zip.Dispose()}
-if($manifest.source.commit -cne $SourceCommit -or $manifest.source.packageHash -cne $packageHash){throw 'Archive provenance does not match the certified source/package.'}
+try{
+    $entries=@($zip.Entries|Where-Object{-not[string]::IsNullOrEmpty($_.Name)});$entryMap=[Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
+    foreach($entry in $entries){$name=$entry.FullName.Replace('\','/');if(-not$entryMap.TryAdd($name,$entry)){throw "Duplicate archive entry: $name"};$segments=$name.Split('/',[StringSplitOptions]::RemoveEmptyEntries);$unixType=(($entry.ExternalAttributes-shr16)-band0xF000);if($segments.Count-lt2-or$segments-contains'..'-or$segments-contains'.'-or[IO.Path]::IsPathRooted($name)-or$unixType-eq0xA000){throw "Unsafe archive entry: $name"}}
+    $roots=@($entryMap.Keys|ForEach-Object{$_.Split('/')[0]}|Sort-Object -Unique);if($roots.Count-ne1-or$roots[0]-notmatch'^v4-guards-[0-9]+\.[0-9]+\.[0-9]+$'){throw 'Archive must contain exactly one versioned root.'};$archiveRoot=$roots[0]
+    $manifestName="$archiveRoot/distribution-manifest.json";if(-not$entryMap.ContainsKey($manifestName)){throw 'Archive distribution manifest is missing.'};$manifestText=Entry-Text $entryMap[$manifestName]
+    if(-not(Test-Json -Json $manifestText -SchemaFile (Join-Path $root 'core/contracts/distribution-manifest.schema.json') -ErrorAction SilentlyContinue)){throw 'Archive distribution manifest violates its schema.'};$manifest=$manifestText|ConvertFrom-Json -AsHashtable -Depth 100
+    if([string]$manifest.rootDirectory-cne$archiveRoot){throw 'Archive root and distribution manifest differ.'}
+    $declared=@($manifest.files.path|ForEach-Object{"$archiveRoot/$_"}|Sort-Object -CaseSensitive);$actual=@($entryMap.Keys|Where-Object{$_-cne$manifestName}|Sort-Object -CaseSensitive);if(($declared-join"`0")-cne($actual-join"`0")){throw 'Archive payload does not exactly match the distribution manifest.'}
+    foreach($file in $manifest.files){$name="$archiveRoot/$($file.path)";$entry=$entryMap[$name];if((Entry-Hash $entry)-cne[string]$file.sha256-or$entry.Length-ne[long]$file.size){throw "Archive payload hash drift: $($file.path)"}}
+    if([string]$manifest.source.commit-cne$SourceCommit-or[string]$manifest.source.contractsManifestSha256-cne(Hash(Join-Path $root 'core/contracts/contracts-manifest.json'))){throw 'Archive source provenance does not match the certified source.'}
+
+    $runtimeRelative='core/distribution/runtime-manifest.json';$runtimeArchivePath="package/$runtimeRelative";$runtimeEntryName="$archiveRoot/$runtimeArchivePath";$runtimeHash=$null
+    if($entryMap.ContainsKey($runtimeEntryName)){$runtimeText=Entry-Text $entryMap[$runtimeEntryName];if(-not(Test-Json -Json $runtimeText -SchemaFile (Join-Path $root 'core/distribution/contracts/distribution-runtime.schema.json') -ErrorAction SilentlyContinue)){throw 'Archive runtime manifest is invalid.'};$runtimeHash=Entry-Hash $entryMap[$runtimeEntryName]}
+    $expectedAuthority=[Collections.Generic.List[object]]::new();foreach($file in $packageResult.authorityFiles){if([string]$file.path-cne$runtimeRelative){$expectedAuthority.Add([ordered]@{path=[string]$file.path;sha256=[string]$file.sha256})}}
+    if($null-ne$runtimeHash){$expectedAuthority.Add([ordered]@{path=$runtimeRelative;sha256=$runtimeHash})}
+    $archivePackageHash=Identity-Hash $expectedAuthority
+    if([string]$manifest.source.packageHash-cne$archivePackageHash){throw 'Archive package identity does not match the certified source plus its declared runtime manifest.'}
+    $expectedPackageFiles=@($expectedAuthority.path|ForEach-Object{"package/$_"})+@('package/guard.ps1','package/guard-web.ps1')|Sort-Object -Unique -CaseSensitive;$actualPackageFiles=@($manifest.files|Where-Object kind -CEQ 'package'|ForEach-Object{[string]$_.path}|Sort-Object -CaseSensitive)
+    if(($expectedPackageFiles-join"`0")-cne($actualPackageFiles-join"`0")){throw 'Archive package files do not match the certified source authority.'}
+    foreach($file in $expectedAuthority){$declaredFile=@($manifest.files|Where-Object path -CEQ "package/$($file.path)");if($declaredFile.Count-ne1-or[string]$declaredFile[0].sha256-cne[string]$file.sha256){throw "Archive package authority drift: $($file.path)"}}
+    foreach($launcher in @('guard.ps1','guard-web.ps1')){$declaredLauncher=@($manifest.files|Where-Object path -CEQ "package/$launcher");if($declaredLauncher.Count-ne1-or[string]$declaredLauncher[0].sha256-cne(Hash(Join-Path $root "core/distribution/$launcher"))){throw "Archive launcher drift: $launcher"}}
+    foreach($binding in @(@{Path='host/v4-guards.dll';Property='hostSha256'},@{Path='companion/v4-web-companion.dll';Property='companionSha256'})){$declaredBinary=@($manifest.files|Where-Object path -CEQ $binding.Path);if($declaredBinary.Count-ne1-or[string]$declaredBinary[0].sha256-cne[string]$manifest.source[$binding.Property]){throw "Archive binary provenance drift: $($binding.Path)"}}
+}finally{$zip.Dispose()}
 $archiveHash=Hash $archive;$baselineHash=Hash $baselinePath
 $record=[ordered]@{formatVersion=1;id='v4-guards-v1-candidate';version=[string]$manifest.version;status='candidate';sourceCommit=$SourceCommit;packageHash=$packageHash;archiveSha256=$archiveHash;contractsManifestSha256=Hash(Join-Path $root 'core/contracts/contracts-manifest.json');compatibilityBaselineSha256=$baselineHash;platformReports=@($platformEntries);acceptance=@('P8.1-platforms','P8.2-lifecycle','P8.3-supply-chain','P8.4-compatibility-recovery','P8.5-v4-native-architecture');releaseAuthorized=$false;activeIfxCutover=$false;ifxProfileIncluded=$false;architectureRuntimeDependencies=@('pwsh','dotnet','roslyn','archunitnet')}
 $recordPath=Join-Path $output 'v1-certification.json';Write-Json $recordPath $record
@@ -51,4 +75,4 @@ if(-not(Test-Json -LiteralPath $recordPath -SchemaFile (Join-Path $root 'core/co
 $recovery=[ordered]@{formatVersion=1;candidateCommit=$SourceCommit;restoreCommit=$RestoreCommit;packageHash=$packageHash;archiveSha256=$archiveHash;compatibilityBaselineSha256=$baselineHash;strategy='restore-reviewed-source-checkpoint';verificationCommands=@('pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1','pwsh -NoProfile -File core/runtime/Test-V4Package.ps1 -PackageRoot .','pwsh -NoProfile -File core/certification/Test-V4SupplyChain.ps1 -PackageRoot .');remoteRollbackRequired=$false}
 $recoveryPath=Join-Path $output 'recovery.json';Write-Json $recoveryPath $recovery
 if(-not(Test-Json -LiteralPath $recoveryPath -SchemaFile (Join-Path $root 'core/contracts/recovery-artifact.schema.json') -ErrorAction SilentlyContinue)){throw 'Recovery artifact violates its schema.'}
-[ordered]@{formatVersion=1;status='pass';certificationPath=$recordPath;recoveryPath=$recoveryPath;packageHash=$packageHash;archiveSha256=$archiveHash;releaseAuthorized=$false}|ConvertTo-Json
+[ordered]@{formatVersion=1;status='pass';certificationPath=$recordPath;recoveryPath=$recoveryPath;packageHash=$packageHash;archivePackageHash=$archivePackageHash;archiveSha256=$archiveHash;releaseAuthorized=$false}|ConvertTo-Json

@@ -38,7 +38,10 @@ The 1.1.1 and later certification additionally requires the installed receipted 
 hash-bound composition contracts, external base/composition receipts and cross-platform negative
 controls. Synthetic certification evidence is not real-bundle approval.
 `Invoke-V4V1Certification.ps1` accepts only matching passing platform reports and the exact deterministic
-archive. Its record fixes `releaseAuthorized`, `activeIfxCutover` and `ifxProfileIncluded` to `false`.
+archive. It keeps the cross-platform source `packageHash` distinct from the RID package identity produced by
+adding the generated `runtime-manifest.json`, reconstructs that RID identity from the certified source plus the
+archive's schema-valid runtime manifest, and verifies the complete declared archive payload before issuing a
+record. Its record fixes `releaseAuthorized`, `activeIfxCutover` and `ifxProfileIncluded` to `false`.
 
 Publishing/tagging and IFX adoption use separate exact Plans. Workflow/ruleset activation remains a
 separately authorized operation.
