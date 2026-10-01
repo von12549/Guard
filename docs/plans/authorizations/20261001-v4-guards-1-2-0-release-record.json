@@ -1,0 +1,18 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-v4-guards-1-2-0-release-record",
+  "planId": "20261001-v4-guards-1-2-0-release",
+  "reason": "V4 Guards 1.2.0 bumps product metadata after G-REPAIR. The compatibility baseline binds plugin.json, so only that protected file's plugin.json hash changes from the 1.1.6 bytes to the 1.2.0 bytes. pluginVersion 1.1.0 and apiVersion 1.0 remain unchanged.",
+  "entries": [
+    {
+      "path": "core/certification/compatibility-baseline.json",
+      "baseSha256": "3abaa9849e6778681d1addce3958c6dbc1b3f0718cb55d8a449daa61c0657fae",
+      "headSha256": "66f824cb3546c0aecc0d6262e424fc278f1d19f2531d0fe213300e3709615dbe"
+    }
+  ],
+  "acceptedBy": {
+    "kind": "human-review",
+    "authority": "operator (von12549) — M1–M5 remediation and V4 Guards 1.2.0 release explicitly approved 2026-10-01",
+    "candidateHostVerdictAllowed": false
+  }
+}
