@@ -24,11 +24,46 @@ Expect (Run (@('-Operation','scaffold')+$common+@('-StateRoot',$state,'-Module',
 $candidate=Join-Path $state 'candidates/sample';$moduleRoot=Join-Path $candidate 'package/modules/sample-extension';$adapter=Join-Path $moduleRoot 'adapter.ps1'
 $adapterText=@'
 $input=$env:V4_STAGE_INPUT_JSON|ConvertFrom-Json -AsHashtable -Depth 100
+if($env:GUARD_TEST_SECRET){throw 'inherited secret environment'}
 [ordered]@{formatVersion=1;status='pass';exitCategory='success';message='fixture pass';findings=@();coverage=@([ordered]@{claimId='MODULE.SAMPLE';matched=1;minimum=1})}|ConvertTo-Json -Compress -Depth 20
 '@
 [IO.File]::WriteAllText($adapter,$adapterText,[Text.UTF8Encoding]::new($false));$manifest=Read-Json (Join-Path $moduleRoot 'module.json');$manifest.adapter.sha256=Hash $adapter;Write-Json (Join-Path $moduleRoot 'module.json') $manifest
 Expect (Run (@('-Operation','validate')+$common+@('-StateRoot',$state,'-TargetRoot',$target,'-Module','sample-extension','-Candidate','candidates/sample'))) 0 'validate' '"immutableCandidate": true'
-Expect (Run (@('-Operation','test')+$common+@('-StateRoot',$state,'-EvidenceRoot',$evidence,'-TargetRoot',$target,'-Module','sample-extension','-Candidate','candidates/sample'))) 0 'test' '"fixtureCount": 1'
+Expect (Run (@('-Operation','test')+$common+@('-StateRoot',$state,'-EvidenceRoot',$evidence,'-TargetRoot',$target,'-Module','sample-extension','-Candidate','candidates/sample'))) 13 'untrusted execution refusal' 'disabled outside explicit synthetic fixture'
+$oldSecret=$env:GUARD_TEST_SECRET;try{$env:GUARD_TEST_SECRET='must-not-cross-process-boundary';Expect (Run (@('-Operation','test')+$common+@('-StateRoot',$state,'-EvidenceRoot',$evidence,'-TargetRoot',$target,'-Module','sample-extension','-Candidate','candidates/sample','-AllowSyntheticFixture'))) 0 'synthetic fixture test' '"inheritedEnvironment": false'}finally{$env:GUARD_TEST_SECRET=$oldSecret}
+
+$external=Join-Path $work 'external';[void][IO.Directory]::CreateDirectory($external);$externalSentinel=Join-Path $external 'sentinel.txt';[IO.File]::WriteAllText($externalSentinel,"unchanged`n",[Text.UTF8Encoding]::new($false));$externalHash=Hash $externalSentinel
+$hostileText="[IO.File]::WriteAllText('$($externalSentinel.Replace("'","''"))','changed'); Invoke-WebRequest -Uri 'http://127.0.0.1:9/'`n"
+[IO.File]::WriteAllText($adapter,$hostileText,[Text.UTF8Encoding]::new($false));$manifest.adapter.sha256=Hash $adapter;Write-Json (Join-Path $moduleRoot 'module.json') $manifest
+Expect (Run (@('-Operation','test')+$common+@('-StateRoot',$state,'-EvidenceRoot',$evidence,'-TargetRoot',$target,'-Module','sample-extension','-Candidate','candidates/sample'))) 13 'hostile candidate pre-execution refusal' 'disabled outside explicit synthetic fixture'
+if((Hash $externalSentinel)-cne$externalHash){$failures.Add('Refused hostile candidate modified the external sentinel.')}
+
+$manifest.capabilities.network=$true;Write-Json (Join-Path $moduleRoot 'module.json') $manifest;Expect (Run (@('-Operation','validate')+$common+@('-StateRoot',$state,'-Module','sample-extension','-Candidate','candidates/sample'))) 13 'network capability refusal' 'network capability'
+$manifest.capabilities.network=$false;$manifest.capabilities.processes=@('pwsh','curl');Write-Json (Join-Path $moduleRoot 'module.json') $manifest;Expect (Run (@('-Operation','validate')+$common+@('-StateRoot',$state,'-Module','sample-extension','-Candidate','candidates/sample'))) 13 'extra process capability refusal' 'only the pwsh process'
+$manifest.capabilities.processes=@('pwsh');$manifest.capabilities.timeoutSeconds=1
+$childSentinel=Join-Path $external 'child-survived.txt';$escapedChild=$childSentinel.Replace("'","''")
+$timeoutText=@"
+Start-Process pwsh -ArgumentList @('-NoProfile','-Command',"Start-Sleep -Seconds 4; [IO.File]::WriteAllText('$escapedChild','survived')")
+Start-Sleep -Seconds 120
+"@
+[IO.File]::WriteAllText($adapter,$timeoutText,[Text.UTF8Encoding]::new($false));$manifest.adapter.sha256=Hash $adapter;Write-Json (Join-Path $moduleRoot 'module.json') $manifest
+Expect (Run (@('-Operation','test')+$common+@('-StateRoot',$state,'-EvidenceRoot',$evidence,'-TargetRoot',$target,'-Module','sample-extension','-Candidate','candidates/sample','-AllowSyntheticFixture'))) 14 'timeout and process tree termination' 'process tree was terminated'
+Start-Sleep -Seconds 5
+if(Test-Path -LiteralPath $childSentinel){$failures.Add('Timed-out fixture left a child process that wrote after tree termination.')}
+$manifest.capabilities.timeoutSeconds=30;[IO.File]::WriteAllText($adapter,$adapterText,[Text.UTF8Encoding]::new($false));$manifest.adapter.sha256=Hash $adapter;Write-Json (Join-Path $moduleRoot 'module.json') $manifest
+
+if(-not $IsWindows){
+    $externalAdapter=Join-Path $external 'adapter.ps1';[IO.File]::WriteAllText($externalAdapter,$adapterText,[Text.UTF8Encoding]::new($false));Remove-Item -LiteralPath $adapter
+    try{
+        New-Item -ItemType SymbolicLink -Path $adapter -Target $externalAdapter|Out-Null
+        Expect (Run (@('-Operation','validate')+$common+@('-StateRoot',$state,'-Module','sample-extension','-Candidate','candidates/sample'))) 11 'adapter file symlink refusal' 'link or reparse point'
+    }finally{if(Test-Path -LiteralPath $adapter){Remove-Item -LiteralPath $adapter -Force};[IO.File]::WriteAllText($adapter,$adapterText,[Text.UTF8Encoding]::new($false))}
+}
+$linked=Join-Path $candidate 'package/modules/external-link'
+try{
+    if($IsWindows){New-Item -ItemType Junction -Path $linked -Target $external|Out-Null}else{New-Item -ItemType SymbolicLink -Path $linked -Target $external|Out-Null}
+    Expect (Run (@('-Operation','pack')+$common+@('-StateRoot',$state,'-EvidenceRoot',$evidence,'-Module','sample-extension','-Candidate','candidates/sample','-Output','packs/refused-link'))) 11 'recursive link refusal' 'link or reparse point'
+}finally{if(Test-Path -LiteralPath $linked){Remove-Item -LiteralPath $linked -Force}}
 Expect (Run (@('-Operation','diff')+$common+@('-StateRoot',$state,'-Module','sample-extension','-Candidate','candidates/sample'))) 0 'diff' '"replacementRefused": true'
 Expect (Run (@('-Operation','pack')+$common+@('-StateRoot',$state,'-EvidenceRoot',$evidence,'-Module','sample-extension','-Candidate','candidates/sample','-Output','packs/one'))) 0 'first pack' '"deterministic": true'
 Expect (Run (@('-Operation','pack')+$common+@('-StateRoot',$state,'-EvidenceRoot',$evidence,'-Module','sample-extension','-Candidate','candidates/sample','-Output','packs/two'))) 0 'second pack'

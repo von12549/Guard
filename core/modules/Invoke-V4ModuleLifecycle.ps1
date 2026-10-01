@@ -73,10 +73,82 @@ function Under([string] $Root, [string] $RelativePath, [string] $Label, [switch]
     $full = [IO.Path]::GetFullPath((Join-Path $Root $relative))
     if (-not (Is-Under $full $Root)) { Fail "$Label escapes its root." 11 }
     if ($MustExist -and -not ([IO.File]::Exists($full) -or [IO.Directory]::Exists($full))) { Fail "$Label is missing: $relative" }
-    No-Links ([IO.Path]::GetDirectoryName($full)) $Label
+    if ([IO.File]::Exists($full) -or [IO.Directory]::Exists($full)) { No-Links $full $Label }
+    else { No-Links ([IO.Path]::GetDirectoryName($full)) $Label }
     $full
 }
 function Assert-Disjoint([string] $A, [string] $B, [string] $Label) { if ((Is-Under $A $B) -or (Is-Under $B $A)) { Fail "$Label roots overlap." 11 } }
+function Safe-Entries([string] $Root, [string] $Label) {
+    No-Links $Root $Label
+    $entries = [Collections.Generic.List[IO.FileSystemInfo]]::new()
+    $pending = [Collections.Generic.Queue[string]]::new()
+    $pending.Enqueue([IO.Path]::GetFullPath($Root))
+    while ($pending.Count) {
+        $current = $pending.Dequeue()
+        foreach ($item in @(Get-ChildItem -LiteralPath $current -Force)) {
+            No-Links $item.FullName $Label
+            $entries.Add($item)
+            if ($item -is [IO.DirectoryInfo]) { $pending.Enqueue($item.FullName) }
+        }
+    }
+    @($entries)
+}
+function Safe-Files([string] $Root, [string] $Label) { @(Safe-Entries $Root $Label | Where-Object { $_ -is [IO.FileInfo] }) }
+function Copy-SafeTree([string] $Source, [string] $Destination, [string] $Label) {
+    $sourceFull = [IO.Path]::GetFullPath($Source)
+    $entries = @(Safe-Entries $sourceFull $Label)
+    [void][IO.Directory]::CreateDirectory($Destination)
+    foreach ($directory in @($entries | Where-Object { $_ -is [IO.DirectoryInfo] } | Sort-Object { $_.FullName.Length })) {
+        $relative = [IO.Path]::GetRelativePath($sourceFull, $directory.FullName)
+        [void][IO.Directory]::CreateDirectory((Join-Path $Destination $relative))
+    }
+    foreach ($file in @($entries | Where-Object { $_ -is [IO.FileInfo] } | Sort-Object FullName)) {
+        $relative = [IO.Path]::GetRelativePath($sourceFull, $file.FullName)
+        $target = [IO.Path]::GetFullPath((Join-Path $Destination $relative))
+        No-Links ([IO.Path]::GetDirectoryName($target)) "$Label destination"
+        [IO.File]::Copy($file.FullName, $target, $false)
+    }
+}
+function Invoke-SyntheticAdapter([string] $Adapter, [string] $InputJson, [int] $TimeoutSeconds, [string] $WorkingDirectory, [string] $TemporaryDirectory) {
+    $start = [Diagnostics.ProcessStartInfo]::new()
+    $start.FileName = (Get-Command pwsh -ErrorAction Stop).Source
+    $start.UseShellExecute = $false
+    $start.CreateNoWindow = $true
+    $start.RedirectStandardOutput = $true
+    $start.RedirectStandardError = $true
+    $start.WorkingDirectory = $WorkingDirectory
+    $start.ArgumentList.Add('-NoLogo'); $start.ArgumentList.Add('-NoProfile'); $start.ArgumentList.Add('-NonInteractive')
+    $start.ArgumentList.Add('-File'); $start.ArgumentList.Add($Adapter)
+    $start.Environment.Clear()
+    $start.Environment['PATH'] = [IO.Path]::GetDirectoryName($start.FileName)
+    $start.Environment['TEMP'] = $TemporaryDirectory
+    $start.Environment['TMP'] = $TemporaryDirectory
+    $start.Environment['POWERSHELL_TELEMETRY_OPTOUT'] = '1'
+    $start.Environment['DOTNET_CLI_TELEMETRY_OPTOUT'] = '1'
+    $start.Environment['V4_STAGE_INPUT_JSON'] = $InputJson
+    if ($IsWindows) {
+        $start.Environment['SystemRoot'] = $env:SystemRoot
+        $start.Environment['WINDIR'] = $env:WINDIR
+    }
+    $process = [Diagnostics.Process]::new(); $process.StartInfo = $start
+    try {
+        if (-not $process.Start()) { Fail 'Synthetic fixture adapter did not start.' 14 }
+        $stdout = $process.StandardOutput.ReadToEndAsync(); $stderr = $process.StandardError.ReadToEndAsync()
+        if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
+            try { $process.Kill($true) } catch {}
+            $process.WaitForExit()
+            [Threading.Tasks.Task]::WaitAll(@($stdout,$stderr))
+            Fail "Synthetic fixture adapter timed out after $TimeoutSeconds seconds; its process tree was terminated." 14
+        }
+        [Threading.Tasks.Task]::WaitAll(@($stdout,$stderr))
+        [ordered]@{ code=$process.ExitCode; output=(@($stdout.Result,$stderr.Result) | Where-Object { $_ } | Join-String -Separator "`n") }
+    } finally {
+        if ($null -ne $process) {
+            try { if (-not $process.HasExited) { $process.Kill($true); $process.WaitForExit() } } catch {}
+            $process.Dispose()
+        }
+    }
+}
 function Result([string] $Status, [hashtable] $Details) {
     $body = [ordered]@{ formatVersion=1; status=$Status; operation=$Operation; authority='v4-module-lifecycle'; targetMutated=$false; builtInMutated=$false; remoteChange=$false }
     foreach ($entry in $Details.GetEnumerator()) { $body[$entry.Key] = $entry.Value }
@@ -93,7 +165,7 @@ function Registry() {
 }
 function Installed-Modules() {
     $registry = Registry
-    $profiles = @(Get-ChildItem -LiteralPath (Join-Path $package 'profiles/catalog') -Filter profile.json -Recurse -File | ForEach-Object {
+    $profiles = @(Safe-Files (Join-Path $package 'profiles/catalog') 'Installed Profile catalog' | Where-Object Name -CEQ 'profile.json' | ForEach-Object {
         $profile = Read-Json $_.FullName
         [ordered]@{ id=[string]$profile.id; modules=@($profile.moduleSelections | ForEach-Object { [string]$_.id }) }
     })
@@ -123,8 +195,7 @@ function Candidate-Root() {
 }
 function Validate-Candidate([string] $Root) {
     $moduleRoot = Join-Path $Root "package/modules/$Module"
-    $manifestPath = Join-Path $moduleRoot 'module.json'
-    if (-not [IO.File]::Exists($manifestPath)) { Fail 'Candidate Module manifest is missing.' }
+    $manifestPath = Under $Root "package/modules/$Module/module.json" 'Candidate Module manifest' -MustExist
     if (@((Registry).modules | Where-Object id -CEQ $Module).Count -ne 0) { Fail "Candidate attempts to replace built-in Module: $Module" 16 }
     if (-not (Test-Json -LiteralPath $manifestPath -SchemaFile (Join-Path $package 'core/contracts/module.schema.json') -ErrorAction SilentlyContinue)) { Fail 'Candidate Module schema validation failed.' }
     $manifest = Read-Json $manifestPath
@@ -139,17 +210,18 @@ function Validate-Candidate([string] $Root) {
     $lock = Read-Json $lockPath
     if ($lock.formatVersion -ne 1 -or $lock.moduleId -cne $Module -or $null -eq $lock.dependencies) { Fail 'Candidate dependency lock identity is invalid.' }
     if ([string]$manifest.resultSchema -notin @('core/contracts/stage-result.schema.json','core/contracts/stage-result-spike.schema.json')) { Fail 'Candidate result schema is not an allowed Stage result contract.' }
-    if (@($manifest.capabilities.writeRoots) -ccontains 'TargetRoot' -or $manifest.capabilities.network) { Fail 'Candidate requests Target write or network capability.' 13 }
+    if (@($manifest.capabilities.writeRoots | Where-Object { $_ -notin @('StateRoot','EvidenceRoot') }).Count -or $manifest.capabilities.network) { Fail 'Candidate requests an unsupported write root or network capability.' 13 }
+    if (@($manifest.capabilities.processes).Count -ne 1 -or [string]$manifest.capabilities.processes[0] -cne 'pwsh') { Fail 'Candidate synthetic fixtures may request only the pwsh process.' 13 }
     if ([int]$manifest.capabilities.timeoutSeconds -lt 1 -or [int]$manifest.capabilities.timeoutSeconds -gt 3600) { Fail 'Candidate timeout is outside the accepted range.' 13 }
     foreach ($runtime in @($manifest.prerequisites | ForEach-Object { [string]$_.runtime })) { if (-not (Get-Command $runtime -ErrorAction SilentlyContinue)) { Fail "Candidate prerequisite is unavailable: $runtime" 15 } }
-    $profilePath = Join-Path $Root "package/profiles/catalog/$($Module.Replace('-','_'))_profile/profile.json"
-    if (-not [IO.File]::Exists($profilePath) -or -not (Test-Json -LiteralPath $profilePath -SchemaFile (Join-Path $package 'core/contracts/profile.schema.json') -ErrorAction SilentlyContinue)) { Fail 'Candidate companion Profile is missing or invalid.' }
+    $profilePath = Under $Root "package/profiles/catalog/$($Module.Replace('-','_'))_profile/profile.json" 'Candidate companion Profile' -MustExist
+    if (-not (Test-Json -LiteralPath $profilePath -SchemaFile (Join-Path $package 'core/contracts/profile.schema.json') -ErrorAction SilentlyContinue)) { Fail 'Candidate companion Profile is missing or invalid.' }
     $profile = Read-Json $profilePath
     if (@($profile.moduleSelections | Where-Object id -CEQ $Module).Count -ne 1) { Fail 'Candidate companion Profile does not select the Module exactly once.' }
     [ordered]@{ root=$Root; manifest=$manifest; manifestPath=$manifestPath; profile=$profile; profilePath=$profilePath; lock=$lock }
 }
 function Tree-Hash([string] $Root) {
-    $lines = @(Get-ChildItem -LiteralPath $Root -Recurse -File -Force | ForEach-Object { "$([IO.Path]::GetRelativePath($Root,$_.FullName).Replace('\','/'))`0$(Hash $_.FullName)" } | Sort-Object -CaseSensitive)
+    $lines = @(Safe-Files $Root 'Tree hash input' | ForEach-Object { "$([IO.Path]::GetRelativePath($Root,$_.FullName).Replace('\','/'))`0$(Hash $_.FullName)" } | Sort-Object -CaseSensitive)
     $bytes = [Text.Encoding]::UTF8.GetBytes(($lines -join "`n"))
     [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes)).ToLowerInvariant()
 }
@@ -204,41 +276,42 @@ switch ($Operation) {
         Result 'pass' @{ moduleId=$Module; version=$validated.manifest.version; candidate=$Candidate; manifestSha256=Hash $validated.manifestPath; profileSha256=Hash $validated.profilePath; immutableCandidate=$true }
     }
     'test' {
+        if (-not $AllowSyntheticFixture) { Fail 'Candidate adapter execution is disabled outside explicit synthetic fixture validation; no OS sandbox is provided.' 13 }
         $root = Candidate-Root; $validated = Validate-Candidate $root
-        $fixturesPath=Join-Path $root 'fixtures/manifest.json'; if(-not [IO.File]::Exists($fixturesPath)){Fail 'Fixture manifest is missing.'}
+        $fixturesPath=Under $root 'fixtures/manifest.json' 'Fixture manifest' -MustExist
         $fixtures=Read-Json $fixturesPath; if($fixtures.formatVersion-ne 1 -or @($fixtures.cases).Count-lt 1){Fail 'Fixture manifest is invalid.'}
         $evidence=Directory $EvidenceRoot 'EvidenceRoot' -Create; Assert-Disjoint $evidence $package 'EvidenceRoot and PackageRoot'; Assert-Disjoint $evidence $root 'EvidenceRoot and candidate'
-        $adapter=Join-Path $root "package/$($validated.manifest.adapter.path)"; $caseResults=@()
+        $adapter=Under $root "package/$($validated.manifest.adapter.path)" 'Candidate adapter' -MustExist; $caseResults=@()
         foreach($case in $fixtures.cases){
             if([string]$case.id -notmatch '^[a-z0-9-]+$' -or [string]$case.stage -notin @($validated.manifest.stages)){Fail 'Fixture identity or Stage is invalid.'}
-            $fixtureTarget=Under $root ([string]$case.target) 'Fixture Target' -MustExist; $before=Tree-Hash $fixtureTarget; $packageBefore=Tree-Hash (Join-Path $root 'package')
+            $fixtureTarget=Under $root ([string]$case.target) 'Fixture Target' -MustExist; $before=Tree-Hash $fixtureTarget; $packageBefore=Tree-Hash (Join-Path $root 'package'); $stateBefore=Tree-Hash $StateRoot
             $caseEvidence=Join-Path $evidence "module-tests/$Module/$($case.id)"; [void][IO.Directory]::CreateDirectory($caseEvidence)
             $input=[ordered]@{formatVersion=1;stage=[string]$case.stage;targetRoot=$fixtureTarget;packageRoot=(Join-Path $root 'package');stateRoot=$StateRoot;evidenceRoot=$caseEvidence;projectId='module-lifecycle-fixture';runId=('f'*32);relativeRoots=@('.');config=[ordered]@{}}
-            $old=$env:V4_STAGE_INPUT_JSON; try{$env:V4_STAGE_INPUT_JSON=$input|ConvertTo-Json -Compress -Depth 100;$outputText=@(& (Get-Command pwsh).Source -NoLogo -NoProfile -NonInteractive -File $adapter 2>&1)-join"`n";$code=$LASTEXITCODE}finally{$env:V4_STAGE_INPUT_JSON=$old}
+            $run=Invoke-SyntheticAdapter $adapter ($input|ConvertTo-Json -Compress -Depth 100) ([int]$validated.manifest.capabilities.timeoutSeconds) $root $caseEvidence; $outputText=[string]$run.output; $code=[int]$run.code
             if($code-ne0){Fail "Fixture adapter failed: $($case.id): $outputText" 14}; try{$actual=$outputText|ConvertFrom-Json -AsHashtable -Depth 100}catch{Fail "Fixture adapter returned invalid JSON: $($case.id)" 14}
             if($actual.status-cne[string]$case.expectedStatus -or $actual.exitCategory-cne[string]$case.expectedExitCategory){Fail "Fixture result mismatch: $($case.id)" 16}
-            if((Tree-Hash $fixtureTarget)-cne$before -or (Tree-Hash (Join-Path $root 'package'))-cne$packageBefore){Fail "Fixture mutated Target or candidate Package: $($case.id)" 16}
+            if((Tree-Hash $fixtureTarget)-cne$before -or (Tree-Hash (Join-Path $root 'package'))-cne$packageBefore -or (Tree-Hash $StateRoot)-cne$stateBefore){Fail "Fixture mutated Target, candidate Package or StateRoot: $($case.id)" 16}
             $caseResults += [ordered]@{id=[string]$case.id;status=[string]$actual.status;exitCategory=[string]$actual.exitCategory}
         }
-        Result 'pass' @{ moduleId=$Module; fixtureCount=$caseResults.Count; fixtures=$caseResults; evidenceRoot=$evidence }
+        Result 'pass' @{ moduleId=$Module; fixtureCount=$caseResults.Count; fixtures=$caseResults; evidenceRoot=$evidence; executionBoundary='synthetic-fixture-only'; osSandbox=$false; inheritedEnvironment=$false }
     }
     'diff' {
-        $root=Candidate-Root; $validated=Validate-Candidate $root; $paths=@(Get-ChildItem -LiteralPath (Join-Path $root 'package') -Recurse -File | ForEach-Object{[IO.Path]::GetRelativePath((Join-Path $root 'package'),$_.FullName).Replace('\','/')}|Sort-Object -CaseSensitive)
+        $root=Candidate-Root; $validated=Validate-Candidate $root; $paths=@(Safe-Files (Join-Path $root 'package') 'Candidate diff input' | ForEach-Object{[IO.Path]::GetRelativePath((Join-Path $root 'package'),$_.FullName).Replace('\','/')}|Sort-Object -CaseSensitive)
         Result 'pass' @{ moduleId=$Module; against='installed-immutable-catalog'; changes=@($paths|ForEach-Object{[ordered]@{path=$_;change='add';sha256=Hash (Join-Path $root "package/$_")}}); replacementRefused=$true }
     }
     'pack' {
         $root=Candidate-Root; $validated=Validate-Candidate $root; $evidence=Directory $EvidenceRoot 'EvidenceRoot' -Create; Assert-Disjoint $evidence $package 'EvidenceRoot and PackageRoot'; Assert-Disjoint $evidence $root 'EvidenceRoot and candidate'
         $relative=Relative $Output 'Pack output'; $destination=Under $evidence $relative 'Pack output'; if([IO.Directory]::Exists($destination)-or[IO.File]::Exists($destination)){Fail 'Pack output already exists.' 17}
-        [void][IO.Directory]::CreateDirectory((Join-Path $destination 'package')); Copy-Item -LiteralPath (Join-Path $root 'package/modules') -Destination (Join-Path $destination 'package') -Recurse; Copy-Item -LiteralPath (Join-Path $root 'package/profiles') -Destination (Join-Path $destination 'package') -Recurse
-        $files=@(Get-ChildItem -LiteralPath (Join-Path $destination 'package') -Recurse -File|ForEach-Object{[ordered]@{path=[IO.Path]::GetRelativePath((Join-Path $destination 'package'),$_.FullName).Replace('\','/');sha256=Hash $_.FullName;size=$_.Length}}|Sort-Object{$_.path})
+        [void][IO.Directory]::CreateDirectory((Join-Path $destination 'package')); Copy-SafeTree (Join-Path $root 'package/modules') (Join-Path $destination 'package/modules') 'Candidate Module pack input'; Copy-SafeTree (Join-Path $root 'package/profiles') (Join-Path $destination 'package/profiles') 'Candidate Profile pack input'
+        $files=@(Safe-Files (Join-Path $destination 'package') 'Packed bundle input'|ForEach-Object{[ordered]@{path=[IO.Path]::GetRelativePath((Join-Path $destination 'package'),$_.FullName).Replace('\','/');sha256=Hash $_.FullName;size=$_.Length}}|Sort-Object{$_.path})
         $profileRelative=[IO.Path]::GetRelativePath((Join-Path $destination 'package'),(Join-Path $destination "package/profiles/catalog/$($validated.profile.id)/profile.json")).Replace('\','/')
         $manifest=[ordered]@{formatVersion=1;id="$Module-extension";version=[string]$validated.manifest.version;compatibleApi='1.x';baseVersion=[string](Read-Json (Join-Path $package 'plugin.json')).version;profiles=@([ordered]@{id=[string]$validated.profile.id;version=[string]$validated.profile.version;path=$profileRelative;sha256=Hash (Join-Path $destination "package/$profileRelative")});modules=@([ordered]@{id=$Module;version=[string]$validated.manifest.version;manifestPath="modules/$Module/module.json";manifestSha256=Hash (Join-Path $destination "package/modules/$Module/module.json");allowedCapabilities=[ordered]@{readRoots=@($validated.manifest.capabilities.readRoots);writeRoots=@($validated.manifest.capabilities.writeRoots);processes=@($validated.manifest.capabilities.processes);network=[bool]$validated.manifest.capabilities.network;maxTimeoutSeconds=[int]$validated.manifest.capabilities.timeoutSeconds}});files=$files}
         Write-Json (Join-Path $destination 'bundle-manifest.json') $manifest; if(-not(Test-Json -LiteralPath (Join-Path $destination 'bundle-manifest.json') -SchemaFile (Join-Path $package 'core/contracts/extension-bundle.schema.json') -ErrorAction SilentlyContinue)){Fail 'Packed bundle violates extension-bundle schema.' 12}
-        $archive="$destination.zip"; Add-Type -AssemblyName System.IO.Compression; $stream=[IO.File]::Open($archive,[IO.FileMode]::CreateNew); try{$zip=[IO.Compression.ZipArchive]::new($stream,[IO.Compression.ZipArchiveMode]::Create,$false);try{foreach($file in Get-ChildItem -LiteralPath $destination -Recurse -File|Sort-Object{$_.FullName}){$name=[IO.Path]::GetRelativePath($destination,$file.FullName).Replace('\','/');$entry=$zip.CreateEntry($name,[IO.Compression.CompressionLevel]::Optimal);$entry.LastWriteTime=[DateTimeOffset]::new(1980,1,1,0,0,0,[TimeSpan]::Zero);$input=[IO.File]::OpenRead($file.FullName);$outputStream=$entry.Open();try{$input.CopyTo($outputStream)}finally{$outputStream.Dispose();$input.Dispose()}}}finally{$zip.Dispose()}}finally{$stream.Dispose()}
+        $archive="$destination.zip"; Add-Type -AssemblyName System.IO.Compression; $stream=[IO.File]::Open($archive,[IO.FileMode]::CreateNew); try{$zip=[IO.Compression.ZipArchive]::new($stream,[IO.Compression.ZipArchiveMode]::Create,$false);try{foreach($file in Safe-Files $destination 'Archive input'|Sort-Object{$_.FullName}){$name=[IO.Path]::GetRelativePath($destination,$file.FullName).Replace('\','/');$entry=$zip.CreateEntry($name,[IO.Compression.CompressionLevel]::Optimal);$entry.LastWriteTime=[DateTimeOffset]::new(1980,1,1,0,0,0,[TimeSpan]::Zero);$input=[IO.File]::OpenRead($file.FullName);$outputStream=$entry.Open();try{$input.CopyTo($outputStream)}finally{$outputStream.Dispose();$input.Dispose()}}}finally{$zip.Dispose()}}finally{$stream.Dispose()}
         Result 'candidate' @{ moduleId=$Module; bundle=$relative; bundleManifestSha256=Hash (Join-Path $destination 'bundle-manifest.json'); archive="$relative.zip"; archiveSha256=Hash $archive; deterministic=$true; authoritative=$false }
     }
     'review' {
-        $evidence=Directory $EvidenceRoot 'EvidenceRoot' -Create; $bundle=Under $evidence $BundleRoot 'Bundle root' -MustExist; $manifestPath=Join-Path $bundle 'bundle-manifest.json'; if(-not(Test-Json -LiteralPath $manifestPath -SchemaFile (Join-Path $package 'core/contracts/extension-bundle.schema.json') -ErrorAction SilentlyContinue)){Fail 'Bundle is invalid.'}
+        $evidence=Directory $EvidenceRoot 'EvidenceRoot' -Create; $bundle=Under $evidence $BundleRoot 'Bundle root' -MustExist; $manifestPath=Under $bundle 'bundle-manifest.json' 'Bundle manifest' -MustExist; if(-not(Test-Json -LiteralPath $manifestPath -SchemaFile (Join-Path $package 'core/contracts/extension-bundle.schema.json') -ErrorAction SilentlyContinue)){Fail 'Bundle is invalid.'}
         if($ReviewAuthority -match '^\s*$' -or $BaseArchiveSha256 -notmatch '^[a-f0-9]{64}$'){Fail 'Review authority or base archive hash is invalid.'}
         $manifest=Read-Json $manifestPath; $proposal=[ordered]@{formatVersion=1;state='proposal';id="$(Get-Date -Format yyyyMMdd)-$($manifest.id)-review";scope='production';decision='unresolved';acceptedBy=[ordered]@{authorityType='human-review';authorityId=$ReviewAuthority;candidateHostVerdictAllowed=$false};bundleManifestSha256=Hash $manifestPath;baseArchiveSha256=$BaseArchiveSha256;moduleCeilings=@($manifest.modules|ForEach-Object{[ordered]@{moduleId=$_.id;allowedCapabilities=$_.allowedCapabilities}});authoritative=$false;requiredAction='Operator must review, change decision to accepted, remove proposal-only fields and validate against extension-review.schema.json.'}
         $path=Under $evidence (Relative $Output 'Review output') 'Review output'; Write-Json $path $proposal; Result 'candidate' @{ reviewProposal=[IO.Path]::GetRelativePath($evidence,$path).Replace('\','/'); bundleManifestSha256=$proposal.bundleManifestSha256; productionAccepted=$false }
