@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-v4-guards-1-2-0-fixture-fix",
+  "title": "V4 Guards 1.2.0 版本无关负例修复",
+  "goal": "将 Extension Composition 的不兼容基准版本负例改为版本无关构造，并消费对应 single-use 授权。",
+  "acceptanceCriteria": [
+    "受信任 base runner 将测试字节变更判定为已由 20261001-v4-guards-1-2-0-fixture-record 精确授权并消费。",
+    "incompatible-base-version 使用当前基准主版本加一，并仍在 Bundle/review/base identity mismatch 边界失败。",
+    "Linux 与 Windows 完整 Guardrails、package 和 required checks 全部通过。",
+    "不修改生产代码、产品版本、compatibility baseline、tag 或 Release 状态。"
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-v4-guards-1-2-0-fixture-fix.md",
+    "docs/plans/20261001-v4-guards-1-2-0-fixture-fix.plan.json",
+    "docs/plans/authorizations/20261001-v4-guards-1-2-0-fixture-record.json",
+    "tests/p10/Test-V4ExtensionComposition.ps1"
+  ],
+  "areas": [
+    "GuardTests",
+    "GuardDocs"
+  ],
+  "risks": [
+    "若动态负例未保持 schema 合法或与基准不同，组合测试可能在错误边界失败。"
+  ],
+  "decisions": [
+    "使用当前基准主版本加一，而不是换成另一个固定版本。",
+    "通过独立授权/消费 PR 修复受保护测试，不把测试变更直接加入失败的发行候选。"
+  ],
+  "validationCommands": [
+    "pwsh -NoLogo -NoProfile -NonInteractive -File tests/p10/Test-V4ExtensionComposition.ps1",
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-windows",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "trust-change"
+  ]
+}

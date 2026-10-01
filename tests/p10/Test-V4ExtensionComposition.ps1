@@ -486,7 +486,7 @@ Expect-VariantReject $variant 'extension-bundle schema validation failed'
 
 $variant = New-Variant 'incompatible-base-version'
 $document = Read-Json (Join-Path $variant.Bundle 'bundle-manifest.json')
-$document.baseVersion = '1.2.0'
+$document.baseVersion = '{0}.0.0' -f (([version][string]$baseReceipt.version).Major + 1)
 Write-Json (Join-Path $variant.Bundle 'bundle-manifest.json') $document
 Bind-VariantReview $variant
 Expect-VariantReject $variant 'Bundle/review/base identity mismatch'
