@@ -1,0 +1,18 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-m5-focused-ci-record",
+  "planId": "20261001-m1-m5-focused-ci-trust-change",
+  "reason": "M1–M5 remediation P3/V-03: add one approved wrapper that explicitly runs the M2 Profile Authority, M3 Application Boundary, M4 Stage Semantics, M5 Governance Foundation and M5 Module Lifecycle focused suites in Linux-complete and Windows-full. M1 self-contained suites remain explicit release certification because they require RID runtime-pack prefetch before their offline publish proof.",
+  "entries": [
+    {
+      "path": "integrations/github/ci-contract.json",
+      "baseSha256": "d8676c1448f2b5ee02fe21dd84a50bffc13feb1c0e1eb53cc1f088371cce99e2",
+      "headSha256": "9e893525a48096904f1ad7d24d56276c8c09be7c0e8d79a31c4584afc2365384"
+    }
+  ],
+  "acceptedBy": {
+    "kind": "human-review",
+    "authority": "operator (von12549) — M1–M5 remediation conditional-release program requested 2026-10-01",
+    "candidateHostVerdictAllowed": false
+  }
+}
