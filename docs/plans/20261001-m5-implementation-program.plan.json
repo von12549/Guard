@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m5-implementation-program",
+  "title": "M5 local governance and immutable lifecycle implementation program",
+  "goal": "Implement the accepted M5 local Plan governance target authorization and Module lifecycle foundation without applying Target or remote changes.",
+  "acceptanceCriteria": [
+    "Three reviewable child checkpoints implement bounded Plan governance base-held target authorization validation and immutable local Module lifecycle operations.",
+    "Frozen v1 contracts protected CI authority release publication Target application and remote activation remain unchanged.",
+    "Focused affected exact-diff and complete trusted validation pass."
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-m5-implementation-program.md",
+    "docs/plans/20261001-m5-implementation-program.plan.json"
+  ],
+  "areas": ["GuardDocs"],
+  "risks": ["A local governance tool could be mistaken for Target application CI authority or remote activation."],
+  "decisions": ["Deliver the accepted M5 decisions as local deterministic foundations with protected and remote boundaries unchanged."],
+  "validationCommands": ["exact M5 root plan-set diff", "complete trusted Contract Linux Package and Windows validation"],
+  "dependencies": [],
+  "boundaries": []
+}

@@ -1,0 +1,30 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m5-module-lifecycle-foundation",
+  "title": "Implement immutable local Module lifecycle operations",
+  "goal": "Provide deterministic local Module lifecycle operations over immutable built-ins and extension candidates without marketplace or activation authority.",
+  "acceptanceCriteria": [
+    "Inventory inspect and graph expose provenance hashes compatibility Stages capabilities prerequisites Profile usage and dependencies.",
+    "Scaffold writes metadata only below StateRoot and leaves adapter source to repository or IDE work.",
+    "Validate and test fail closed on schema hash lock placement capability prerequisite timeout fixture and Target mutation errors.",
+    "Diff pack and review preparation produce deterministic EvidenceRoot candidates and refuse built-in replacement.",
+    "Compose and verify are exact handoffs to existing authorities and no installation is selected published downloaded or remotely activated."
+  ],
+  "plannedPaths": [
+    "core/modules/Invoke-V4ModuleLifecycle.ps1",
+    "core/modules/contracts/module-lifecycle-result.schema.json",
+    "core/modules/validation/Test-V4ModuleLifecycle.ps1"
+  ],
+  "areas": ["contracts", "modules", "packaging", "tests"],
+  "risks": [
+    "Lifecycle tooling could mutate built-in Package authority or TargetRoot.",
+    "A deterministic bundle could be mistaken for reviewed production acceptance or trusted Evidence."
+  ],
+  "decisions": [
+    "Keep built-ins immutable and write extension candidates only below StateRoot or EvidenceRoot.",
+    "Reuse existing compose and verification authorities rather than creating a second installation engine."
+  ],
+  "validationCommands": ["pwsh -NoProfile -File core/modules/validation/Test-V4ModuleLifecycle.ps1", "pwsh -NoProfile -File tests/p10/Test-V4ExtensionComposition.ps1"],
+  "dependencies": [],
+  "boundaries": []
+}
