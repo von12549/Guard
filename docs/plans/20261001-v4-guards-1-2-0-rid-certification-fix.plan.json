@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-v4-guards-1-2-0-rid-certification-fix",
+  "title": "修复 V4 Guards 1.2.0 RID 候选认证身份绑定",
+  "goal": "让候选认证同时保留跨平台源码 packageHash、验证 RID 特定 packageHash，并逐项核验归档负载。",
+  "acceptanceCriteria": [
+    "自包含 RID 归档在源码 packageHash 与 RID packageHash 不同的正常情形下通过候选认证。",
+    "RID packageHash 只可由已认证源码 authority 与归档内 schema-valid runtime-manifest 重建，不能由归档自报替代。",
+    "归档根、清单、文件集合、每个文件哈希/大小、launcher 与 Host/Companion 绑定均精确核验。",
+    "伪造为源码 packageHash 的 RID 归档失败关闭。",
+    "新增回归测试进入 Linux、Windows smoke 和 Windows full approved suites，CI contract 仅新增该精确哈希条目。",
+    "single-use base-held 授权记录被同一变更消费并删除。"
+  ],
+  "plannedPaths": [
+    "core/certification/Invoke-V4V1Certification.ps1",
+    "docs/plans/20261001-v4-guards-1-2-0-rid-certification-fix.md",
+    "docs/plans/20261001-v4-guards-1-2-0-rid-certification-fix.plan.json",
+    "docs/plans/authorizations/20261001-v4-guards-1-2-0-rid-certification-record.json",
+    "docs/v1-certification.md",
+    "integrations/github/ci-contract.json",
+    "tests/p8/Test-V4CandidateCertification.ps1"
+  ],
+  "areas": [
+    "GuardCore",
+    "GuardTests",
+    "GuardDocs",
+    "GuardCI"
+  ],
+  "risks": [
+    "归档身份推导若遗漏 authority 文件，可能错误接受不完整或额外的 package 负载。",
+    "approved-test 与 CI contract 若非原子重绑定，受信 runner 必须失败关闭。"
+  ],
+  "decisions": [
+    "v1-certification 与 recovery 记录中的 packageHash 继续表示跨平台源码身份；RID 资产由 archiveSha256 绑定。",
+    "认证器从当前源码 authority 与归档 runtime-manifest 重建 RID packageHash，不要求它等于源码 packageHash。",
+    "不修改现有认证或恢复 schema，避免把 RID 特定身份错误提升为跨平台源码身份。"
+  ],
+  "validationCommands": [
+    "pwsh -NoProfile -File tests/p8/Test-V4CandidateCertification.ps1",
+    "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1",
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-windows",
+    "v4-required",
+    "exact-head V4 Certification"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "trust-change"
+  ]
+}
