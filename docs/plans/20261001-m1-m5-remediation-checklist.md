@@ -87,12 +87,12 @@ G-REPAIR 记录：`GO 2026-10-01`。修复提交：
 
 ## F. 1.2.0 版本升级与文档
 
-- [ ] R-01 `plugin.json` 产品版本升级为 `1.2.0`，Host/Companion Version 为 `1.2.0`、AssemblyVersion 为 `1.2.0.0`。
-- [ ] R-02 搜索实际版本来源、路径/fixture/输出，消除影响新版本的硬编码；历史版本信息保持历史语义。
-- [ ] R-03 compatibility baseline 相关哈希通过适用授权更新；不机械修改 apiVersion/历史 baseline 字段，不降低批准测试。
-- [ ] R-04 更新 README、1.2.0 release notes、认证文档、受影响指南、Web Companion 文档、TODO 和实施状态。
-- [ ] R-05 release notes 列明修复、实际交付、平台/前提、升级恢复和延期项；文档未将未发布版本说成已发布。
-- [ ] R-06 固定发行模式、ZIP 名称、RID 与 sidecar 矩阵，验证 builder/installer 命名兼容；只声明获认证的平台。
+- [x] R-01 `plugin.json` 产品版本升级为 `1.2.0`，Host/Companion Version 为 `1.2.0`、AssemblyVersion 为 `1.2.0.0`。
+- [x] R-02 搜索实际版本来源、路径/fixture/输出，消除影响新版本的硬编码；历史版本信息保持历史语义。
+- [x] R-03 compatibility baseline 相关哈希通过适用授权更新；不机械修改 apiVersion/历史 baseline 字段，不降低批准测试。
+- [x] R-04 更新 README、1.2.0 release notes、认证文档、受影响指南、Web Companion 文档、TODO 和实施状态。
+- [x] R-05 release notes 列明修复、实际交付、平台/前提、升级恢复和延期项；文档未将未发布版本说成已发布。
+- [x] R-06 固定发行模式、ZIP 名称、RID 与 sidecar 矩阵，验证 builder/installer 命名兼容；只声明获认证的平台。
 - [ ] R-07 版本/文档 PR 正常通过并合入；记录精确 PR head 和 merge/release commit，未跳过检查。
 
 ## G. 精确发布提交认证与 G-RELEASE

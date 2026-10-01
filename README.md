@@ -1,14 +1,12 @@
 # V4 Guards
 
 V4 Guards is a self-contained, profile-driven guard package for inspecting repositories through four
-independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.1.6` adds
-trusted-base authorization for protected CI changes, makes the trusted-base runner long-path safe and
-makes independent Host and Web Companion builds of one commit produce the same archive; earlier releases
-remain immutable.
+independently runnable stages: Bootstrap, Analysis, Pre and Post. Source version `1.2.0` is the release
+candidate for the repaired M1–M5 local foundations; earlier releases remain immutable.
 The stable V4 1.0 command API and local, non-authoritative Web Companion are preserved.
 
-The latest formal release is **1.1.6**. M1–M5 foundations merged to `main` after that release and are
-source/main-only until a later release is fully repaired, cross-platform certified and published.
+The latest formal release is still **1.1.6**. The 1.2.0 source candidate is not a published release until
+its exact merge commit and fixed RID assets are fully certified, tagged and published.
 Local success, a promotion candidate or merged source is not consumer adoption, trusted CI enablement,
 remote activation or a published release. See the
 [active remediation and conditional-release program](docs/plans/20261001-m1-m5-remediation-and-1-2-0-release.md).
@@ -50,16 +48,20 @@ untouched.
 
 ## Distribution and prerequisites
 
-The `1.1.6` archive is named `v4-guards-1.1.6.zip` and contains three hash-bound payloads:
+The 1.2.0 candidate uses two self-contained asset names,
+`v4-guards-1.2.0-linux-x64.zip` and `v4-guards-1.2.0-win-x64.zip`. Each contains three hash-bound
+payloads below the common root `v4-guards-1.2.0/`:
 
 - `package/`: immutable V4 authorities and this README;
 - `host/`: the `v4-guards` .NET Host; and
 - `companion/`: the offline Web Companion with embedded UI assets.
 
-The supported release targets are `linux-x64` and `win-x64`. The declared host prerequisites are
-PowerShell 7.4 or newer and .NET 10.x; selected modules may add declared prerequisites. Installation
-and verified uninstall use `core/distribution/Install-V4Distribution.ps1` plus an external receipt.
-See [1.1.6 release notes](docs/1.1.6-release-notes.md),
+The candidate release targets are `linux-x64` and `win-x64`; portable and arm64 assets are not published.
+The self-contained Host/Companion need PowerShell 7.4 or newer but no shared .NET runtime; selected modules
+may add declared prerequisites. Installation and verified uninstall use
+`core/distribution/Install-V4Distribution.ps1` plus an external receipt.
+See [1.2.0 release notes](docs/1.2.0-release-notes.md),
+[1.1.6 release notes](docs/1.1.6-release-notes.md),
 [1.1.5 release notes](docs/1.1.5-release-notes.md),
 [1.1.4 release notes](docs/1.1.4-release-notes.md),
 [1.1.3 release notes](docs/1.1.3-release-notes.md),
@@ -117,8 +119,8 @@ Use [commands.md](docs/commands.md) for stable syntax and [queries.md](docs/quer
 experimental read-only query surface. A Stage can run directly; dependency execution occurs only when
 explicitly requested and is reported in order.
 
-The `profile` and `application` entries are experimental main-only M2/M3 surfaces, not commands shipped
-by the 1.1.6 asset. Use the exact Profile syntax in
+The `profile` and `application` entries are experimental M2/M3 surfaces in the 1.2.0 candidate, not
+commands shipped by the latest formal 1.1.6 asset. Use the exact Profile syntax in
 [Profile discovery and reviewed promotion](docs/profile-authority.md) and the typed preview syntax in
 [Local application Workbench](docs/application-workbench.md). Neither surface applies Target changes,
 selects a composition or activates CI/remote policy.
@@ -137,7 +139,7 @@ It writes candidates only below EvidenceRoot and never applies a Target or remot
 
 Profiles are declarative configuration. They select registered, hash-bound modules and may not provide
 arbitrary executable paths or shell commands. The package ships `default` and `synthetic_profile`;
-`ifx_profile` is not included in the 1.1.6 base or earlier releases. Module capabilities declare readable/writable roots, permitted
+`ifx_profile` is not included in the 1.2.0 candidate or any earlier release. Module capabilities declare readable/writable roots, permitted
 processes, network use and timeouts. See [configuration.md](docs/configuration.md).
 
 Version 1.1.4 defines an optional `workspaceEvidence` Profile capability.

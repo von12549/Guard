@@ -4,7 +4,8 @@ The experimental M2 Profile authority surface is defined by
 `core/profile/contracts/profile-authority-contract.json`. It deliberately sits outside the stable `1.0` CLI
 compatibility baseline while its contracts are exercised and reviewed.
 
-This surface is present on `main` after M2 and is not contained in the latest formal 1.1.6 release.
+This surface is present in the 1.2.0 source candidate after M2 and is not contained in the latest formal
+1.1.6 release. It becomes released only after the 1.2.0 exact-commit gates and publication complete.
 
 ## Operations
 

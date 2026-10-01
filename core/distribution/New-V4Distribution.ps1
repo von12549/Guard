@@ -37,7 +37,8 @@ if ($LASTEXITCODE -ne 0) { throw "Package validation failed: $($checkOutput -joi
 $packageResult = ($checkOutput -join "`n") | ConvertFrom-Json
 $plugin = Get-Content -Raw (Join-Path $package 'plugin.json') | ConvertFrom-Json
 $rootName = "v4-guards-$($plugin.version)"
-$archivePath = Join-Path $output "$rootName.zip"
+$archiveName = if ($DeploymentModel -eq 'self-contained') { "$rootName-$RuntimeIdentifier.zip" } else { "$rootName.zip" }
+$archivePath = Join-Path $output $archiveName
 $sidecarPath = "$archivePath.sha256"
 if ([IO.File]::Exists($archivePath) -or [IO.File]::Exists($sidecarPath)) { throw 'Distribution output already exists; use a clean OutputDirectory.' }
 

@@ -1,0 +1,66 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-v4-guards-1-2-0-release",
+  "title": "升级、认证并发布 V4 Guards 1.2.0（P5–P7）",
+  "goal": "消费已合入的单次 baseline 授权，将修复后的 M1–M5 本地能力升级为 1.2.0，在精确提交上认证两个自包含 RID 资产，发布不可变 Release 并独立验证。",
+  "acceptanceCriteria": [
+    "base-owned runner 将版本 PR 判定为 authorized，精确匹配并消费 20261001-v4-guards-1-2-0-release-record。",
+    "产品、Host、Companion 版本为 1.2.0；stable API 和历史 compatibility pluginVersion 不变；随包文档不把条件候选写成已发布。",
+    "PR head 与最终 main merge commit 分别通过 Linux-complete、Windows-full、全部 M1–M5 focused suites、package、supply-chain、compatibility 和 documentation 门禁。",
+    "linux-x64 与 win-x64 自包含资产各自在两个干净 checkout 字节一致，同一输入重复打包一致，sidecar 匹配实际 ZIP。",
+    "candidate/recovery 认证通过后，在精确 release commit 创建 annotated tag v4-guards-v1.2.0，并发布仅含两个 ZIP 和两个 sidecar 的非 draft、非 prerelease Release。",
+    "重新下载的两个资产匹配认证哈希；分别在 Windows 和隔离 Linux 环境安装、运行交付 smoke/四个 Stage/Companion 并 verified uninstall；最终记录 PR 完成程序。"
+  ],
+  "plannedPaths": [
+    "README.md",
+    "core/certification/compatibility-baseline.json",
+    "core/distribution/New-V4Distribution.ps1",
+    "core/host/V4.Guards.Host/V4.Guards.Host.csproj",
+    "docs/1.2.0-release-notes.md",
+    "docs/application-workbench.md",
+    "docs/module-lifecycle.md",
+    "docs/plan-governance.md",
+    "docs/plans/20261001-m1-m5-remediation-and-1-2-0-release.md",
+    "docs/plans/20261001-m1-m5-remediation-checklist.md",
+    "docs/plans/20261001-v4-guards-1-2-0-release.md",
+    "docs/plans/20261001-v4-guards-1-2-0-release.plan.json",
+    "docs/plans/README.md",
+    "docs/plans/authorizations/20261001-v4-guards-1-2-0-release-record.json",
+    "docs/plans/product/TODO.md",
+    "docs/profile-authority.md",
+    "docs/stage-semantics.md",
+    "docs/target-trust-authorization.md",
+    "docs/v1-certification.md",
+    "integrations/web/README.md",
+    "integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj",
+    "plugin.json"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "版本或随包文档变更会使修复提交上的 packageHash 与资产证据失效，必须在最终 release commit 重建。",
+    "两个 RID 资产若同名、哈希不一致或 tag 指向错误提交，会造成不可恢复的发布歧义。",
+    "发布是不可变动作；发布后缺陷只能由新版本修复。"
+  ],
+  "decisions": [
+    "发行矩阵固定为 self-contained linux-x64 与 win-x64，各使用带 RID 的 ZIP 名称和 sidecar；本版不发布 portable 或 arm64。",
+    "ZIP 内根目录保持 v4-guards-1.2.0，安装器合同不变。",
+    "compatibility baseline 只重绑定 plugin.json；pluginVersion 1.1.0 和 apiVersion 1.0 不机械升级。",
+    "版本 PR 合入不等于发布；只有 G-RELEASE GO 后才创建 tag/Release。"
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-windows",
+    "v4-required",
+    "V4 Certification exact-head and exact-main dispatch",
+    "two-clean-checkout linux-x64 and win-x64 reproducibility",
+    "candidate/recovery and independent install/run/uninstall verification"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "trust-change"
+  ]
+}
