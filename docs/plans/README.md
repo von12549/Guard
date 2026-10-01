@@ -24,5 +24,6 @@ Migration provenance (path dispositions, commit map, release inventory and recei
 
 - [M1–M5 audit remediation and conditional 1.2.0 release program](20261001-m1-m5-remediation-and-1-2-0-release.md)
   with its [verification checklist](20261001-m1-m5-remediation-checklist.md): all required repairs and
-  tests must pass and receive a post-remediation report before the 1.2.0 version update; the updated
-  release commit is then certified, published and independently verified. Execution is not yet complete.
+  tests passed at `fa7ae011…`; the [post-remediation report](20261001-m1-m5-remediation-report.md)
+  records `G-REPAIR = GO`. The 1.2.0 version, exact-release certification, publication and independent
+  verification remain active and are not yet complete.

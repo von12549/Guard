@@ -1,6 +1,6 @@
 # M1–M5 审计修复计划与 1.2.0 发布门禁
 
-Status: `READY — 修复、复检及发布尚未执行`
+Status: `G-REPAIR GO 2026-10-01 — 修复复检完成；1.2.0 发布阶段进行中`
 
 Formal Plan ID: `20261001-m1-m5-remediation-and-1-2-0-release`.
 
@@ -17,8 +17,8 @@ M1–M5 的修复验证和受影响回归。**修复完成后，必须结合配�
 更新相关文档，对升级后的精确提交重新认证，然后发布 `1.2.0` 并独立验证发布资产。**
 任一必需门禁失败或缺少证据，都暂停后续升级或发布，修复后重新验证。
 
-本次交付是计划与清单。代码修复、版本修改、提交、远端操作与发布将在后续执行阶段完成。
-本正式 Plan 的 `plannedPaths` 仅覆盖本次规划文件与索引；每个实施阶段在修改代码前建立
+原始交付是计划与清单。修复与 G-REPAIR 已按 §9 完成；版本修改和发布仍由后续阶段执行。
+本正式 Plan 的 `plannedPaths` 仅覆盖规划文件与索引；每个实施阶段在修改代码前建立
 自己的精确 Plan pair，涉及受保护路径时遵循既有 base-held、single-use authorization 流程。
 此程序计划不代替后续 PR 的 exact-diff Plan，也不代替受保护变更的授权记录。
 
@@ -176,3 +176,20 @@ P7 的 tag 为 `v4-guards-v1.2.0`，Release 为 `V4 Guards 1.2.0`，正式发布
 发布前通过 reviewed revert 恢复最近合格 checkpoint；保留失败证据，已消费授权不得重用。
 发布后保持 tag/资产不可变；出现问题以新的修复版本处理，并通知消费者。
 本程序完成需要：修复复检报告、1.2.0 发布、独立验证和最终发布报告全部完成。
+
+## 9. G-REPAIR 结果（2026-10-01）
+
+PR #35–#41 依次完成计划校准、F-01–F-05、版本中性 launcher/Linux execute-bit 修复以及
+focused suite 的 single-use authorization/trust-change。最终修复提交为
+`fa7ae011b385233bdcaf6192f0971ffbe59aefc1`。
+
+- V4 Guardrails run 36835743320：contract、Linux、package、Windows-full、required 全部成功；
+- V4 Certification run 36835746541：Linux-complete 与 Windows-full 成功，源码 packageHash
+  均为 `f2112c4ac5b6c34f093e4a456596f7ab9e07d12991c5424f711cae35bbbc4e6e`；
+- `linux-x64` 与 `win-x64` 自包含修复候选的 archiveHash 分别记录，安装/launcher 与 focused
+  suites 在两平台通过；
+- 清单 A–E 全部 PASS；原有 roadmap 延期项仍明确延期。
+
+独立报告为 [20261001-m1-m5-remediation-report](20261001-m1-m5-remediation-report.md)，证据
+索引位于 `evidence/20261001-m1-m5-remediation/`。结论：`G-REPAIR = GO`。允许进入 P5，
+但在 G-RELEASE 前不得创建 1.2.0 tag 或正式 Release。

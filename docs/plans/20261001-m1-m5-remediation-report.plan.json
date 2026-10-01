@@ -1,0 +1,42 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-m5-remediation-report",
+  "title": "复检 M1–M5 修复并记录 G-REPAIR",
+  "goal": "在最终修复提交上复检全部必修 finding、M1–M5 focused suites、双平台批准测试和 RID 资产，固化证据并决定是否进入 1.2.0 升级。",
+  "acceptanceCriteria": [
+    "中文修复报告独立说明审计基线、修复提交、环境、F-01–F-05 与 V-01–V-03 的实现和残余风险。",
+    "清单 A–E 的全部必修项以同一最终修复提交上的实际证据关闭，不把延期 roadmap 项伪报为已完成。",
+    "Linux-complete 与 Windows-full 精确提交认证通过且源码 packageHash 一致；linux-x64 与 win-x64 自包含资产分别记录 archiveHash。",
+    "证据索引和 SHA256SUMS 绑定 GitHub Actions 报告、CI artifact manifest、两项 RID 资产及其 sidecar/measurement。",
+    "仅在无 FAIL、BLOCKED 或 NOT RUN 的必修项时记录 G-REPAIR = GO。"
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-m1-m5-remediation-and-1-2-0-release.md",
+    "docs/plans/20261001-m1-m5-remediation-checklist.md",
+    "docs/plans/20261001-m1-m5-remediation-report.md",
+    "docs/plans/20261001-m1-m5-remediation-report.plan.json",
+    "docs/plans/README.md",
+    "docs/plans/evidence/20261001-m1-m5-remediation/SHA256SUMS",
+    "docs/plans/evidence/20261001-m1-m5-remediation/evidence-index.json"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "将旧 PR 的绿色检查误当作最终修复提交证据。",
+    "将 RID 特定自包含包的哈希误当作跨平台相同，或把 local foundation 误写成远端采用。"
+  ],
+  "decisions": [
+    "报告 PR 只记录修复结果和证据，不修改产品代码、版本、受保护路径或正式发布状态。",
+    "源码 packageHash 要求跨平台相同；RID 自包含 ZIP 因原生二进制和 runtime manifest 不同而分别记录 archiveHash。",
+    "原有延期项继续延期，不影响已定义修复范围的 G-REPAIR，但不得计作已交付。"
+  ],
+  "validationCommands": [
+    "Test-Json -LiteralPath docs/plans/20261001-m1-m5-remediation-report.plan.json -SchemaFile core/contracts/plan.schema.json",
+    "pwsh -NoProfile -File core/runtime/Test-V4Package.ps1 -PackageRoot .",
+    "pwsh -NoProfile -File tests/p7/Test-V4Documentation.ps1",
+    "git diff --check"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}
