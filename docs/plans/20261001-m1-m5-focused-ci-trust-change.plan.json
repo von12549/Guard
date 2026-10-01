@@ -1,0 +1,25 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-m5-focused-ci-trust-change",
+  "title": "将 M2–M5 focused suites 纳入可信 CI",
+  "goal": "消费 base-held 单次授权，把聚合 M2–M5 focused suites 的 wrapper 精确绑定到 Linux-complete 与 Windows-full 可信 CI。",
+  "acceptanceCriteria": [
+    "消费且删除 20261001-m1-m5-focused-ci-record，不能留下可复用授权。",
+    "ci-contract 精确绑定 Test-V4M2M5Focused.ps1 的 SHA-256。",
+    "wrapper 在 Linux 与 Windows 上依次运行 M2 Profile、M3 Application、M4 Stage、M5 Governance 与 M5 Module focused suites。",
+    "M1 自包含分发测试继续作为需要 RID runtime-pack 预取的显式发布认证，不伪装成普通离线 approved test。"
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-m1-m5-focused-ci-trust-change.md",
+    "docs/plans/20261001-m1-m5-focused-ci-trust-change.plan.json",
+    "docs/plans/authorizations/20261001-m1-m5-focused-ci-record.json",
+    "integrations/github/ci-contract.json",
+    "tests/p10/Test-V4M2M5Focused.ps1"
+  ],
+  "areas": ["GuardDocs", "CI", "M2", "M3", "M4", "M5"],
+  "risks": ["增加 Linux-complete 与 Windows-full 的运行时间；任一 focused suite 失败都会阻断可信门禁。"],
+  "decisions": ["使用一个受 hash 约束的轻量 wrapper，避免复制五套 suite 逻辑或扩大可信 runner。"],
+  "validationCommands": ["v4-contract", "v4-linux", "v4-package", "v4-required"],
+  "dependencies": [],
+  "boundaries": ["trust-change"]
+}
