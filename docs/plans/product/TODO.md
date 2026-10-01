@@ -5,10 +5,10 @@ separate reviewed decision and formal Plan; appearing here is not implementation
 
 ## Consumer adoption (moved to IFX)
 
-Release boundary (2026-10-01): 1.1.6 remains the latest formal Guard release. M1–M5 repaired local
-foundations are now the 1.2.0 source candidate; their candidates, previews and local evidence are not
-Target adoption, trusted CI activation, remote enablement or a published version. G-REPAIR is GO, but
-the active release program must still reach G-RELEASE before any 1.2.0 publication claim.
+Release boundary (2026-10-02): 1.2.0 is the latest formal Guard release. Its M1–M5 repaired local
+foundations are published, but their generated candidates, previews and local evidence are not Target
+adoption, trusted CI activation or remote enablement. The release program reached G-RELEASE and completed
+independent validation; all separately listed consumer and remote roadmap items remain deferred.
 
 V4-TODO-001 through V4-TODO-004 were the IFX adoption backlog: `ifx_profile` practice, parallel
 parity, cutover and rollback design, and V3/V3_ifx freeze or retirement. That work belongs to the IFX

@@ -1,6 +1,6 @@
 # M1–M5 审计修复计划与 1.2.0 发布门禁
 
-Status: `P5 1.2.0 RELEASE CANDIDATE — G-REPAIR GO；尚未发布`
+Status: `COMPLETE 2026-10-02 — G-REPAIR = GO；G-RELEASE = GO；1.2.0 已发布并独立验证`
 
 Formal Plan ID: `20261001-m1-m5-remediation-and-1-2-0-release`.
 
@@ -199,4 +199,18 @@ focused suite 的 single-use authorization/trust-change。最终修复提交为
 Plan `20261001-v4-guards-1-2-0-release` 将产品、Host 和 Companion 升级为 1.2.0，消费 R0
 single-use baseline 授权，并固定 self-contained `linux-x64`/`win-x64` 两 ZIP 加 sidecar 的发行
 矩阵。版本 PR 及其精确 head 认证通过前不合并；最终 main merge commit 还必须重新执行 P6。
-当前状态仅为 release candidate，不是发布记录。
+该阶段状态仅为 release candidate，当时不是发布记录。
+
+## 11. P6/P7 发布结果（2026-10-02）
+
+最终 release commit `cf8a9cb631e120309568f18ac965540e381f8027` 的 Guardrails run 36870395011
+与 Certification run 36870399334 全部通过；Linux-complete 35 项、Windows-full 36 项共享
+源码 `packageHash` `9fccf726207fe6674908e0e40a68efb8c6bd68d2fe347bf252b91af0efeced12`。
+
+`linux-x64` 与 `win-x64` 资产分别为
+`2404abdcc3f5a94ca0d22487ff1e399d093c9ec8e834ec8127bdf4f7c7c0fb56` 与
+`03d0a439add97b59855508d70d6748b9165343806824d40582154befb8164b60`；双位置构建、重复打包、
+sidecar、candidate/recovery 均通过。`G-RELEASE = GO` 后创建 annotated tag
+`v4-guards-v1.2.0` 和正式 Release。重新下载的两个资产在 Windows 与隔离 Linux
+分别通过 1.2.0 版本、四 Stage、M2–M5 focused smoke、Companion、receipt 与 verified
+uninstall。最终记录见 `20261002-v4-guards-1-2-0-release-report.md`。

@@ -20,13 +20,13 @@ releases.
 Migration provenance (path dispositions, commit map, release inventory and receipt) lives under
 [`../migration/v4-todo-008/`](../migration/v4-todo-008/README.md).
 
-## Active remediation planning
+## Completed remediation and release program
 
 - [M1–M5 audit remediation and conditional 1.2.0 release program](20261001-m1-m5-remediation-and-1-2-0-release.md)
   with its [verification checklist](20261001-m1-m5-remediation-checklist.md): all required repairs and
   tests passed at `fa7ae011…`; the [post-remediation report](20261001-m1-m5-remediation-report.md)
-  records `G-REPAIR = GO`. The 1.2.0 version, exact-release certification, publication and independent
-  verification remain active and are not yet complete.
+  records `G-REPAIR = GO`. Exact-release certification, publication and independent verification are
+  complete; see the [final release report](20261002-v4-guards-1-2-0-release-report.md).
 - [V4 Guards 1.2.0 release Plan](20261001-v4-guards-1-2-0-release.md): consumes the separately merged
-  baseline authorization, fixes the `linux-x64`/`win-x64` self-contained asset matrix and keeps the
-  candidate explicitly unpublished until G-RELEASE.
+  baseline authorization and fixes the `linux-x64`/`win-x64` self-contained asset matrix. It reached
+  `G-RELEASE = GO` and published annotated tag `v4-guards-v1.2.0`.

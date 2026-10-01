@@ -1,0 +1,43 @@
+{
+  "formatVersion": 1,
+  "id": "20261002-v4-guards-1-2-0-release-records",
+  "title": "记录 V4 Guards 1.2.0 发布与独立验证（R5）",
+  "goal": "记录已发布的 V4 Guards 1.2.0，关闭 G-RELEASE 清单并保留准确的延期边界。",
+  "acceptanceCriteria": [
+    "记录精确 release commit、annotated tag、GitHub Release、Guardrails/Certification 运行和双 RID 哈希。",
+    "记录重新下载后的 Windows/Linux 安装、四 Stage、M2–M5、Companion、receipt 和 verified uninstall 结果。",
+    "清单 R-07–R-20 全部有证据地关闭，未交付 roadmap 仍为 DEFERRED。",
+    "v4-contract、v4-linux、v4-package 和 v4-required 通过。"
+  ],
+  "plannedPaths": [
+    "README.md",
+    "docs/1.2.0-release-notes.md",
+    "docs/v1-certification.md",
+    "docs/plans/README.md",
+    "docs/plans/product/TODO.md",
+    "docs/plans/20261001-m1-m5-remediation-and-1-2-0-release.md",
+    "docs/plans/20261001-m1-m5-remediation-checklist.md",
+    "docs/plans/20261001-v4-guards-1-2-0-release.md",
+    "docs/plans/20261002-v4-guards-1-2-0-release-records.md",
+    "docs/plans/20261002-v4-guards-1-2-0-release-records.plan.json",
+    "docs/plans/20261002-v4-guards-1-2-0-release-report.md"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "发布记录若混淆 source packageHash 和 RID package/archive 身份，会造成错误来源结论。"
+  ],
+  "decisions": [
+    "本 PR 只记录已发生的发布与独立验证，不变更已发布 tag 或资产。",
+    "延期的消费者采用、trusted CI、远程启用与生态能力不因 1.2.0 发布而关闭。"
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}
