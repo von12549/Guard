@@ -39,5 +39,14 @@ pass. It writes deterministic `<id>.plan.json` and `<id>.md` candidates below Ev
 the executable v1 contract and Markdown is its matching review projection. Both still require deliberate
 repository adoption and review; generated output, imported prose and Agent/model text are not authority.
 
+Finalization commits a new output directory containing the JSON, injection-safe Markdown and a
+`<id>.pair-receipt.json` that binds both hashes plus proposal/base/head/source/generator/policy
+provenance. Existing finalized directories are never overwritten. A failed staging write leaves no
+finalized half-pair; retry uses a new directory or an operator-reviewed cleanup of an invalid staging
+artifact. `plan verify-pair` checks both content hashes, Plan identity and the expected provenance, so
+one-sided tampering and stale-pair replay fail closed. Markdown text is rendered as escaped single-line
+content; embedded newlines, headings, lists, backticks and control characters cannot create a second
+review status or section.
+
 The local Web Companion is unchanged in M5. A future Plan may project this typed lifecycle, but the UI
 cannot confirm its own trust boundary or write Plan authority.

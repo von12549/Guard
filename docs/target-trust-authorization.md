@@ -12,12 +12,20 @@ the previously trusted Host against policy and authorization bytes read from the
 2. A separate authorization change deliberately adopts that record into the policy's authorization
    directory.
 3. A later `trust-change` Plan changes the protected files and deletes the record. `target-trust
-   validate` requires the consuming Plan in the candidate Plan set, exact protected-path coverage,
-   exact hashes and a `trust-change` boundary without `authorization`.
+   validate` reads the Plan set and every member Plan from the exact head Git object. It verifies the
+   complete schema projection, member identity/hash/dependencies, canonical order, derived union,
+   composition hash and an exact match between the union's planned paths and the base/head diff. It
+   then requires the consuming Plan in that verified set, exact protected-path coverage, exact hashes
+   and a `trust-change` boundary without `authorization`.
 
 Candidate-only, missing, partial, undeleted/reused, hash-mismatched, unprotected and self-authorizing
 records fail closed. The result includes the Host assembly, base policy and M5 governance-catalog hashes
 as judge identity.
+
+Working-tree files and candidate-declared hashes are never substituted for the reviewed base/head Git
+objects. The Plan set must own its own path and all member Plan paths through its exact derived union;
+omitted diff paths, forged member hashes, missing members, duplicate identities and stale composition
+hashes are blocking findings.
 
 Validation reports `applied: false`. It does not apply Target files, deliver a pull request, change a
 workflow/ruleset, inspect remote enforcement or activate anything. Active governance, repository

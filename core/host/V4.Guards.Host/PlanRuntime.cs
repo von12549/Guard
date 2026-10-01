@@ -80,6 +80,12 @@ internal static class PlanRuntime
                 return 0;
             }
 
+            if (options.Operation == "verify-pair")
+            {
+                VerifyGovernanceContract(packageRoot);
+                return VerifyPair(options);
+            }
+
             var targetRoot = ResolveDirectory(options.Required("target-root"), "TargetRoot");
 
             if (options.Operation == "finalize")
@@ -174,8 +180,8 @@ internal static class PlanRuntime
 
     private static Arguments ParseArguments(string[] args)
     {
-        if (args.Length < 2 || args[0] != "plan" || args[1] is not ("validate" or "compose" or "scaffold" or "finalize"))
-            throw Invalid("Expected 'plan validate', 'plan compose', 'plan scaffold' or 'plan finalize'.");
+        if (args.Length < 2 || args[0] != "plan" || args[1] is not ("validate" or "compose" or "scaffold" or "finalize" or "verify-pair"))
+            throw Invalid("Expected 'plan validate', 'plan compose', 'plan scaffold', 'plan finalize' or 'plan verify-pair'.");
         var operation = args[1];
         var values = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         for (var index = 2; index < args.Length; index += 2)
@@ -191,6 +197,7 @@ internal static class PlanRuntime
             "validate" => new HashSet<string>(["package-root", "target-root", "plan"], StringComparer.Ordinal),
             "compose" => new HashSet<string>(["package-root", "target-root", "evidence-root", "id", "plan", "output"], StringComparer.Ordinal),
             "scaffold" => new HashSet<string>(["package-root", "evidence-root", "id", "title", "goal", "output"], StringComparer.Ordinal),
+            "verify-pair" => new HashSet<string>(["package-root", "evidence-root", "input-directory", "plan-id", "base-ref", "head-ref", "source-id", "generator-id", "policy-id"], StringComparer.Ordinal),
             _ => new HashSet<string>(["package-root", "target-root", "evidence-root", "input", "output-directory", "base-ref", "head-ref", "confirm-proposal-sha256", "source-id", "generator-id", "policy-id"], StringComparer.Ordinal)
         };
         var unknown = values.Keys.FirstOrDefault(key => !known.Contains(key));
@@ -298,6 +305,43 @@ internal static class PlanRuntime
         }
     }
 
+    private static int VerifyPair(Arguments options)
+    {
+        var evidenceRoot = ResolveDirectory(options.Required("evidence-root"), "EvidenceRoot");
+        var directoryRelative = ValidateRelativePath(options.Required("input-directory"), "Pair directory");
+        var directory = Path.GetFullPath(Path.Combine(evidenceRoot, directoryRelative.Replace('/', Path.DirectorySeparatorChar)));
+        if (!IsUnder(directory, evidenceRoot) || !Directory.Exists(directory)) throw Unsafe("Pair directory escapes EvidenceRoot or is missing.");
+        EnsureNoLinks(directory, "Pair directory");
+        var planId = options.Required("plan-id");
+        if (!PlanIdPattern.IsMatch(planId)) throw Invalid("Plan ID must match YYYYMMDD-lowercase-kebab-case.");
+        var receiptPath = ResolveFile(directory, $"{planId}.pair-receipt.json", "Pair receipt");
+        using var receipt = JsonDocument.Parse(File.ReadAllBytes(receiptPath));
+        var root = receipt.RootElement;
+        var expected = new[] { "formatVersion", "state", "planId", "proposalSha256", "baseRef", "headRef", "sourceId", "generatorId", "policyId", "jsonPath", "jsonSha256", "markdownPath", "markdownSha256" };
+        var actual = root.EnumerateObject().Select(property => property.Name).ToArray();
+        if (actual.Length != expected.Length || actual.Distinct(StringComparer.Ordinal).Count() != actual.Length || expected.Any(name => !actual.Contains(name, StringComparer.Ordinal)))
+            throw Integrity("Pair receipt has unknown, missing or duplicate properties.");
+        if (root.GetProperty("formatVersion").GetInt32() != 1 || root.GetProperty("state").GetString() != "finalized" || root.GetProperty("planId").GetString() != planId)
+            throw Integrity("Pair receipt identity is invalid.");
+        var baseRef = ValidateGitRef(options.Required("base-ref")); var headRef = ValidateGitRef(options.Required("head-ref"));
+        var sourceId = Identity(options.Required("source-id"), "Source identity"); var generatorId = Identity(options.Required("generator-id"), "Generator identity"); var policyId = Identity(options.Required("policy-id"), "Policy identity");
+        if (root.GetProperty("baseRef").GetString() != baseRef || root.GetProperty("headRef").GetString() != headRef ||
+            root.GetProperty("sourceId").GetString() != sourceId || root.GetProperty("generatorId").GetString() != generatorId || root.GetProperty("policyId").GetString() != policyId)
+            throw Integrity("Pair receipt provenance does not match the expected base/head/source/generator/policy.");
+        var jsonName = root.GetProperty("jsonPath").GetString() ?? ""; var markdownName = root.GetProperty("markdownPath").GetString() ?? "";
+        if (jsonName != $"{planId}.plan.json" || markdownName != $"{planId}.md") throw Integrity("Pair receipt file names are invalid.");
+        var jsonPath = ResolveFile(directory, jsonName, "Pair JSON"); var markdownPath = ResolveFile(directory, markdownName, "Pair Markdown");
+        var jsonHash = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(jsonPath))).ToLowerInvariant();
+        var markdownHash = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(markdownPath))).ToLowerInvariant();
+        if (jsonHash != root.GetProperty("jsonSha256").GetString() || markdownHash != root.GetProperty("markdownSha256").GetString())
+            throw Integrity("Plan pair content hash mismatch.");
+        using var planDocument = JsonDocument.Parse(File.ReadAllBytes(jsonPath));
+        if (ValidatePlanDocument(planDocument.RootElement).Id != planId) throw Integrity("Plan pair JSON identity mismatch.");
+        var receiptHash = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(receiptPath))).ToLowerInvariant();
+        Console.WriteLine(JsonSerializer.Serialize(new { formatVersion = 1, status = "pass", exitCategory = "success", state = "verified", planId, jsonSha256 = jsonHash, markdownSha256 = markdownHash, receiptSha256 = receiptHash, authoritative = false }, OutputOptions));
+        return 0;
+    }
+
     private static int FinalizePair(Arguments options, string targetRoot)
     {
         var evidenceRoot = ResolveDirectory(options.Required("evidence-root"), "EvidenceRoot");
@@ -320,37 +364,64 @@ internal static class PlanRuntime
         if (!changed.SequenceEqual(Sorted(plan.PlannedPaths), StringComparer.Ordinal))
             throw Invalid("Proposal planned paths do not exactly match the base/head diff.");
         var outputDirectory = ValidateRelativePath(options.Required("output-directory"), "Output directory");
-        var jsonPath = ResolveOutput(evidenceRoot, $"{outputDirectory}/{plan.Id}.plan.json");
-        var markdownPath = ResolveOutput(evidenceRoot, $"{outputDirectory}/{plan.Id}.md");
+        var finalDirectory = Path.GetFullPath(Path.Combine(evidenceRoot, outputDirectory.Replace('/', Path.DirectorySeparatorChar)));
+        if (!IsUnder(finalDirectory, evidenceRoot)) throw Unsafe("Output directory escapes EvidenceRoot.");
+        var finalParent = Path.GetDirectoryName(finalDirectory)!;
+        Directory.CreateDirectory(finalParent); EnsureNoLinks(finalParent, "Output directory");
+        if (Directory.Exists(finalDirectory) || File.Exists(finalDirectory)) throw Invalid("Finalized pair output directory already exists and will not be overwritten.");
+        var stagingDirectory = Path.Combine(finalParent, $".{Path.GetFileName(finalDirectory)}-{Guid.NewGuid():N}.tmp");
+        var jsonPath = Path.Combine(finalDirectory, $"{plan.Id}.plan.json");
+        var markdownPath = Path.Combine(finalDirectory, $"{plan.Id}.md");
+        var receiptPath = Path.Combine(finalDirectory, $"{plan.Id}.pair-receipt.json");
         var json = JsonSerializer.Serialize(plan, OutputOptions) + "\n";
-        var markdown = RenderMarkdown(plan, proposalHash, baseRef, headRef, options.Required("source-id"),
-            options.Required("generator-id"), options.Required("policy-id"));
-        WriteAtomic(jsonPath, json);
-        WriteAtomic(markdownPath, markdown);
+        var jsonHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(json))).ToLowerInvariant();
+        var sourceId = Identity(options.Required("source-id"), "Source identity");
+        var generatorId = Identity(options.Required("generator-id"), "Generator identity");
+        var policyId = Identity(options.Required("policy-id"), "Policy identity");
+        var markdown = RenderMarkdown(plan, proposalHash, jsonHash, baseRef, headRef, sourceId, generatorId, policyId);
+        var markdownHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(markdown))).ToLowerInvariant();
+        var receipt = JsonSerializer.Serialize(new
+        {
+            formatVersion = 1, state = "finalized", planId = plan.Id, proposalSha256 = proposalHash,
+            baseRef, headRef, sourceId, generatorId, policyId,
+            jsonPath = $"{plan.Id}.plan.json", jsonSha256 = jsonHash,
+            markdownPath = $"{plan.Id}.md", markdownSha256 = markdownHash
+        }, OutputOptions) + "\n";
+        var receiptHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(receipt))).ToLowerInvariant();
+        try
+        {
+            Directory.CreateDirectory(stagingDirectory);
+            WriteAtomic(Path.Combine(stagingDirectory, Path.GetFileName(jsonPath)), json);
+            WriteAtomic(Path.Combine(stagingDirectory, Path.GetFileName(markdownPath)), markdown);
+            WriteAtomic(Path.Combine(stagingDirectory, Path.GetFileName(receiptPath)), receipt);
+            Directory.Move(stagingDirectory, finalDirectory);
+        }
+        finally { if (Directory.Exists(stagingDirectory)) Directory.Delete(stagingDirectory, true); }
         Console.WriteLine(JsonSerializer.Serialize(new
         {
             formatVersion = 1, status = "pass", exitCategory = "success", state = "finalized", planId = plan.Id,
-            proposalSha256 = proposalHash, baseRef, headRef, sourceId = options.Required("source-id"),
-            generatorId = options.Required("generator-id"), policyId = options.Required("policy-id"),
+            proposalSha256 = proposalHash, baseRef, headRef, sourceId, generatorId, policyId,
             jsonPath = NormalizeRelative(Path.GetRelativePath(evidenceRoot, jsonPath)),
-            markdownPath = NormalizeRelative(Path.GetRelativePath(evidenceRoot, markdownPath)), authoritative = false
+            markdownPath = NormalizeRelative(Path.GetRelativePath(evidenceRoot, markdownPath)),
+            receiptPath = NormalizeRelative(Path.GetRelativePath(evidenceRoot, receiptPath)),
+            jsonSha256 = jsonHash, markdownSha256 = markdownHash, receiptSha256 = receiptHash, authoritative = false
         }, OutputOptions));
         return 0;
     }
 
-    private static string RenderMarkdown(PlanDocument plan, string proposalHash, string baseRef, string headRef,
+    private static string RenderMarkdown(PlanDocument plan, string proposalHash, string jsonHash, string baseRef, string headRef,
         string sourceId, string generatorId, string policyId)
     {
         static void Section(StringBuilder value, string title, IEnumerable<string> entries)
         {
             value.Append("## ").Append(title).Append("\n\n");
-            foreach (var entry in entries) value.Append("- ").Append(entry).Append('\n');
+            foreach (var entry in entries) value.Append("- ").Append(EscapeMarkdown(entry)).Append('\n');
             value.Append('\n');
         }
-        var text = new StringBuilder().Append("# ").Append(plan.Title).Append("\n\n")
+        var text = new StringBuilder().Append("# ").Append(EscapeMarkdown(plan.Title)).Append("\n\n")
             .Append("Status: `FINALIZED CANDIDATE — deliberate Target adoption required`\n\n")
-            .Append("Formal Plan ID: `").Append(plan.Id).Append("`.\n\n")
-            .Append("## Goal\n\n").Append(plan.Goal).Append("\n\n");
+            .Append("Formal Plan ID: `").Append(EscapeMarkdown(plan.Id)).Append("`.\n\n")
+            .Append("## Goal\n\n").Append(EscapeMarkdown(plan.Goal)).Append("\n\n");
         Section(text, "Acceptance criteria", plan.AcceptanceCriteria);
         Section(text, "Planned paths", plan.PlannedPaths.Select(path => $"`{path}`"));
         Section(text, "Areas", plan.Areas);
@@ -361,11 +432,27 @@ internal static class PlanRuntime
         Section(text, "Boundaries", plan.Boundaries);
         text.Append("## Finalization evidence\n\n")
             .Append("- Proposal SHA-256: `").Append(proposalHash).Append("`\n")
+            .Append("- Plan JSON SHA-256: `").Append(jsonHash).Append("`\n")
             .Append("- Exact diff: `").Append(baseRef).Append("...").Append(headRef).Append("`\n")
             .Append("- Source: `").Append(sourceId).Append("`\n")
             .Append("- Generator: `").Append(generatorId).Append("`\n")
             .Append("- Policy: `").Append(policyId).Append("`\n");
         return text.ToString();
+    }
+
+    private static string EscapeMarkdown(string value)
+    {
+        var output = new StringBuilder(value.Length + 16);
+        foreach (var character in value)
+        {
+            if (character == '\r') { output.Append("\\r"); continue; }
+            if (character == '\n') { output.Append("\\n"); continue; }
+            if (char.IsControl(character)) { output.Append("\\u").Append(((int)character).ToString("x4")); continue; }
+            if (character == '`') { output.Append("&#96;"); continue; }
+            if ("\\*_{}[]()#+-.!|>".IndexOf(character) >= 0) output.Append('\\');
+            output.Append(character);
+        }
+        return output.ToString();
     }
 
     private static string[] GitNames(string repository, string baseRef, string headRef)
@@ -385,6 +472,13 @@ internal static class PlanRuntime
     {
         if (!Regex.IsMatch(value, "^[A-Za-z0-9][A-Za-z0-9._/-]*$", RegexOptions.CultureInvariant) || value.Contains("..") || value.Contains("//"))
             throw Unsafe($"Unsafe Git ref: {value}");
+        return value;
+    }
+
+    private static string Identity(string value, string label)
+    {
+        if (!Regex.IsMatch(value, "^[a-z0-9][a-z0-9._-]*$", RegexOptions.CultureInvariant))
+            throw Invalid($"{label} must be a lowercase stable identifier.");
         return value;
     }
 
