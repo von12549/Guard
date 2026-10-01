@@ -1,0 +1,48 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-v4-guards-1-2-0-fixture-contract-fix",
+  "title": "V4 Guards 1.2.0 组合负例与 CI contract 原子重绑定",
+  "goal": "将版本无关组合负例与 approved-test 哈希绑定作为一个原子 trust change，并消费对应 single-use 授权。",
+  "acceptanceCriteria": [
+    "受信任 base runner 将测试与 ci-contract 字节变更判定为由 20261001-v4-guards-1-2-0-fixture-contract-record 精确授权并消费。",
+    "incompatible-base-version 使用当前基准主版本加一，并仍在 Bundle/review/base identity mismatch 边界失败。",
+    "CI contract 只重绑定 Test-V4ExtensionComposition.ps1 的 SHA-256。",
+    "Linux 与 Windows 完整 Guardrails、package 和 required checks 全部通过。",
+    "不修改生产代码、产品版本、compatibility baseline、tag 或 Release 状态。"
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-v4-guards-1-2-0-fixture-contract-fix.md",
+    "docs/plans/20261001-v4-guards-1-2-0-fixture-contract-fix.plan.json",
+    "docs/plans/authorizations/20261001-v4-guards-1-2-0-fixture-contract-record.json",
+    "integrations/github/ci-contract.json",
+    "tests/p10/Test-V4ExtensionComposition.ps1"
+  ],
+  "areas": [
+    "GuardTests",
+    "GuardCI",
+    "GuardDocs"
+  ],
+  "risks": [
+    "若测试与 CI contract 未原子更新，受信 contract 必须失败关闭。",
+    "若动态负例未保持 schema 合法或与基准不同，组合测试可能在错误边界失败。"
+  ],
+  "decisions": [
+    "使用当前基准主版本加一，而不是换成另一个固定版本。",
+    "测试与 approved-test 哈希绑定在同一授权消费 PR 中原子变更。",
+    "保留其他 CI contract 字段和 approved-test 绑定的精确字节。"
+  ],
+  "validationCommands": [
+    "pwsh -NoLogo -NoProfile -NonInteractive -File tests/p10/Test-V4ExtensionComposition.ps1",
+    "pwsh -NoLogo -NoProfile -NonInteractive -File tests/p6/Test-V4TrustedBase.ps1",
+    "pwsh -NoLogo -NoProfile -NonInteractive -File tests/p6/Test-V4WorkflowContract.ps1",
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-windows full",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "trust-change"
+  ]
+}
