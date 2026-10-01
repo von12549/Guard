@@ -9,8 +9,8 @@ stable API version `1.0`. V4 declares and certifies
 `linux-x64` and `win-x64` only; macOS support is not declared.
 
 The 1.2.0 release matrix is self-contained `linux-x64` and `win-x64`; portable and arm64 assets are not
-published. The latest formal release remains 1.1.6 until the exact 1.2.0 commit completes this pipeline,
-is tagged and is published.
+published. Exact commit `cf8a9cb631e120309568f18ac965540e381f8027` completed this pipeline and
+was published as annotated tag `v4-guards-v1.2.0` on 2026-10-02 (Australia/Sydney).
 
 The certification boundary requires:
 

@@ -1,6 +1,6 @@
 # M1–M5 修复、复检报告与 1.2.0 发布检查清单
 
-Status: `G-REPAIR GO 2026-10-01 — A–E 全部 PASS；1.2.0 发布阶段进行中`
+Status: `COMPLETE 2026-10-02 — G-REPAIR = GO；G-RELEASE = GO；1.2.0 已发布并独立验证`
 
 程序 Plan：[20261001-m1-m5-remediation-and-1-2-0-release](20261001-m1-m5-remediation-and-1-2-0-release.md)。
 
@@ -93,38 +93,40 @@ G-REPAIR 记录：`GO 2026-10-01`。修复提交：
 - [x] R-04 更新 README、1.2.0 release notes、认证文档、受影响指南、Web Companion 文档、TODO 和实施状态。
 - [x] R-05 release notes 列明修复、实际交付、平台/前提、升级恢复和延期项；文档未将未发布版本说成已发布。
 - [x] R-06 固定发行模式、ZIP 名称、RID 与 sidecar 矩阵，验证 builder/installer 命名兼容；只声明获认证的平台。
-- [ ] R-07 版本/文档 PR 正常通过并合入；记录精确 PR head 和 merge/release commit，未跳过检查。
+- [x] R-07 版本/文档 PR #44 正常通过并合入；head `1f79b6ec…`、merge `968f6be9…`；后续认证修复 PR #49 形成最终 release commit `cf8a9cb6…`，未跳过检查。
 
 ## G. 精确发布提交认证与 G-RELEASE
 
-- [ ] R-08 对最终 1.2.0 发布提交重新通过 Linux-complete、Windows-full 与全部 M1–M5 必需 focused suites。
-- [ ] R-09 发布提交通过合同/package/供应链/compatibility/documentation 验证；源码 packageHash 与认证报告一致。
-- [ ] R-10 每个承诺的资产在两处干净 checkout 构建字节一致；同一输入两次打包一致；sidecar 与实际 ZIP 哈希一致。
-- [ ] R-11 每个承诺发行模式/RID 完成 candidate、installation、Stage、Companion 与 recovery 验证，记录 restore commit。
-- [ ] R-12 tag/version `v4-guards-v1.2.0` 未占用；release commit、资产矩阵、认证 run、packageHash 和各 archiveHash 固定。
-- [ ] R-13 `G-RELEASE = GO`：G-REPAIR、R-01–R-12 全部 PASS；发布证据均绑定最终 release commit，未使用过期提交证据。
+- [x] R-08 最终提交 `cf8a9cb6…` 的 Certification run 36870399334：Linux-complete 35 项、Windows-full 36 项，包含 M1–M5 focused suites。
+- [x] R-09 Guardrails run 36870395011 的 contract/Linux/package/Windows/required 全绿；两平台源码 packageHash 均为 `9fccf726…`。
+- [x] R-10 两个 RID 均在两处干净 checkout 构建字节一致，重复打包一致，sidecar 与 ZIP 一致。
+- [x] R-11 Linux/Windows 均完成 candidate、installation、四 Stage、Companion 与 recovery；restore commit `7f965126…`。
+- [x] R-12 发布前复检 tag/Release 未占用；commit、运行、packageHash 和双 RID archiveHash 已固定。
+- [x] R-13 `G-RELEASE = GO`：G-REPAIR、R-01–R-12 全部 PASS，全部发布证据绑定 `cf8a9cb6…`。
 
-G-RELEASE 记录：`NOT RUN`。发布提交：`待填写`。认证/资产索引：`待填写`。
+G-RELEASE 记录：`GO 2026-10-02`。发布提交：
+`cf8a9cb631e120309568f18ac965540e381f8027`。认证/资产索引：
+`docs/plans/20261002-v4-guards-1-2-0-release-report.md`。
 
 ## H. 正式发布、独立验证与最终报告
 
-- [ ] R-14 在精确认证提交创建 annotated tag `v4-guards-v1.2.0`；发布 `V4 Guards 1.2.0`，非 draft、非 prerelease。
-- [ ] R-15 GitHub Release 包含完整承诺资产与每个 SHA-256 sidecar；release body 绑定修复/认证/commit 链接，未覆盖旧 tag/资产。
-- [ ] R-16 在新目录重新下载资产；下载哈希、sidecar、认证 archiveHash 三者一致。
-- [ ] R-17 在独立外部环境安装，版本返回 1.2.0；四个 Stage、实际交付的 M2–M5 smoke 和 Companion 验证通过。
-- [ ] R-18 receipt 验证与 uninstall 通过；没有非预期 Package/Target/宿主环境变化。
-- [ ] R-19 更新发布记录并提供最终中文报告：发布 URL、tag/commit、平台/资产哈希、认证与独立验证、剩余延期范围。
-- [ ] R-20 仅在 R-14–R-19 全部完成后将本程序标记 COMPLETE；发布后缺陷以新版本处理。
+- [x] R-14 annotated tag `v4-guards-v1.2.0` 精确指向 `cf8a9cb6…`；`V4 Guards 1.2.0` 非 draft、非 prerelease。
+- [x] R-15 Release 仅含两个 ZIP 与两个 sidecar，body 绑定 commit/认证/哈希，旧发布不变。
+- [x] R-16 全部资产在新目录重新下载；GitHub digest、本地 SHA-256、sidecar 和 candidate archiveHash 一致。
+- [x] R-17 Windows 10.0.26200 与隔离 Ubuntu 24.04.4 安装返回 1.2.0；四 Stage、M2–M5 五个 focused validators 和 Companion 全部通过。
+- [x] R-18 两平台 receipt 最终均为 `uninstalled`，安装目录消失，Target/Package/宿主无非预期变化。
+- [x] R-19 发布记录与最终中文报告已更新，包含 URL、tag/commit、哈希、认证、独立验证与延期范围。
+- [x] R-20 R-14–R-19 全部完成；本程序标记 `COMPLETE`，发布后缺陷以新版本处理。
 
 ## 延期范围核对（不计为已通过能力）
 
 | 里程碑 | 原有延期项 | 本次复检状态 / 证据 |
 | --- | --- | --- |
-| M1 | 初始化、Target governance adoption、版本选择/回滚、存储 retention | 待复核；原状态 READY / 未执行 |
-| M2 | Target `.guard/` 实际采用、composition selection、CI activation | 待复核；本地 candidate 与采用分开 |
-| M3 | 多项目 dashboard、并行执行、CI/remote activation | 待复核；本地 preview 与启用分开 |
-| M4 | trusted CI reuse、20-sample 基线/30% 目标、Windows cadence | 待复核；local advisory 不计为 trusted |
-| M5 | 完整 Workbench、marketplace/signatures、CODEOWNERS、remote install | 待复核；local foundation 与生态分开 |
+| M1 | 初始化、Target governance adoption、版本选择/回滚、存储 retention | `DEFERRED`；1.2.0 仅发布 local foundation |
+| M2 | Target `.guard/` 实际采用、composition selection、CI activation | `DEFERRED`；本地 candidate 与采用分开 |
+| M3 | 多项目 dashboard、并行执行、CI/remote activation | `DEFERRED`；本地 preview 与启用分开 |
+| M4 | trusted CI reuse、20-sample 基线/30% 目标、Windows cadence | `DEFERRED`；local advisory 不计为 trusted |
+| M5 | 完整 Workbench、marketplace/signatures、CODEOWNERS、remote install | `DEFERRED`；local foundation 与生态分开 |
 
 ## 逐项证据记录模板
 

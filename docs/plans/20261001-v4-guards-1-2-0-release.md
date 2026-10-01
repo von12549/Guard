@@ -1,6 +1,6 @@
 # V4 Guards 1.2.0 — M1–M5 repaired local foundations release（P5–P7）
 
-Status: `P5 RELEASE CANDIDATE — 未发布`
+Status: `COMPLETE 2026-10-02 — G-RELEASE = GO；R1–R5 全部完成`
 
 Formal Plan ID: `20261001-v4-guards-1-2-0-release`。
 
@@ -58,3 +58,12 @@ manifest 和根目录验证内容，不依赖外部 ZIP 文件名。
 sidecar 错误、candidate/recovery 失败、资产矩阵缺失、tag/release 已存在或下载验证失败时停止。
 发布前通过新 reviewed PR 修复并重新认证；已消费授权不复用。发布后不删除、不移动 tag，
 不覆盖资产，缺陷由后续版本修复。
+
+## 6. 完成记录
+
+- release commit：`cf8a9cb631e120309568f18ac965540e381f8027`；
+- Guardrails：[36870395011](https://github.com/von12549/Guard/actions/runs/36870395011)；
+- Certification：[36870399334](https://github.com/von12549/Guard/actions/runs/36870399334)；
+- tag/Release：[`v4-guards-v1.2.0`](https://github.com/von12549/Guard/releases/tag/v4-guards-v1.2.0)；
+- 发布资产重新下载后在 Windows 与隔离 Linux 完成安装、四 Stage、M2–M5、Companion
+  和 verified uninstall；完整结论见 `20261002-v4-guards-1-2-0-release-report.md`。

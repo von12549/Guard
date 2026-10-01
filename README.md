@@ -1,15 +1,15 @@
 # V4 Guards
 
 V4 Guards is a self-contained, profile-driven guard package for inspecting repositories through four
-independently runnable stages: Bootstrap, Analysis, Pre and Post. Source version `1.2.0` is the release
-candidate for the repaired M1–M5 local foundations; earlier releases remain immutable.
+independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.2.0` is the formal release
+for the repaired M1–M5 local foundations; earlier releases remain immutable.
 The stable V4 1.0 command API and local, non-authoritative Web Companion are preserved.
 
-The latest formal release is still **1.1.6**. The 1.2.0 source candidate is not a published release until
-its exact merge commit and fixed RID assets are fully certified, tagged and published.
-Local success, a promotion candidate or merged source is not consumer adoption, trusted CI enablement,
-remote activation or a published release. See the
-[active remediation and conditional-release program](docs/plans/20261001-m1-m5-remediation-and-1-2-0-release.md).
+The latest formal release is **1.2.0**, published from exact commit
+`cf8a9cb631e120309568f18ac965540e381f8027` as annotated tag `v4-guards-v1.2.0`.
+Local success or a promotion candidate is still not consumer adoption, trusted CI enablement or remote
+activation. See the [completed remediation and release program](docs/plans/20261001-m1-m5-remediation-and-1-2-0-release.md)
+and [final release report](docs/plans/20261002-v4-guards-1-2-0-release-report.md).
 
 V4 Guards is developed in this standalone repository (`von12549/Guard`). It was incubated in the IFX
 repository, and its complete history was carried over; see the
@@ -48,7 +48,7 @@ untouched.
 
 ## Distribution and prerequisites
 
-The 1.2.0 candidate uses two self-contained asset names,
+The 1.2.0 release uses two self-contained asset names,
 `v4-guards-1.2.0-linux-x64.zip` and `v4-guards-1.2.0-win-x64.zip`. Each contains three hash-bound
 payloads below the common root `v4-guards-1.2.0/`:
 
@@ -56,7 +56,7 @@ payloads below the common root `v4-guards-1.2.0/`:
 - `host/`: the `v4-guards` .NET Host; and
 - `companion/`: the offline Web Companion with embedded UI assets.
 
-The candidate release targets are `linux-x64` and `win-x64`; portable and arm64 assets are not published.
+The certified release targets are `linux-x64` and `win-x64`; portable and arm64 assets are not published.
 The self-contained Host/Companion need PowerShell 7.4 or newer but no shared .NET runtime; selected modules
 may add declared prerequisites. Installation and verified uninstall use
 `core/distribution/Install-V4Distribution.ps1` plus an external receipt.
@@ -119,8 +119,8 @@ Use [commands.md](docs/commands.md) for stable syntax and [queries.md](docs/quer
 experimental read-only query surface. A Stage can run directly; dependency execution occurs only when
 explicitly requested and is reported in order.
 
-The `profile` and `application` entries are experimental M2/M3 surfaces in the 1.2.0 candidate, not
-commands shipped by the latest formal 1.1.6 asset. Use the exact Profile syntax in
+The `profile` and `application` entries are experimental M2/M3 surfaces shipped in 1.2.0. Use the exact
+Profile syntax in
 [Profile discovery and reviewed promotion](docs/profile-authority.md) and the typed preview syntax in
 [Local application Workbench](docs/application-workbench.md). Neither surface applies Target changes,
 selects a composition or activates CI/remote policy.
@@ -139,7 +139,7 @@ It writes candidates only below EvidenceRoot and never applies a Target or remot
 
 Profiles are declarative configuration. They select registered, hash-bound modules and may not provide
 arbitrary executable paths or shell commands. The package ships `default` and `synthetic_profile`;
-`ifx_profile` is not included in the 1.2.0 candidate or any earlier release. Module capabilities declare readable/writable roots, permitted
+`ifx_profile` is not included in the 1.2.0 release or any earlier release. Module capabilities declare readable/writable roots, permitted
 processes, network use and timeouts. See [configuration.md](docs/configuration.md).
 
 Version 1.1.4 defines an optional `workspaceEvidence` Profile capability.
