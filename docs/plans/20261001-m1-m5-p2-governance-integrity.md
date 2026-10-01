@@ -1,6 +1,6 @@
 # 修复 Target Trust 与 Plan pair 完整性
 
-Status: `IMPLEMENTING`
+Status: `IMPLEMENTED AND LOCALLY VALIDATED — stacked PR/CI pending`
 
 Formal Plan ID: `20261001-m1-m5-p2-governance-integrity`.
 

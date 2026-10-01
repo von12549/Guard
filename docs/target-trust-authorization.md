@@ -1,5 +1,8 @@
 # Target-project trust-change authorization
 
+This experimental M5 capability is available on `main` after 1.1.6; it is not part of the 1.1.6 asset
+and does not report remote enforcement.
+
 M5 implements V4-AD-044 as an experimental consumer-neutral Host capability. A Target's trusted base
 policy declares its protected paths and authorization directory. The consuming change is validated by
 the previously trusted Host against policy and authorization bytes read from the exact base Git object.

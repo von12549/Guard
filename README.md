@@ -7,6 +7,12 @@ makes independent Host and Web Companion builds of one commit produce the same a
 remain immutable.
 The stable V4 1.0 command API and local, non-authoritative Web Companion are preserved.
 
+The latest formal release is **1.1.6**. M1–M5 foundations merged to `main` after that release and are
+source/main-only until a later release is fully repaired, cross-platform certified and published.
+Local success, a promotion candidate or merged source is not consumer adoption, trusted CI enablement,
+remote activation or a published release. See the
+[active remediation and conditional-release program](docs/plans/20261001-m1-m5-remediation-and-1-2-0-release.md).
+
 V4 Guards is developed in this standalone repository (`von12549/Guard`). It was incubated in the IFX
 repository, and its complete history was carried over; see the
 [migration records](docs/migration/v4-todo-008/README.md). The product has no runtime dependency on
@@ -100,14 +106,22 @@ v4-guards contract validate ...
 v4-guards stage run --stage <bootstrap|analysis|pre|post> ...
 v4-guards query <project|profiles|doctor|runs|evidence|plans> ...
 v4-guards plan <validate|compose> ...
-v4-guards plan <scaffold|finalize> ...
+v4-guards plan <scaffold|finalize|verify-pair> ...
 v4-guards target-trust <authorize|validate> ...
+v4-guards profile <discover|draft|validate|promote> ...
+v4-guards application preview --operation <setup|protection|authorities|lifecycle> ...
 v4-guards reset <project|factory> --mode <preview|apply> ...
 ```
 
 Use [commands.md](docs/commands.md) for stable syntax and [queries.md](docs/queries.md) for the
 experimental read-only query surface. A Stage can run directly; dependency execution occurs only when
 explicitly requested and is reported in order.
+
+The `profile` and `application` entries are experimental main-only M2/M3 surfaces, not commands shipped
+by the 1.1.6 asset. Use the exact Profile syntax in
+[Profile discovery and reviewed promotion](docs/profile-authority.md) and the typed preview syntax in
+[Local application Workbench](docs/application-workbench.md). Neither surface applies Target changes,
+selects a composition or activates CI/remote policy.
 
 The experimental M4 semantic-contract v2 authority adds typed readiness/analysis providers, fail-closed
 gate dependencies, timing and explicitly local-advisory Evidence diagnostics without changing the frozen

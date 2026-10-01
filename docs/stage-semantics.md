@@ -1,5 +1,8 @@
 # Versioned Stage semantics and local Evidence diagnostics
 
+The M4 v2 semantics described here are available on `main` after the 1.1.6 release; 1.1.6 assets do not
+contain them. Local advisory reuse remains non-authoritative and is not trusted CI evidence.
+
 M4 adds an experimental semantic-contract version 2 beside the frozen v1 Stage authorities. The stable
 four wire names and `stage run` syntax do not change. Profiles under `profiles/catalog/` remain v1 and
 are reported and executed as legacy/untyped; the opt-in example authority is
