@@ -1,0 +1,23 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-v4-guards-1-2-0-rid-certification-record",
+  "planId": "20261001-v4-guards-1-2-0-rid-certification-fix",
+  "reason": "The 1.2.0 release gate proved that self-contained archives correctly have a RID-specific package identity after adding runtime-manifest.json, while the old candidate certifier incorrectly required that identity to equal the cross-platform source packageHash. The authorized change reconstructs the RID identity from certified source authority, validates the complete archive, and atomically adds a positive/negative approved regression test with its CI contract binding.",
+  "entries": [
+    {
+      "path": "core/certification/Invoke-V4V1Certification.ps1",
+      "baseSha256": "c617f6c95b2b846aa6487353f6b4e0e972584139e76e9db8f9f9289c63cc2543",
+      "headSha256": "1014fa73677d8e860f3167c1cf25d87054c45d58c2abd9c12b857da65f600cc8"
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "baseSha256": "9fcc0d3cde750581884fe204347d49872b30a1dfc64001f30932d2e8512ffaf6",
+      "headSha256": "98b6de508a56ae9a9cfc47252baead65e60b0c3d3bfb40b9db8f7dd0644c4674"
+    }
+  ],
+  "acceptedBy": {
+    "kind": "human-review",
+    "authority": "operator (von12549) — M1–M5 remediation and V4 Guards 1.2.0 release explicitly approved 2026-10-01",
+    "candidateHostVerdictAllowed": false
+  }
+}

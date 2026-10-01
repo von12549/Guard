@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-v4-guards-1-2-0-rid-certification-authorization",
+  "title": "授权 V4 Guards 1.2.0 RID 候选认证修复",
+  "goal": "为认证器及绑定 RID 身份回归测试精确哈希的 CI contract 增加一次性、base-held 精确授权。",
+  "acceptanceCriteria": [
+    "受信任 base runner 将本 PR 判定为 authorization-added，且 required checks 全部通过。",
+    "授权精确绑定认证器与 CI contract 的 base/head SHA-256；CI contract 的目标字节绑定全新回归测试 SHA-256。",
+    "CI contract 只新增该回归测试及其精确哈希，不改变上下文、路径或既有 approved tests。",
+    "记录指向独立 consuming Plan 20261001-v4-guards-1-2-0-rid-certification-fix，并禁止 candidate Host 自我裁决。"
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-v4-guards-1-2-0-rid-certification-authorization.md",
+    "docs/plans/20261001-v4-guards-1-2-0-rid-certification-authorization.plan.json",
+    "docs/plans/authorizations/20261001-v4-guards-1-2-0-rid-certification-record.json"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "任一目标字节在 consuming PR 中变化都会使授权失配并失败关闭。"
+  ],
+  "decisions": [
+    "认证器的 RID 身份语义变更必须由 base-held 记录授权。",
+    "全新测试在 base 中尚非受保护路径，不直接列入授权记录；其精确哈希由受保护 CI contract 的目标字节绑定。"
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "authorization"
+  ]
+}
