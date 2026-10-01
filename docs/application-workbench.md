@@ -4,6 +4,9 @@ The M3 Workbench expands the existing separately packaged Web Companion. It rema
 presentation and orchestration surface over the V4 Host; it is not a second setup engine, policy judge
 or remote control plane.
 
+M3 is present on `main` and is not in the latest formal 1.1.6 release. Preview or confirmation evidence
+does not mean Target adoption, CI activation, remote enablement or publication.
+
 ## Host operation
 
 The experimental command is:

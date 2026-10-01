@@ -1,6 +1,8 @@
 # V4 Web Companion
 
-The Web Companion is a local presentation and manual-control integration over the released V4 Host.
+The Web Companion is a local presentation and manual-control integration over the V4 Host. The latest
+formal asset is 1.1.6; the M3 application Workbench described below was merged later and remains
+main-only until a subsequent release is certified and published.
 It is not a guard engine, policy authority or verdict producer.
 
 Published V4 1.1.0 packages the completed P9 one-active-Target workspace, evidence desk and Plan Center

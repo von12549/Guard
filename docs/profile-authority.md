@@ -4,6 +4,8 @@ The experimental M2 Profile authority surface is defined by
 `core/profile/contracts/profile-authority-contract.json`. It deliberately sits outside the stable `1.0` CLI
 compatibility baseline while its contracts are exercised and reviewed.
 
+This surface is present on `main` after M2 and is not contained in the latest formal 1.1.6 release.
+
 ## Operations
 
 | Operation | Purpose | Writes |
@@ -32,6 +34,12 @@ own recommendation.
 portable Profile review and `promotion-receipt.json`. The bundle is compatible with the existing
 `Compose-V4Extension.ps1` verifier/composer when a separately authorized base installation, archive,
 output sibling and receipt are supplied. Promotion does not invoke that composer.
+
+The promotion bundle carries the candidate Profile file only: its manifest intentionally has
+`modules: []`. Module selections in that Profile refer to hash-bound Modules already present in the
+separately verified base installation; promotion does not copy, download or authorize Module binaries.
+Validation/review binds those installed Module identities and capability ceilings. A candidate that
+needs new Module bytes must use the separate Module lifecycle and extension review path.
 
 Applying portable sources to Target-owned `.guard/` requires the target trust authorization flow.
 Creating or selecting an immutable composition, rollback selection, workflow/ruleset activation,

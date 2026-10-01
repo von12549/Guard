@@ -1,0 +1,44 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-m5-p3-release-boundary-docs",
+  "title": "校正文档中的 main、release、candidate 与采用边界",
+  "goal": "关闭 F-05：清楚标记 1.1.6 与 main-only M1–M5 能力，补齐 M2/M3 入口，并使 promotion bundle、TODO 和修复阶段状态与实现一致。",
+  "acceptanceCriteria": [
+    "README 明确 1.1.6 是最新正式 release，M1–M5 合并源码在新版本发布前仍为 main-only。",
+    "README 提供 M2 Profile 与 M3 application 入口并链接精确指南。",
+    "Profile promotion 文档明确 bundle 只携带 Profile、modules 为空且依赖已验证 base Modules。",
+    "M3/M4/M5、Web Companion、TODO 和 P1/P2 状态不把 candidate/local evidence 描述为 adoption、trusted CI、remote activation 或 release。"
+  ],
+  "plannedPaths": [
+    "README.md",
+    "docs/application-workbench.md",
+    "docs/module-lifecycle.md",
+    "docs/plan-governance.md",
+    "docs/plans/20261001-m1-m5-p1-module-boundaries.md",
+    "docs/plans/20261001-m1-m5-p2-governance-integrity.md",
+    "docs/plans/20261001-m1-m5-p3-release-boundary-docs.md",
+    "docs/plans/20261001-m1-m5-p3-release-boundary-docs.plan.json",
+    "docs/plans/product/TODO.md",
+    "docs/profile-authority.md",
+    "docs/stage-semantics.md",
+    "docs/target-trust-authorization.md",
+    "integrations/web/README.md"
+  ],
+  "areas": ["GuardDocs", "ProfileAuthority", "ApplicationWorkbench", "StageSemantics", "PlanGovernance", "ModuleLifecycle"],
+  "risks": [
+    "把 main 合并误写为正式发布或消费者采用会造成错误的安全与支持承诺。",
+    "历史 release 文档必须保持当时事实，不能为当前 main 状态重写。"
+  ],
+  "decisions": [
+    "历史 1.1.x release notes 不修改；当前 README 和功能指南新增显式 release boundary。",
+    "M2 promotion bundle 的空 modules 列表是有意边界，不补拷贝 Module bytes。",
+    "P1/P2 只标记本地验证与堆叠 PR/CI pending，不提前宣称合入。"
+  ],
+  "validationCommands": [
+    "pwsh -NoProfile -File tests/p7/Test-V4Documentation.ps1",
+    "pwsh -NoProfile -File core/runtime/Test-V4Package.ps1 -PackageRoot .",
+    "git diff --check"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

@@ -1,6 +1,6 @@
 # 修复候选 Module 执行与链接路径边界
 
-Status: `IMPLEMENTING`
+Status: `IMPLEMENTED AND LOCALLY VALIDATED — stacked PR/CI pending`
 
 Formal Plan ID: `20261001-m1-m5-p1-module-boundaries`.
 
