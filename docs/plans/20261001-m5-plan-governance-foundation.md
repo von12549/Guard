@@ -1,6 +1,6 @@
 # M5 Plan governance foundation
 
-Status: `IMPLEMENTATION PLAN — READY 2026-10-01`
+Status: `IMPLEMENTATION PLAN — IMPLEMENTED 2026-10-01`
 
 Formal Plan ID: `20261001-m5-plan-governance-foundation`.
 
@@ -26,4 +26,3 @@ Plan schemas or stable CLI surface.
 No generated output is written into TargetRoot or becomes authority automatically. No model or imported
 text can approve a pair. Revert the isolated contracts/catalog and Plan runtime changes; discard
 EvidenceRoot candidates.
-

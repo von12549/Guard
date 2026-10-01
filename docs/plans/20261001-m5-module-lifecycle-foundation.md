@@ -1,6 +1,6 @@
 # M5 immutable local Module lifecycle foundation
 
-Status: `IMPLEMENTATION PLAN — READY 2026-10-01`
+Status: `IMPLEMENTATION PLAN — IMPLEMENTED 2026-10-01`
 
 Formal Plan ID: `20261001-m5-module-lifecycle-foundation`.
 
@@ -24,4 +24,3 @@ extension candidates while reusing the existing reviewed composition and verific
 No operation downloads, publishes, remotely installs, selects a composition or edits a built-in
 Module. Authentic bytes do not establish Evidence producer trust. Revert the lifecycle script/schema
 and discard StateRoot/EvidenceRoot candidates.
-

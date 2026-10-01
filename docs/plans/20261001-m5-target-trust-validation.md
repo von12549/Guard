@@ -1,6 +1,6 @@
 # M5 target trust authorization validation
 
-Status: `IMPLEMENTATION PLAN — READY 2026-10-01`
+Status: `IMPLEMENTATION PLAN — IMPLEMENTED 2026-10-01`
 
 Formal Plan ID: `20261001-m5-target-trust-validation`.
 
@@ -23,4 +23,3 @@ application, pull-request delivery and workflow/ruleset activation separate.
 The Host neither adopts the candidate authorization nor applies the consuming diff. It does not create
 a PR, modify a workflow/ruleset or query remote policy. Revert the runtime and schemas; discard local
 candidate and validation evidence.
-

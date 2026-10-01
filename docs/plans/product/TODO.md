@@ -302,12 +302,19 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   any protected runner/classifier/approved-test changes remain separately planned. Managed local
   attestation remains deferred.
 
-- [ ] **V4-TODO-023 — Target-project trust-change authorization implementation**
+- [x] **V4-TODO-023 — Target-project trust-change authorization implementation — LOCAL IMPLEMENTATION COMPLETE (2026-10-01)**
 
   Implement V4-AD-044's public schemas, base-policy protected-set declaration, authorization-record
   creation/validation/consumption, CLI/service operations, judge identity and consumer-neutral fixtures.
   Require missing, partial, candidate-only, reused, hash-mismatch and self-authorization negatives.
   Target application, pull-request delivery and workflow/ruleset activation remain separate operations.
+
+  M5 local implementation completed under `20261001-m5-implementation-program`. Isolated public
+  schemas define the base policy and single-use record. The experimental Host prepares EvidenceRoot
+  authorization candidates and validates a separate consuming trust change from base-held bytes with
+  exact entry hashes, record deletion, Plan-set boundary checks and judge identity. Consumer-neutral
+  focused fixtures cover the required negative matrix. Target apply, PR delivery, workflow/ruleset
+  activation, remote enforcement and external governance remain unperformed.
 
 - [ ] **V4-TODO-016 — Code-owner review for workflow and authorization changes**
 
@@ -336,7 +343,7 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   8 minutes) are the first data points. The first PR-path Windows smoke that passed (PR #10, run
   36359282105) took 4 minutes 44 seconds.
 
-- [ ] **V4-TODO-013 — Plan-set limits and parallel agent policy**
+- [x] **V4-TODO-013 — Plan-set limits and concurrent authorship — COMPLETE (2026-10-01)**
 
   V4-AD-045 accepts initial limits and generalizes “parallel agent” to concurrent authorship. Implement
   and certify: 16 members, 1 MiB per Plan, 8 MiB aggregate input, dependency depth 8, 4,096 unique paths,
@@ -344,6 +351,12 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   ceiling. Authors may work concurrently, but every finalized changed path has exactly one owner and
   every member is reconciled to the exact base/head. Keep this item open until schemas/runtime/negative
   tests and guidance enforce the limits. Authorization and activation boundaries remain separate.
+
+  Implemented under `20261001-m5-implementation-program`. The Host enforces every accepted resource
+  ceiling from a hash-bound versioned governance catalog and retains exact exclusive ownership, graph,
+  identity, union and forbidden-boundary checks. Focused negatives cover member, per-Plan, aggregate,
+  depth, path, command and combined entry limits; the certification time ceiling is policy-bound and
+  enforced by the Host stopwatch.
 
 - [ ] **V4-TODO-024 — Plan-pair scaffold, analysis, finalize and Workbench**
 
@@ -353,6 +366,12 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   untrusted suggestions; Guard code owns schema, path, boundary, root-mutability and policy checks. The
   UI cannot approve its own trust boundary or silently add changed paths.
 
+  M5 local foundation completed on 2026-10-01. The Host now creates schema-versioned EvidenceRoot
+  proposals and finalizes deterministic JSON/Markdown candidates only after proposal-hash confirmation,
+  zero unresolved questions and exact Host-computed base/head reconciliation. Source, generator and
+  policy identities are recorded. Keep this item open for a separately planned Workbench projection and
+  any richer analysis/editor flow; the current UI remains read-only and cannot write or approve Plans.
+
 - [ ] **V4-TODO-025 — Agent-independent local Module lifecycle**
 
   Implement V4-AD-047's immutable list/inspect/graph, scaffold, validate, test, diff, deterministic pack,
@@ -360,6 +379,12 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   schema-driven metadata/config editing may prepare candidates and run fixtures. Adapter source remains
   repository/IDE work, extension updates create new compositions and built-in changes require a Guard
   release. Marketplace work remains V4-TODO-009.
+
+  M5 local foundation completed on 2026-10-01. The deterministic PowerShell lifecycle implements the
+  eleven operations, keeps built-ins immutable, writes candidates only below StateRoot/EvidenceRoot,
+  executes mutation-checked fixtures, produces byte-identical packs and prepares unresolved reviews.
+  Compose/verify delegate to existing reviewed authorities. Keep this item open for the separately
+  planned read-only Workbench inventory and later schema-driven metadata/configuration wizard.
 
 - [x] **V4-TODO-017 — Long paths in the runner's post-test `git status` (checklist O8) — COMPLETE (2026-09-28), V4 Guards 1.1.6**
 

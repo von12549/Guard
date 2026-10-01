@@ -1,6 +1,6 @@
 # M5 implementation program — local governance and immutable lifecycle
 
-Status: `IMPLEMENTATION PROGRAM — READY 2026-10-01`
+Status: `IMPLEMENTATION PROGRAM — IMPLEMENTED LOCAL FOUNDATION 2026-10-01`
 
 Formal Plan ID: `20261001-m5-implementation-program`.
 
@@ -47,3 +47,11 @@ Revert Module lifecycle, target authorization and Plan governance changes in rev
 StateRoot/EvidenceRoot candidates and test artifacts are disposable and grant no Target, installation,
 CI, release or remote authority.
 
+## Implementation result
+
+All three local checkpoints are implemented. Plan composition enforces the accepted ceilings and the
+Host renders exact-diff pair candidates. Target trust validation uses base-held bytes and covers the
+required negative matrix. The Module lifecycle provides all eleven local operations and deterministic
+packaging while delegating compose/verify to existing authorities. The Workbench UI is unchanged, so
+browser QA is not applicable. Plan-editor UI, Module inventory UI, Target application, remote activation,
+marketplace/signatures, release publication and merge remain intentionally unperformed.

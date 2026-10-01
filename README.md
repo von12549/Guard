@@ -100,6 +100,8 @@ v4-guards contract validate ...
 v4-guards stage run --stage <bootstrap|analysis|pre|post> ...
 v4-guards query <project|profiles|doctor|runs|evidence|plans> ...
 v4-guards plan <validate|compose> ...
+v4-guards plan <scaffold|finalize> ...
+v4-guards target-trust <authorize|validate> ...
 v4-guards reset <project|factory> --mode <preview|apply> ...
 ```
 
@@ -110,6 +112,12 @@ explicitly requested and is reported in order.
 The experimental M4 semantic-contract v2 authority adds typed readiness/analysis providers, fail-closed
 gate dependencies, timing and explicitly local-advisory Evidence diagnostics without changing the frozen
 v1 command contract. See [versioned Stage semantics](docs/stage-semantics.md).
+
+The experimental M5 local-governance surface enforces bounded Plan sets, creates non-authoritative Plan
+proposals and exact-diff finalized pair candidates, and validates base-held target trust authorizations.
+It writes candidates only below EvidenceRoot and never applies a Target or remote change. See
+[Plan governance](docs/plan-governance.md) and
+[target trust authorization](docs/target-trust-authorization.md).
 
 ## Profiles and modules
 
@@ -123,6 +131,12 @@ When present, the Host performs one bounded, ordinal and link-safe TargetRoot pr
 records its hash in `authorityHashes`, and supplies its path/hash/target-commit binding only to modules
 whose reviewed `readRoots` includes `EvidenceRoot`. Callers cannot inject this binding through the CLI.
 Profiles that omit the property keep the existing execution path.
+
+`core/modules/Invoke-V4ModuleLifecycle.ps1` provides the experimental M5 local Module lifecycle:
+inventory, inspect, graph, metadata scaffold, validate, fixture test, diff, deterministic pack, review
+preparation, compose and verify. Built-ins remain immutable, adapter source remains repository/IDE work,
+and marketplace, signature, publication, selection and remote installation stay unavailable. See
+[Module lifecycle](docs/module-lifecycle.md).
 
 ## Reset safety
 
@@ -178,6 +192,9 @@ consumes. Every verdict records the hashes of the components that produced it. S
 - [Implementation roadmap](docs/plans/product/01-v4-self-contained-guard-plugin.md)
 - [Runtime architecture](docs/plans/product/02-runtime-architecture.md)
 - [Deferred work](docs/plans/product/TODO.md)
+- [Plan governance](docs/plan-governance.md)
+- [Target trust authorization](docs/target-trust-authorization.md)
+- [Module lifecycle](docs/module-lifecycle.md)
 - [Command reference](docs/commands.md)
 - [Configuration reference](docs/configuration.md)
 - [Query contracts](docs/queries.md)
