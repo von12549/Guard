@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-v4-guards-1-2-0-fixture-authorization",
+  "title": "授权 V4 Guards 1.2.0 版本无关负例修复（P5 R0.1）",
+  "goal": "为 1.2.0 版本 PR 增加一次性、base-held 的 Extension Composition 负例修复授权记录。",
+  "acceptanceCriteria": [
+    "受信任 base runner 将本 PR 判定为 authorization-added，且 required checks 全部通过。",
+    "授权只绑定 tests/p10/Test-V4ExtensionComposition.ps1 从 b99f85ec… 到 3d375365… 的精确字节变更。",
+    "负例由固定 1.2.0 改为当前基准主版本加一，继续在 Bundle/review/base identity mismatch 边界失败。",
+    "记录指向独立的 consuming Plan 20261001-v4-guards-1-2-0-fixture-fix，并禁止 candidate Host 自我裁决。"
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-v4-guards-1-2-0-fixture-authorization.md",
+    "docs/plans/20261001-v4-guards-1-2-0-fixture-authorization.plan.json",
+    "docs/plans/authorizations/20261001-v4-guards-1-2-0-fixture-record.json"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "授权哈希若与最终 candidate 字节不同，consuming PR 必须失败关闭并重新授权。"
+  ],
+  "decisions": [
+    "这是两 PR 流程的 authorization 步骤，不修改测试、版本、baseline 或发布状态。",
+    "用当前基准主版本加一构造不兼容负例，避免未来产品版本再次与固定测试值碰撞。"
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "authorization"
+  ]
+}
