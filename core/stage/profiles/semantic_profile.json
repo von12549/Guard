@@ -1,0 +1,21 @@
+{
+  "formatVersion": 2,
+  "id": "semantic_profile",
+  "version": "2.0.0",
+  "semanticContractVersion": 2,
+  "projectIdentity": { "id": "semantic", "relativeRoots": ["."] },
+  "workspaceEvidence": {
+    "relativeRoots": ["."],
+    "extensions": [".txt", ".cs", ".csproj"],
+    "excludedDirectoryNames": ["bin", "obj", ".git", "artifacts"],
+    "maximumFiles": 1000,
+    "maximumFileBytes": 1048576
+  },
+  "evidencePolicy": {
+    "maximumDependencyAgeSeconds": 600,
+    "workspaceState": "exact-including-untracked",
+    "localProducerClass": "local-advisory"
+  },
+  "providers": { "bootstrap": "guard-readiness", "analysis": "workspace-analysis" },
+  "gates": { "pre": "host-pre-gate", "post": "host-post-gate" }
+}

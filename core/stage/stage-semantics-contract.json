@@ -1,0 +1,23 @@
+{
+  "formatVersion": 2,
+  "semanticContractVersion": 2,
+  "schemas": {
+    "catalog": { "path": "core/stage/contracts/stage-semantics-contract.schema.json", "sha256": "a5fbbbb2bee590a606950c898a6c80d24eeb42fbd8f3fc30a9779e09c9f7a0d5" },
+    "profile": { "path": "core/stage/contracts/semantic-profile.schema.json", "sha256": "1963f9aa6c8dac5f614e295cfeaf9bd5c0a9c820bfb1e7d590a3888ec448c6a9" },
+    "provider": { "path": "core/stage/contracts/built-in-provider.schema.json", "sha256": "bd0b9968e63f4ef38d684aa35162293a4f1dae4af892e22b27f96d5cfe73dd9b" },
+    "result": { "path": "core/stage/contracts/stage-result.schema.json", "sha256": "c6fe3a869e66c601a73e14e1b9b016fed0ce7f5435df609b546a0930898ec155" }
+  },
+  "profiles": [
+    { "id": "semantic_profile", "path": "core/stage/profiles/semantic_profile.json", "sha256": "fe025ed521b0c843fd1710911ea17222e90ac52855a46eac2c12d9499f51255b" }
+  ],
+  "providers": [
+    { "id": "guard-readiness", "path": "core/stage/providers/guard-readiness.provider.json", "sha256": "25b44cbb970498d1c0cfd989ab535523fd9c0f6cb737b10846c055cbbd49690f" },
+    { "id": "workspace-analysis", "path": "core/stage/providers/workspace-analysis.provider.json", "sha256": "cb3f35e5901c46b91f77206be94b018a7e57bfc481d223b78aa250b2b7dc5e1b" }
+  ],
+  "stageRoles": {
+    "bootstrap": { "role": "readiness", "resultKind": "readiness-provider", "successOutcome": "ready", "failureOutcome": "not-ready" },
+    "analysis": { "role": "analysis", "resultKind": "analysis-provider", "successOutcome": "complete", "failureOutcome": "incomplete" },
+    "pre": { "role": "pre-gate", "resultKind": "pre-gate", "successOutcome": "pass", "failureOutcome": "fail" },
+    "post": { "role": "post-gate", "resultKind": "post-gate", "successOutcome": "pass", "failureOutcome": "fail" }
+  }
+}

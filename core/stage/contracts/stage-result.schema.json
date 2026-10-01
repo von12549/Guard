@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://guard.local/v4/stage/stage-result-v2.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "runId", "producedAt", "stage", "status", "exitCategory", "executedStages", "profile", "roots", "authorityHashes", "moduleResults", "findings", "coverage", "semanticContractVersion", "stageRole", "resultKind", "outcome", "stageExecutions", "timings", "evidenceTrust"],
+  "properties": {
+    "formatVersion": { "const": 2 },
+    "runId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+    "producedAt": { "type": "string", "format": "date-time" },
+    "stage": { "enum": ["bootstrap", "analysis", "pre", "post"] },
+    "status": { "enum": ["pass", "fail", "error"] },
+    "exitCategory": { "enum": ["success", "integrity-failure", "prerequisite-missing", "internal-error"] },
+    "executedStages": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["bootstrap", "analysis", "pre", "post"] } },
+    "profile": { "$ref": "#/definitions/profile" },
+    "roots": { "$ref": "#/definitions/roots" },
+    "authorityHashes": { "type": "object", "minProperties": 1, "additionalProperties": { "type": "string", "pattern": "^[a-f0-9]{64}$" } },
+    "moduleResults": { "type": "array", "items": { "$ref": "#/definitions/moduleResult" } },
+    "findings": { "type": "array", "items": { "$ref": "#/definitions/finding" } },
+    "coverage": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/coverage" } },
+    "semanticContractVersion": { "const": 2 },
+    "stageRole": { "enum": ["readiness", "analysis", "pre-gate", "post-gate"] },
+    "resultKind": { "enum": ["readiness-provider", "analysis-provider", "pre-gate", "post-gate"] },
+    "outcome": { "enum": ["ready", "not-ready", "complete", "incomplete", "pass", "fail"] },
+    "stageExecutions": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/stageExecution" } },
+    "timings": {
+      "type": "object", "additionalProperties": false, "required": ["totalMilliseconds", "stages", "modules"],
+      "properties": {
+        "totalMilliseconds": { "type": "number", "minimum": 0 },
+        "stages": { "type": "array", "items": { "$ref": "#/definitions/stageTiming" } },
+        "modules": { "type": "array", "items": { "$ref": "#/definitions/moduleTiming" } }
+      }
+    },
+    "evidenceTrust": {
+      "type": "object", "additionalProperties": false,
+      "required": ["producerClass", "authoritative", "contentIdentitySha256", "contentIdentity", "dependencies"],
+      "properties": {
+        "producerClass": { "const": "local-advisory" },
+        "authoritative": { "const": false },
+        "contentIdentitySha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "contentIdentity": { "$ref": "#/definitions/contentIdentity" },
+        "dependencies": { "type": "array", "items": { "$ref": "#/definitions/dependency" } }
+      }
+    }
+  },
+  "definitions": {
+    "profile": { "type": "object", "additionalProperties": false, "required": ["id", "version", "sha256"], "properties": { "id": { "type": "string" }, "version": { "type": "string" }, "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } } },
+    "roots": { "type": "object", "additionalProperties": false, "required": ["packageRoot", "targetRoot", "stateRoot", "evidenceRoot"], "properties": { "packageRoot": { "type": "string" }, "targetRoot": { "type": "string" }, "stateRoot": { "type": "string" }, "evidenceRoot": { "type": "string" } } },
+    "moduleResult": { "type": "object", "additionalProperties": false, "required": ["moduleId", "status", "evidencePath"], "properties": { "moduleId": { "type": "string" }, "status": { "enum": ["pass", "fail", "error", "skipped"] }, "evidencePath": { "type": "string" } } },
+    "finding": { "type": "object", "additionalProperties": false, "required": ["ruleId", "subject", "evidenceKind", "detectorId", "severity"], "properties": { "ruleId": { "type": "string" }, "subject": { "type": "string" }, "evidenceKind": { "type": "string" }, "detectorId": { "type": "string" }, "severity": { "enum": ["advisory", "blocking"] } } },
+    "coverage": { "type": "object", "additionalProperties": false, "required": ["claimId", "matched", "minimum"], "properties": { "claimId": { "type": "string" }, "matched": { "type": "integer", "minimum": 0 }, "minimum": { "type": "integer", "minimum": 1 } } },
+    "stageExecution": {
+      "type": "object", "additionalProperties": false,
+      "required": ["stage", "role", "resultKind", "outcome", "source", "runId", "evidenceSha256", "elapsedMilliseconds"],
+      "properties": {
+        "stage": { "enum": ["bootstrap", "analysis", "pre", "post"] },
+        "role": { "enum": ["readiness", "analysis", "pre-gate", "post-gate"] },
+        "resultKind": { "enum": ["readiness-provider", "analysis-provider", "pre-gate", "post-gate"] },
+        "outcome": { "enum": ["ready", "not-ready", "complete", "incomplete", "pass", "fail"] },
+        "source": { "enum": ["executed", "reused"] },
+        "runId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+        "evidenceSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "elapsedMilliseconds": { "type": "number", "minimum": 0 }
+      }
+    },
+    "stageTiming": { "type": "object", "additionalProperties": false, "required": ["stage", "source", "elapsedMilliseconds"], "properties": { "stage": { "enum": ["bootstrap", "analysis", "pre", "post"] }, "source": { "enum": ["executed", "reused"] }, "elapsedMilliseconds": { "type": "number", "minimum": 0 } } },
+    "moduleTiming": { "type": "object", "additionalProperties": false, "required": ["stage", "moduleId", "source", "elapsedMilliseconds"], "properties": { "stage": { "enum": ["bootstrap", "analysis", "pre", "post"] }, "moduleId": { "type": "string" }, "source": { "enum": ["executed", "reused"] }, "elapsedMilliseconds": { "type": "number", "minimum": 0 } } },
+    "contentIdentity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["targetCommit", "workspaceTreeSha256", "workspaceStateSha256", "packageHash", "profileHash", "providerCatalogHash", "platform", "runtimeVersion", "semanticContractVersion"],
+      "properties": {
+        "targetCommit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "workspaceTreeSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "workspaceStateSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "packageHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "profileHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "providerCatalogHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "platform": { "type": "string" },
+        "runtimeVersion": { "type": "string" },
+        "semanticContractVersion": { "const": 2 }
+      }
+    },
+    "dependency": {
+      "type": "object", "additionalProperties": false,
+      "required": ["stage", "requiredResultKind", "source", "runId", "evidenceSha256", "producedAt", "ageSeconds", "fresh", "contentMatch", "producerClass", "authoritative", "decision"],
+      "properties": {
+        "stage": { "enum": ["bootstrap", "analysis"] },
+        "requiredResultKind": { "enum": ["readiness-provider", "analysis-provider"] },
+        "source": { "enum": ["executed", "reused"] },
+        "runId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+        "evidenceSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "producedAt": { "type": "string", "format": "date-time" },
+        "ageSeconds": { "type": "number", "minimum": 0 },
+        "fresh": { "type": "boolean" },
+        "contentMatch": { "type": "boolean" },
+        "producerClass": { "const": "local-advisory" },
+        "authoritative": { "const": false },
+        "decision": { "enum": ["executed-missing", "executed-stale", "executed-mismatch", "reused-exact-local-advisory"] }
+      }
+    }
+  }
+}

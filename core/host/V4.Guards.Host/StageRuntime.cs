@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace V4.Guards.Host;
 
@@ -18,6 +19,8 @@ internal static class StageRuntime
 
     public static int Execute(string[] args)
     {
+        if (args.Length > 1 && args[0] == "stage" && args[1] == "inspect")
+            return InspectSemanticEvidence(args);
         StageContext? context = null;
         try
         {
@@ -28,11 +31,15 @@ internal static class StageRuntime
             var binding = StateRuntime.BindForStage(roots.PackageRoot, roots.TargetRoot, roots.StateRoot, roots.EvidenceRoot, profile.Id);
             var runId = Guid.NewGuid().ToString("N");
             var requestedIndex = Array.IndexOf(StageNames, options.Stage);
-            var executionStages = options.WithDependencies ? StageNames[..(requestedIndex + 1)] : [options.Stage];
+            var executionStages = profile.SemanticContractVersion == 2
+                ? [options.Stage]
+                : options.WithDependencies ? StageNames[..(requestedIndex + 1)] : [options.Stage];
             context = new StageContext(runId, options.Stage, executionStages, [], binding.ProjectId, roots, package, profile, null);
             if (profile.WorkspaceEvidence is not null)
                 context = context with { WorkspaceEvidence = CreateWorkspaceEvidence(context, profile.WorkspaceEvidence) };
-            var result = RunStage(context);
+            var result = profile.SemanticContractVersion == 2
+                ? RunSemanticStage(context, options.WithDependencies)
+                : RunLegacyStage(context);
             WriteResult(context, result);
             WriteConsole(result, result.ExitCategory == "success");
             return ExitCode(result.ExitCategory);
@@ -70,6 +77,69 @@ internal static class StageRuntime
             }
             return 19;
         }
+    }
+
+    private static int InspectSemanticEvidence(string[] args)
+    {
+        try
+        {
+            var values = new Dictionary<string, string>(StringComparer.Ordinal);
+            for (var index = 2; index < args.Length; index += 2)
+            {
+                if (index + 1 >= args.Length || !args[index].StartsWith("--", StringComparison.Ordinal) ||
+                    !values.TryAdd(args[index][2..], args[index + 1]))
+                    throw new StageException(10, "invalid-input", "Inspect arguments must be unique --name value pairs.");
+            }
+            var allowed = new HashSet<string>(["package-root", "evidence-root", "project", "run"], StringComparer.Ordinal);
+            var unknown = values.Keys.FirstOrDefault(key => !allowed.Contains(key));
+            if (unknown is not null) throw new StageException(10, "invalid-input", $"Unknown argument: --{unknown}");
+            string Required(string name) => values.TryGetValue(name, out var value) && !string.IsNullOrWhiteSpace(value)
+                ? value : throw new StageException(10, "invalid-input", $"Missing --{name}.");
+            var packageRoot = ResolveDirectory(Required("package-root"), "PackageRoot");
+            var evidenceRoot = ResolveDirectory(Required("evidence-root"), "EvidenceRoot");
+            _ = ValidatePackage(packageRoot);
+            var project = Required("project");
+            var run = Required("run");
+            if (!IsIdentifier(project) || !IsIdentifier(run)) throw new StageException(10, "invalid-input", "Project and run IDs must be 32 lowercase hexadecimal characters.");
+            var resultPath = ResolveFileUnder(evidenceRoot, Path.Combine("projects", project, "runs", run, "stage-result.json"), "semantic Stage result");
+            var schemaPath = ResolveFileUnder(packageRoot, "core/stage/contracts/stage-result.schema.json", "semantic Stage result schema");
+            ValidateStandaloneSchema(resultPath, schemaPath, "semantic Stage result");
+            using var document = JsonDocument.Parse(File.ReadAllText(resultPath));
+            var root = document.RootElement;
+            if (root.GetProperty("formatVersion").GetInt32() != 2 || root.GetProperty("runId").GetString() != run)
+                throw new StageException(12, "integrity-failure", "Semantic Stage result identity does not match its Evidence path.");
+            Console.WriteLine(JsonSerializer.Serialize(root, JsonOptions));
+            return 0;
+        }
+        catch (StageException ex)
+        {
+            Console.Error.WriteLine(JsonSerializer.Serialize(new { formatVersion = 2, status = "error", exitCategory = ex.Category, message = ex.Message }, JsonOptions));
+            return ex.Code;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine(JsonSerializer.Serialize(new { formatVersion = 2, status = "error", exitCategory = "internal-error", message = ex.Message }, JsonOptions));
+            return 19;
+        }
+    }
+
+    private static void ValidateStandaloneSchema(string documentPath, string schemaPath, string label)
+    {
+        var start = new ProcessStartInfo(FindPowerShell())
+        {
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true
+        };
+        foreach (var value in new[] { "-NoLogo", "-NoProfile", "-NonInteractive", "-Command",
+                     "if (Test-Json -LiteralPath $env:V4_SCHEMA_DOCUMENT -SchemaFile $env:V4_SCHEMA_PATH -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }" })
+            start.ArgumentList.Add(value);
+        start.Environment["POWERSHELL_TELEMETRY_OPTOUT"] = "1";
+        start.Environment["V4_SCHEMA_DOCUMENT"] = documentPath;
+        start.Environment["V4_SCHEMA_PATH"] = schemaPath;
+        var result = RunProcess(start, 30, $"{label} schema validation");
+        if (result.ExitCode != 0) throw new StageException(12, "integrity-failure", $"{label} does not satisfy its v2 schema.");
     }
 
     private static StageOptions ParseArguments(string[] args)
@@ -160,13 +230,21 @@ internal static class StageRuntime
     {
         if (!System.Text.RegularExpressions.Regex.IsMatch(profileId, "^[a-z][a-z0-9_-]*$", System.Text.RegularExpressions.RegexOptions.CultureInvariant))
             throw new StageException(10, "invalid-input", "Profile ID is invalid.");
-        var path = ResolveFileUnder(packageRoot, Path.Combine("profiles", "catalog", profileId, "profile.json"), "profile");
+        var legacyRelative = Path.Combine("profiles", "catalog", profileId, "profile.json");
+        var semanticRelative = Path.Combine("core", "stage", "profiles", $"{profileId}.json");
+        var legacyPath = Path.GetFullPath(Path.Combine(packageRoot, legacyRelative));
+        var path = File.Exists(legacyPath)
+            ? ResolveFileUnder(packageRoot, legacyRelative, "profile")
+            : ResolveFileUnder(packageRoot, semanticRelative, "semantic profile");
         try
         {
             var profile = JsonSerializer.Deserialize<ProfileDocument>(File.ReadAllText(path), JsonOptions)
                 ?? throw new JsonException("Profile is empty.");
-            if (profile.FormatVersion != 1 || profile.Id != profileId || string.IsNullOrWhiteSpace(profile.Version) ||
-                profile.StageConfiguration is null || !StageNames.All(profile.StageConfiguration.ContainsKey))
+            var legacyValid = profile.FormatVersion == 1 && profile.SemanticContractVersion is null &&
+                profile.StageConfiguration is not null && StageNames.All(profile.StageConfiguration.ContainsKey);
+            var semanticValid = profile.FormatVersion == 2 && profile.SemanticContractVersion == 2 &&
+                profile.EvidencePolicy is not null && profile.Providers is not null && profile.Gates is not null;
+            if (profile.Id != profileId || string.IsNullOrWhiteSpace(profile.Version) || (!legacyValid && !semanticValid))
                 throw new JsonException("Profile identity or Stage configuration is invalid.");
             return profile with { Sha256 = HashFile(path), ProfileDirectory = Path.GetDirectoryName(path) };
         }
@@ -176,7 +254,7 @@ internal static class StageRuntime
         }
     }
 
-    private static StageResult RunStage(StageContext context)
+    private static StageResult RunLegacyStage(StageContext context)
     {
         var authorityHashes = new Dictionary<string, string>(StringComparer.Ordinal)
         {
@@ -277,6 +355,280 @@ internal static class StageRuntime
         }
         return Result(context, findings.Count > 0 ? "advisory" : "pass", "success", executedStages, authorityHashes, moduleResults, findings, coverage);
     }
+
+    private static StageResult RunSemanticStage(StageContext context, bool withDependencies)
+    {
+        var totalWatch = Stopwatch.StartNew();
+        var producedAt = DateTimeOffset.UtcNow;
+        var catalog = LoadSemanticCatalog(context);
+        var authorityHashes = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["package"] = context.Package.PackageHash,
+            ["profile"] = context.Profile.Sha256!,
+            ["semanticCatalog"] = catalog.Sha256
+        };
+        foreach (var entry in catalog.AuthorityHashes) authorityHashes[entry.Key] = entry.Value;
+        if (context.WorkspaceEvidence is not null) authorityHashes["workspaceEvidence"] = context.WorkspaceEvidence.Sha256;
+
+        var identity = CreateContentIdentity(context, catalog.Sha256);
+        var identitySha256 = HashText(JsonSerializer.Serialize(identity, JsonOptions));
+        var stageExecutions = new List<SemanticStageExecution>();
+        var stageTimings = new List<SemanticStageTiming>();
+        var moduleTimings = new List<SemanticModuleTiming>();
+        var dependencies = new List<SemanticDependency>();
+        var moduleResults = new List<ModuleResult>();
+        var findings = new List<Finding>();
+        var coverage = new List<Coverage>();
+        var executedStages = new List<string>();
+
+        if (context.Stage is "bootstrap" or "analysis")
+        {
+            var lookup = new DependencyLookup(null, "missing");
+            var provider = ExecuteSemanticProvider(context, context.Stage, identitySha256, producedAt, lookup.Reason);
+            stageExecutions.Add(provider.Execution);
+            stageTimings.Add(new SemanticStageTiming(context.Stage, "executed", provider.Execution.ElapsedMilliseconds));
+            moduleTimings.Add(new SemanticModuleTiming(context.Stage, provider.ModuleResult.ModuleId, "executed", provider.Execution.ElapsedMilliseconds));
+            moduleResults.Add(provider.ModuleResult);
+            coverage.Add(provider.Coverage);
+            executedStages.Add(context.Stage);
+            totalWatch.Stop();
+            return SemanticResult(context, producedAt, "pass", "success", executedStages, authorityHashes, moduleResults,
+                findings, coverage, StageRole(context.Stage), ResultKind(context.Stage), SuccessOutcome(context.Stage),
+                stageExecutions, new SemanticTimings(Milliseconds(totalWatch.Elapsed), stageTimings, moduleTimings),
+                new SemanticEvidenceTrust("local-advisory", false, identitySha256, identity, dependencies));
+        }
+
+        var missing = new List<string>();
+        foreach (var dependencyStage in new[] { "bootstrap", "analysis" })
+        {
+            var lookup = FindSemanticDependency(context, dependencyStage, identitySha256);
+            if (lookup.Dependency is not null)
+            {
+                var dependency = lookup.Dependency;
+                dependencies.Add(dependency);
+                stageExecutions.Add(new SemanticStageExecution(dependencyStage, StageRole(dependencyStage), ResultKind(dependencyStage),
+                    SuccessOutcome(dependencyStage), "reused", dependency.RunId, dependency.EvidenceSha256, 0));
+                stageTimings.Add(new SemanticStageTiming(dependencyStage, "reused", 0));
+                moduleTimings.Add(new SemanticModuleTiming(dependencyStage, ProviderId(context, dependencyStage), "reused", 0));
+                executedStages.Add(dependencyStage);
+                continue;
+            }
+            if (!withDependencies)
+            {
+                missing.Add($"{dependencyStage}:{lookup.Reason}");
+                continue;
+            }
+
+            var provider = ExecuteSemanticProvider(context, dependencyStage, identitySha256, producedAt, lookup.Reason);
+            stageExecutions.Add(provider.Execution);
+            stageTimings.Add(new SemanticStageTiming(dependencyStage, "executed", provider.Execution.ElapsedMilliseconds));
+            moduleTimings.Add(new SemanticModuleTiming(dependencyStage, provider.ModuleResult.ModuleId, "executed", provider.Execution.ElapsedMilliseconds));
+            moduleResults.Add(provider.ModuleResult);
+            coverage.Add(provider.Coverage);
+            dependencies.Add(provider.Dependency);
+            executedStages.Add(dependencyStage);
+        }
+
+        var gateWatch = Stopwatch.StartNew();
+        var gateId = context.Stage == "pre" ? context.Profile.Gates!.Pre : context.Profile.Gates!.Post;
+        var gatePass = missing.Count == 0 && dependencies.Count == 2;
+        var gateCoverage = new Coverage($"GATE.{context.Stage.ToUpperInvariant()}.DEPENDENCIES", dependencies.Count, 2);
+        coverage.Add(gateCoverage);
+        if (!gatePass)
+            findings.Add(new Finding("V4.STAGE.DEPENDENCY", string.Join(",", missing), "dependency-evidence", gateId, "blocking"));
+        var gateOutcome = gatePass ? "pass" : "fail";
+        var gateEvidence = new SemanticGateEvidence(2, gateId, context.Stage, ResultKind(context.Stage), gateOutcome,
+            identitySha256, dependencies.Select(item => new SemanticDependencyIdentity(item.Stage, item.RunId, item.EvidenceSha256)).ToArray(), gateCoverage);
+        var gateContent = JsonSerializer.Serialize(gateEvidence, JsonOptions) + Environment.NewLine;
+        var gateRelative = $"runs/{context.RunId}/stages/{context.Stage}/gates/{gateId}.json";
+        WriteEvidence(context, gateRelative, gateContent);
+        gateWatch.Stop();
+        var gateElapsed = Milliseconds(gateWatch.Elapsed);
+        var gateSha256 = HashBytes(Encoding.UTF8.GetBytes(gateContent));
+        stageExecutions.Add(new SemanticStageExecution(context.Stage, StageRole(context.Stage), ResultKind(context.Stage),
+            gateOutcome, "executed", context.RunId, gateSha256, gateElapsed));
+        stageTimings.Add(new SemanticStageTiming(context.Stage, "executed", gateElapsed));
+        moduleTimings.Add(new SemanticModuleTiming(context.Stage, gateId, "executed", gateElapsed));
+        moduleResults.Add(new ModuleResult(gateId, gatePass ? "pass" : "error", gateRelative));
+        executedStages.Add(context.Stage);
+        totalWatch.Stop();
+
+        return SemanticResult(context, producedAt, gatePass ? "pass" : "error", gatePass ? "success" : "prerequisite-missing",
+            executedStages.Distinct(StringComparer.Ordinal).ToList(), authorityHashes, moduleResults, findings, coverage,
+            StageRole(context.Stage), ResultKind(context.Stage), gateOutcome, stageExecutions,
+            new SemanticTimings(Milliseconds(totalWatch.Elapsed), stageTimings, moduleTimings),
+            new SemanticEvidenceTrust("local-advisory", false, identitySha256, identity, dependencies));
+    }
+
+    private static ProviderExecution ExecuteSemanticProvider(StageContext context, string stage, string identitySha256,
+        DateTimeOffset producedAt, string reason)
+    {
+        var watch = Stopwatch.StartNew();
+        var providerId = ProviderId(context, stage);
+        var outcome = SuccessOutcome(stage);
+        var claim = stage == "bootstrap" ? "PROVIDER.READINESS" : "PROVIDER.ANALYSIS";
+        var coverage = new Coverage(claim, 1, 1);
+        var evidence = new SemanticProviderEvidence(2, providerId, stage, ResultKind(stage), outcome, identitySha256, coverage);
+        var content = JsonSerializer.Serialize(evidence, JsonOptions) + Environment.NewLine;
+        var relative = $"runs/{context.RunId}/stages/{stage}/providers/{providerId}.json";
+        WriteEvidence(context, relative, content);
+        watch.Stop();
+        var elapsed = Milliseconds(watch.Elapsed);
+        var sha256 = HashBytes(Encoding.UTF8.GetBytes(content));
+        var decision = reason switch
+        {
+            "stale" => "executed-stale",
+            "mismatch" => "executed-mismatch",
+            _ => "executed-missing"
+        };
+        var execution = new SemanticStageExecution(stage, StageRole(stage), ResultKind(stage), outcome, "executed",
+            context.RunId, sha256, elapsed);
+        var dependency = new SemanticDependency(stage, ResultKind(stage), "executed", context.RunId, sha256, producedAt,
+            0, true, true, "local-advisory", false, decision);
+        return new ProviderExecution(execution, dependency, new ModuleResult(providerId, "pass", relative), coverage);
+    }
+
+    private static DependencyLookup FindSemanticDependency(StageContext context, string stage, string identitySha256)
+    {
+        var runRoot = Path.Combine(context.Roots.EvidenceRoot, "projects", context.ProjectId, "runs");
+        if (!Directory.Exists(runRoot)) return new DependencyLookup(null, "missing");
+        var sawMismatch = false;
+        var sawStale = false;
+        foreach (var path in Directory.GetFiles(runRoot, "stage-result.json", SearchOption.AllDirectories)
+                     .OrderByDescending(File.GetLastWriteTimeUtc))
+        {
+            try
+            {
+                ValidateStandaloneSchema(path,
+                    ResolveFileUnder(context.Roots.PackageRoot, "core/stage/contracts/stage-result.schema.json", "semantic Stage result schema"),
+                    "semantic dependency result");
+                using var document = JsonDocument.Parse(File.ReadAllText(path));
+                var root = document.RootElement;
+                if (root.GetProperty("formatVersion").GetInt32() != 2 || root.GetProperty("stage").GetString() != stage ||
+                    root.GetProperty("resultKind").GetString() != ResultKind(stage) || root.GetProperty("outcome").GetString() != SuccessOutcome(stage))
+                    continue;
+                var trust = root.GetProperty("evidenceTrust");
+                if (trust.GetProperty("producerClass").GetString() != "local-advisory" || trust.GetProperty("authoritative").GetBoolean())
+                    continue;
+                var storedIdentity = trust.GetProperty("contentIdentity").Deserialize<SemanticContentIdentity>(JsonOptions)
+                    ?? throw new JsonException("Semantic content identity is empty.");
+                var storedIdentityHash = HashText(JsonSerializer.Serialize(storedIdentity, JsonOptions));
+                if (trust.GetProperty("contentIdentitySha256").GetString() != storedIdentityHash || storedIdentityHash != identitySha256)
+                {
+                    sawMismatch = true;
+                    continue;
+                }
+                var producedAt = root.GetProperty("producedAt").GetDateTimeOffset();
+                var ageSeconds = Math.Max(0, (DateTimeOffset.UtcNow - producedAt).TotalSeconds);
+                if (ageSeconds > context.Profile.EvidencePolicy!.MaximumDependencyAgeSeconds)
+                {
+                    sawStale = true;
+                    continue;
+                }
+                var execution = root.GetProperty("stageExecutions").EnumerateArray().Single(item =>
+                    item.GetProperty("stage").GetString() == stage && item.GetProperty("source").GetString() == "executed");
+                var runId = root.GetProperty("runId").GetString()!;
+                var evidenceSha256 = execution.GetProperty("evidenceSha256").GetString()!;
+                var providerPath = Path.Combine(Path.GetDirectoryName(path)!, "stages", stage, "providers", ProviderId(context, stage) + ".json");
+                if (!File.Exists(providerPath))
+                {
+                    sawMismatch = true;
+                    continue;
+                }
+                EnsureNoLinks(context.Roots.EvidenceRoot, providerPath, "semantic dependency Evidence");
+                if (HashFile(providerPath) != evidenceSha256) { sawMismatch = true; continue; }
+                return new DependencyLookup(new SemanticDependency(stage, ResultKind(stage), "reused", runId,
+                    evidenceSha256, producedAt, Math.Round(ageSeconds, 3), true, true, "local-advisory", false,
+                    "reused-exact-local-advisory"), "exact");
+            }
+            catch (Exception ex) when (ex is JsonException or IOException or InvalidOperationException)
+            {
+                sawMismatch = true;
+            }
+        }
+        return new DependencyLookup(null, sawStale ? "stale" : sawMismatch ? "mismatch" : "missing");
+    }
+
+    private static SemanticCatalogBinding LoadSemanticCatalog(StageContext context)
+    {
+        var relative = "core/stage/stage-semantics-contract.json";
+        var path = ResolveFileUnder(context.Roots.PackageRoot, relative, "Stage semantics contract");
+        var catalog = ReadJson<SemanticCatalogDocument>(path, "Stage semantics contract");
+        if (catalog.FormatVersion != 2 || catalog.SemanticContractVersion != 2 || catalog.Schemas is null ||
+            catalog.Profiles is null || catalog.Providers is null)
+            throw new StageException(12, "integrity-failure", "Stage semantics contract identity is invalid.");
+        var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var schema in catalog.Schemas)
+            ValidateSemanticAuthority(context, $"schema.{schema.Key}", schema.Value, hashes);
+        var profile = catalog.Profiles.SingleOrDefault(item => item.Id == context.Profile.Id)
+            ?? throw new StageException(12, "integrity-failure", "Semantic Profile is not catalogued.");
+        ValidateSemanticAuthority(context, $"profile.{profile.Id}", profile, hashes);
+        foreach (var providerId in new[] { context.Profile.Providers!.Bootstrap, context.Profile.Providers.Analysis })
+        {
+            var provider = catalog.Providers.SingleOrDefault(item => item.Id == providerId)
+                ?? throw new StageException(12, "integrity-failure", $"Semantic provider is not catalogued: {providerId}");
+            ValidateSemanticAuthority(context, $"provider.{providerId}", provider, hashes);
+            var manifest = ReadJson<SemanticProviderDocument>(ResolveFileUnder(context.Roots.PackageRoot, provider.Path!, $"provider {providerId}"), $"provider {providerId}");
+            var expectedStage = providerId == context.Profile.Providers.Bootstrap ? "bootstrap" : "analysis";
+            if (manifest.FormatVersion != 2 || manifest.SemanticContractVersion != 2 || manifest.Id != providerId ||
+                manifest.Stage != expectedStage || manifest.ResultKind != ResultKind(expectedStage) || manifest.Implementation != "v4-host" ||
+                manifest.Capabilities is null || manifest.Capabilities.Network || manifest.Capabilities.WriteRoots is not { Length: 0 } ||
+                manifest.Capabilities.Processes is not { Length: 0 })
+                throw new StageException(12, "integrity-failure", $"Semantic provider placement or capability is invalid: {providerId}");
+        }
+        return new SemanticCatalogBinding(HashFile(path), hashes);
+    }
+
+    private static void ValidateSemanticAuthority(StageContext context, string id, SemanticAuthorityReference reference,
+        Dictionary<string, string> hashes)
+    {
+        var path = ResolveFileUnder(context.Roots.PackageRoot, reference.Path!, id);
+        var actual = HashFile(path);
+        if (!string.Equals(actual, reference.Sha256, StringComparison.Ordinal))
+            throw new StageException(12, "integrity-failure", $"Semantic authority hash drift: {id}");
+        hashes[id] = actual;
+    }
+
+    private static SemanticContentIdentity CreateContentIdentity(StageContext context, string providerCatalogHash)
+    {
+        if (context.WorkspaceEvidence is null)
+            throw new StageException(12, "integrity-failure", "Semantic Stage requires workspace Evidence.");
+        return new SemanticContentIdentity(context.WorkspaceEvidence.TargetCommit, context.WorkspaceEvidence.TreeSha256,
+            ResolveWorkspaceStateHash(context.Roots.TargetRoot), context.Package.PackageHash, context.Profile.Sha256!,
+            providerCatalogHash, CurrentPlatform(), Environment.Version.ToString(), 2);
+    }
+
+    private static string ResolveWorkspaceStateHash(string targetRoot)
+    {
+        var executable = FindExecutable("git") ?? throw new StageException(15, "prerequisite-missing", "Git is required for semantic Evidence identity.");
+        var start = new ProcessStartInfo(executable)
+        {
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true
+        };
+        foreach (var argument in new[] { "-C", targetRoot, "status", "--porcelain=v1", "--untracked-files=all" }) start.ArgumentList.Add(argument);
+        var result = RunProcess(start, 30, "semantic workspace state");
+        if (result.ExitCode != 0) throw new StageException(15, "prerequisite-missing", "Semantic workspace state is unavailable.");
+        return HashText(result.Output.ReplaceLineEndings("\n"));
+    }
+
+    private static StageResult SemanticResult(StageContext context, DateTimeOffset producedAt, string status, string category,
+        List<string> executedStages, Dictionary<string, string> hashes, List<ModuleResult> modules, List<Finding> findings,
+        List<Coverage> coverage, string role, string resultKind, string outcome, List<SemanticStageExecution> stageExecutions,
+        SemanticTimings timings, SemanticEvidenceTrust trust) =>
+        new(2, context.RunId, context.Stage, status, category, executedStages,
+            new ProfileResult(context.Profile.Id, context.Profile.Version, context.Profile.Sha256!), context.Roots,
+            hashes, modules, findings, coverage, producedAt, 2, role, resultKind, outcome, stageExecutions, timings, trust);
+
+    private static string ProviderId(StageContext context, string stage) => stage == "bootstrap"
+        ? context.Profile.Providers!.Bootstrap
+        : context.Profile.Providers!.Analysis;
+    private static string StageRole(string stage) => stage switch { "bootstrap" => "readiness", "analysis" => "analysis", "pre" => "pre-gate", _ => "post-gate" };
+    private static string ResultKind(string stage) => stage switch { "bootstrap" => "readiness-provider", "analysis" => "analysis-provider", "pre" => "pre-gate", _ => "post-gate" };
+    private static string SuccessOutcome(string stage) => stage switch { "bootstrap" => "ready", "analysis" => "complete", _ => "pass" };
+    private static double Milliseconds(TimeSpan elapsed) => Math.Round(elapsed.TotalMilliseconds, 3);
 
     private static HashSet<string> LoadBaselines(StageContext context, Dictionary<string, string> authorityHashes)
     {
@@ -564,7 +916,7 @@ internal static class StageRuntime
         var relativePath = $"runs/{context.RunId}/workspace-evidence.json";
         WriteEvidence(context, relativePath, content);
         var path = Path.GetFullPath(Path.Combine(context.Roots.EvidenceRoot, "projects", context.ProjectId, relativePath));
-        return new WorkspaceEvidenceBinding(path, HashBytes(Encoding.UTF8.GetBytes(content)), targetCommit);
+        return new WorkspaceEvidenceBinding(path, HashBytes(Encoding.UTF8.GetBytes(content)), targetCommit, treeSha256);
     }
 
     private static string ResolveWorkspaceRoot(string targetRoot, string relative)
@@ -661,6 +1013,7 @@ internal static class StageRuntime
     private static string HashBytes(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
     private static string HashText(string value) => HashBytes(Encoding.UTF8.GetBytes(value));
     private static bool IsHash(string? value) => value is { Length: 64 } && value.All(character => character is >= '0' and <= '9' or >= 'a' and <= 'f');
+    private static bool IsIdentifier(string value) => value.Length == 32 && value.All(character => character is >= '0' and <= '9' or >= 'a' and <= 'f');
     private static bool Overlaps(string left, string right) => IsUnder(left, right) || IsUnder(right, left);
     private static bool IsUnder(string path, string root)
     {
@@ -685,16 +1038,20 @@ internal static class StageRuntime
     private sealed record ProcessResult(int ExitCode, string Output, string Error);
     private sealed record PackageValidation(int FormatVersion, string? Status, string PackageHash, string[]? Profiles, string[]? Modules);
     private sealed record ProfileDocument(int FormatVersion, string Id, string Version, ProjectIdentityDocument? ProjectIdentity, WorkspaceEvidenceConfiguration? WorkspaceEvidence, ModuleSelection[]? ModuleSelections,
-        Dictionary<string, StageConfiguration>? StageConfiguration, string[]? Rules, string[]? BaselineRefs,
+        Dictionary<string, StageConfiguration>? StageConfiguration, string[]? Rules, string[]? BaselineRefs, int? SemanticContractVersion,
+        EvidencePolicyDocument? EvidencePolicy, ProviderSelectionDocument? Providers, GateSelectionDocument? Gates,
         string? Sha256 = null, string? ProfileDirectory = null);
     private sealed record ProjectIdentityDocument(string Id, string[]? RelativeRoots);
     private sealed record WorkspaceEvidenceConfiguration(string[]? RelativeRoots, string[]? Extensions, string[]? ExcludedDirectoryNames,
         int MaximumFiles, long MaximumFileBytes);
-    private sealed record WorkspaceEvidenceBinding(string Path, string Sha256, string TargetCommit);
+    private sealed record WorkspaceEvidenceBinding(string Path, string Sha256, string TargetCommit, string TreeSha256);
     private sealed record WorkspaceEvidenceDocument(int FormatVersion, string Scope, string TargetCommit, string[] RelativeRoots,
         string[] Extensions, string[] ExcludedDirectoryNames, string PathOrder, int FileCount, string TreeSha256,
         DateTimeOffset StartedAt, DateTimeOffset CompletedAt, double ElapsedSeconds, List<WorkspaceEvidenceEntry> Files);
     private sealed record WorkspaceEvidenceEntry(string Path, string Extension, long Length, string Sha256, string NormalizedSha256, string Text);
+    private sealed record EvidencePolicyDocument(int MaximumDependencyAgeSeconds, string? WorkspaceState, string? LocalProducerClass);
+    private sealed record ProviderSelectionDocument(string Bootstrap, string Analysis);
+    private sealed record GateSelectionDocument(string Pre, string Post);
     private sealed record ModuleSelection(string Id, JsonElement Config);
     private sealed record StageConfiguration(bool Enabled, string[]? Modules);
     private sealed record RegistryDocument(int FormatVersion, RegistryEntry[]? Modules);
@@ -718,7 +1075,43 @@ internal static class StageRuntime
     private sealed record Coverage(string ClaimId, int Matched, int Minimum);
     private sealed record StageResult(int FormatVersion, string RunId, string Stage, string Status, string ExitCategory, List<string> ExecutedStages,
         ProfileResult Profile, StageRoots Roots, Dictionary<string, string> AuthorityHashes, List<ModuleResult> ModuleResults,
-        List<Finding> Findings, List<Coverage> Coverage);
+        List<Finding> Findings, List<Coverage> Coverage,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] DateTimeOffset? ProducedAt = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? SemanticContractVersion = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? StageRole = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? ResultKind = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Outcome = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] List<SemanticStageExecution>? StageExecutions = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] SemanticTimings? Timings = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] SemanticEvidenceTrust? EvidenceTrust = null);
+    private sealed record SemanticStageExecution(string Stage, string Role, string ResultKind, string Outcome, string Source,
+        string RunId, string EvidenceSha256, double ElapsedMilliseconds);
+    private sealed record SemanticStageTiming(string Stage, string Source, double ElapsedMilliseconds);
+    private sealed record SemanticModuleTiming(string Stage, string ModuleId, string Source, double ElapsedMilliseconds);
+    private sealed record SemanticTimings(double TotalMilliseconds, List<SemanticStageTiming> Stages, List<SemanticModuleTiming> Modules);
+    private sealed record SemanticEvidenceTrust(string ProducerClass, bool Authoritative, string ContentIdentitySha256,
+        SemanticContentIdentity ContentIdentity, List<SemanticDependency> Dependencies);
+    private sealed record SemanticContentIdentity(string TargetCommit, string WorkspaceTreeSha256, string WorkspaceStateSha256,
+        string PackageHash, string ProfileHash, string ProviderCatalogHash, string Platform, string RuntimeVersion, int SemanticContractVersion);
+    private sealed record SemanticDependency(string Stage, string RequiredResultKind, string Source, string RunId,
+        string EvidenceSha256, DateTimeOffset ProducedAt, double AgeSeconds, bool Fresh, bool ContentMatch,
+        string ProducerClass, bool Authoritative, string Decision);
+    private sealed record SemanticDependencyIdentity(string Stage, string RunId, string EvidenceSha256);
+    private sealed record SemanticProviderEvidence(int FormatVersion, string ProviderId, string Stage, string ResultKind,
+        string Outcome, string ContentIdentitySha256, Coverage Coverage);
+    private sealed record SemanticGateEvidence(int FormatVersion, string GateId, string Stage, string ResultKind,
+        string Outcome, string ContentIdentitySha256, SemanticDependencyIdentity[] Dependencies, Coverage Coverage);
+    private sealed record ProviderExecution(SemanticStageExecution Execution, SemanticDependency Dependency,
+        ModuleResult ModuleResult, Coverage Coverage);
+    private sealed record DependencyLookup(SemanticDependency? Dependency, string Reason);
+    private sealed record SemanticCatalogBinding(string Sha256, Dictionary<string, string> AuthorityHashes);
+    private sealed record SemanticCatalogDocument(int FormatVersion, int SemanticContractVersion,
+        Dictionary<string, SemanticAuthorityReference>? Schemas, SemanticAuthorityReference[]? Profiles,
+        SemanticAuthorityReference[]? Providers);
+    private sealed record SemanticAuthorityReference(string? Id, string? Path, string? Sha256);
+    private sealed record SemanticProviderDocument(int FormatVersion, string? Id, int SemanticContractVersion,
+        string? ResultKind, string? Stage, string? Implementation, SemanticProviderCapabilities? Capabilities);
+    private sealed record SemanticProviderCapabilities(string[]? ReadRoots, string[]? WriteRoots, string[]? Processes, bool Network);
 
     private sealed class StageException(int code, string category, string message) : Exception(message)
     {
