@@ -54,7 +54,8 @@
     { "path": "tests/p9/Test-V4QueryContracts.ps1", "sha256": "b4f8a1d2ef78c462b33e4bda3545eb156210127c78c9a6b7d2a79c07d8c81218", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p9/Test-V4WebCompanionSpike.ps1", "sha256": "c80cfea180c53926c70abb92b3e28561a4b06936ecd69fd92c23c2cc20f49435", "linux": true, "windowsSmoke": false, "windowsFull": true },
     { "path": "tests/p9/Test-V4WorkspaceStageRunner.ps1", "sha256": "e96bfc4f9715e5b0ee882b5c9fb9da5d7b7850800e396b1f9687ce7040abf62f", "linux": true, "windowsSmoke": false, "windowsFull": true },
-    { "path": "tests/p10/Test-V4ExtensionComposition.ps1", "sha256": "b99f85ec58edcb058bbeb421f7eff29c89593fb2f99518ed65442a4d7516c334", "linux": true, "windowsSmoke": false, "windowsFull": true }
+    { "path": "tests/p10/Test-V4ExtensionComposition.ps1", "sha256": "b99f85ec58edcb058bbeb421f7eff29c89593fb2f99518ed65442a4d7516c334", "linux": true, "windowsSmoke": false, "windowsFull": true },
+    { "path": "tests/p10/Test-V4M2M5Focused.ps1", "sha256": "5653de3334deb8af953d64bcdeed8c6355178d934a33acb214d57455bc805baa", "linux": true, "windowsSmoke": false, "windowsFull": true }
   ],
   "artifact": { "name": "v4-ci-artifact", "manifestPath": "manifest.json", "packagePath": "package", "hostPath": "host/v4-guards.dll" },
   "excludedSuites": ["ifx-solution", "ifx-frontend", "ifx-database", "v3-package-candidate"]
