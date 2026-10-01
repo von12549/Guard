@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m4-provider-dependency-execution",
+  "title": "Implement Guard-owned providers and explicit Stage dependencies",
+  "goal": "Execute or validate exact readiness and analysis dependencies without changing direct Stage semantics or CI authority.",
+  "acceptanceCriteria": [
+    "Guard-owned readiness and analysis providers are registered with no network and no TargetRoot write capability.",
+    "Semantic Module result kinds are accepted only in their matching Stage roles.",
+    "Direct semantic Pre and Post fail closed without fresh exact provider Evidence.",
+    "With-dependencies exposes ordered executed or reused provider steps and never promotes provider success into a gate result.",
+    "Legacy v1 direct and with-dependencies behavior remains byte-contract compatible."
+  ],
+  "plannedPaths": [
+    "core/host/V4.Guards.Host/StageRuntime.cs",
+    "core/stage/validation/Test-V4StageSemantics.ps1",
+    "docs/plans/20261001-m4-provider-dependency-execution.md",
+    "docs/plans/20261001-m4-provider-dependency-execution.plan.json",
+    "modules/guard-readiness/adapter.ps1",
+    "modules/guard-readiness/config.schema.json",
+    "modules/guard-readiness/dependencies.lock.json",
+    "modules/guard-readiness/module.json",
+    "modules/guard-readiness/result.schema.json",
+    "modules/registry.json",
+    "modules/workspace-analysis/adapter.ps1",
+    "modules/workspace-analysis/config.schema.json",
+    "modules/workspace-analysis/dependencies.lock.json",
+    "modules/workspace-analysis/module.json",
+    "modules/workspace-analysis/result.schema.json",
+    "profiles/catalog/semantic_profile/baselines/none.json",
+    "profiles/catalog/semantic_profile/profile.json"
+  ],
+  "areas": ["host", "modules", "profiles", "stage", "tests"],
+  "risks": ["A stale or partial provider result could be mistaken for a gate dependency."],
+  "decisions": ["Bind local dependencies to exact content and producer identities and label their reuse advisory."],
+  "validationCommands": ["pwsh -NoProfile -File core/stage/validation/Test-V4StageSemantics.ps1", "pwsh -NoProfile -File tests/p1/Test-V4Package.ps1", "pwsh -NoProfile -File tests/p1/Test-V4Registry.ps1", "pwsh -NoProfile -File tests/p3/Test-V4Stages.ps1", "pwsh -NoProfile -File tests/p3/Test-V4StageOrchestration.ps1"],
+  "dependencies": [],
+  "boundaries": []
+}

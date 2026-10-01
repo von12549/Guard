@@ -1,0 +1,27 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m4-versioned-stage-contract",
+  "title": "Implement versioned M4 Stage Module and result contracts",
+  "goal": "Add explicit semantic version 2 contracts while preserving v1 authorities as visible legacy untyped input.",
+  "acceptanceCriteria": [
+    "Semantic Profiles declare version 2 and an exact dependency freshness and local trust policy.",
+    "Semantic Modules declare one of the four V4-AD-041 result kinds and retain read-only no-network provider constraints.",
+    "Semantic Stage results distinguish role result kind outcome execution source timing content identity and producer trust.",
+    "Every existing v1 Profile Module result and stable Stage command remains valid and is not silently reinterpreted."
+  ],
+  "plannedPaths": [
+    "core/contracts/contracts-manifest.json",
+    "core/contracts/module.schema.json",
+    "core/contracts/profile.schema.json",
+    "core/contracts/stage-result.schema.json",
+    "core/stage/validation/Test-V4StageSemantics.ps1",
+    "docs/plans/20261001-m4-versioned-stage-contract.md",
+    "docs/plans/20261001-m4-versioned-stage-contract.plan.json"
+  ],
+  "areas": ["contracts", "stage", "tests"],
+  "risks": ["Additive semantic rules could invalidate or reinterpret the stable v1 contract."],
+  "decisions": ["Use explicit formatVersion 2 conditionals while preserving formatVersion 1 as legacy untyped."],
+  "validationCommands": ["pwsh -NoProfile -File core/stage/validation/Test-V4StageSemantics.ps1", "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1", "pwsh -NoProfile -File tests/p8/Test-V4CompatibilityBaseline.ps1", "pwsh -NoProfile -File tests/p8/Test-V4StableCli.ps1"],
+  "dependencies": [],
+  "boundaries": []
+}
