@@ -39,6 +39,6 @@
     "pwsh -NoProfile -File core/runtime/Test-V4Package.ps1 -PackageRoot .",
     "git diff --check"
   ],
-  "dependencies": ["20261001-m1-m5-p2-governance-integrity"],
+  "dependencies": [],
   "boundaries": []
 }
