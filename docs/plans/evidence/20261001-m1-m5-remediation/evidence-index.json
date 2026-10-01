@@ -1,0 +1,88 @@
+{
+  "formatVersion": 1,
+  "programPlanId": "20261001-m1-m5-remediation-and-1-2-0-release",
+  "reportPlanId": "20261001-m1-m5-remediation-report",
+  "sourceCommit": "fa7ae011b385233bdcaf6192f0971ffbe59aefc1",
+  "sourcePackageHash": "f2112c4ac5b6c34f093e4a456596f7ab9e07d12991c5424f711cae35bbbc4e6e",
+  "externalEvidenceRoot": "C:/Users/von12/AppData/Local/Temp/guard-m1m5-main-fa7ae011-20261001",
+  "remoteRuns": [
+    {
+      "id": 36835743320,
+      "workflow": "V4 Guardrails",
+      "url": "https://github.com/von12549/Guard/actions/runs/36835743320",
+      "artifact": "v4-ci-artifact",
+      "artifactDigest": "sha256:2b328e9091fdc0e2e43df12ba923973b1b56b0e2361dc93fee2cf5bfda29a6e2",
+      "conclusion": "success"
+    },
+    {
+      "id": 36835746541,
+      "workflow": "V4 Certification",
+      "url": "https://github.com/von12549/Guard/actions/runs/36835746541",
+      "artifacts": [
+        "v4-certification-linux-fa7ae011b385233bdcaf6192f0971ffbe59aefc1",
+        "v4-certification-windows-fa7ae011b385233bdcaf6192f0971ffbe59aefc1"
+      ],
+      "artifactDigests": [
+        "sha256:41fcd0a0b881e0e1387981b2cf312bae6a5762ae270754b0b7de161f9cc88cd0",
+        "sha256:fb5552a24653ded3e4a86006cf5a3b96763c191df073f973a1a9356f79a7b9a0"
+      ],
+      "conclusion": "success"
+    }
+  ],
+  "files": [
+    {
+      "path": "guardrails-linux/manifest.json",
+      "sha256": "8b190d0f9b07a003b3303dfc786df3676701accaeba595ce409ab071cbd29cef",
+      "bytes": 96561
+    },
+    {
+      "path": "certification-linux/v4-linux.json",
+      "sha256": "bd974d3e190ac20337452bbc9469e49023089f6da151ab58883e03d9237d8026",
+      "bytes": 8528
+    },
+    {
+      "path": "certification-windows/v4-windows.json",
+      "sha256": "c8f6c2f11a3db8fae61bb8524c23fc0760e3768c0d76617c853604a45fba5d1a",
+      "bytes": 8781
+    },
+    {
+      "path": "rid-linux-x64-v2/build/distribution/v4-guards-1.1.6.zip",
+      "sha256": "1373e2a00249d14c5502d41e9f055ccd13711eecc42241b4f34d295e3320c52a",
+      "bytes": 194251622,
+      "rid": "linux-x64",
+      "kind": "repair-candidate"
+    },
+    {
+      "path": "rid-linux-x64-v2/build/distribution/v4-guards-1.1.6.zip.sha256",
+      "sha256": "72f49cf84b5880e777fe112c696d1474163890b08a3f797a9c157fb65dfe8dc4",
+      "bytes": 86
+    },
+    {
+      "path": "rid-linux-x64-v2/measurement.json",
+      "sha256": "8de776d73c5317844619be2f78630721a366f9234cd371115f87ca19adcee9c0",
+      "bytes": 698
+    },
+    {
+      "path": "rid-win-x64/build/distribution/v4-guards-1.1.6.zip",
+      "sha256": "5cdd5ff8e2a9e4b00bde244df3ff026b9679fc951120ad13b02fd55cdb783fd6",
+      "bytes": 192616533,
+      "rid": "win-x64",
+      "kind": "repair-candidate"
+    },
+    {
+      "path": "rid-win-x64/build/distribution/v4-guards-1.1.6.zip.sha256",
+      "sha256": "e500bae0784e1397515f0163d0530be346da279873c4bd281ca25c8ab1ffe72d",
+      "bytes": 86
+    },
+    {
+      "path": "rid-win-x64/measurement.json",
+      "sha256": "510d3eb514e0f74e9be47029923f2d9e4ff9519a12a40ad824e0d72d509acdf2",
+      "bytes": 694
+    }
+  ],
+  "notes": [
+    "The external EvidenceRoot is local and may be temporary; GitHub Actions artifacts and this committed index are the durable provenance pointers.",
+    "RID archives are repair candidates for fa7ae011, not V4 Guards 1.2.0 release assets.",
+    "Linux and Windows certification reports bind the same sourcePackageHash; RID archive hashes intentionally differ."
+  ]
+}
