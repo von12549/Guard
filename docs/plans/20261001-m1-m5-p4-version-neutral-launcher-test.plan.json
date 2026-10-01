@@ -1,0 +1,26 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-m5-p4-version-neutral-launcher-test",
+  "title": "移除 installed launcher 测试中的固定版本路径",
+  "goal": "关闭 M1-03 的已确认缺口，使安装与 relocation 路径从 plugin.json 的实际产品版本派生。",
+  "acceptanceCriteria": [
+    "Test-V4InstalledLauncher.ps1 不包含固定 1.1.6 安装目录。",
+    "当前版本的 win-x64 自包含安装、version、receipt、PackageRoot、tamper 和 relocation 用例通过。",
+    "后续 1.2.0 升级不需要再次修改测试路径。"
+  ],
+  "plannedPaths": [
+    "core/distribution/validation/Test-V4InstalledLauncher.ps1",
+    "docs/plans/20261001-m1-m5-p4-version-neutral-launcher-test.md",
+    "docs/plans/20261001-m1-m5-p4-version-neutral-launcher-test.plan.json"
+  ],
+  "areas": ["Distribution", "Validation"],
+  "risks": ["plugin.json 的版本格式若失效必须在构建外部路径前失败关闭。"],
+  "decisions": ["产品版本以 PackageRoot/plugin.json 为单一测试路径来源，历史 release 文档中的 1.1.6 保持不变。"],
+  "validationCommands": [
+    "pwsh -NoProfile -File core/distribution/validation/Test-V4InstalledLauncher.ps1",
+    "pwsh -NoProfile -File core/runtime/Test-V4Package.ps1 -PackageRoot .",
+    "git diff --check"
+  ],
+  "dependencies": ["20261001-m1-m5-p3-release-boundary-docs"],
+  "boundaries": []
+}
