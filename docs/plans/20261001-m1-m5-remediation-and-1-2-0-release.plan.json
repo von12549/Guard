@@ -1,0 +1,42 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-m5-remediation-and-1-2-0-release",
+  "title": "建立 M1–M5 修复、复检报告与 1.2.0 条件发布计划",
+  "goal": "将审计问题转为可执行修复与验收清单，要求修复完成后逐项复检并再次报告；M1–M5 修复和测试全部通过后升级为 1.2.0、更新文档、认证精确发布提交并正式发布。",
+  "acceptanceCriteria": [
+    "正式 Markdown/JSON Plan pair 和配套清单完整映射审计 findings、M1–M5 验证缺口、优先级、通过证据与延期范围。",
+    "清单明确要求修复完成后逐项复检，提供独立可读的中文修复报告和 GO/NO-GO 结论。",
+    "计划明确规定 M1–M5 所有必修项及测试全部通过后，才升级 1.2.0、更新文档、认证升级后的精确提交、发布并独立验证资产。",
+    "FAIL、BLOCKED 和 NOT RUN 不能满足发布门禁；新增 focused suites 有独立双平台证据，历史 CI 不能替代修复提交验证。",
+    "本次规划文件通过原生 Plan schema、配对和 plannedPaths 一致性检查；产品版本、代码与远端状态尚未修改。"
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-m1-m5-remediation-and-1-2-0-release.md",
+    "docs/plans/20261001-m1-m5-remediation-and-1-2-0-release.plan.json",
+    "docs/plans/20261001-m1-m5-remediation-checklist.md",
+    "docs/plans/README.md"
+  ],
+  "areas": ["GuardDocs"],
+  "risks": [
+    "静态审计发现未经复现就误判为已修复，或只修改声明而没有落实执行边界。",
+    "旧 PR 的绿色检查被错误视为新增修复测试或精确发布提交认证。",
+    "里程碑本地基础、延期功能、消费者采用和正式发布混为一谈。",
+    "版本或随包文档修改后继续使用旧 packageHash 和发布证据。",
+    "计划被误当作受保护路径 exact-diff 授权，或在门禁未通过前发布。"
+  ],
+  "decisions": [
+    "本 Plan 仅交付规划文档及索引；后续修复、授权、版本和发布记录由精确子 Plans 承担变更路径。",
+    "优先修复候选 Module 执行与链接路径缺口，再修复 Target Trust 和 Plan pair，完成文档与 M1–M5 双平台回归。",
+    "必修项逐项 PASS 和复检报告 GO 是进入 1.2.0 升级阶段的前提；升级后重新认证，再正式发布和独立验证。",
+    "延期项单独记录，不记为 PASS，也不将修复完成等同全部 M1–M5 roadmap 完成。",
+    "保持历史 release 不可变，受保护变更使用既有 base-held single-use authorization 流程。"
+  ],
+  "validationCommands": [
+    "Test-Json -LiteralPath docs/plans/20261001-m1-m5-remediation-and-1-2-0-release.plan.json -SchemaFile core/contracts/plan.schema.json",
+    "验证本次新增及修改路径与 plannedPaths 精确一致，并验证 Plan pair 和 checklist 引用存在。",
+    "pwsh -NoProfile -File core/runtime/Test-V4Package.ps1 -PackageRoot .",
+    "git diff --check"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}
