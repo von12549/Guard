@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "id": "v4-m5-local-governance",
+  "planLimits": {
+    "maxMembers": 16,
+    "maxPlanBytes": 1048576,
+    "maxAggregateBytes": 8388608,
+    "maxDependencyDepth": 8,
+    "maxPlannedPaths": 4096,
+    "maxValidationCommands": 256,
+    "maxRiskDecisionEntries": 256,
+    "maxCompositionSeconds": 30
+  },
+  "files": [
+    {
+      "path": "core/governance/contracts/plan-authoring.schema.json",
+      "sha256": "e1330dab48b55c48ee6d76f87118e1fd2fc288764121432c610278add4bc81bc"
+    },
+    {
+      "path": "core/governance/contracts/target-trust-authorization.schema.json",
+      "sha256": "d609c08d612fabf14e51b01077d3ef8f18314de900f4f042347a6bb015e5e19f"
+    },
+    {
+      "path": "core/governance/contracts/target-trust-policy.schema.json",
+      "sha256": "d71933ed526f1f140ed6e399d772c741b91c870fec6d66664d9a8300fc2f2d39"
+    },
+    {
+      "path": "core/governance/plan-policy.json",
+      "sha256": "9696af11426f61dc64d5ca7dbf1ca3850f366d1569dfbcb507cec1047482fa5d"
+    },
+    {
+      "path": "core/modules/contracts/module-lifecycle-result.schema.json",
+      "sha256": "9bb6d71f38fdb943175118addb40f777f52e4438d79ec5d2d0970c0f3e7a3f79"
+    }
+  ]
+}

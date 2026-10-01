@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://v4.guards.local/governance/plan-authoring.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "state", "plan", "unresolvedQuestions"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "state": { "const": "proposal" },
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["formatVersion", "id", "title", "goal", "acceptanceCriteria", "plannedPaths", "areas", "risks", "decisions", "validationCommands", "dependencies", "boundaries"],
+      "properties": {
+        "formatVersion": { "const": 1 },
+        "id": { "type": "string", "pattern": "^[0-9]{8}-[a-z0-9-]+$" },
+        "title": { "type": "string", "minLength": 1 },
+        "goal": { "type": "string", "minLength": 1 },
+        "acceptanceCriteria": { "$ref": "#/definitions/strings" },
+        "plannedPaths": { "$ref": "#/definitions/strings" },
+        "areas": { "$ref": "#/definitions/strings" },
+        "risks": { "$ref": "#/definitions/strings" },
+        "decisions": { "$ref": "#/definitions/strings" },
+        "validationCommands": { "$ref": "#/definitions/strings" },
+        "dependencies": { "$ref": "#/definitions/strings" },
+        "boundaries": { "$ref": "#/definitions/strings" }
+      }
+    },
+    "unresolvedQuestions": { "$ref": "#/definitions/strings" }
+  },
+  "definitions": {
+    "strings": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+  }
+}
