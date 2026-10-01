@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m4-pr-documentation-root",
+  "title": "Own the M4 PR planning documentation and backlog paths",
+  "goal": "Provide unique exact path ownership for every M4 planning documentation and backlog path in the PR root plan-set.",
+  "acceptanceCriteria": [
+    "The implementation program and three child Plan pairs retain detailed acceptance risks boundaries stop resume and recovery behavior.",
+    "Stage documentation separates v1 legacy compatibility v2 local advisory execution and trusted-CI authority.",
+    "V4-TODO-022 records the completed local foundation while remaining open for measured CI optimization authoritative reuse and managed local attestation.",
+    "This root and the composed plan-set provide exact unique ownership for every documentation path in the PR diff."
+  ],
+  "plannedPaths": [
+    "README.md",
+    "docs/plans/20261001-m4-implementation-program.md",
+    "docs/plans/20261001-m4-implementation-program.plan.json",
+    "docs/plans/20261001-m4-pr-documentation-root.md",
+    "docs/plans/20261001-m4-pr-documentation-root.plan.json",
+    "docs/plans/20261001-m4-pr-implementation-root.md",
+    "docs/plans/20261001-m4-pr-implementation-root.plan.json",
+    "docs/plans/20261001-m4-provider-dependency-execution.md",
+    "docs/plans/20261001-m4-provider-dependency-execution.plan.json",
+    "docs/plans/20261001-m4-stage-evidence-semantics-implementation.plan-set.json",
+    "docs/plans/20261001-m4-timing-evidence-diagnostics.md",
+    "docs/plans/20261001-m4-timing-evidence-diagnostics.plan.json",
+    "docs/plans/20261001-m4-versioned-stage-contract.md",
+    "docs/plans/20261001-m4-versioned-stage-contract.plan.json",
+    "docs/plans/product/TODO.md",
+    "docs/stage-semantics.md"
+  ],
+  "areas": ["GuardDocs", "stage"],
+  "risks": ["Local advisory Evidence could be documented as trusted-CI authority or a completed optimization."],
+  "decisions": ["Keep V4-TODO-022 open and state every unimplemented CI trust performance and cadence boundary explicitly."],
+  "validationCommands": ["Test-Json for all M4 Plan JSON files", "pwsh -NoProfile -File tests/p7/Test-V4Documentation.ps1", "exact plan-set diff"],
+  "dependencies": [],
+  "boundaries": []
+}

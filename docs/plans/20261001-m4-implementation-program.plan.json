@@ -1,0 +1,28 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m4-implementation-program",
+  "title": "Sequence M4 versioned Stage semantics and advisory Evidence implementation",
+  "goal": "Create exact M4 child Plans for semantic contracts provider dependencies timing and advisory reuse diagnostics without changing protected CI or remote authority.",
+  "acceptanceCriteria": [
+    "Three child Plan pairs cover versioned Stage contracts, Guard-owned providers and dependency execution, and timing plus Evidence diagnostics.",
+    "Every child preserves v1 compatibility and declares fail-closed trust and recovery boundaries.",
+    "CI optimization authoritative cross-run reuse Windows cadence protected components release activation and merge remain outside this implementation program.",
+    "No product code contract Profile Module test package Target remote or protected state changes occur in this planning checkpoint."
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-m4-implementation-program.md",
+    "docs/plans/20261001-m4-implementation-program.plan.json",
+    "docs/plans/20261001-m4-provider-dependency-execution.md",
+    "docs/plans/20261001-m4-provider-dependency-execution.plan.json",
+    "docs/plans/20261001-m4-timing-evidence-diagnostics.md",
+    "docs/plans/20261001-m4-timing-evidence-diagnostics.plan.json",
+    "docs/plans/20261001-m4-versioned-stage-contract.md",
+    "docs/plans/20261001-m4-versioned-stage-contract.plan.json"
+  ],
+  "areas": ["GuardDocs"],
+  "risks": ["A planning checkpoint could be mistaken for implemented or authoritative Evidence reuse."],
+  "decisions": ["Implement only the local non-protected M4 prerequisites and retain every CI optimization and authority change as separately authorized work."],
+  "validationCommands": ["Test-Json for all M4 implementation Plan JSON files", "exact planned-path audit"],
+  "dependencies": [],
+  "boundaries": []
+}

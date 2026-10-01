@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m4-pr-implementation-root",
+  "title": "Own the M4 versioned Stage and Evidence implementation paths",
+  "goal": "Provide unique exact path ownership for M4 v2 authorities Host behavior built-in providers and focused validation.",
+  "acceptanceCriteria": [
+    "The frozen v1 schemas manifests Profiles Modules CLI and runtime behavior remain compatible and use the legacy branch.",
+    "The hash-bound v2 catalog enforces exact Profile provider role capability and result identities.",
+    "Direct semantic gates fail closed without exact fresh provider Evidence and with-dependencies reports ordered executed or reused steps.",
+    "Target workspace provider-file staleness and identity drift invalidate reuse while coverage remains non-vacuous.",
+    "Results separate deterministic content identity from Stage and Module timing and always report local-advisory authoritative false.",
+    "Read-only inspection validates the isolated result schema and exact project/run path without adding a mutation or trust gateway."
+  ],
+  "plannedPaths": [
+    "core/host/V4.Guards.Host/StageRuntime.cs",
+    "core/stage/contracts/built-in-provider.schema.json",
+    "core/stage/contracts/semantic-profile.schema.json",
+    "core/stage/contracts/stage-result.schema.json",
+    "core/stage/contracts/stage-semantics-contract.schema.json",
+    "core/stage/profiles/semantic_profile.json",
+    "core/stage/providers/guard-readiness.provider.json",
+    "core/stage/providers/workspace-analysis.provider.json",
+    "core/stage/stage-semantics-contract.json",
+    "core/stage/validation/Test-V4StageSemantics.ps1"
+  ],
+  "areas": ["contracts", "evidence", "host", "profiles", "providers", "stage", "tests"],
+  "risks": [
+    "A legacy v1 authority could be reinterpreted instead of remaining visibly untyped.",
+    "A provider result could be promoted into a gate verdict.",
+    "Stale mismatched or tampered local Evidence could be reused.",
+    "Content-equivalent local Evidence could be presented as trusted-CI authority."
+  ],
+  "decisions": [
+    "Keep v2 authorities isolated under core/stage and preserve frozen v1 bytes.",
+    "Use Host-owned no-process no-network no-write providers for the first readiness and analysis contracts.",
+    "Permit exact local cross-run reuse only for advisory execution and report authoritative false.",
+    "Keep CI selection provenance authority Windows cadence and protected changes outside this root."
+  ],
+  "validationCommands": [
+    "pwsh -NoProfile -File core/stage/validation/Test-V4StageSemantics.ps1",
+    "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1",
+    "pwsh -NoProfile -File tests/p1/Test-V4Package.ps1",
+    "pwsh -NoProfile -File tests/p1/Test-V4Registry.ps1",
+    "pwsh -NoProfile -File tests/p3/Test-V4Stages.ps1",
+    "pwsh -NoProfile -File tests/p3/Test-V4StageOrchestration.ps1",
+    "pwsh -NoProfile -File tests/p8/Test-V4CompatibilityBaseline.ps1",
+    "pwsh -NoProfile -File tests/p8/Test-V4StableCli.ps1",
+    "pwsh -NoProfile -File tests/p9/Test-V4QueryContracts.ps1"
+  ],
+  "dependencies": ["20261001-m4-pr-documentation-root"],
+  "boundaries": []
+}

@@ -1,0 +1,9 @@
+{
+  "formatVersion": 2,
+  "id": "guard-readiness",
+  "semanticContractVersion": 2,
+  "resultKind": "readiness-provider",
+  "stage": "bootstrap",
+  "implementation": "v4-host",
+  "capabilities": { "readRoots": ["TargetRoot", "StateRoot"], "writeRoots": [], "processes": [], "network": false }
+}

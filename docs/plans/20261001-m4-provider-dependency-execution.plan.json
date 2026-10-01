@@ -1,0 +1,29 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m4-provider-dependency-execution",
+  "title": "Implement Guard-owned providers and explicit Stage dependencies",
+  "goal": "Execute or validate exact readiness and analysis dependencies without changing direct Stage semantics or CI authority.",
+  "acceptanceCriteria": [
+    "Guard-owned readiness and analysis providers are registered with no network and no TargetRoot write capability.",
+    "Semantic Module result kinds are accepted only in their matching Stage roles.",
+    "Direct semantic Pre and Post fail closed without fresh exact provider Evidence.",
+    "With-dependencies exposes ordered executed or reused provider steps and never promotes provider success into a gate result.",
+    "Legacy v1 direct and with-dependencies behavior remains byte-contract compatible."
+  ],
+  "plannedPaths": [
+    "core/host/V4.Guards.Host/StageRuntime.cs",
+    "core/stage/validation/Test-V4StageSemantics.ps1",
+    "docs/plans/20261001-m4-provider-dependency-execution.md",
+    "docs/plans/20261001-m4-provider-dependency-execution.plan.json",
+    "core/stage/profiles/semantic_profile.json",
+    "core/stage/providers/guard-readiness.provider.json",
+    "core/stage/providers/workspace-analysis.provider.json",
+    "core/stage/stage-semantics-contract.json"
+  ],
+  "areas": ["host", "profiles", "providers", "stage", "tests"],
+  "risks": ["A stale or partial provider result could be mistaken for a gate dependency."],
+  "decisions": ["Bind local dependencies to exact content and producer identities and label their reuse advisory."],
+  "validationCommands": ["pwsh -NoProfile -File core/stage/validation/Test-V4StageSemantics.ps1", "pwsh -NoProfile -File tests/p1/Test-V4Package.ps1", "pwsh -NoProfile -File tests/p1/Test-V4Registry.ps1", "pwsh -NoProfile -File tests/p3/Test-V4Stages.ps1", "pwsh -NoProfile -File tests/p3/Test-V4StageOrchestration.ps1"],
+  "dependencies": [],
+  "boundaries": []
+}

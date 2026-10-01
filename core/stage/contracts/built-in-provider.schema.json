@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://guard.local/v4/stage/built-in-provider.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "id", "semanticContractVersion", "resultKind", "stage", "implementation", "capabilities"],
+  "properties": {
+    "formatVersion": { "const": 2 },
+    "id": { "enum": ["guard-readiness", "workspace-analysis"] },
+    "semanticContractVersion": { "const": 2 },
+    "resultKind": { "enum": ["readiness-provider", "analysis-provider"] },
+    "stage": { "enum": ["bootstrap", "analysis"] },
+    "implementation": { "const": "v4-host" },
+    "capabilities": {
+      "type": "object", "additionalProperties": false,
+      "required": ["readRoots", "writeRoots", "processes", "network"],
+      "properties": {
+        "readRoots": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["TargetRoot", "StateRoot", "EvidenceRoot"] } },
+        "writeRoots": { "type": "array", "maxItems": 0 },
+        "processes": { "type": "array", "maxItems": 0 },
+        "network": { "const": false }
+      }
+    }
+  },
+  "allOf": [
+    { "if": { "properties": { "id": { "const": "guard-readiness" } } }, "then": { "properties": { "resultKind": { "const": "readiness-provider" }, "stage": { "const": "bootstrap" } } } },
+    { "if": { "properties": { "id": { "const": "workspace-analysis" } } }, "then": { "properties": { "resultKind": { "const": "analysis-provider" }, "stage": { "const": "analysis" } } } }
+  ]
+}

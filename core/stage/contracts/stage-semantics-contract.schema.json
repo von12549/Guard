@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://guard.local/v4/stage/stage-semantics-contract.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "semanticContractVersion", "schemas", "profiles", "providers", "stageRoles"],
+  "properties": {
+    "formatVersion": { "const": 2 },
+    "semanticContractVersion": { "const": 2 },
+    "schemas": {
+      "type": "object", "additionalProperties": false, "required": ["catalog", "profile", "provider", "result"],
+      "properties": {
+        "catalog": { "$ref": "#/definitions/reference" },
+        "profile": { "$ref": "#/definitions/reference" },
+        "provider": { "$ref": "#/definitions/reference" },
+        "result": { "$ref": "#/definitions/reference" }
+      }
+    },
+    "profiles": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/namedReference" } },
+    "providers": { "type": "array", "minItems": 2, "items": { "$ref": "#/definitions/namedReference" } },
+    "stageRoles": {
+      "type": "object", "additionalProperties": false, "required": ["bootstrap", "analysis", "pre", "post"],
+      "properties": {
+        "bootstrap": { "$ref": "#/definitions/role" },
+        "analysis": { "$ref": "#/definitions/role" },
+        "pre": { "$ref": "#/definitions/role" },
+        "post": { "$ref": "#/definitions/role" }
+      }
+    }
+  },
+  "definitions": {
+    "reference": { "type": "object", "additionalProperties": false, "required": ["path", "sha256"], "properties": { "path": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" }, "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } } },
+    "namedReference": { "type": "object", "additionalProperties": false, "required": ["id", "path", "sha256"], "properties": { "id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" }, "path": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" }, "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } } },
+    "role": { "type": "object", "additionalProperties": false, "required": ["role", "resultKind", "successOutcome", "failureOutcome"], "properties": { "role": { "enum": ["readiness", "analysis", "pre-gate", "post-gate"] }, "resultKind": { "enum": ["readiness-provider", "analysis-provider", "pre-gate", "post-gate"] }, "successOutcome": { "enum": ["ready", "complete", "pass"] }, "failureOutcome": { "enum": ["not-ready", "incomplete", "fail"] } } }
+  }
+}

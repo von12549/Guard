@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://guard.local/v4/stage/semantic-profile.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "id", "version", "semanticContractVersion", "projectIdentity", "workspaceEvidence", "evidencePolicy", "providers", "gates"],
+  "properties": {
+    "formatVersion": { "const": 2 },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "semanticContractVersion": { "const": 2 },
+    "projectIdentity": {
+      "type": "object", "additionalProperties": false, "required": ["id", "relativeRoots"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+        "relativeRoots": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" } }
+      }
+    },
+    "workspaceEvidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["relativeRoots", "extensions", "excludedDirectoryNames", "maximumFiles", "maximumFileBytes"],
+      "properties": {
+        "relativeRoots": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" } },
+        "extensions": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^\\.[A-Za-z0-9]+$" } },
+        "excludedDirectoryNames": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Za-z0-9._-]+$" } },
+        "maximumFiles": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+        "maximumFileBytes": { "type": "integer", "minimum": 1, "maximum": 1073741824 }
+      }
+    },
+    "evidencePolicy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["maximumDependencyAgeSeconds", "workspaceState", "localProducerClass"],
+      "properties": {
+        "maximumDependencyAgeSeconds": { "type": "integer", "minimum": 1, "maximum": 86400 },
+        "workspaceState": { "const": "exact-including-untracked" },
+        "localProducerClass": { "const": "local-advisory" }
+      }
+    },
+    "providers": {
+      "type": "object", "additionalProperties": false, "required": ["bootstrap", "analysis"],
+      "properties": { "bootstrap": { "const": "guard-readiness" }, "analysis": { "const": "workspace-analysis" } }
+    },
+    "gates": {
+      "type": "object", "additionalProperties": false, "required": ["pre", "post"],
+      "properties": { "pre": { "const": "host-pre-gate" }, "post": { "const": "host-post-gate" } }
+    }
+  }
+}

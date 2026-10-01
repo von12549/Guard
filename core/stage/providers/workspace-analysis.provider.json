@@ -1,0 +1,9 @@
+{
+  "formatVersion": 2,
+  "id": "workspace-analysis",
+  "semanticContractVersion": 2,
+  "resultKind": "analysis-provider",
+  "stage": "analysis",
+  "implementation": "v4-host",
+  "capabilities": { "readRoots": ["TargetRoot", "EvidenceRoot"], "writeRoots": [], "processes": [], "network": false }
+}
