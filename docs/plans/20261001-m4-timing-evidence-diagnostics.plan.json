@@ -11,8 +11,7 @@
     "No CI selection Windows cadence protected component or performance threshold changes occur."
   ],
   "plannedPaths": [
-    "core/contracts/stage-result.schema.json",
-    "core/host/V4.Guards.Host/QueryRuntime.cs",
+    "core/stage/contracts/stage-result.schema.json",
     "core/host/V4.Guards.Host/StageRuntime.cs",
     "core/stage/validation/Test-V4StageSemantics.ps1",
     "docs/stage-semantics.md",

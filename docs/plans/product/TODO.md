@@ -289,6 +289,19 @@ source branch is a delivery action by the maintainer and does not add a Git oper
   compatibility visibly, fail closed on stale/missing dependencies and prove that optimization cannot
   suppress a relevant required gate. Managed local attestation remains deferred.
 
+  Local M4 foundation completed on 2026-10-01 under `20261001-m4-implementation-program`: isolated v2
+  authorities preserve the frozen v1 contracts, Guard-owned readiness and deterministic analysis
+  providers enforce result-kind placement, direct gates fail closed, and `--with-dependencies` visibly
+  executes or reuses exact local provider Evidence. Results expose non-vacuous coverage, Stage/Module
+  timing, content identity, freshness and tamper diagnostics, and always label developer-machine
+  Evidence `local-advisory`/non-authoritative. The experimental read-only inspector validates stored v2
+  Evidence without adding a mutation or trust gateway.
+
+  Keep this item open. The 20-sample V4-AD-042 baseline, coverage-selection optimization, Windows cadence
+  decision, base-policy trusted-CI provenance/revocation contract, authoritative same/prior-CI reuse and
+  any protected runner/classifier/approved-test changes remain separately planned. Managed local
+  attestation remains deferred.
+
 - [ ] **V4-TODO-023 — Target-project trust-change authorization implementation**
 
   Implement V4-AD-044's public schemas, base-policy protected-set declaration, authorization-record

@@ -1,0 +1,81 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m4-stage-evidence-semantics-implementation-set",
+  "members": [
+    {
+      "order": 1,
+      "planId": "20261001-m4-pr-documentation-root",
+      "path": "docs/plans/20261001-m4-pr-documentation-root.plan.json",
+      "sha256": "94b58b6b2283a6c48de6e906653eb5abc6dbd9ae4797706cab8b28eb6645058f",
+      "dependsOn": []
+    },
+    {
+      "order": 2,
+      "planId": "20261001-m4-pr-implementation-root",
+      "path": "docs/plans/20261001-m4-pr-implementation-root.plan.json",
+      "sha256": "05a41e0a27daefa5e75f6cc865a42bbd8ff7623d3d07e38f716aa0ad642e30f5",
+      "dependsOn": ["20261001-m4-pr-documentation-root"]
+    }
+  ],
+  "derivedUnion": {
+    "plannedPaths": [
+      "README.md",
+      "core/host/V4.Guards.Host/StageRuntime.cs",
+      "core/stage/contracts/built-in-provider.schema.json",
+      "core/stage/contracts/semantic-profile.schema.json",
+      "core/stage/contracts/stage-result.schema.json",
+      "core/stage/contracts/stage-semantics-contract.schema.json",
+      "core/stage/profiles/semantic_profile.json",
+      "core/stage/providers/guard-readiness.provider.json",
+      "core/stage/providers/workspace-analysis.provider.json",
+      "core/stage/stage-semantics-contract.json",
+      "core/stage/validation/Test-V4StageSemantics.ps1",
+      "docs/plans/20261001-m4-implementation-program.md",
+      "docs/plans/20261001-m4-implementation-program.plan.json",
+      "docs/plans/20261001-m4-pr-documentation-root.md",
+      "docs/plans/20261001-m4-pr-documentation-root.plan.json",
+      "docs/plans/20261001-m4-pr-implementation-root.md",
+      "docs/plans/20261001-m4-pr-implementation-root.plan.json",
+      "docs/plans/20261001-m4-provider-dependency-execution.md",
+      "docs/plans/20261001-m4-provider-dependency-execution.plan.json",
+      "docs/plans/20261001-m4-stage-evidence-semantics-implementation.plan-set.json",
+      "docs/plans/20261001-m4-timing-evidence-diagnostics.md",
+      "docs/plans/20261001-m4-timing-evidence-diagnostics.plan.json",
+      "docs/plans/20261001-m4-versioned-stage-contract.md",
+      "docs/plans/20261001-m4-versioned-stage-contract.plan.json",
+      "docs/plans/product/TODO.md",
+      "docs/stage-semantics.md"
+    ],
+    "areas": ["GuardDocs", "contracts", "evidence", "host", "profiles", "providers", "stage", "tests"],
+    "risks": [
+      "A legacy v1 authority could be reinterpreted instead of remaining visibly untyped.",
+      "A provider result could be promoted into a gate verdict.",
+      "Content-equivalent local Evidence could be presented as trusted-CI authority.",
+      "Local advisory Evidence could be documented as trusted-CI authority or a completed optimization.",
+      "Stale mismatched or tampered local Evidence could be reused."
+    ],
+    "decisions": [
+      "Keep CI selection provenance authority Windows cadence and protected changes outside this root.",
+      "Keep V4-TODO-022 open and state every unimplemented CI trust performance and cadence boundary explicitly.",
+      "Keep v2 authorities isolated under core/stage and preserve frozen v1 bytes.",
+      "Permit exact local cross-run reuse only for advisory execution and report authoritative false.",
+      "Use Host-owned no-process no-network no-write providers for the first readiness and analysis contracts."
+    ],
+    "validationCommands": [
+      "Test-Json for all M4 Plan JSON files",
+      "exact plan-set diff",
+      "pwsh -NoProfile -File core/stage/validation/Test-V4StageSemantics.ps1",
+      "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1",
+      "pwsh -NoProfile -File tests/p1/Test-V4Package.ps1",
+      "pwsh -NoProfile -File tests/p1/Test-V4Registry.ps1",
+      "pwsh -NoProfile -File tests/p3/Test-V4StageOrchestration.ps1",
+      "pwsh -NoProfile -File tests/p3/Test-V4Stages.ps1",
+      "pwsh -NoProfile -File tests/p7/Test-V4Documentation.ps1",
+      "pwsh -NoProfile -File tests/p8/Test-V4CompatibilityBaseline.ps1",
+      "pwsh -NoProfile -File tests/p8/Test-V4StableCli.ps1",
+      "pwsh -NoProfile -File tests/p9/Test-V4QueryContracts.ps1"
+    ],
+    "boundaries": []
+  },
+  "compositionHash": "36dbb58ded9fe75e87579f96e1d5579137e51af2db9c6ecd6d7a9903bb76e273"
+}

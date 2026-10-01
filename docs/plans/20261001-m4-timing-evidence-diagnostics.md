@@ -1,6 +1,6 @@
 # M4.3 — Stage timing and local Evidence diagnostics
 
-Status: `IMPLEMENTATION PLAN — PLANNED 2026-10-01`
+Status: `IMPLEMENTATION PLAN — IMPLEMENTED 2026-10-01`
 
 Formal Plan ID: `20261001-m4-timing-evidence-diagnostics`.
 
@@ -8,8 +8,8 @@ Formal Plan ID: `20261001-m4-timing-evidence-diagnostics`.
 
 Record monotonic total, per-Stage and per-Module wall time for semantic execution. Emit a normalized
 content identity, explicit `local-advisory` producer class, freshness decision, dependency source and
-reason for each executed or reused provider. Queries preserve those fields through the existing strict
-Stage-result contract so local users can inspect why Evidence was or was not reusable.
+reason for each executed or reused provider. The read-only experimental inspector validates and returns
+the isolated v2 Stage result unchanged so local users can inspect why Evidence was or was not reusable.
 
 Timing data is diagnostic input only. This checkpoint does not define a stable performance threshold,
 select CI coverage, change Windows cadence, or claim the V4-AD-042 sample baseline is complete.
@@ -27,3 +27,7 @@ Stop if elapsed time enters a reuse key, if stale or mismatched Evidence reports
 producer is reported authoritative. Resume after regenerating diagnostics from monotonic timing and exact
 identity inputs. Recovery reverts the additive semantic result fields and documentation; Evidence remains
 non-authoritative and disposable.
+
+Implementation evidence: semantic results separate deterministic content identity from monotonic timing,
+record every provider decision as executed or `reused-exact-local-advisory`, and expose the unchanged
+schema-valid result through the read-only experimental `stage inspect` operation.

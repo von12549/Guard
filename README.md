@@ -107,6 +107,10 @@ Use [commands.md](docs/commands.md) for stable syntax and [queries.md](docs/quer
 experimental read-only query surface. A Stage can run directly; dependency execution occurs only when
 explicitly requested and is reported in order.
 
+The experimental M4 semantic-contract v2 authority adds typed readiness/analysis providers, fail-closed
+gate dependencies, timing and explicitly local-advisory Evidence diagnostics without changing the frozen
+v1 command contract. See [versioned Stage semantics](docs/stage-semantics.md).
+
 ## Profiles and modules
 
 Profiles are declarative configuration. They select registered, hash-bound modules and may not provide
@@ -177,6 +181,7 @@ consumes. Every verdict records the hashes of the components that produced it. S
 - [Command reference](docs/commands.md)
 - [Configuration reference](docs/configuration.md)
 - [Query contracts](docs/queries.md)
+- [Versioned Stage semantics and local Evidence](docs/stage-semantics.md)
 - [Web Companion guide](integrations/web/README.md)
 - [V4-P9 gate audit](docs/plans/product/05-p9-gate-audit.md)
 - [Standalone migration records](docs/migration/v4-todo-008/README.md)

@@ -1,6 +1,6 @@
 # M4 implementation program — versioned Stage semantics and advisory Evidence
 
-Status: `IMPLEMENTATION PROGRAM — PLANNED 2026-10-01`
+Status: `IMPLEMENTATION PROGRAM — IMPLEMENTED LOCAL FOUNDATION 2026-10-01`
 
 Formal Plan ID: `20261001-m4-implementation-program`.
 
@@ -49,3 +49,10 @@ after correcting the exact authority or revising the Plan.
 Revert diagnostics, provider execution and contract changes in reverse order. Evidence under test-owned
 EvidenceRoot is disposable and never grants CI, Target or remote authority. No remote or protected state
 requires rollback.
+
+## Implementation result
+
+All three local checkpoints are implemented through isolated v2 authorities and an opt-in semantic
+Profile. Stable v1 authorities remain byte-identical. Focused M4 tests and affected v1 regressions pass.
+CI measurement/optimization, trusted-CI authoritative reuse, Windows cadence changes, protected
+components, managed local attestation, release and merge remain intentionally unperformed.
