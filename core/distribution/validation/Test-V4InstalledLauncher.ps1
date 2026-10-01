@@ -56,6 +56,13 @@ $layout = Resolve-V4InstalledLayout -PackageRoot (Join-Path $installRoot 'packag
 if (-not $layout.SelfContained -or [IO.Path]::GetExtension([string]$layout.HostPath) -cne $(if ($IsWindows) { '.exe' } else { '' })) {
     $failures.Add('Installed layout did not select the native self-contained apphost.')
 }
+if (-not $IsWindows) {
+    $hostMode = [IO.File]::GetUnixFileMode([string]$layout.HostPath)
+    $companionMode = [IO.File]::GetUnixFileMode([string]$layout.CompanionPath)
+    if (($hostMode -band [IO.UnixFileMode]::UserExecute) -eq 0 -or ($companionMode -band [IO.UnixFileMode]::UserExecute) -eq 0) {
+        $failures.Add('Installed self-contained Linux apphosts are not executable.')
+    }
+}
 
 $hostBytes = [IO.File]::ReadAllBytes([string]$layout.HostPath)
 [IO.File]::AppendAllText([string]$layout.HostPath,'drift',[Text.UTF8Encoding]::new($false))

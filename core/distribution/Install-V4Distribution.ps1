@@ -124,6 +124,23 @@ try {
         $source = $entry.Open(); $target = [IO.File]::Open($destination,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)
         try { $source.CopyTo($target) } finally { $target.Dispose(); $source.Dispose() }
     }
+    if (-not $IsWindows) {
+        $runtimePath = Join-Path $temporary 'package/core/distribution/runtime-manifest.json'
+        if ([IO.File]::Exists($runtimePath)) {
+            $runtimeSchema = Join-Path $temporary 'package/core/distribution/contracts/distribution-runtime.schema.json'
+            if (-not (Test-Json -LiteralPath $runtimePath -SchemaFile $runtimeSchema -ErrorAction SilentlyContinue)) { throw 'Extracted runtime manifest is invalid.' }
+            $runtime = Get-Content -Raw -LiteralPath $runtimePath | ConvertFrom-Json
+            if ($runtime.deploymentModel -ceq 'self-contained' -and $runtime.rid -match '^linux-') {
+                $execute = [IO.UnixFileMode]::UserExecute -bor [IO.UnixFileMode]::GroupExecute -bor [IO.UnixFileMode]::OtherExecute
+                foreach ($relative in @('host/v4-guards','companion/v4-web-companion')) {
+                    $nativePath = Join-Path $temporary $relative
+                    if (-not [IO.File]::Exists($nativePath)) { throw "Self-contained Linux executable is missing after extraction: $relative" }
+                    $unixMode = [IO.File]::GetUnixFileMode($nativePath)
+                    [IO.File]::SetUnixFileMode($nativePath, ($unixMode -bor $execute))
+                }
+            }
+        }
+    }
     Move-Item -LiteralPath $temporary -Destination $install
     $installedThisRun = $true
     $receiptFiles = @(Get-ChildItem -LiteralPath $install -File -Recurse -Force | Sort-Object FullName | ForEach-Object { [ordered]@{ path=[IO.Path]::GetRelativePath($install,$_.FullName).Replace('\','/'); sha256=Hash $_.FullName; size=$_.Length } })
