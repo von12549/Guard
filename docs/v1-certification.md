@@ -3,10 +3,14 @@
 The V4 certification pipeline certifies a local candidate; it does not publish a release or activate
 repository controls.
 
-Version `1.1.6` includes the completed P9 Web Companion, hash-bound root project README,
-P10.1 local composition contract and opt-in Host workspace evidence while preserving
+Source version `1.2.0` adds the repaired M1–M5 local foundations to the completed P9 Web Companion,
+hash-bound root project README, P10.1 local composition contract and opt-in Host workspace evidence while preserving
 stable API version `1.0`. V4 declares and certifies
 `linux-x64` and `win-x64` only; macOS support is not declared.
+
+The 1.2.0 release matrix is self-contained `linux-x64` and `win-x64`; portable and arm64 assets are not
+published. The latest formal release remains 1.1.6 until the exact 1.2.0 commit completes this pipeline,
+is tagged and is published.
 
 The certification boundary requires:
 

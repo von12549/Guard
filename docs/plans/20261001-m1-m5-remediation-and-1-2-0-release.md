@@ -1,6 +1,6 @@
 # M1–M5 审计修复计划与 1.2.0 发布门禁
 
-Status: `G-REPAIR GO 2026-10-01 — 修复复检完成；1.2.0 发布阶段进行中`
+Status: `P5 1.2.0 RELEASE CANDIDATE — G-REPAIR GO；尚未发布`
 
 Formal Plan ID: `20261001-m1-m5-remediation-and-1-2-0-release`.
 
@@ -193,3 +193,10 @@ focused suite 的 single-use authorization/trust-change。最终修复提交为
 独立报告为 [20261001-m1-m5-remediation-report](20261001-m1-m5-remediation-report.md)，证据
 索引位于 `evidence/20261001-m1-m5-remediation/`。结论：`G-REPAIR = GO`。允许进入 P5，
 但在 G-RELEASE 前不得创建 1.2.0 tag 或正式 Release。
+
+## 10. P5 版本候选
+
+Plan `20261001-v4-guards-1-2-0-release` 将产品、Host 和 Companion 升级为 1.2.0，消费 R0
+single-use baseline 授权，并固定 self-contained `linux-x64`/`win-x64` 两 ZIP 加 sidecar 的发行
+矩阵。版本 PR 及其精确 head 认证通过前不合并；最终 main merge commit 还必须重新执行 P6。
+当前状态仅为 release candidate，不是发布记录。

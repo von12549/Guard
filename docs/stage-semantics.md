@@ -1,6 +1,6 @@
 # Versioned Stage semantics and local Evidence diagnostics
 
-The M4 v2 semantics described here are available on `main` after the 1.1.6 release; 1.1.6 assets do not
+The M4 v2 semantics described here are available in the 1.2.0 source candidate; 1.1.6 assets do not
 contain them. Local advisory reuse remains non-authoritative and is not trusted CI evidence.
 
 M4 adds an experimental semantic-contract version 2 beside the frozen v1 Stage authorities. The stable

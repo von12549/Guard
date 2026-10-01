@@ -1,6 +1,6 @@
 # Plan governance and pair authoring
 
-This M5 local foundation is available on `main` after the 1.1.6 release and is not shipped in the 1.1.6
+This M5 local foundation is available in the 1.2.0 source candidate and is not shipped in the 1.1.6
 asset. Candidate output and local verification do not establish Target adoption or remote authority.
 
 M5 adds a local deterministic governance layer without changing the frozen v1 Plan or Plan-set schemas.

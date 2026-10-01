@@ -1,6 +1,6 @@
 # Immutable local Module lifecycle
 
-This M5 local foundation is available on `main` after 1.1.6 and is not included in the 1.1.6 release.
+This M5 local foundation is available in the 1.2.0 source candidate and is not included in the 1.1.6 release.
 Marketplace, signing, publication, selection and remote installation remain deferred.
 
 M5 adds `core/modules/Invoke-V4ModuleLifecycle.ps1`, an Agent-independent local lifecycle over installed
