@@ -1,0 +1,77 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m5-local-governance-implementation-set",
+  "members": [
+    {
+      "order": 1,
+      "planId": "20261001-m5-pr-documentation-root",
+      "path": "docs/plans/20261001-m5-pr-documentation-root.plan.json",
+      "sha256": "20f23f638f79e75bf32615340a1cd32a74528c799e44920ab24ee9789fbf7dca",
+      "dependsOn": []
+    },
+    {
+      "order": 2,
+      "planId": "20261001-m5-pr-implementation-root",
+      "path": "docs/plans/20261001-m5-pr-implementation-root.plan.json",
+      "sha256": "568abc43fd0d8b12e55a1264afe07ed0c8a8d8efe4c60725b12442e31da0c09f",
+      "dependsOn": ["20261001-m5-pr-documentation-root"]
+    }
+  ],
+  "derivedUnion": {
+    "plannedPaths": [
+      "README.md",
+      "core/governance/contracts/plan-authoring.schema.json",
+      "core/governance/contracts/target-trust-authorization.schema.json",
+      "core/governance/contracts/target-trust-policy.schema.json",
+      "core/governance/governance-contract.json",
+      "core/governance/plan-policy.json",
+      "core/governance/validation/Test-V4GovernanceFoundation.ps1",
+      "core/host/V4.Guards.Host/PlanRuntime.cs",
+      "core/host/V4.Guards.Host/Program.cs",
+      "core/host/V4.Guards.Host/TargetTrustRuntime.cs",
+      "core/modules/Invoke-V4ModuleLifecycle.ps1",
+      "core/modules/contracts/module-lifecycle-result.schema.json",
+      "core/modules/validation/Test-V4ModuleLifecycle.ps1",
+      "docs/module-lifecycle.md",
+      "docs/plan-governance.md",
+      "docs/plans/20261001-m5-implementation-program.md",
+      "docs/plans/20261001-m5-implementation-program.plan.json",
+      "docs/plans/20261001-m5-local-governance-implementation.plan-set.json",
+      "docs/plans/20261001-m5-module-lifecycle-foundation.md",
+      "docs/plans/20261001-m5-module-lifecycle-foundation.plan.json",
+      "docs/plans/20261001-m5-plan-governance-foundation.md",
+      "docs/plans/20261001-m5-plan-governance-foundation.plan.json",
+      "docs/plans/20261001-m5-pr-documentation-root.md",
+      "docs/plans/20261001-m5-pr-documentation-root.plan.json",
+      "docs/plans/20261001-m5-pr-implementation-root.md",
+      "docs/plans/20261001-m5-pr-implementation-root.plan.json",
+      "docs/plans/20261001-m5-target-trust-validation.md",
+      "docs/plans/20261001-m5-target-trust-validation.plan.json",
+      "docs/plans/product/TODO.md",
+      "docs/target-trust-authorization.md"
+    ],
+    "areas": ["GuardDocs", "authorization", "contracts", "governance", "host", "modules", "packaging", "plans", "target-trust", "tests"],
+    "risks": [
+      "A local operation could cross into Target Package or remote mutation.",
+      "A protected v1 or CI authority path could drift outside the authorized scope.",
+      "Documentation could overstate a local candidate or validator as applied trusted or remotely active authority."
+    ],
+    "decisions": [
+      "Keep new governance contracts isolated from frozen v1 and protected CI schemas.",
+      "State every unperformed protected Target release marketplace UI and remote boundary explicitly.",
+      "Use focused unprotected validation entry points while running all existing trusted suites unchanged."
+    ],
+    "validationCommands": [
+      "Test-Json for all M5 Plan JSON files",
+      "exact M5 root plan-set diff",
+      "pwsh -NoProfile -File core/governance/validation/Test-V4GovernanceFoundation.ps1",
+      "pwsh -NoProfile -File core/modules/validation/Test-V4ModuleLifecycle.ps1",
+      "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1",
+      "pwsh -NoProfile -File tests/p10/Test-V4ExtensionComposition.ps1",
+      "pwsh -NoProfile -File tests/p5/Test-V4PlanRuntime.ps1",
+      "pwsh -NoProfile -File tests/p7/Test-V4Documentation.ps1"
+    ],
+    "boundaries": []
+  },
+  "compositionHash": "5e9c7bf5a26857c47aab2b1f4dbddb8ebac406d32a3adf1fa464255e5ed3b40f"
+}

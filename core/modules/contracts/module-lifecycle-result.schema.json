@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://v4.guards.local/modules/module-lifecycle-result.schema.json",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["formatVersion", "status", "operation", "authority", "targetMutated", "builtInMutated", "remoteChange"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "enum": ["pass", "candidate", "handoff"] },
+    "operation": { "enum": ["inventory", "inspect", "graph", "scaffold", "validate", "test", "diff", "pack", "review", "compose", "verify"] },
+    "authority": { "const": "v4-module-lifecycle" },
+    "targetMutated": { "const": false },
+    "builtInMutated": { "const": false },
+    "remoteChange": { "const": false }
+  }
+}

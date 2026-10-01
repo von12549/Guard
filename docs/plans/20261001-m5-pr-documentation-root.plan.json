@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m5-pr-documentation-root",
+  "title": "Own the M5 PR planning and maintained documentation paths",
+  "goal": "Provide unique exact path ownership for every M5 planning documentation and backlog path in the PR root plan-set.",
+  "acceptanceCriteria": [
+    "The implementation program and three child Plan pairs retain detailed acceptance risks boundaries and recovery behavior.",
+    "Maintained documentation distinguishes candidates validation application activation publication and Evidence trust.",
+    "Backlog state records exactly the completed local foundation and every remaining boundary.",
+    "This root and the composed Plan set exactly match the final base-to-head diff."
+  ],
+  "plannedPaths": [
+    "README.md",
+    "docs/module-lifecycle.md",
+    "docs/plan-governance.md",
+    "docs/plans/20261001-m5-implementation-program.md",
+    "docs/plans/20261001-m5-implementation-program.plan.json",
+    "docs/plans/20261001-m5-local-governance-implementation.plan-set.json",
+    "docs/plans/20261001-m5-module-lifecycle-foundation.md",
+    "docs/plans/20261001-m5-module-lifecycle-foundation.plan.json",
+    "docs/plans/20261001-m5-plan-governance-foundation.md",
+    "docs/plans/20261001-m5-plan-governance-foundation.plan.json",
+    "docs/plans/20261001-m5-pr-documentation-root.md",
+    "docs/plans/20261001-m5-pr-documentation-root.plan.json",
+    "docs/plans/20261001-m5-pr-implementation-root.md",
+    "docs/plans/20261001-m5-pr-implementation-root.plan.json",
+    "docs/plans/20261001-m5-target-trust-validation.md",
+    "docs/plans/20261001-m5-target-trust-validation.plan.json",
+    "docs/plans/product/TODO.md",
+    "docs/target-trust-authorization.md"
+  ],
+  "areas": ["GuardDocs", "governance", "modules", "plans", "target-trust"],
+  "risks": ["Documentation could overstate a local candidate or validator as applied trusted or remotely active authority."],
+  "decisions": ["State every unperformed protected Target release marketplace UI and remote boundary explicitly."],
+  "validationCommands": ["Test-Json for all M5 Plan JSON files", "pwsh -NoProfile -File tests/p7/Test-V4Documentation.ps1", "exact M5 root plan-set diff"],
+  "dependencies": [],
+  "boundaries": []
+}

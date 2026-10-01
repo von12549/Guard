@@ -1,0 +1,32 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m5-plan-governance-foundation",
+  "title": "Implement bounded Plan sets and deterministic Plan-pair finalization",
+  "goal": "Enforce V4-AD-045 limits and implement V4-AD-046 proposal and exact-diff finalization while preserving v1 contracts.",
+  "acceptanceCriteria": [
+    "All accepted Plan-set member byte depth path command entry and time ceilings fail closed with deterministic diagnostics.",
+    "Shared path ownership and existing graph union identity and forbidden-boundary violations remain rejected.",
+    "Proposal scaffolding writes only non-authoritative EvidenceRoot state.",
+    "Finalization requires exact base/head diff reconciliation proposal hash confirmation and source generator policy identities.",
+    "Final JSON and Markdown are deterministic matching projections and are not silently adopted into TargetRoot."
+  ],
+  "plannedPaths": [
+    "core/governance/contracts/plan-authoring.schema.json",
+    "core/governance/governance-contract.json",
+    "core/governance/plan-policy.json",
+    "core/governance/validation/Test-V4GovernanceFoundation.ps1",
+    "core/host/V4.Guards.Host/PlanRuntime.cs"
+  ],
+  "areas": ["contracts", "governance", "host", "plans", "tests"],
+  "risks": [
+    "Resource enforcement could reinterpret or reject a previously valid ordinary v1 Plan.",
+    "Finalization could silently widen planned paths or accept a stale proposal."
+  ],
+  "decisions": [
+    "Keep the frozen v1 Plan schemas byte-stable and enforce accepted ceilings in versioned runtime policy.",
+    "Write proposal and finalized pair output only below EvidenceRoot for deliberate later adoption."
+  ],
+  "validationCommands": ["pwsh -NoProfile -File core/governance/validation/Test-V4GovernanceFoundation.ps1", "pwsh -NoProfile -File tests/p5/Test-V4PlanRuntime.ps1"],
+  "dependencies": [],
+  "boundaries": []
+}

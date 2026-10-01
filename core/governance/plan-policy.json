@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "id": "v4-m5-plan-governance",
+  "limits": {
+    "maxMembers": 16,
+    "maxPlanBytes": 1048576,
+    "maxAggregateBytes": 8388608,
+    "maxDependencyDepth": 8,
+    "maxPlannedPaths": 4096,
+    "maxValidationCommands": 256,
+    "maxRiskDecisionEntries": 256,
+    "maxCompositionSeconds": 30
+  },
+  "ownership": "exclusive-finalized-path",
+  "finalization": "operator-confirmed-exact-base-head-diff",
+  "candidateRoot": "EvidenceRoot"
+}

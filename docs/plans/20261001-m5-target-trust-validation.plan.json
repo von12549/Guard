@@ -1,0 +1,31 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m5-target-trust-validation",
+  "title": "Implement target trust authorization contracts and consuming validation",
+  "goal": "Provide base-held single-use target trust authorization generation and validation without applying or remotely activating a Target change.",
+  "acceptanceCriteria": [
+    "Trusted base policy defines the protected set and candidate policy cannot authorize itself.",
+    "Authorization candidates bind a separate consuming Plan and exact add change or delete hashes.",
+    "Missing partial candidate-only reused mismatched self-authorizing and unprotected records fail closed.",
+    "Validation reports Host and policy judge identity.",
+    "No Target workflow ruleset pull request or remote state is changed."
+  ],
+  "plannedPaths": [
+    "core/governance/contracts/target-trust-authorization.schema.json",
+    "core/governance/contracts/target-trust-policy.schema.json",
+    "core/host/V4.Guards.Host/Program.cs",
+    "core/host/V4.Guards.Host/TargetTrustRuntime.cs"
+  ],
+  "areas": ["authorization", "contracts", "governance", "host", "target-trust"],
+  "risks": [
+    "Candidate-controlled policy could authorize a changed judge.",
+    "Authorization validation could be confused with Target application or remote enforcement."
+  ],
+  "decisions": [
+    "Read policy and consumed authorization from the exact trusted base Git object.",
+    "Expose validation evidence only and keep application and activation as separate transactions."
+  ],
+  "validationCommands": ["pwsh -NoProfile -File core/governance/validation/Test-V4GovernanceFoundation.ps1"],
+  "dependencies": [],
+  "boundaries": []
+}

@@ -1,0 +1,43 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m5-pr-implementation-root",
+  "title": "Own the M5 local governance and Module lifecycle implementation paths",
+  "goal": "Provide unique exact path ownership for all M5 product contracts runtimes policies and focused validation.",
+  "acceptanceCriteria": [
+    "Plan governance target authorization and Module lifecycle focused suites pass positive and negative cases.",
+    "Stable v1 protected trust release Target application and remote activation boundaries remain unchanged.",
+    "Every implementation path is owned exactly once by this root."
+  ],
+  "plannedPaths": [
+    "core/governance/contracts/plan-authoring.schema.json",
+    "core/governance/contracts/target-trust-authorization.schema.json",
+    "core/governance/contracts/target-trust-policy.schema.json",
+    "core/governance/governance-contract.json",
+    "core/governance/plan-policy.json",
+    "core/governance/validation/Test-V4GovernanceFoundation.ps1",
+    "core/host/V4.Guards.Host/PlanRuntime.cs",
+    "core/host/V4.Guards.Host/Program.cs",
+    "core/host/V4.Guards.Host/TargetTrustRuntime.cs",
+    "core/modules/Invoke-V4ModuleLifecycle.ps1",
+    "core/modules/contracts/module-lifecycle-result.schema.json",
+    "core/modules/validation/Test-V4ModuleLifecycle.ps1"
+  ],
+  "areas": ["authorization", "contracts", "governance", "host", "modules", "packaging", "plans", "target-trust", "tests"],
+  "risks": [
+    "A local operation could cross into Target Package or remote mutation.",
+    "A protected v1 or CI authority path could drift outside the authorized scope."
+  ],
+  "decisions": [
+    "Keep new governance contracts isolated from frozen v1 and protected CI schemas.",
+    "Use focused unprotected validation entry points while running all existing trusted suites unchanged."
+  ],
+  "validationCommands": [
+    "pwsh -NoProfile -File core/governance/validation/Test-V4GovernanceFoundation.ps1",
+    "pwsh -NoProfile -File core/modules/validation/Test-V4ModuleLifecycle.ps1",
+    "pwsh -NoProfile -File tests/p0/Test-V4Contracts.ps1",
+    "pwsh -NoProfile -File tests/p5/Test-V4PlanRuntime.ps1",
+    "pwsh -NoProfile -File tests/p10/Test-V4ExtensionComposition.ps1"
+  ],
+  "dependencies": ["20261001-m5-pr-documentation-root"],
+  "boundaries": []
+}
