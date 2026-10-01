@@ -23,6 +23,6 @@
     "pwsh -NoProfile -File core/runtime/Test-V4Package.ps1 -PackageRoot .",
     "git diff --check"
   ],
-  "dependencies": ["20261001-m1-m5-p3-release-boundary-docs"],
+  "dependencies": [],
   "boundaries": []
 }
