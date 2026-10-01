@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-v4-guards-1-2-0-fixture-contract-authorization",
+  "title": "授权 V4 Guards 1.2.0 组合负例与 CI contract 原子重绑定（P5 R0.2）",
+  "goal": "为版本无关组合负例及其 approved-test 哈希绑定增加一次性、base-held 的原子授权记录。",
+  "acceptanceCriteria": [
+    "受信任 base runner 将本 PR 判定为 authorization-added，且 required checks 全部通过。",
+    "授权精确绑定 Test-V4ExtensionComposition.ps1 与 ci-contract.json 两个受保护文件的 base/head SHA-256。",
+    "CI contract 只重绑定该测试哈希，不改变上下文、路径、平台选择或其他 approved test。",
+    "记录指向独立 consuming Plan 20261001-v4-guards-1-2-0-fixture-contract-fix，并禁止 candidate Host 自我裁决。"
+  ],
+  "plannedPaths": [
+    "docs/plans/20261001-v4-guards-1-2-0-fixture-contract-authorization.md",
+    "docs/plans/20261001-v4-guards-1-2-0-fixture-contract-authorization.plan.json",
+    "docs/plans/authorizations/20261001-v4-guards-1-2-0-fixture-contract-record.json"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "授权哈希若与最终 candidate 字节不同，consuming PR 必须失败关闭并重新授权。"
+  ],
+  "decisions": [
+    "测试与 approved-test 哈希绑定必须在同一 trust-change PR 中原子变更。",
+    "此前仅含测试条目的记录不能通过 candidate contract binding，因此不作为本变更授权。"
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "authorization"
+  ]
+}
