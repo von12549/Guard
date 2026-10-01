@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-m5-p2-governance-integrity",
+  "title": "修复 Target Trust 与 Plan pair 完整性",
+  "goal": "关闭 F-03/F-04：Target Trust 从受审 Git revision 完整重算 Plan-set，Plan finalization 以不可覆盖的目录提交和绑定 receipt 生成注入安全 pair。",
+  "acceptanceCriteria": [
+    "Target Trust 验证成员 Plan 字节、hash、identity、dependency、canonical order、derived union、compositionHash 和完整 candidate diff。",
+    "伪 hash、缺失成员、重复身份、错误 union/composition、路径遗漏、自授权和工作树替换均有正负测试。",
+    "Plan Markdown 的标题、正文、列表、反引号、换行和控制字符不能伪造状态或章节。",
+    "finalized JSON/Markdown/receipt 以新目录提交，绑定 proposal/base/head/source/generator/policy；单侧篡改、重放和覆盖失败关闭。"
+  ],
+  "plannedPaths": [
+    "core/governance/validation/Test-V4GovernanceFoundation.ps1",
+    "core/host/V4.Guards.Host/PlanRuntime.cs",
+    "core/host/V4.Guards.Host/TargetTrustRuntime.cs",
+    "docs/plan-governance.md",
+    "docs/plans/20261001-m1-m5-p2-governance-integrity.md",
+    "docs/plans/20261001-m1-m5-p2-governance-integrity.plan.json",
+    "docs/target-trust-authorization.md"
+  ],
+  "areas": ["PlanGovernance", "TargetTrust", "Security", "GuardDocs"],
+  "risks": [
+    "Plan-set canonicalization must remain byte-compatible with PlanRuntime composition.",
+    "双文件不能依赖不存在的文件系统原子性，因此以新目录提交和绑定 receipt 定义成功边界。"
+  ],
+  "decisions": [
+    "Target Trust 只读取明确 base/head Git object，不读取工作树或候选自报 policy bytes。",
+    "完整 diff 必须等于已验证 Plan-set 的 plannedPaths union，Plan-set 和成员文件也必须由 union 拥有。",
+    "已存在 finalized 目录不可覆盖；verify-pair 以调用者给定 provenance 检测单侧篡改和旧 pair 重放。"
+  ],
+  "validationCommands": [
+    "pwsh -NoProfile -File core/governance/validation/Test-V4GovernanceFoundation.ps1",
+    "pwsh -NoProfile -File core/runtime/Test-V4Package.ps1 -PackageRoot .",
+    "git diff --check"
+  ],
+  "dependencies": ["20261001-m1-m5-p1-module-boundaries"],
+  "boundaries": []
+}

@@ -9,7 +9,9 @@ namespace V4.Guards.Host;
 internal static class TargetTrustRuntime
 {
     private static readonly JsonSerializerOptions Output = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
+    private static readonly JsonSerializerOptions Canonical = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = false };
     private static readonly Regex PlanId = new("^[0-9]{8}-[a-z0-9-]+$", RegexOptions.CultureInvariant);
+    private static readonly string[] PlanProperties = ["formatVersion", "id", "title", "goal", "acceptanceCriteria", "plannedPaths", "areas", "risks", "decisions", "validationCommands", "dependencies", "boundaries"];
 
     public static int Execute(string[] args)
     {
@@ -88,13 +90,11 @@ internal static class TargetTrustRuntime
         if (authorization.PolicyId != policy.Id) throw Findings("Authorization policy identity mismatch.");
         var planSetPath = Relative(values.Required("plan-set"), "Plan-set path");
         var planSetBytes = GitBytes(targetRoot, headRef, planSetPath, true)!;
-        using var planSetDocument = JsonDocument.Parse(planSetBytes);
-        var members = planSetDocument.RootElement.GetProperty("members").EnumerateArray().Select(item => item.GetProperty("planId").GetString()).ToArray();
-        if (!members.Contains(authorization.PlanId, StringComparer.Ordinal)) throw Findings("Consuming Plan is not a member of the candidate Plan set.");
-        var boundaries = planSetDocument.RootElement.GetProperty("derivedUnion").GetProperty("boundaries").EnumerateArray().Select(item => item.GetString()).ToArray();
-        if (!boundaries.Contains("trust-change", StringComparer.Ordinal) || boundaries.Contains("authorization", StringComparer.Ordinal))
-            throw Findings("Consuming Plan set must be trust-change only and cannot self-authorize.");
         var changed = GitNames(targetRoot, baseRef, headRef);
+        var planSet = ValidatePlanSet(targetRoot, headRef, planSetPath, planSetBytes, changed);
+        if (!planSet.MemberIds.Contains(authorization.PlanId, StringComparer.Ordinal)) throw Findings("Consuming Plan is not a member of the candidate Plan set.");
+        if (!planSet.Boundaries.Contains("trust-change", StringComparer.Ordinal) || planSet.Boundaries.Contains("authorization", StringComparer.Ordinal))
+            throw Findings("Consuming Plan set must be trust-change only and cannot self-authorize.");
         if (!changed.Contains(authorizationPath, StringComparer.Ordinal)) throw Findings("Authorization record is not consumed by the candidate diff.");
         var protectedChanged = changed.Where(path => path != authorizationPath && policy.ProtectedPaths.Any(pattern => Matches(path, pattern))).Order(StringComparer.Ordinal).ToArray();
         var entryPaths = authorization.Entries.Select(entry => entry.Path).Order(StringComparer.Ordinal).ToArray();
@@ -114,6 +114,143 @@ internal static class TargetTrustRuntime
             judge = Judge(packageRoot, policyBytes)
         }, Output));
         return 0;
+    }
+
+    private static VerifiedPlanSet ValidatePlanSet(string targetRoot, string headRef, string planSetPath, byte[] bytes, string[] changed)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(bytes, new JsonDocumentOptions { AllowTrailingCommas = false, CommentHandling = JsonCommentHandling.Disallow });
+            var root = document.RootElement;
+            ExactProperties(root, ["formatVersion", "id", "members", "derivedUnion", "compositionHash"]);
+            if (root.GetProperty("formatVersion").GetInt32() != 1) throw new JsonException("formatVersion");
+            var setId = Required(root, "id");
+            if (!PlanId.IsMatch(setId)) throw new JsonException("id");
+            var memberElements = root.GetProperty("members").EnumerateArray().ToArray();
+            if (memberElements.Length is < 2 or > 16) throw Findings("Candidate Plan set must contain between 2 and 16 members.");
+            var declared = new List<SetMember>();
+            var plans = new Dictionary<string, PlanData>(StringComparer.Ordinal);
+            var memberPaths = new HashSet<string>(StringComparer.Ordinal);
+            long aggregateBytes = 0;
+            for (var index = 0; index < memberElements.Length; index++)
+            {
+                var item = memberElements[index];
+                ExactProperties(item, ["order", "planId", "path", "sha256", "dependsOn"]);
+                if (item.GetProperty("order").GetInt32() != index + 1) throw Findings("Plan-set member order is not contiguous and canonical.");
+                var id = Required(item, "planId");
+                var path = Relative(Required(item, "path"), "Plan-set member path");
+                var sha = Required(item, "sha256");
+                if (!PlanId.IsMatch(id) || !Regex.IsMatch(sha, "^[a-f0-9]{64}$") || !memberPaths.Add(path) || plans.ContainsKey(id))
+                    throw Findings("Plan-set contains an invalid or duplicate member identity/path.");
+                var memberBytes = GitBytes(targetRoot, headRef, path, true)!;
+                aggregateBytes += memberBytes.Length;
+                if (memberBytes.Length > 1048576 || aggregateBytes > 8388608) throw Findings("Plan-set member byte limits are exceeded.");
+                var actualHash = Convert.ToHexString(SHA256.HashData(memberBytes)).ToLowerInvariant();
+                if (actualHash != sha) throw Findings($"Plan-set member hash mismatch: {path}");
+                using var memberDocument = JsonDocument.Parse(memberBytes, new JsonDocumentOptions { AllowTrailingCommas = false, CommentHandling = JsonCommentHandling.Disallow });
+                var plan = ParsePlan(memberDocument.RootElement);
+                if (plan.Id != id) throw Findings($"Plan-set member identity mismatch: {path}");
+                var dependsOn = Strings(item, "dependsOn", false).Order(StringComparer.Ordinal).ToArray();
+                if (!dependsOn.SequenceEqual(plan.Dependencies.Order(StringComparer.Ordinal), StringComparer.Ordinal))
+                    throw Findings($"Plan-set member dependency projection mismatch: {id}");
+                declared.Add(new SetMember(index + 1, id, path, sha, dependsOn));
+                plans.Add(id, plan);
+            }
+
+            var owners = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var plan in plans.Values)
+            foreach (var path in plan.PlannedPaths)
+                if (!owners.Add(path)) throw Findings($"Plan-set has conflicting path ownership: {path}");
+            foreach (var plan in plans.Values)
+            foreach (var dependency in plan.Dependencies)
+                if (dependency == plan.Id || !plans.ContainsKey(dependency)) throw Findings($"Plan-set dependency is missing or self-referential: {dependency}");
+            var orderedIds = TopologicalIds(plans);
+            if (!declared.Select(member => member.PlanId).SequenceEqual(orderedIds, StringComparer.Ordinal))
+                throw Findings("Plan-set member order does not match the canonical dependency order.");
+
+            var unionElement = root.GetProperty("derivedUnion");
+            ExactProperties(unionElement, ["plannedPaths", "areas", "risks", "decisions", "validationCommands", "boundaries"]);
+            var union = new UnionData(
+                Strings(unionElement, "plannedPaths", true), Strings(unionElement, "areas", true),
+                Strings(unionElement, "risks", false), Strings(unionElement, "decisions", false),
+                Strings(unionElement, "validationCommands", true), Strings(unionElement, "boundaries", false));
+            AssertUnion("plannedPaths", union.PlannedPaths, plans.Values.SelectMany(plan => plan.PlannedPaths));
+            AssertUnion("areas", union.Areas, plans.Values.SelectMany(plan => plan.Areas));
+            AssertUnion("risks", union.Risks, plans.Values.SelectMany(plan => plan.Risks));
+            AssertUnion("decisions", union.Decisions, plans.Values.SelectMany(plan => plan.Decisions));
+            AssertUnion("validationCommands", union.ValidationCommands, plans.Values.SelectMany(plan => plan.ValidationCommands));
+            AssertUnion("boundaries", union.Boundaries, plans.Values.SelectMany(plan => plan.Boundaries));
+            if (!union.PlannedPaths.SequenceEqual(changed.Order(StringComparer.Ordinal), StringComparer.Ordinal))
+                throw Findings("Plan-set derived planned-path union does not exactly match the base/head diff.");
+            if (!union.PlannedPaths.Contains(planSetPath, StringComparer.Ordinal))
+                throw Findings("Plan-set does not own its candidate file path.");
+
+            var canonical = JsonSerializer.SerializeToUtf8Bytes(new
+            {
+                formatVersion = 1, id = setId,
+                members = declared.Select(member => new { order = member.Order, planId = member.PlanId, path = member.Path, sha256 = member.Sha256, dependsOn = member.DependsOn }).ToArray(),
+                derivedUnion = new { plannedPaths = union.PlannedPaths, areas = union.Areas, risks = union.Risks, decisions = union.Decisions, validationCommands = union.ValidationCommands, boundaries = union.Boundaries }
+            }, Canonical);
+            var compositionHash = Required(root, "compositionHash");
+            var actualCompositionHash = Convert.ToHexString(SHA256.HashData(canonical)).ToLowerInvariant();
+            if (compositionHash != actualCompositionHash) throw Findings("Plan-set compositionHash mismatch.");
+            return new VerifiedPlanSet(declared.Select(member => member.PlanId).ToArray(), union.PlannedPaths, union.Boundaries);
+        }
+        catch (TrustException) { throw; }
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException or KeyNotFoundException)
+        { throw Integrity($"Candidate Plan set is invalid: {ex.Message}"); }
+    }
+
+    private static PlanData ParsePlan(JsonElement root)
+    {
+        ExactProperties(root, PlanProperties);
+        if (root.GetProperty("formatVersion").GetInt32() != 1) throw new JsonException("formatVersion");
+        var id = Required(root, "id");
+        if (!PlanId.IsMatch(id)) throw new JsonException("id");
+        _ = Required(root, "title"); _ = Required(root, "goal");
+        var acceptance = Strings(root, "acceptanceCriteria", true);
+        var plannedPaths = Strings(root, "plannedPaths", true).Select(path => Relative(path, "Plan planned path")).Order(StringComparer.Ordinal).ToArray();
+        var areas = Strings(root, "areas", true).Order(StringComparer.Ordinal).ToArray();
+        var risks = Strings(root, "risks", false).Order(StringComparer.Ordinal).ToArray();
+        var decisions = Strings(root, "decisions", false).Order(StringComparer.Ordinal).ToArray();
+        var commands = Strings(root, "validationCommands", true).Order(StringComparer.Ordinal).ToArray();
+        var dependencies = Strings(root, "dependencies", false).Order(StringComparer.Ordinal).ToArray();
+        if (dependencies.Any(dependency => !PlanId.IsMatch(dependency))) throw new JsonException("dependencies");
+        var boundaries = Strings(root, "boundaries", false).Order(StringComparer.Ordinal).ToArray();
+        if (boundaries.Any(boundary => boundary is not ("authorization" or "trust-change" or "activation" or "engine-change" or "remote-change"))) throw new JsonException("boundaries");
+        _ = acceptance;
+        return new PlanData(id, plannedPaths, areas, risks, decisions, commands, dependencies, boundaries);
+    }
+
+    private static string[] Strings(JsonElement root, string name, bool nonEmpty)
+    {
+        var element = root.GetProperty(name);
+        if (element.ValueKind != JsonValueKind.Array) throw new JsonException(name);
+        var values = element.EnumerateArray().Select(item => item.ValueKind == JsonValueKind.String ? item.GetString() ?? "" : throw new JsonException(name)).ToArray();
+        if ((nonEmpty && values.Length == 0) || values.Any(string.IsNullOrEmpty) || values.Distinct(StringComparer.Ordinal).Count() != values.Length) throw new JsonException(name);
+        return values;
+    }
+
+    private static void AssertUnion(string name, string[] actual, IEnumerable<string> expected)
+    {
+        var canonical = expected.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+        if (!actual.SequenceEqual(canonical, StringComparer.Ordinal)) throw Findings($"Plan-set derived union mismatch: {name}");
+    }
+
+    private static string[] TopologicalIds(Dictionary<string, PlanData> plans)
+    {
+        var indegree = plans.ToDictionary(pair => pair.Key, pair => pair.Value.Dependencies.Length, StringComparer.Ordinal);
+        var dependents = plans.Keys.ToDictionary(id => id, _ => new List<string>(), StringComparer.Ordinal);
+        foreach (var plan in plans.Values) foreach (var dependency in plan.Dependencies) dependents[dependency].Add(plan.Id);
+        var ready = new SortedSet<string>(indegree.Where(pair => pair.Value == 0).Select(pair => pair.Key), StringComparer.Ordinal);
+        var ordered = new List<string>();
+        while (ready.Count > 0)
+        {
+            var id = ready.Min!; ready.Remove(id); ordered.Add(id);
+            foreach (var dependent in dependents[id].Order(StringComparer.Ordinal)) if (--indegree[dependent] == 0) ready.Add(dependent);
+        }
+        if (ordered.Count != plans.Count) throw Findings("Plan-set dependency graph contains a cycle.");
+        return ordered.ToArray();
     }
 
     private static object Judge(string packageRoot, byte[] policyBytes)
@@ -262,6 +399,10 @@ internal static class TargetTrustRuntime
     private sealed record Policy(string Id, string AuthorizationDirectory, string[] ProtectedPaths);
     private sealed record Authorization(string Id, string PlanId, string PolicyId, AuthorizationEntry[] Entries);
     private sealed record AuthorizationEntry(string Path, string? BaseSha256, string? HeadSha256);
+    private sealed record SetMember(int Order, string PlanId, string Path, string Sha256, string[] DependsOn);
+    private sealed record PlanData(string Id, string[] PlannedPaths, string[] Areas, string[] Risks, string[] Decisions, string[] ValidationCommands, string[] Dependencies, string[] Boundaries);
+    private sealed record UnionData(string[] PlannedPaths, string[] Areas, string[] Risks, string[] Decisions, string[] ValidationCommands, string[] Boundaries);
+    private sealed record VerifiedPlanSet(string[] MemberIds, string[] PlannedPaths, string[] Boundaries);
     private sealed record GitResult(int Code, byte[] Stdout);
     private sealed class TrustException(int code, string category, string message) : Exception(message) { public int Code { get; } = code; public string Category { get; } = category; }
 }

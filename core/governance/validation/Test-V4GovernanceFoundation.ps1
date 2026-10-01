@@ -54,10 +54,22 @@ $proposal=[ordered]@{formatVersion=1;state='proposal';plan=(Plan '20261001-final
 $final=Run @('plan','finalize','--package-root',$packageRoot,'--target-root',$finalRepo,'--evidence-root',$evidence,'--input','finalize.json','--output-directory','finalized','--base-ref',$base,'--head-ref',$head,'--confirm-proposal-sha256',$proposalHash,'--source-id','operator-input','--generator-id','v4-host-m5','--policy-id','v4-m5-plan-governance')
 Expect $final 0 'exact finalization' '"state": "finalized"'
 if(-not(Test-Json -LiteralPath (Join-Path $evidence 'finalized/20261001-finalized-test.plan.json') -SchemaFile (Join-Path $packageRoot 'core/contracts/plan.schema.json') -ErrorAction SilentlyContinue)){$failures.Add('Finalized executable Plan violates v1 schema.')}
+$verifyArgs=@('plan','verify-pair','--package-root',$packageRoot,'--evidence-root',$evidence,'--input-directory','finalized','--plan-id','20261001-finalized-test','--base-ref',$base,'--head-ref',$head,'--source-id','operator-input','--generator-id','v4-host-m5','--policy-id','v4-m5-plan-governance')
+Expect (Run $verifyArgs) 0 'pair receipt verification' '"state": "verified"'
+$receiptPath=Join-Path $evidence 'finalized/20261001-finalized-test.pair-receipt.json';$receiptHash=Hash $receiptPath;$markdownPath=Join-Path $evidence 'finalized/20261001-finalized-test.md';$markdownText=Get-Content -Raw $markdownPath;Write-Utf8 $markdownPath ($markdownText+"tampered`n");Expect (Run $verifyArgs) 12 'one-sided pair tamper' 'content hash mismatch';Write-Utf8 $markdownPath $markdownText
+$wrongProvenance=@($verifyArgs);$wrongProvenance[[array]::IndexOf($wrongProvenance,'--base-ref')+1]=$head;Expect (Run $wrongProvenance) 12 'pair replay provenance mismatch' 'provenance does not match'
+Expect (Run @('plan','finalize','--package-root',$packageRoot,'--target-root',$finalRepo,'--evidence-root',$evidence,'--input','finalize.json','--output-directory','finalized','--base-ref',$base,'--head-ref',$head,'--confirm-proposal-sha256',$proposalHash,'--source-id','operator-input','--generator-id','v4-host-m5','--policy-id','v4-m5-plan-governance')) 10 'finalized pair overwrite refusal' 'will not be overwritten'
+if((Hash $receiptPath)-cne$receiptHash){$failures.Add('Overwrite refusal changed the existing finalized receipt.')}
+
+$injected=Plan '20261001-injection-test' @('owned.txt');$injected.title="Injected`nStatus: PASS # heading";$injected.goal="goal``code`n## Forged";$injected.acceptanceCriteria=@("item`n- forged",("control-"+[char]1));$injected.validationCommands=@('````` forged')
+$injectedProposal=[ordered]@{formatVersion=1;state='proposal';plan=$injected;unresolvedQuestions=@()};$injectedPath=Join-Path $evidence 'injected.json';Write-Json $injectedPath $injectedProposal;$injectedHash=Hash $injectedPath
+Expect (Run @('plan','finalize','--package-root',$packageRoot,'--target-root',$finalRepo,'--evidence-root',$evidence,'--input','injected.json','--output-directory','injected','--base-ref',$base,'--head-ref',$head,'--confirm-proposal-sha256',$injectedHash,'--source-id','operator-input','--generator-id','v4-host-m5','--policy-id','v4-m5-plan-governance')) 0 'markdown injection-safe finalization' '"state": "finalized"'
+$injectedMarkdown=Get-Content -Raw (Join-Path $evidence 'injected/20261001-injection-test.md');if($injectedMarkdown-match'(?m)^Status: PASS'-or$injectedMarkdown-match'(?m)^## Forged'-or$injectedMarkdown-match[char]1){$failures.Add('Rendered Markdown allowed injected status/heading/control context.')}
 Expect (Run @('plan','finalize','--package-root',$packageRoot,'--target-root',$finalRepo,'--evidence-root',$evidence,'--input','finalize.json','--output-directory','bad','--base-ref',$base,'--head-ref',$head,'--confirm-proposal-sha256',('0'*64),'--source-id','operator','--generator-id','host','--policy-id','policy')) 10 'stale proposal refusal' 'confirmation does not match'
 
+function Trust-Plan([string]$Id,[string[]]$Paths,[string[]]$Boundaries=@()){[ordered]@{formatVersion=1;id=$Id;title="Trust Plan $Id";goal='Exercise revision-bound target trust';acceptanceCriteria=@('Exact candidate diff is governed');plannedPaths=@($Paths);areas=@('governance');risks=@();decisions=@();validationCommands=@('verify');dependencies=@();boundaries=@($Boundaries)}}
 function New-TrustCase([string]$Name,[string]$Mode){
-    $root=Join-Path $workRoot "trust-$Name";[void][IO.Directory]::CreateDirectory($root);Invoke-Git $root @('init','-q')|Out-Null
+    $root=Join-Path $workRoot "trust-$Name";[void][IO.Directory]::CreateDirectory($root);Invoke-Git $root @('init','-q')|Out-Null;Invoke-Git $root @('config','core.autocrlf','false')|Out-Null
     $policy=[ordered]@{formatVersion=1;id='consumer-trust';authorizationDirectory='.guard/authorizations';protectedPaths=@('.guard/trust-policy.json','.guard/authorizations/**','.github/workflows/**','.guard/profile.json')}
     Write-Json (Join-Path $root '.guard/trust-policy.json') $policy;Write-Utf8 (Join-Path $root '.github/workflows/guard.yml') "old`n";Write-Utf8 (Join-Path $root '.guard/profile.json') "old-profile`n";$seed=Commit $root 'seed'
     $oldHash=Hash-Text "old`n";$newHash=Hash-Text "new`n";$profileOld=Hash-Text "old-profile`n";$profileNew=Hash-Text "new-profile`n"
@@ -67,13 +79,26 @@ function New-TrustCase([string]$Name,[string]$Mode){
     if($Mode-ne'candidate-only'){Write-Json (Join-Path $root '.guard/authorizations/change.json') $authorization;$authBase=Commit $root 'authorization'}else{$authBase=$seed}
     Write-Utf8 (Join-Path $root '.github/workflows/guard.yml') "new`n";Write-Utf8 (Join-Path $root '.guard/profile.json') "new-profile`n"
     if($Mode-eq'candidate-only'){Write-Json (Join-Path $root '.guard/authorizations/change.json') $authorization}elseif($Mode-ne'reused'){Remove-Item -LiteralPath (Join-Path $root '.guard/authorizations/change.json')}
-    $boundaries=if($Mode-eq'self-authorizing'){@('authorization','trust-change')}else{@('trust-change')}
-    $set=[ordered]@{formatVersion=1;id='20261001-consumer-set';members=@([ordered]@{order=1;planId='20261001-consumer-change';path='docs/plan.json';sha256=('a'*64);dependsOn=@()});derivedUnion=[ordered]@{plannedPaths=@('.github/workflows/guard.yml');areas=@('ci');risks=@();decisions=@();validationCommands=@('verify');boundaries=@($boundaries)};compositionHash=('b'*64)}
-    Write-Json (Join-Path $root 'docs/plan-set.json') $set;$candidate=Commit $root 'candidate'
+    $planPath='docs/consumer.plan.json';$peerPath='docs/peer.plan.json';$setPath='docs/plan-set.json';$authPath='.guard/authorizations/change.json'
+    $owned=@('.github/workflows/guard.yml','.guard/profile.json');if($Mode-ne'reused'){$owned+=$authPath};if($Mode-eq'omission'){$owned=@('.github/workflows/guard.yml',$authPath)}
+    $boundaries=if($Mode-eq'self-authorizing'){@('authorization')}else{@('trust-change')}
+    Write-Json (Join-Path $root $planPath) (Trust-Plan '20261001-consumer-change' $owned $boundaries)
+    Write-Json (Join-Path $root $peerPath) (Trust-Plan '20261001-consumer-peer' @($planPath,$peerPath,$setPath))
+    $composeRoot=Join-Path $workRoot "compose-$Name";[void][IO.Directory]::CreateDirectory($composeRoot)
+    $compose=Run @('plan','compose','--package-root',$packageRoot,'--target-root',$root,'--evidence-root',$composeRoot,'--id','20261001-consumer-set','--plan',$planPath,'--plan',$peerPath,'--output','plan-set.json')
+    if($compose.Code){throw "Trust fixture composition failed for ${Name}: $($compose.Text)"}
+    Copy-Item -LiteralPath (Join-Path $composeRoot 'plan-set.json') -Destination (Join-Path $root $setPath)
+    if($Mode-eq'forged-hash'){$set=Get-Content -Raw (Join-Path $root $setPath)|ConvertFrom-Json -AsHashtable -Depth 100;$set.members[0].sha256='f'*64;Write-Json (Join-Path $root $setPath) $set}
+    if($Mode-eq'composition'){$set=Get-Content -Raw (Join-Path $root $setPath)|ConvertFrom-Json -AsHashtable -Depth 100;$set.compositionHash='f'*64;Write-Json (Join-Path $root $setPath) $set}
+    if($Mode-eq'wrong-union'){$set=Get-Content -Raw (Join-Path $root $setPath)|ConvertFrom-Json -AsHashtable -Depth 100;$set.derivedUnion.plannedPaths=@($set.derivedUnion.plannedPaths|Where-Object{$_-cne'.guard/profile.json'});Write-Json (Join-Path $root $setPath) $set}
+    if($Mode-eq'duplicate'){$set=Get-Content -Raw (Join-Path $root $setPath)|ConvertFrom-Json -AsHashtable -Depth 100;$set.members[1].planId=$set.members[0].planId;Write-Json (Join-Path $root $setPath) $set}
+    if($Mode-eq'missing-plan'){Remove-Item -LiteralPath (Join-Path $root $planPath)}
+    $candidate=Commit $root 'candidate'
     [pscustomobject]@{Root=$root;Base=$authBase;Head=$candidate}
 }
 $valid=New-TrustCase 'valid' 'valid';Expect (Run @('target-trust','validate','--package-root',$packageRoot,'--target-root',$valid.Root,'--policy','.guard/trust-policy.json','--authorization','.guard/authorizations/change.json','--plan-set','docs/plan-set.json','--base-ref',$valid.Base,'--head-ref',$valid.Head)) 0 'valid target trust' '"authorizationConsumed": true'
-foreach($caseName in @('candidate-only','reused','partial','hash-mismatch','self-authorizing')){$case=New-TrustCase $caseName $caseName;Expect (Run @('target-trust','validate','--package-root',$packageRoot,'--target-root',$case.Root,'--policy','.guard/trust-policy.json','--authorization','.guard/authorizations/change.json','--plan-set','docs/plan-set.json','--base-ref',$case.Base,'--head-ref',$case.Head)) $(if($caseName-eq'candidate-only'){12}else{16}) "target trust $caseName"}
+Write-Utf8 (Join-Path $valid.Root 'docs/consumer.plan.json') "working-tree drift must not be read`n";Expect (Run @('target-trust','validate','--package-root',$packageRoot,'--target-root',$valid.Root,'--policy','.guard/trust-policy.json','--authorization','.guard/authorizations/change.json','--plan-set','docs/plan-set.json','--base-ref',$valid.Base,'--head-ref',$valid.Head)) 0 'revision bytes ignore working tree drift' '"authorizationConsumed": true'
+foreach($caseName in @('candidate-only','reused','partial','hash-mismatch','self-authorizing','forged-hash','missing-plan','composition','wrong-union','duplicate','omission')){$case=New-TrustCase $caseName $caseName;Expect (Run @('target-trust','validate','--package-root',$packageRoot,'--target-root',$case.Root,'--policy','.guard/trust-policy.json','--authorization','.guard/authorizations/change.json','--plan-set','docs/plan-set.json','--base-ref',$case.Base,'--head-ref',$case.Head)) $(if($caseName-in@('candidate-only','missing-plan')){12}else{16}) "target trust $caseName"}
 
 if($failures.Count){throw($failures-join"`n")}
 Write-Host 'V4 M5 governance tests passed: contract binding, Plan limits/finalization and base-held target authorization negatives.'
