@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "id": "20261001-m1-m5-p1-module-boundaries",
+  "title": "修复候选 Module 执行与链接路径边界",
+  "goal": "关闭 F-01/F-02：候选 adapter 默认不得执行，仅在显式合成 fixture 模式下通过受控进程入口运行，并补齐 timeout、进程树回收、最小环境和递归链接拒绝。",
+  "acceptanceCriteria": [
+    "未显式启用合成 fixture 模式的候选 adapter 在启动前失败关闭，不把 manifest 能力声明或执行后哈希比对描述为 OS sandbox。",
+    "合成 fixture 运行使用最小子进程环境、manifest timeout 和整个进程树回收；正常、环境泄漏、超时和子进程用例具有可验证结果。",
+    "adapter、manifest、profile、config、lock、fixture 以及 pack/copy 的每个文件和目录都检查自身及祖先的 symlink/reparse 边界。",
+    "普通候选仍可验证、测试和重复打包，外部 sentinel 不被执行、复制或修改。"
+  ],
+  "plannedPaths": [
+    "core/modules/Invoke-V4ModuleLifecycle.ps1",
+    "core/modules/validation/Test-V4ModuleLifecycle.ps1",
+    "docs/module-lifecycle.md",
+    "docs/plans/20261001-m1-m5-p1-module-boundaries.md",
+    "docs/plans/20261001-m1-m5-p1-module-boundaries.plan.json"
+  ],
+  "areas": ["ModuleLifecycle", "Security", "GuardDocs"],
+  "risks": [
+    "跨平台进程树语义不同，必须以明确 timeout 和测试创建的子进程 sentinel 验证回收，而不能声称任意代码已被系统级隔离。",
+    "递归复制若在检查后发生路径替换仍存在 TOCTOU 风险；候选保持非信任且生产执行继续拒绝。"
+  ],
+  "decisions": [
+    "候选 adapter 默认不可执行；AllowSyntheticFixture 只允许本地、隔离、明确创建的测试 fixture，不授予生产信任。",
+    "manifest 继续作为请求上限而不是强制 sandbox；network 或非 pwsh 进程请求失败关闭。",
+    "所有递归读取与复制先逐项拒绝链接/reparse，再按已验证文件列表执行。"
+  ],
+  "validationCommands": [
+    "pwsh -NoProfile -File core/modules/validation/Test-V4ModuleLifecycle.ps1",
+    "pwsh -NoProfile -File core/runtime/Test-V4Package.ps1 -PackageRoot .",
+    "git diff --check"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}
