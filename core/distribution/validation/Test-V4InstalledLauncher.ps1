@@ -8,6 +8,8 @@ $packageRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
 $publisher = Join-Path $packageRoot 'core/distribution/Publish-V4SelfContainedDistribution.ps1'
 $installer = Join-Path $packageRoot 'core/distribution/Install-V4Distribution.ps1'
 $sourceCommit = (git -C $packageRoot rev-parse HEAD).Trim().ToLowerInvariant()
+$productVersion = [string]((Get-Content -Raw -LiteralPath (Join-Path $packageRoot 'plugin.json') | ConvertFrom-Json).version)
+if ($productVersion -notmatch '^\d+\.\d+\.\d+$') { throw "Invalid product version in plugin.json: $productVersion" }
 $rid = [Runtime.InteropServices.RuntimeInformation]::RuntimeIdentifier
 if ($rid -notin @('win-x64','win-arm64','linux-x64','linux-arm64')) { throw "Unsupported native test RID: $rid" }
 $runRoot = Join-Path ([IO.Path]::GetTempPath()) ('v4-m1-installed-launcher-' + [Guid]::NewGuid().ToString('N'))
@@ -22,7 +24,7 @@ function Run([string] $Script, [string[]] $Arguments) {
 $publish = Run $publisher @('-PackageRoot',$packageRoot,'-RuntimeIdentifier',$rid,'-OutputDirectory',(Join-Path $runRoot 'publish'),'-MeasurementPath',(Join-Path $runRoot 'measurement.json'),'-SourceCommit',$sourceCommit)
 if ($publish.Code -ne 0) { throw "Self-contained publish failed: $($publish.Text)" }
 $archive = [string](($publish.Text | ConvertFrom-Json).archivePath)
-$installRoot = Join-Path $runRoot 'installed/v4-guards-1.1.6'
+$installRoot = Join-Path $runRoot "installed/v4-guards-$productVersion"
 $receipt = Join-Path $runRoot 'receipts/install.json'
 $install = Run $installer @('-Mode','Install','-ArchivePath',$archive,'-InstallRoot',$installRoot,'-ReceiptPath',$receipt)
 if ($install.Code -ne 0) { throw "Install failed: $($install.Text)" }
@@ -54,6 +56,13 @@ $layout = Resolve-V4InstalledLayout -PackageRoot (Join-Path $installRoot 'packag
 if (-not $layout.SelfContained -or [IO.Path]::GetExtension([string]$layout.HostPath) -cne $(if ($IsWindows) { '.exe' } else { '' })) {
     $failures.Add('Installed layout did not select the native self-contained apphost.')
 }
+if (-not $IsWindows) {
+    $hostMode = [IO.File]::GetUnixFileMode([string]$layout.HostPath)
+    $companionMode = [IO.File]::GetUnixFileMode([string]$layout.CompanionPath)
+    if (($hostMode -band [IO.UnixFileMode]::UserExecute) -eq 0 -or ($companionMode -band [IO.UnixFileMode]::UserExecute) -eq 0) {
+        $failures.Add('Installed self-contained Linux apphosts are not executable.')
+    }
+}
 
 $hostBytes = [IO.File]::ReadAllBytes([string]$layout.HostPath)
 [IO.File]::AppendAllText([string]$layout.HostPath,'drift',[Text.UTF8Encoding]::new($false))
@@ -64,7 +73,7 @@ if ($tampered.Code -ne 12 -or $tampered.Text -notmatch 'file drift') { $failures
 $invalidWeb = Run $guardWeb @('-Profile','default','-PrerequisiteReportPath',(Join-Path $runRoot 'web.json'),'--command','injected')
 if ($invalidWeb.Code -ne 10 -or $invalidWeb.Text -notmatch 'refuses Companion option') { $failures.Add("Companion option injection was not rejected: $($invalidWeb.Text)") }
 
-$relocated = Join-Path $runRoot 'relocated/v4-guards-1.1.6'
+$relocated = Join-Path $runRoot "relocated/v4-guards-$productVersion"
 [void][IO.Directory]::CreateDirectory((Split-Path -Parent $relocated))
 Move-Item -LiteralPath $installRoot -Destination $relocated
 $relocatedVersion = Run (Join-Path $relocated 'package/guard.ps1') @('-Profile','default','-PrerequisiteReportPath',(Join-Path $runRoot 'relocated.json'),'version')
