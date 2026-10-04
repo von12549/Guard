@@ -176,7 +176,26 @@ try {
     $progressArgs=@('application','setup-progress','--project-id',$projectId)+$common
     $initialProgress=Invoke-Host $progressArgs
     if($initialProgress.Code-ne0-or-not(Test-Json -Json $initialProgress.Raw -SchemaFile (Join-Path $packageRoot 'core/application/contracts/setup-progress.schema.json') -ErrorAction SilentlyContinue)){Fail "Initial onboarding progress is invalid: $($initialProgress.Raw)"}
+    else{
+        $initialDocument=$initialProgress.Raw|ConvertFrom-Json
+        $safetyStep=@($initialDocument.steps|Where-Object id -ceq 'path-profile-safety')
+        if($initialDocument.status-cne'blocked'-or$initialDocument.completedStepCount-ne1-or$safetyStep.Count-ne1-or$safetyStep[0].status-cne'blocked'-or$safetyStep[0].machineErrorCategory-cne'prerequisite-missing'){
+            Fail 'Onboarding progress fabricated PATH/Profile safety completion without a bound proof.'
+        }
+    }
     $draftPreviewArgs=@('application','setup-action','--operation','draft','--mode','preview','--project-id',$projectId,'--profile-id','onboarding_guard')+$common
+    $draftPreview=Invoke-Host $draftPreviewArgs
+    if($draftPreview.Code-ne15-or$draftPreview.Raw-notmatch'host safety proof'){Fail 'Profile drafting was not gated on a current host safety proof.'}
+    $safetyPreview=Invoke-Host (@('application','setup-action','--operation','path-profile-safety','--mode','preview','--project-id',$projectId)+$common)
+    if($safetyPreview.Code-ne0){Fail "Host safety preview failed: $($safetyPreview.Raw)"}else{
+        $safetyHash=($safetyPreview.Raw|ConvertFrom-Json).previewHash
+        $safetyApply=Invoke-Host (@('application','setup-action','--operation','path-profile-safety','--mode','apply','--project-id',$projectId,'--preview-hash',$safetyHash)+$common)
+        if($safetyApply.Code-ne0){Fail "Host safety proof apply failed: $($safetyApply.Raw)"}
+    }
+    $safetyProofPath=Join-Path $stateRoot "onboarding/$projectId/host-safety-proof.json"
+    if(-not(Test-Json -LiteralPath $safetyProofPath -SchemaFile (Join-Path $packageRoot 'core/application/contracts/host-safety-proof.schema.json') -ErrorAction SilentlyContinue)){Fail 'Host safety proof is missing or violates its hashes-only schema.'}
+    $afterSafety=Invoke-Host $progressArgs
+    if($afterSafety.Code-ne0-or($afterSafety.Raw|ConvertFrom-Json).completedStepCount-ne5){Fail 'Bound host safety proof did not unlock exactly the five verified onboarding steps.'}
     $draftPreview=Invoke-Host $draftPreviewArgs
     if($draftPreview.Code-ne0){Fail "Onboarding draft preview failed: $($draftPreview.Raw)"}else{
         $draftPreviewDocument=$draftPreview.Raw|ConvertFrom-Json
@@ -185,12 +204,23 @@ try {
         $draftApply=Invoke-Host (@('application','setup-action','--operation','draft','--mode','apply','--project-id',$projectId,'--profile-id','onboarding_guard','--preview-hash',$draftPreviewDocument.previewHash)+$common)
         if($draftApply.Code-ne0-or-not(Test-Json -Json $draftApply.Raw -SchemaFile (Join-Path $packageRoot 'core/application/contracts/setup-action-response.schema.json') -ErrorAction SilentlyContinue)){Fail "Typed onboarding draft apply failed: $($draftApply.Raw)"}
     }
-    $configureBase=@('application','setup-action','--operation','configure','--project-id',$projectId,'--profile-id','onboarding_guard','--project-root','.','--enabled-claims','ARCH.TARGET_FRAMEWORK','--allowed-frameworks','net10.0')+$common
-    $configurePreview=Invoke-Host (@('application','setup-action','--operation','configure','--mode','preview','--project-id',$projectId,'--profile-id','onboarding_guard','--project-root','.','--enabled-claims','ARCH.TARGET_FRAMEWORK','--allowed-frameworks','net10.0')+$common)
+    $missingProjectPolicy=Invoke-Host (@('application','setup-action','--operation','configure','--mode','preview','--project-id',$projectId,'--profile-id','onboarding_guard','--project-root','.','--enabled-claims','ARCH.PROJECT_REFERENCE')+$common)
+    if($missingProjectPolicy.Code-ne10-or$missingProjectPolicy.Raw-notmatch'non-empty explicit forbidden-reference policy'){Fail 'Typed onboarding accepted PROJECT_REFERENCE without semantic policy.'}
+    $missingGraphPolicyCandidate=[ordered]@{enabledClaims=@('ARCH.GRAPH_COMPLETENESS')}
+    if(Test-Json -Json ($missingGraphPolicyCandidate|ConvertTo-Json -Compress) -SchemaFile (Join-Path $packageRoot 'modules/architecture-conformance/config.schema.json') -ErrorAction SilentlyContinue){Fail 'Architecture config schema accepted GRAPH_COMPLETENESS without requireResolvedProjectReferences=true.'}
+    $selectedClaims='ARCH.TARGET_FRAMEWORK,ARCH.PROJECT_REFERENCE,ARCH.GRAPH_COMPLETENESS'
+    $forbiddenReferences='../Forbidden/*.csproj'
+    $configurePreview=Invoke-Host (@('application','setup-action','--operation','configure','--mode','preview','--project-id',$projectId,'--profile-id','onboarding_guard','--project-root','.','--enabled-claims',$selectedClaims,'--allowed-frameworks','net10.0','--forbidden-project-references',$forbiddenReferences)+$common)
     if($configurePreview.Code-ne0){Fail "Onboarding configure preview failed: $($configurePreview.Raw)"}else{
         $configureHash=($configurePreview.Raw|ConvertFrom-Json).previewHash
-        $configureApply=Invoke-Host (@('application','setup-action','--operation','configure','--mode','apply','--project-id',$projectId,'--profile-id','onboarding_guard','--project-root','.','--enabled-claims','ARCH.TARGET_FRAMEWORK','--allowed-frameworks','net10.0','--preview-hash',$configureHash)+$common)
+        $configureApply=Invoke-Host (@('application','setup-action','--operation','configure','--mode','apply','--project-id',$projectId,'--profile-id','onboarding_guard','--project-root','.','--enabled-claims',$selectedClaims,'--allowed-frameworks','net10.0','--forbidden-project-references',$forbiddenReferences,'--preview-hash',$configureHash)+$common)
         if($configureApply.Code-ne0){Fail "Typed onboarding configure apply failed: $($configureApply.Raw)"}
+        else{
+            $candidatePath=Join-Path $stateRoot "onboarding/$projectId/onboarding_guard/candidate.json"
+            $candidate=Get-Content -Raw -LiteralPath $candidatePath|ConvertFrom-Json
+            $architectureConfig=@($candidate.candidateProfile.moduleSelections|Where-Object id -ceq 'architecture-conformance')[0].config
+            if($architectureConfig.requireResolvedProjectReferences-ne$true-or@($architectureConfig.forbiddenProjectReferences).Count-ne1-or@($architectureConfig.allowedTargetFrameworks).Count-ne1){Fail 'Typed candidate omitted claim-specific semantic configuration.'}
+        }
     }
     $reviewPreview=Invoke-Host (@('application','setup-action','--operation','review-template','--mode','preview','--project-id',$projectId,'--profile-id','onboarding_guard')+$common)
     if($reviewPreview.Code-ne0){Fail "Onboarding review-template preview failed: $($reviewPreview.Raw)"}else{
@@ -200,6 +230,18 @@ try {
     }
     $completeProgress=Invoke-Host $progressArgs
     if($completeProgress.Code-ne0-or($completeProgress.Raw|ConvertFrom-Json).completedStepCount-ne8){Fail 'Typed onboarding did not reach the incomplete-review-template stop point.'}
+    $tamperedProof=Get-Content -Raw -LiteralPath $safetyProofPath|ConvertFrom-Json
+    $tamperedProof.checks.processPath.afterSha256='0'*64
+    [IO.File]::WriteAllText($safetyProofPath,($tamperedProof|ConvertTo-Json -Depth 20)+"`n",[Text.UTF8Encoding]::new($false))
+    $blockedProgress=Invoke-Host $progressArgs
+    $blockedDocument=if($blockedProgress.Code-eq0){$blockedProgress.Raw|ConvertFrom-Json}else{$null}
+    $blockedSafety=@(if($null-ne$blockedDocument){$blockedDocument.steps|Where-Object id -ceq 'path-profile-safety'})
+    if($null-eq$blockedDocument-or$blockedDocument.status-cne'blocked'-or$blockedSafety.Count-ne1-or$blockedSafety[0].humanConclusion-notmatch'HOST SAFETY INCIDENT'-or$blockedDocument.completedStepCount-ne1){
+        Fail 'Tampered/current-mismatched host safety proof did not block all subsequent onboarding completion.'
+    }
+    $safetyRefresh=Invoke-Host (@('application','setup-action','--operation','path-profile-safety','--mode','apply','--project-id',$projectId,'--preview-hash',(($safetyPreview.Raw|ConvertFrom-Json).previewHash))+$common)
+    $refreshedProgress=Invoke-Host $progressArgs
+    if($safetyRefresh.Code-ne0-or$refreshedProgress.Code-ne0-or($refreshedProgress.Raw|ConvertFrom-Json).completedStepCount-ne8){Fail 'A fresh verified host safety proof did not restore evidence-driven progress.'}
 
     $packageBefore = Hash-Tree $packageRoot
     $targetBefore = Hash-Tree $targetRoot
@@ -215,15 +257,15 @@ try {
 
     $onboardingProgress=Invoke-Get $client "$($companion.Address)/api/v1/onboarding/progress/$projectId"
     if($onboardingProgress.StatusCode-ne200-or-not(Test-Json -Json $onboardingProgress.Body -SchemaFile (Join-Path $packageRoot 'integrations/web/V4.Guards.WebCompanion/contracts/setup-progress.schema.json') -ErrorAction SilentlyContinue)){Fail "Web onboarding progress is invalid: $($onboardingProgress.Body)"}
-    $onboardingBody=(@{formatVersion=1;actionId='installation-integrity';mode='preview';projectId=$projectId;profileId=$null;projectRoot=$null;enabledClaims=@();allowedFrameworks=@();previewHash=$null}|ConvertTo-Json -Compress)
+    $onboardingBody=(@{formatVersion=1;actionId='installation-integrity';mode='preview';projectId=$projectId;profileId=$null;projectRoot=$null;enabledClaims=@();allowedFrameworks=@();forbiddenProjectReferences=@();previewHash=$null}|ConvertTo-Json -Compress)
     $onboardingPreview=Invoke-Post $client "$($companion.Address)/api/v1/onboarding/action" $onboardingBody $csrf -WithOrigin
     if($onboardingPreview.StatusCode-ne200-or-not(Test-Json -Json $onboardingPreview.Body -SchemaFile (Join-Path $packageRoot 'integrations/web/V4.Guards.WebCompanion/contracts/setup-action-response.schema.json') -ErrorAction SilentlyContinue)){Fail "Web onboarding preview is invalid: $($onboardingPreview.Body)"}
-    $rawPathBody=(@{formatVersion=1;actionId='draft';mode='preview';projectId=$projectId;profileId='web_guard';projectRoot='.';enabledClaims=@();allowedFrameworks=@();previewHash=$null;rawPath='C:/forbidden'}|ConvertTo-Json -Compress)
+    $rawPathBody=(@{formatVersion=1;actionId='draft';mode='preview';projectId=$projectId;profileId='web_guard';projectRoot='.';enabledClaims=@();allowedFrameworks=@();forbiddenProjectReferences=@();previewHash=$null;rawPath='C:/forbidden'}|ConvertTo-Json -Compress)
     $rawPathResponse=Invoke-Post $client "$($companion.Address)/api/v1/onboarding/action" $rawPathBody $csrf -WithOrigin
     if($rawPathResponse.StatusCode-ne400-or$rawPathResponse.Body-notmatch'Unknown request field'){Fail 'Web onboarding accepted a browser-supplied raw path field.'}
-    $staleWebBody=(@{formatVersion=1;actionId='draft';mode='apply';projectId=$projectId;profileId='web_guard';projectRoot='.';enabledClaims=@();allowedFrameworks=@();previewHash=('0'*64)}|ConvertTo-Json -Compress)
+    $staleWebBody=(@{formatVersion=1;actionId='draft';mode='apply';projectId=$projectId;profileId='web_guard';projectRoot='.';enabledClaims=@();allowedFrameworks=@();forbiddenProjectReferences=@();previewHash=('0'*64)}|ConvertTo-Json -Compress)
     $staleWeb=Invoke-Post $client "$($companion.Address)/api/v1/onboarding/action" $staleWebBody $csrf -WithOrigin
-    if($staleWeb.StatusCode-ne409-or$staleWeb.Body-notmatch'stale'){Fail 'Web onboarding did not return a stale-preview conflict.'}
+    if($staleWeb.StatusCode-ne409-or$staleWeb.Body-notmatch'stale'){Fail "Web onboarding did not return a stale-preview conflict: HTTP $($staleWeb.StatusCode) $($staleWeb.Body)"}
 
     $anonymous = [Net.Http.HttpClient]::new()
     try { if ((Invoke-Post $anonymous "$($companion.Address)/api/v1/application/preview" $body $csrf -WithOrigin).StatusCode -ne 403) { Fail 'Application preview without session was not refused.' } }

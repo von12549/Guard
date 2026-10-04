@@ -40,6 +40,15 @@ function Result([string] $Name,$Roots,$Run,[int] $Code,[string] $Category) {
     if((Test-Path (Join-Path $Roots.Target 'obj')) -or (Test-Path (Join-Path $Roots.Target 'bin'))){$failures.Add("${Name}: detector executed a target build")}
     $result
 }
+function Run-Adapter($Roots,$Config) {
+    $prior=$env:V4_STAGE_INPUT_JSON
+    try {
+        $env:V4_STAGE_INPUT_JSON=([ordered]@{formatVersion=1;stage='pre';targetRoot=$Roots.Target;config=$Config}|ConvertTo-Json -Depth 20 -Compress)
+        $output=@(& pwsh -NoLogo -NoProfile -NonInteractive -File (Join-Path $packageRoot 'modules/architecture-conformance/adapter.ps1') 2>&1)
+        if($LASTEXITCODE){$failures.Add("adapter process failed: $($output-join' ')");return $null}
+        $output-join"`n"|ConvertFrom-Json
+    } finally {$env:V4_STAGE_INPUT_JSON=$prior}
+}
 
 if(Test-Path $runRoot){Remove-Item -LiteralPath $runRoot -Recurse -Force}; New-Item -ItemType Directory -Path $runRoot -Force|Out-Null
 $properties=@('-p:ImportDirectoryBuildProps=false','-p:ImportDirectoryBuildTargets=false','-p:ImportDirectoryPackagesProps=false','-p:ImportDirectorySolutionProps=false','-p:ImportDirectorySolutionTargets=false',"-p:CustomBeforeMicrosoftCommonProps=$(Join-Path $buildRoot 'V4.Build.props')")
@@ -97,5 +106,17 @@ if($null-ne$unsupportedResult){
     if(@($unsupportedResult.findings|Where-Object {$_.ruleId-ceq'ARCH.TARGET_FRAMEWORK'-and$_.subject-match'<missing>'}).Count-ne0){$failures.Add('conditional props was misclassified as a missing-framework violation')}
 }
 
+foreach($negative in @(
+    [pscustomobject]@{Name='project-reference without policy';Claim='ARCH.PROJECT_REFERENCE';Config=[ordered]@{enabledClaims=@('ARCH.PROJECT_REFERENCE')}},
+    [pscustomobject]@{Name='graph-completeness without resolution requirement';Claim='ARCH.GRAPH_COMPLETENESS';Config=[ordered]@{enabledClaims=@('ARCH.GRAPH_COMPLETENESS')}}
+)){
+    $result=Run-Adapter $clean $negative.Config
+    if($null-eq$result){continue}
+    $claimCoverage=@($result.coverage|Where-Object claimId -ceq $negative.Claim)
+    if($result.status-cne'error'-or$result.exitCategory-cne'invalid-input'-or$claimCoverage.Count-ne1-or$claimCoverage[0].matched-ne0){
+        $failures.Add("$($negative.Name) did not fail closed with zero coverage")
+    }
+}
+
 if($failures.Count){throw($failures-join"`n")}
-Write-Host 'V4 P4B Project Model tests passed: clean coverage, central-props inheritance/source evidence, root-solution candidate, unsupported conditional coverage, four blocking claims, missing-input failure and zero target execution.'
+Write-Host 'V4 P4B Project Model tests passed: clean coverage, central-props inheritance/source evidence, root-solution candidate, unsupported conditional coverage, semantic-config fail-closed controls, four blocking claims, missing-input failure and zero target execution.'

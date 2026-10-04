@@ -15,8 +15,6 @@ if ($rid -notin @('win-x64','win-arm64','linux-x64','linux-arm64')) { throw "Uns
 $runRoot = Join-Path ([IO.Path]::GetTempPath()) ('v4-m1-installed-launcher-' + [Guid]::NewGuid().ToString('N'))
 [void][IO.Directory]::CreateDirectory($runRoot)
 $failures = [Collections.Generic.List[string]]::new()
-$callOperatorRunner = Join-Path $runRoot 'call-operator.ps1'
-[IO.File]::WriteAllText($callOperatorRunner,"param([string]`$Script,[Parameter(ValueFromRemainingArguments)][string[]]`$Rest)`n& `$Script @Rest 2>&1`nexit `$LASTEXITCODE`n",[Text.UTF8Encoding]::new($false))
 
 function Get-TextHash([string] $Value) {
     [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($Value))).ToLowerInvariant()
@@ -51,23 +49,47 @@ function Get-HostSafetySnapshot {
 }
 
 $hostSafetyBefore = Get-HostSafetySnapshot
+function Assert-HostSafetyBoundary([string] $Phase) {
+    $current = Get-HostSafetySnapshot
+    $drift = @($hostSafetyBefore.Keys | Where-Object { $hostSafetyBefore[$_] -cne $current[$_] })
+    if ($drift.Count) {
+        throw "BLOCKED — HOST SAFETY INCIDENT: $Phase changed host-owned environment/profile state ($($drift -join ', '))."
+    }
+}
 
 function Run([string] $Script, [string[]] $Arguments) {
     $output = @(& pwsh -NoLogo -NoProfile -NonInteractive -File $Script @Arguments 2>&1)
     [pscustomobject]@{ Code=$LASTEXITCODE; Text=($output -join "`n") }
 }
 
-function Run-CallOperator([string] $Script, [string[]] $Arguments) {
-    Run $callOperatorRunner (@($Script) + $Arguments)
+function Run-WithErrorFile([string] $Name, [scriptblock] $Invocation) {
+    $errorPath = Join-Path $runRoot "$Name.stderr.json"
+    $standardOutput = @(& $Invocation 2> $errorPath)
+    $code = $LASTEXITCODE
+    $standardError = if ([IO.File]::Exists($errorPath)) { [IO.File]::ReadAllText($errorPath) } else { '' }
+    [pscustomobject]@{ Code=$code; Stdout=($standardOutput -join "`n"); Stderr=$standardError; ErrorPath=$errorPath }
+}
+
+function Assert-StructuredLauncherFailure($Result, [string] $Name, [string] $Category, [int] $Code) {
+    if ($Result.Code -ne $Code -or [string]::IsNullOrWhiteSpace($Result.Stderr)) {
+        $failures.Add("${Name}: stderr was empty or exit code was unstable."); return
+    }
+    try { $document = $Result.Stderr | ConvertFrom-Json }
+    catch { $failures.Add("${Name}: stderr is not one parseable JSON document."); return }
+    if ($document.exitCategory -cne $Category -or $document.status -cne 'error' -or -not [string]::IsNullOrEmpty($Result.Stdout)) {
+        $failures.Add("${Name}: structured stderr fields or stdout boundary are invalid.")
+    }
 }
 
 $publish = Run $publisher @('-PackageRoot',$packageRoot,'-RuntimeIdentifier',$rid,'-OutputDirectory',(Join-Path $runRoot 'publish'),'-MeasurementPath',(Join-Path $runRoot 'measurement.json'),'-SourceCommit',$sourceCommit)
 if ($publish.Code -ne 0) { throw "Self-contained publish failed: $($publish.Text)" }
+Assert-HostSafetyBoundary 'self-contained dotnet publish'
 $archive = [string](($publish.Text | ConvertFrom-Json).archivePath)
 $installRoot = Join-Path $runRoot "installed/v4-guards-$productVersion"
 $receipt = Join-Path $runRoot 'receipts/install.json'
 $install = Run $installer @('-Mode','Install','-ArchivePath',$archive,'-InstallRoot',$installRoot,'-ReceiptPath',$receipt)
 if ($install.Code -ne 0) { throw "Install failed: $($install.Text)" }
+Assert-HostSafetyBoundary 'verified install'
 $guard = Join-Path $installRoot 'package/guard.ps1'
 $guardWeb = Join-Path $installRoot 'package/guard-web.ps1'
 if (-not [IO.File]::Exists($guard) -or -not [IO.File]::Exists($guardWeb)) { $failures.Add('Package-root launchers are missing.') }
@@ -85,10 +107,12 @@ try {
         if (@($prerequisites.requirements | Where-Object runtime -eq 'dotnet').Count -ne 0) { $failures.Add('Self-contained default Profile still required Host-owned dotnet.') }
     }
 } finally { $env:PATH = $oldPath }
+Assert-HostSafetyBoundary 'public version launcher'
 
 $internal = Join-Path $installRoot 'package/core/distribution/Invoke-V4Installed.ps1'
 $mismatch = Run $internal @('-PackageRoot',(Join-Path $runRoot 'wrong-package'),'-Profile','default','-PrerequisiteReportPath',(Join-Path $runRoot 'mismatch.json'),'-HostArgumentsJson','["version"]')
 if ($mismatch.Code -ne 11 -or $mismatch.Text -notmatch 'override does not match') { $failures.Add("PackageRoot override mismatch was not rejected: $($mismatch.Text)") }
+Assert-HostSafetyBoundary 'installed-runner refusal'
 
 $layoutScript = Join-Path $installRoot 'package/core/distribution/Resolve-V4InstalledLayout.ps1'
 . $layoutScript
@@ -104,17 +128,22 @@ $stateRoot = Join-Path $runRoot 'state with spaces'
 [IO.File]::WriteAllText((Join-Path $targetRoot 'sample.csproj'),'<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup></Project>',[Text.UTF8Encoding]::new($false))
 $discover = Run $guard @('-PrerequisiteReportPath',(Join-Path $runRoot 'discover-prerequisites.json'),'profile','discover','--package-root',(Join-Path $installRoot 'package'),'--target-root',$targetRoot)
 if ($discover.Code -ne 0 -or ($discover.Text | ConvertFrom-Json).operation -cne 'profile-discover') { $failures.Add("New-Profile discovery required wrapper Profile lore or changed argument identity: $($discover.Text)") }
+Assert-HostSafetyBoundary 'public discovery launcher'
 $draft = Run $guard @('-PrerequisiteReportPath',(Join-Path $runRoot 'draft-prerequisites.json'),'profile','draft','--package-root',(Join-Path $installRoot 'package'),'--target-root',$targetRoot,'--state-root',$stateRoot,'--profile','onboarding_new')
 if ($draft.Code -ne 0 -or ($draft.Text | ConvertFrom-Json).candidateProfile.id -cne 'onboarding_new') { $failures.Add("Unknown Profile draft was blocked by installed-Profile prerequisite selection: $($draft.Text)") }
+Assert-HostSafetyBoundary 'public draft launcher'
 
-$noArguments = Run $guard @('-PrerequisiteReportPath',(Join-Path $runRoot 'invalid.json'))
-$noArgumentsCall = Run-CallOperator $guard @('-PrerequisiteReportPath',(Join-Path $runRoot 'invalid-call.json'))
-foreach ($failure in @($noArguments,$noArgumentsCall)) {
-    if ($failure.Code -ne 10 -or $failure.Text -notmatch '"exitCategory":"invalid-input"') { $failures.Add("Launcher failure was not capturable with stable category and exit code: $($failure.Text)") }
-}
+$directArguments = @('-PrerequisiteReportPath',(Join-Path $runRoot 'invalid-direct.json'))
+$noArgumentsDirect = Run-WithErrorFile 'direct-call-operator' { & $guard @directArguments }
+Assert-StructuredLauncherFailure $noArgumentsDirect 'same-process call operator' 'invalid-input' 10
+$fileArguments = @('-PrerequisiteReportPath',(Join-Path $runRoot 'invalid-file.json'))
+$noArgumentsFile = Run-WithErrorFile 'pwsh-file' { & pwsh -NoLogo -NoProfile -NonInteractive -File $guard @fileArguments }
+Assert-StructuredLauncherFailure $noArgumentsFile 'pwsh -File' 'invalid-input' 10
+Assert-HostSafetyBoundary 'structured launcher failures'
 $nested = Join-Path $installRoot 'package/core/distribution/guard.ps1'
 $nestedResult = Run $nested @('-PrerequisiteReportPath',(Join-Path $runRoot 'nested.json'),'version')
 if ($nestedResult.Code -ne 10 -or $nestedResult.Text -notmatch 'non-public-entrypoint') { $failures.Add("Nested launcher did not fail with non-public-entrypoint: $($nestedResult.Text)") }
+Assert-HostSafetyBoundary 'nested entrypoint refusal'
 if (-not $IsWindows) {
     $hostMode = [IO.File]::GetUnixFileMode([string]$layout.HostPath)
     $companionMode = [IO.File]::GetUnixFileMode([string]$layout.CompanionPath)
@@ -128,19 +157,23 @@ $hostBytes = [IO.File]::ReadAllBytes([string]$layout.HostPath)
 $tampered = Run $guard @('-PrerequisiteReportPath',(Join-Path $runRoot 'tampered.json'),'version')
 if ($tampered.Code -ne 12 -or $tampered.Text -notmatch 'file drift') { $failures.Add("Tampered apphost was not rejected: $($tampered.Text)") }
 [IO.File]::WriteAllBytes([string]$layout.HostPath,$hostBytes)
+Assert-HostSafetyBoundary 'tamper refusal'
 
 $invalidWeb = Run $guardWeb @('-Profile','default','-PrerequisiteReportPath',(Join-Path $runRoot 'web.json'),'--command','injected')
 if ($invalidWeb.Code -ne 10 -or $invalidWeb.Text -notmatch 'refuses Companion option') { $failures.Add("Companion option injection was not rejected: $($invalidWeb.Text)") }
+Assert-HostSafetyBoundary 'Web launcher refusal'
 
 $relocated = Join-Path $runRoot "relocated/v4-guards-$productVersion"
 [void][IO.Directory]::CreateDirectory((Split-Path -Parent $relocated))
 Move-Item -LiteralPath $installRoot -Destination $relocated
 $relocatedVersion = Run (Join-Path $relocated 'package/guard.ps1') @('-PrerequisiteReportPath',(Join-Path $runRoot 'relocated.json'),'version')
 if ($relocatedVersion.Code -ne 0) { $failures.Add("Complete verified relocation failed: $($relocatedVersion.Text)") }
+Assert-HostSafetyBoundary 'relocated public launcher'
 
 Move-Item -LiteralPath $relocated -Destination $installRoot
 $uninstall = Run $installer @('-Mode','Uninstall','-InstallRoot',$installRoot,'-ReceiptPath',$receipt)
 if ($uninstall.Code -ne 0 -or [IO.Directory]::Exists($installRoot)) { $failures.Add("Verified cleanup failed: $($uninstall.Text)") }
+Assert-HostSafetyBoundary 'verified cleanup'
 
 $hostSafetyAfter = Get-HostSafetySnapshot
 $safetyDrift = @($hostSafetyBefore.Keys | Where-Object { $hostSafetyBefore[$_] -cne $hostSafetyAfter[$_] })

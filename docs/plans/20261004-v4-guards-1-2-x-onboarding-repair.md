@@ -1,6 +1,6 @@
 # V4 Guards 1.2.x onboarding, Profile authoring and UI-first repair
 
-Status: `READY FOR IMPLEMENTATION — AUTHORIZED 2026-10-04`
+Status: `P1 BLOCKERS FIXED — 11/12 PLAN GATES PASS; CLEAN-COMMIT DISTRIBUTION PENDING 2026-10-05`
 
 Formal Plan ID: `20261004-v4-guards-1-2-x-onboarding-repair`.
 
@@ -156,7 +156,7 @@ candidate. No Companion dependency or runtime scope is changed.
 
 Plan-path amendment (implementation audit):
 `core/application/contracts/application-service-contract.schema.json` is included because the already
-planned service-contract instance now declares six operations and nine schemas, and its validator must
+planned service-contract instance now declares six operations and ten schemas, and its validator must
 permit and require that exact shape. This corrects a paired contract/schema omission only; it adds no
 browser or Host capability beyond the planned typed onboarding operations.
 
@@ -165,6 +165,12 @@ Plan-path amendment (implementation validation):
 field must bind the already planned capability-matrix bytes after documenting central-props support.
 Rules, stages, detectors, severity and minimum coverage remain unchanged; this is only the required
 matrix integrity-chain update.
+
+Plan-path amendment (P1 acceptance repair):
+`core/application/contracts/host-safety-proof.schema.json` is included because onboarding progress may
+mark PATH/Profile safety complete only from a current StateRoot proof bound to package, project and
+Target identities. The proof permits hashes, existence flags and equality results only; it cannot
+contain environment values, PATH text, profile paths, Target writes or human acceptance.
 
 ## Acceptance gates
 
@@ -185,6 +191,17 @@ matrix integrity-chain update.
    isolated dotnet processes cannot add tools to User PATH.
 9. All focused and package suites pass and the candidate reports one consistent unused `1.2.<patch>`
    version. No release or consumer protection claim is made.
+
+## P1 acceptance repair record
+
+- Direct same-process call-operator and `pwsh -File` launcher failures both produce one parseable stderr
+  JSON document with stable exit/category and empty stdout.
+- Setup progress begins with one verified installation step and unlocks the next four steps only after a
+  fresh hash-only proof bound to the current package, project and Target; tamper/drift blocks later steps.
+- Project-reference and target-framework claims require explicit non-empty policies, graph completeness
+  requires resolved project references, and adapter coverage follows actual configured execution.
+- The focused regressions and 11 source-checkout validation commands pass. The distribution command is
+  intentionally pending until these implementation bytes exist in a clean commit.
 
 ## Recovery and stop conditions
 

@@ -21,6 +21,7 @@
     "plugin.json",
     "core/application/contracts/application-service-contract.json",
     "core/application/contracts/application-service-contract.schema.json",
+    "core/application/contracts/host-safety-proof.schema.json",
     "core/application/contracts/setup-action-request.schema.json",
     "core/application/contracts/setup-action-response.schema.json",
     "core/application/contracts/setup-preview.schema.json",

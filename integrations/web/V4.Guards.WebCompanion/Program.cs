@@ -704,7 +704,7 @@ internal static class Program
     {
         using var document = await ReadRequestObject(request, cancellationToken);
         var root = document.RootElement;
-        RequireExactProperties(root, "formatVersion", "actionId", "mode", "projectId", "profileId", "projectRoot", "enabledClaims", "allowedFrameworks", "previewHash");
+        RequireExactProperties(root, "formatVersion", "actionId", "mode", "projectId", "profileId", "projectRoot", "enabledClaims", "allowedFrameworks", "forbiddenProjectReferences", "previewHash");
         if (root.GetProperty("formatVersion").ValueKind != JsonValueKind.Number || root.GetProperty("formatVersion").GetInt32() != 1)
             throw new RequestException("invalid-input", "Setup request formatVersion must be 1.");
         string RequiredStringField(string name)
@@ -741,7 +741,8 @@ internal static class Program
             throw new RequestException("invalid-input", "Setup request identity field is invalid.");
         return new SetupActionRequest(action, mode, projectId, profileId, projectRoot,
             StringArray("enabledClaims", new Regex("^ARCH\\.[A-Z0-9_]+$", RegexOptions.CultureInvariant)),
-            StringArray("allowedFrameworks", new Regex("^[A-Za-z0-9][A-Za-z0-9._-]*$", RegexOptions.CultureInvariant)), previewHash);
+            StringArray("allowedFrameworks", new Regex("^[A-Za-z0-9][A-Za-z0-9._-]*$", RegexOptions.CultureInvariant)),
+            StringArray("forbiddenProjectReferences", new Regex("^[A-Za-z0-9._*?/-]+$", RegexOptions.CultureInvariant)), previewHash);
     }
 
     private static async Task<WorkspaceTarget> ResolveTrustedTarget(CompanionOptions options, WorkspaceState state, string projectId,
@@ -793,6 +794,7 @@ internal static class Program
         if (request.ProjectRoot is not null) { arguments.Add("--project-root"); arguments.Add(request.ProjectRoot); }
         if (request.EnabledClaims.Length > 0) { arguments.Add("--enabled-claims"); arguments.Add(string.Join(',', request.EnabledClaims)); }
         if (request.AllowedFrameworks.Length > 0) { arguments.Add("--allowed-frameworks"); arguments.Add(string.Join(',', request.AllowedFrameworks)); }
+        if (request.ForbiddenProjectReferences.Length > 0) { arguments.Add("--forbidden-project-references"); arguments.Add(string.Join(',', request.ForbiddenProjectReferences)); }
         if (request.PreviewHash is not null) { arguments.Add("--preview-hash"); arguments.Add(request.PreviewHash); }
         return InvokeHost(options, arguments, cancellationToken);
     }
@@ -881,7 +883,7 @@ internal static class Program
         foreach (var value in arguments) start.ArgumentList.Add(value);
 
         var inherited = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
-        foreach (var name in new[] { "PATH", "PATHEXT", "SystemRoot", "WINDIR", "TEMP", "TMP", "HOME", "DOTNET_ROOT", "DOTNET_HOST_PATH" })
+        foreach (var name in new[] { "PATH", "PATHEXT", "SystemRoot", "WINDIR", "TEMP", "TMP", "HOME", "USERPROFILE", "DOTNET_ROOT", "DOTNET_HOST_PATH" })
             inherited[name] = Environment.GetEnvironmentVariable(name);
         start.Environment.Clear();
         foreach (var pair in inherited.Where(pair => !string.IsNullOrWhiteSpace(pair.Value))) start.Environment[pair.Key] = pair.Value!;
@@ -950,7 +952,7 @@ internal static class Program
     private sealed record ApplicationOperationRequest(string OperationId, string ProjectId);
     private sealed record ApplicationConfirmationRequest(string OperationId, string ProjectId, string PreviewHash);
     private sealed record SetupActionRequest(string ActionId, string Mode, string ProjectId, string? ProfileId,
-        string? ProjectRoot, string[] EnabledClaims, string[] AllowedFrameworks, string? PreviewHash);
+        string? ProjectRoot, string[] EnabledClaims, string[] AllowedFrameworks, string[] ForbiddenProjectReferences, string? PreviewHash);
     private sealed record HostExecution(int ExitCode, JsonElement Result);
     private sealed record ProjectQueryProjection(ProjectProjection Project);
     private sealed record ProjectProjection(string ProjectId, string TargetRoot, string TargetIdentityHash, bool Bound,

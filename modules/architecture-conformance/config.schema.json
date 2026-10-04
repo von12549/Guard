@@ -65,5 +65,19 @@
         }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "enabledClaims": { "contains": { "const": "ARCH.PROJECT_REFERENCE" } } }, "required": ["enabledClaims"] },
+      "then": { "required": ["forbiddenProjectReferences"], "properties": { "forbiddenProjectReferences": { "minItems": 1 } } }
+    },
+    {
+      "if": { "properties": { "enabledClaims": { "contains": { "const": "ARCH.TARGET_FRAMEWORK" } } }, "required": ["enabledClaims"] },
+      "then": { "required": ["allowedTargetFrameworks"], "properties": { "allowedTargetFrameworks": { "minItems": 1 } } }
+    },
+    {
+      "if": { "properties": { "enabledClaims": { "contains": { "const": "ARCH.GRAPH_COMPLETENESS" } } }, "required": ["enabledClaims"] },
+      "then": { "required": ["requireResolvedProjectReferences"], "properties": { "requireResolvedProjectReferences": { "const": true } } }
+    }
+  ]
 }

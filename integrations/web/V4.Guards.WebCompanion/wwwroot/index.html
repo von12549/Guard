@@ -37,6 +37,7 @@
         <form id="onboarding-form" class="onboarding-form">
           <label for="onboarding-action">Current Host operation</label>
           <select id="onboarding-action">
+            <option value="path-profile-safety">Capture bound PATH/Profile safety proof</option>
             <option value="draft">Draft conservative Profile</option>
             <option value="configure">Configure human candidate</option>
             <option value="review-template">Create incomplete review template</option>
@@ -53,6 +54,8 @@
           </fieldset>
           <label for="onboarding-frameworks">Allowed frameworks (comma-separated literals)</label>
           <input id="onboarding-frameworks" autocomplete="off" value="net10.0">
+          <label for="onboarding-project-references">Forbidden ProjectReference patterns (required when selected)</label>
+          <input id="onboarding-project-references" autocomplete="off" placeholder="../Forbidden/*.csproj">
           <div class="onboarding-actions">
             <button id="onboarding-preview" type="button">Preview bound action</button>
             <button id="onboarding-apply" type="button" disabled>Apply to StateRoot</button>

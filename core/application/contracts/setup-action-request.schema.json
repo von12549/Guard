@@ -3,7 +3,7 @@
   "$id": "https://ifx.local/v4/application/contracts/setup-action-request.schema.json",
   "type": "object",
   "additionalProperties": false,
-  "required": ["formatVersion", "actionId", "mode", "projectId", "profileId", "projectRoot", "enabledClaims", "allowedFrameworks", "previewHash"],
+  "required": ["formatVersion", "actionId", "mode", "projectId", "profileId", "projectRoot", "enabledClaims", "allowedFrameworks", "forbiddenProjectReferences", "previewHash"],
   "properties": {
     "formatVersion": { "const": 1 },
     "actionId": { "enum": ["installation-integrity", "path-profile-safety", "roots", "target-snapshot", "discovery", "draft", "configure", "review-template"] },
@@ -13,6 +13,7 @@
     "projectRoot": { "type": ["string", "null"], "enum": [null, "."] },
     "enabledClaims": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^ARCH\\.[A-Z0-9_]+$" } },
     "allowedFrameworks": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" } },
+    "forbiddenProjectReferences": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Za-z0-9._*?/-]+$" } },
     "previewHash": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" }
   }
 }

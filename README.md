@@ -185,11 +185,15 @@ pwsh -NoProfile -File <install>\package\guard-web.ps1 `
   --target-root <repository> --state-root <state> --evidence-root <evidence> --plan-root plans
 ```
 
-The **First onboarding** stepper verifies the installation and fixed roots, discovers the Target,
-creates a Draft, validates a separate candidate, and writes an intentionally incomplete human-review
-template below StateRoot. The browser cannot submit raw paths, Host arguments, shell text, environment
-values, Target writes, activation, remote changes or human acceptance. The public Host launcher no
-longer accepts a wrapper `-Profile` trick for discovery or drafting.
+The **First onboarding** stepper verifies installation, then captures a current hash-only
+User/Machine-environment, Process-PATH and PowerShell-profile proof bound to the package, project and
+Target before roots/discovery may pass. It creates a Draft, validates a separate candidate, and writes
+an intentionally incomplete human-review template below StateRoot. Project-reference checks require
+an explicit non-empty forbidden-reference policy; graph-completeness checks require resolved project
+references, and target-framework checks require an explicit framework policy. The browser cannot
+submit raw paths, Host arguments, shell text, environment values, Target writes, activation, remote
+changes or human acceptance. The public Host launcher no longer accepts a wrapper `-Profile` trick
+for discovery or drafting.
 
 ## Validation and development
 

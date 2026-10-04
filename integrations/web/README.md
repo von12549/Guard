@@ -20,6 +20,11 @@ preview-bound actions for discovery, Draft creation, candidate configuration and
 intentionally incomplete review template. The UI shows human conclusions, machine category/exit,
 recovery guidance and relative evidence paths. It never calculates authority or acceptance.
 
+Progress begins with current package validation and a separate hash-only host-safety proof bound to the
+package, project and Target snapshot; roots, Target snapshot and discovery do not pass until that proof
+is current. Candidate forms require explicit policy for each selected claim: forbidden project-reference
+patterns, allowed target frameworks, and resolved-project-reference enforcement for graph completeness.
+
 Browser requests carry a Host-derived project ID and enumerated/form fields only. They cannot provide
 raw paths, executable/Host arguments, shell text, environment values, Target or CI writes, activation,
 remote changes or human acceptance. A Target/package/form change after preview is refused as stale.

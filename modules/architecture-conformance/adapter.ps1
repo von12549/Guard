@@ -262,6 +262,25 @@ function Resolve-ProjectFramework($Project, $ProjectXml) {
 
 $requestedProjectClaims = @($activeClaims | Where-Object { $_ -in $projectClaims })
 if ($requestedProjectClaims.Count -gt 0) {
+    $semanticConfigurationFailures = [Collections.Generic.List[string]]::new()
+    if ((Enabled 'ARCH.PROJECT_REFERENCE') -and @(Config-Array 'forbiddenProjectReferences').Count -eq 0) {
+        $semanticConfigurationFailures.Add('ARCH.PROJECT_REFERENCE requires a non-empty forbiddenProjectReferences policy.')
+    }
+    if ((Enabled 'ARCH.PACKAGE_REFERENCE') -and @(Config-Array 'forbiddenPackages').Count -eq 0) {
+        $semanticConfigurationFailures.Add('ARCH.PACKAGE_REFERENCE requires a non-empty forbiddenPackages policy.')
+    }
+    if ((Enabled 'ARCH.TARGET_FRAMEWORK') -and @(Config-Array 'allowedTargetFrameworks').Count -eq 0) {
+        $semanticConfigurationFailures.Add('ARCH.TARGET_FRAMEWORK requires a non-empty allowedTargetFrameworks policy.')
+    }
+    if ((Enabled 'ARCH.GRAPH_COMPLETENESS') -and
+        (-not ($config.PSObject.Properties.Name -contains 'requireResolvedProjectReferences') -or -not $config.requireResolvedProjectReferences)) {
+        $semanticConfigurationFailures.Add('ARCH.GRAPH_COMPLETENESS requires requireResolvedProjectReferences=true.')
+    }
+    if ($semanticConfigurationFailures.Count -gt 0) {
+        Add-Coverage $requestedProjectClaims 0
+        Write-Result 'error' 'invalid-input' ($semanticConfigurationFailures -join ' ')
+        exit 0
+    }
     $projects = @(Scoped-Files '*.csproj')
     if ($projects.Count -eq 0) {
         Add-Coverage $activeClaims 0

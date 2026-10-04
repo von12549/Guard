@@ -40,6 +40,7 @@ const onboardingAction = document.querySelector("#onboarding-action");
 const onboardingProfile = document.querySelector("#onboarding-profile");
 const onboardingRoot = document.querySelector("#onboarding-root");
 const onboardingFrameworks = document.querySelector("#onboarding-frameworks");
+const onboardingProjectReferences = document.querySelector("#onboarding-project-references");
 const onboardingPreview = document.querySelector("#onboarding-preview");
 const onboardingApply = document.querySelector("#onboarding-apply");
 const onboardingConclusion = document.querySelector("#onboarding-conclusion");
@@ -178,7 +179,12 @@ function setBusy(value) {
 
 function onboardingRequest(mode, previewHash = null) {
   const claims = [...document.querySelectorAll('input[name="onboarding-claim"]:checked')].map((input) => input.value);
-  const allowedFrameworks = onboardingFrameworks.value.split(",").map((value) => value.trim()).filter(Boolean);
+  const allowedFrameworks = claims.includes("ARCH.TARGET_FRAMEWORK")
+    ? onboardingFrameworks.value.split(",").map((value) => value.trim()).filter(Boolean)
+    : [];
+  const forbiddenProjectReferences = claims.includes("ARCH.PROJECT_REFERENCE")
+    ? onboardingProjectReferences.value.split(",").map((value) => value.trim()).filter(Boolean)
+    : [];
   return {
     formatVersion: 1,
     actionId: onboardingAction.value,
@@ -188,6 +194,7 @@ function onboardingRequest(mode, previewHash = null) {
     projectRoot: onboardingRoot.value || null,
     enabledClaims: claims,
     allowedFrameworks,
+    forbiddenProjectReferences,
     previewHash
   };
 }
@@ -198,10 +205,11 @@ function renderOnboardingProgress(progress) {
   for (const step of progress.steps) {
     const item = element("li", step.status, `${step.id} · ${step.status}`);
     item.append(element("small", "", `${step.humanConclusion} ${step.safeRecoveryHint}`));
+    if (step.machineErrorCategory) item.append(element("small", "", `Machine: ${step.machineErrorCategory} · exit ${step.exitCode}`));
     if (step.evidencePaths.length) item.append(element("small", "", `Evidence: ${step.evidencePaths.join(", ")}`));
     onboardingSteps.append(item);
   }
-  if (["draft", "configure", "review-template"].includes(progress.currentHostOperation)) onboardingAction.value = progress.currentHostOperation;
+  if (["path-profile-safety", "draft", "configure", "review-template"].includes(progress.currentHostOperation)) onboardingAction.value = progress.currentHostOperation;
 }
 
 function renderOnboardingResult(result) {

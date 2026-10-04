@@ -9,9 +9,16 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+function Write-RedirectableErrorJson([string] $Json) {
+    $writer = '[Console]::Error.Write([Console]::In.ReadToEnd())'
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($writer))
+    $pwshPath = if ($IsWindows) { Join-Path $PSHOME 'pwsh.exe' } else { Join-Path $PSHOME 'pwsh' }
+    $Json | & $pwshPath -NoLogo -NoProfile -NonInteractive -EncodedCommand $encoded
+}
+
 function Write-InstalledError([int] $Code, [string] $Category, [string] $Message) {
     $document = [ordered]@{ formatVersion=1; status='error'; operation='installed-launcher'; exitCategory=$Category; message=$Message }
-    [Console]::Error.WriteLine(($document | ConvertTo-Json -Compress))
+    Write-RedirectableErrorJson ($document | ConvertTo-Json -Compress)
     exit $Code
 }
 

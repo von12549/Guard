@@ -24,6 +24,12 @@ eight Host-derived steps: installation integrity, PATH/profile safety, roots, Ta
 discovery, Draft, configure and review-template. Status is count-based (`not-started`, `running`,
 `pass`, `needs-decision` or `blocked`) and never invents a percentage.
 
+The first five steps are not a fixed baseline. Installation passes only after current package/contract
+validation; the remaining four stay blocked until StateRoot contains a fresh hash-only safety proof
+bound to the current package, project and Target snapshot. The proof compares unexpanded persistent
+User/Machine environment state, Process PATH and all four PowerShell profile locations. Any mismatch
+is a host-safety incident and no later step is counted as complete.
+
 Every setup action is typed and preview-first. Apply must present the exact preview identity binding the
 operation, project, form choices, Target snapshot and package authority; drift returns exit 17
 `state-conflict` (HTTP 409). The only permitted writes are new artifacts below StateRoot.
@@ -41,8 +47,13 @@ Each Host result binds:
 - the strict operation payload; and
 - a SHA-256 preview identity over all of those values.
 
+Candidate configuration is claim-specific: `ARCH.PROJECT_REFERENCE` requires an explicit non-empty
+forbidden-reference list, `ARCH.TARGET_FRAMEWORK` requires an explicit non-empty framework list, and
+`ARCH.GRAPH_COMPLETENESS` sets `requireResolvedProjectReferences=true`. Adapter coverage is emitted
+only after the corresponding semantic check is configured and executed.
+
 The experimental schema catalog at `core/application/contracts/application-service-contract.json`
-hash-binds all nine application/onboarding schemas. New CLI entries remain experimental; the stable
+hash-binds all ten application/onboarding schemas. New CLI entries remain experimental; the stable
 API version and stable command semantics are unchanged.
 
 ## Protection semantics
@@ -70,7 +81,7 @@ client cancellation to the Host process.
 
 `GET /api/v1/onboarding/progress/{projectId}` and `POST /api/v1/onboarding/action` use the same session,
 Origin, CSRF, body-size and single-run controls. The action endpoint accepts only the exact typed
-project/operation/mode/preview/profile/project-root/claim/framework fields. Unknown properties,
+project/operation/mode/preview/profile/project-root/claim/framework/project-reference-policy fields. Unknown properties,
 including raw paths, executable names, Host arguments, shell text or environment values, are rejected.
 
 Confirmation reruns the same Host preview. A changed package, Target snapshot, project or payload
