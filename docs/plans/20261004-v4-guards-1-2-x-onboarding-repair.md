@@ -1,6 +1,6 @@
 # V4 Guards 1.2.x onboarding, Profile authoring and UI-first repair
 
-Status: `SINGLE-CLAIM P1 FIXED — 11/12 PLAN GATES PASS; CLEAN-COMMIT DISTRIBUTION PENDING 2026-10-05`
+Status: `IMPLEMENTATION COMPLETE — 12/12 PLAN GATES PASS; READY FOR HUMAN RETEST 2026-10-05`
 
 Formal Plan ID: `20261004-v4-guards-1-2-x-onboarding-repair`.
 
@@ -203,8 +203,8 @@ contain environment values, PATH text, profile paths, Target writes or human acc
 - Independent review found that valid project-reference-only and graph-completeness-only configure
   applies were blocked by an unrelated framework decision. Configure readiness is now claim-specific,
   and both single-claim paths pass preview/apply with exact non-orphan candidate configuration.
-- The focused regressions and 11 source-checkout validation commands pass. The independent distribution
-  command is intentionally pending until the single-claim repair bytes exist in a clean commit.
+- The focused regressions and all 12 formal validation commands pass, including the clean-commit
+  independent distribution build. This is ready for human retest, not IFX acceptance or release authority.
 
 ## Recovery and stop conditions
 
