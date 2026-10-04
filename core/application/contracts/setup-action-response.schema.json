@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/application/contracts/setup-action-response.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "status", "authority", "actionId", "projectId", "currentHostOperation", "previewHash", "completedStepCount", "totalStepCount", "humanConclusion", "machine", "safeRecoveryHint", "evidencePaths", "boundaries"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "enum": ["not-started", "running", "pass", "needs-decision", "blocked"] },
+    "authority": { "const": "v4-host" },
+    "actionId": { "type": "string", "minLength": 1 },
+    "projectId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+    "currentHostOperation": { "type": "string", "minLength": 1 },
+    "previewHash": { "$ref": "#/definitions/sha256" },
+    "completedStepCount": { "type": "integer", "minimum": 0, "maximum": 8 },
+    "totalStepCount": { "const": 8 },
+    "humanConclusion": { "type": "string", "minLength": 1 },
+    "machine": {
+      "type": "object", "additionalProperties": false,
+      "required": ["exitCategory", "exitCode"],
+      "properties": { "exitCategory": { "type": "string", "minLength": 1 }, "exitCode": { "type": "integer", "minimum": 0, "maximum": 255 } }
+    },
+    "safeRecoveryHint": { "type": "string", "minLength": 1 },
+    "evidencePaths": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/definitions/relativePath" } },
+    "boundaries": {
+      "type": "object", "additionalProperties": false,
+      "required": ["stateWrite", "targetWrite", "ciActivation", "remoteMutation", "humanAcceptance"],
+      "properties": {
+        "stateWrite": { "type": "boolean" }, "targetWrite": { "const": false }, "ciActivation": { "const": false },
+        "remoteMutation": { "const": false }, "humanAcceptance": { "const": false }
+      }
+    }
+  },
+  "definitions": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "relativePath": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" }
+  }
+}

@@ -1,9 +1,28 @@
 # V4 Web Companion
 
 The Web Companion is a local presentation and manual-control integration over the V4 Host. The latest
-formal asset is 1.1.6; source version 1.2.0 is the conditional release candidate containing the M3
-application Workbench described below. It remains unpublished until exact-commit certification and release.
+formal asset is 1.2.0; source version 1.2.1 is an unpublished local candidate containing the repaired
+typed onboarding flow described below.
 It is not a guard engine, policy authority or verdict producer.
+
+## Primary onboarding flow
+
+Start the installed Companion with one shell command, then remain in the browser:
+
+```powershell
+pwsh -NoProfile -File <install>\package\guard-web.ps1 `
+  -PrerequisiteReportPath <state>\web-prerequisites.json `
+  --target-root <repository> --state-root <state> --evidence-root <evidence> --plan-root plans
+```
+
+The **First onboarding** stepper obtains eight-step progress from the Host and offers typed,
+preview-bound actions for discovery, Draft creation, candidate configuration and creation of an
+intentionally incomplete review template. The UI shows human conclusions, machine category/exit,
+recovery guidance and relative evidence paths. It never calculates authority or acceptance.
+
+Browser requests carry a Host-derived project ID and enumerated/form fields only. They cannot provide
+raw paths, executable/Host arguments, shell text, environment values, Target or CI writes, activation,
+remote changes or human acceptance. A Target/package/form change after preview is refused as stale.
 
 Published V4 1.1.0 packages the completed P9 one-active-Target workspace, evidence desk and Plan Center
 as an offline, installable Companion. Version 1.1.1 preserves that surface:

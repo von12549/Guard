@@ -17,6 +17,13 @@ API version: `1.0`
 | `state.put` | experimental | state-write | PackageRoot, StateRoot, EvidenceRoot | `v4-guards state put --package-root <path> --state-root <path> --evidence-root <path> --project <id> --relative-path <path> --content <text>` |
 | `state.recover` | experimental | state-write | PackageRoot, StateRoot, EvidenceRoot | `v4-guards state recover --package-root <path> --state-root <path> --evidence-root <path>` |
 | `spike.run` | experimental | state-write | PackageRoot, TargetRoot, StateRoot, EvidenceRoot | `v4-guards spike run --package-root <path> --target-root <path> --state-root <path> --evidence-root <path> --module synthetic-probe` |
+| `profile.discover` | experimental | read-only | PackageRoot, TargetRoot | `v4-guards profile discover --package-root <path> --target-root <path>` |
+| `profile.draft` | experimental | state-write | PackageRoot, TargetRoot, StateRoot | `v4-guards profile draft --package-root <path> --target-root <path> --state-root <path> --profile <new-id>` |
+| `profile.configure` | experimental | state-write | PackageRoot, TargetRoot, StateRoot | `v4-guards profile configure --package-root <path> --target-root <path> --state-root <path> --draft <path> --candidate <path>` |
+| `profile.review-template` | experimental | state-write | PackageRoot, TargetRoot, StateRoot | `v4-guards profile review-template --package-root <path> --target-root <path> --state-root <path> --draft <configured-draft-path>` |
+| `application.preview` | experimental | preview | PackageRoot, TargetRoot, StateRoot, EvidenceRoot | `v4-guards application preview --operation <setup|protection|authorities|lifecycle> --package-root <path> --target-root <path> --state-root <path> --evidence-root <path> --plan-root <relative-path>` |
+| `application.setup-progress` | experimental | read-only | PackageRoot, TargetRoot, StateRoot, EvidenceRoot | `v4-guards application setup-progress --project-id <id> --package-root <path> --target-root <path> --state-root <path> --evidence-root <path> --plan-root <relative-path>` |
+| `application.setup-action` | experimental | state-write | PackageRoot, TargetRoot, StateRoot, EvidenceRoot | `v4-guards application setup-action --operation <step> --mode <preview|apply> --project-id <id> [typed choices] --package-root <path> --target-root <path> --state-root <path> --evidence-root <path> --plan-root <relative-path>` |
 
 ## Exit categories
 

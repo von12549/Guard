@@ -63,5 +63,39 @@ $missing=New-Roots 'missing' ''
 $missingResult=Result 'missing projects' $missing (Run $missing) 15 'prerequisite-missing'
 if($null -ne $missingResult -and @($missingResult.coverage|Where-Object {$_.claimId -like 'ARCH.*' -and $_.matched -ne 0}).Count -ne 0){$failures.Add('missing project coverage is not zero')}
 
+$central=New-Roots 'central-props' ''
+Copy-Item -LiteralPath (Join-Path $packageRoot 'tests/fixtures/ifx-like-central-props/Directory.Build.props') -Destination $central.Target
+Copy-Item -LiteralPath (Join-Path $packageRoot 'tests/fixtures/ifx-like-central-props/IFX.sln') -Destination $central.Target
+foreach($relative in @('src/App/App.csproj','tests/App.Tests/App.Tests.csproj')){
+    $destination=Join-Path $central.Target $relative;[void][IO.Directory]::CreateDirectory((Split-Path -Parent $destination));Copy-Item -LiteralPath (Join-Path $packageRoot "tests/fixtures/ifx-like-central-props/$relative") -Destination $destination
+}
+[IO.File]::WriteAllText((Join-Path $central.Target 'src/App/App.cs'),'namespace IFX.App; public sealed class AppMarker { }',[Text.UTF8Encoding]::new($false))
+$central.Before=Hash-Tree $central.Target
+$centralResult=Result 'central props' $central (Run $central) 0 'success'
+if($null -ne $centralResult){
+    $frameworkCoverage=@($centralResult.coverage|Where-Object claimId -ceq 'ARCH.TARGET_FRAMEWORK')
+    if($frameworkCoverage.Count-ne1-or$frameworkCoverage[0].matched-ne2){$failures.Add('central props did not provide framework coverage for both projects')}
+    if(@($centralResult.findings|Where-Object {$_.ruleId-ceq'ARCH.TARGET_FRAMEWORK'-and$_.subject-match'<missing>'}).Count-ne0){$failures.Add('central props was misclassified as a missing framework')}
+}
+$dll=Join-Path $artifactsRoot 'bin/V4.Guards.Host/debug/v4-guards.dll'
+$discoveryOutput=@(& dotnet $dll profile discover --package-root $packageRoot --target-root $central.Target 2>&1)
+if($LASTEXITCODE){$failures.Add("central props discovery failed: $($discoveryOutput-join' ')")}else{
+    $discovery=($discoveryOutput-join"`n")|ConvertFrom-Json
+    $centralFacts=@($discovery.facts|Where-Object { $_.kind-ceq'framework'-and$_.normalizedValue-ceq'dotnet:net10.0'-and$_.sourcePath-ceq'Directory.Build.props' })
+    if($centralFacts.Count-ne2){$failures.Add('discovery did not evidence Directory.Build.props as the inherited framework source for both projects')}
+    $rootCandidate=@($discovery.questions|Where-Object { $_.id -ceq 'root-solution-project-root' })
+    if($rootCandidate.Count-ne1-or@($rootCandidate[0].candidateValues)-notcontains'.'){$failures.Add('root solution did not produce an explicit reviewable project-root candidate')}
+}
+
+$unsupported=New-Roots 'conditional-props' '<Project Sdk="Microsoft.NET.Sdk" />'
+[IO.File]::WriteAllText((Join-Path $unsupported.Target 'Directory.Build.props'),'<Project><PropertyGroup Condition="''$(Configuration)'' == ''Debug''"><TargetFramework>net10.0</TargetFramework></PropertyGroup></Project>',[Text.UTF8Encoding]::new($false))
+$unsupported.Before=Hash-Tree $unsupported.Target
+$unsupportedRun=Run $unsupported
+$unsupportedResult=Result 'conditional central props' $unsupported $unsupportedRun 15 'prerequisite-missing'
+if($null-ne$unsupportedResult){
+    if(@($unsupportedResult.findings|Where-Object {$_.subject-match'Unsupported target-framework coverage'}).Count-ne1){$failures.Add('conditional props did not report explicit unsupported coverage')}
+    if(@($unsupportedResult.findings|Where-Object {$_.ruleId-ceq'ARCH.TARGET_FRAMEWORK'-and$_.subject-match'<missing>'}).Count-ne0){$failures.Add('conditional props was misclassified as a missing-framework violation')}
+}
+
 if($failures.Count){throw($failures-join"`n")}
-Write-Host 'V4 P4B Project Model tests passed: clean coverage, four blocking claims, missing-input failure and zero target execution.'
+Write-Host 'V4 P4B Project Model tests passed: clean coverage, central-props inheritance/source evidence, root-solution candidate, unsupported conditional coverage, four blocking claims, missing-input failure and zero target execution.'

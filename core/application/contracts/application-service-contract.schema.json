@@ -8,16 +8,16 @@
     "formatVersion": { "const": 1 },
     "operations": {
       "type": "array",
-      "minItems": 4,
-      "maxItems": 4,
+      "minItems": 6,
+      "maxItems": 6,
       "uniqueItems": true,
       "items": {
         "type": "object",
         "additionalProperties": false,
         "required": ["id", "class", "mutatesTarget", "remote", "available"],
         "properties": {
-          "id": { "enum": ["setup", "protection", "authorities", "lifecycle"] },
-          "class": { "enum": ["query", "local-mutable-preview"] },
+          "id": { "enum": ["setup", "protection", "authorities", "lifecycle", "setup-progress", "setup-action"] },
+          "class": { "enum": ["query", "local-mutable-preview", "state-write"] },
           "mutatesTarget": { "const": false },
           "remote": { "const": false },
           "available": { "const": true }
@@ -26,8 +26,8 @@
     },
     "schemas": {
       "type": "array",
-      "minItems": 6,
-      "maxItems": 6,
+      "minItems": 9,
+      "maxItems": 9,
       "items": {
         "type": "object",
         "additionalProperties": false,

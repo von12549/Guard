@@ -45,12 +45,16 @@
       "type": "array",
       "items": {
         "type": "object", "additionalProperties": false,
-        "required": ["id", "kind", "sourcePaths", "message"],
+        "required": ["id", "kind", "sourcePaths", "message", "humanExplanation", "safeDefault", "candidateValues", "nextAction"],
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
           "kind": { "enum": ["ambiguous-project", "ambiguous-framework", "unsupported-manifest", "ambiguous-module"] },
           "sourcePaths": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/definitions/relativePath" } },
-          "message": { "type": "string", "minLength": 1 }
+          "message": { "type": "string", "minLength": 1 },
+          "humanExplanation": { "type": "string", "minLength": 1 },
+          "safeDefault": { "const": "unresolved-unprotected" },
+          "candidateValues": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+          "nextAction": { "type": "string", "minLength": 1 }
         }
       }
     },

@@ -142,6 +142,7 @@ try {
 
     $bind = Invoke-Host @('state','bind','--package-root',$packageRoot,'--target-root',$targetRoot,'--state-root',$stateRoot,'--evidence-root',$evidenceRoot,'--profile','synthetic_profile')
     if ($bind.Code -ne 0) { throw "Fixture state bind failed: $($bind.Raw)" }
+    $projectId = [string](($bind.Raw | ConvertFrom-Json).projectId)
 
     $common = @('--package-root',$packageRoot,'--target-root',$targetRoot,'--state-root',$stateRoot,'--evidence-root',$evidenceRoot,'--plan-root','plans')
     $direct = @{}
@@ -172,6 +173,34 @@ try {
     $injection = Invoke-Host (@('application','preview','--operation','setup') + $common + @('--command','pwsh'))
     if ($injection.Code -ne 10 -or $injection.Raw -notmatch 'Unknown argument') { Fail 'Raw command injection was not refused.' }
 
+    $progressArgs=@('application','setup-progress','--project-id',$projectId)+$common
+    $initialProgress=Invoke-Host $progressArgs
+    if($initialProgress.Code-ne0-or-not(Test-Json -Json $initialProgress.Raw -SchemaFile (Join-Path $packageRoot 'core/application/contracts/setup-progress.schema.json') -ErrorAction SilentlyContinue)){Fail "Initial onboarding progress is invalid: $($initialProgress.Raw)"}
+    $draftPreviewArgs=@('application','setup-action','--operation','draft','--mode','preview','--project-id',$projectId,'--profile-id','onboarding_guard')+$common
+    $draftPreview=Invoke-Host $draftPreviewArgs
+    if($draftPreview.Code-ne0){Fail "Onboarding draft preview failed: $($draftPreview.Raw)"}else{
+        $draftPreviewDocument=$draftPreview.Raw|ConvertFrom-Json
+        $staleDraft=Invoke-Host (@('application','setup-action','--operation','draft','--mode','apply','--project-id',$projectId,'--profile-id','onboarding_guard','--preview-hash',('0'*64))+$common)
+        if($staleDraft.Code-ne17-or$staleDraft.Raw-notmatch'stale'){Fail 'Onboarding apply did not refuse a stale preview.'}
+        $draftApply=Invoke-Host (@('application','setup-action','--operation','draft','--mode','apply','--project-id',$projectId,'--profile-id','onboarding_guard','--preview-hash',$draftPreviewDocument.previewHash)+$common)
+        if($draftApply.Code-ne0-or-not(Test-Json -Json $draftApply.Raw -SchemaFile (Join-Path $packageRoot 'core/application/contracts/setup-action-response.schema.json') -ErrorAction SilentlyContinue)){Fail "Typed onboarding draft apply failed: $($draftApply.Raw)"}
+    }
+    $configureBase=@('application','setup-action','--operation','configure','--project-id',$projectId,'--profile-id','onboarding_guard','--project-root','.','--enabled-claims','ARCH.TARGET_FRAMEWORK','--allowed-frameworks','net10.0')+$common
+    $configurePreview=Invoke-Host (@('application','setup-action','--operation','configure','--mode','preview','--project-id',$projectId,'--profile-id','onboarding_guard','--project-root','.','--enabled-claims','ARCH.TARGET_FRAMEWORK','--allowed-frameworks','net10.0')+$common)
+    if($configurePreview.Code-ne0){Fail "Onboarding configure preview failed: $($configurePreview.Raw)"}else{
+        $configureHash=($configurePreview.Raw|ConvertFrom-Json).previewHash
+        $configureApply=Invoke-Host (@('application','setup-action','--operation','configure','--mode','apply','--project-id',$projectId,'--profile-id','onboarding_guard','--project-root','.','--enabled-claims','ARCH.TARGET_FRAMEWORK','--allowed-frameworks','net10.0','--preview-hash',$configureHash)+$common)
+        if($configureApply.Code-ne0){Fail "Typed onboarding configure apply failed: $($configureApply.Raw)"}
+    }
+    $reviewPreview=Invoke-Host (@('application','setup-action','--operation','review-template','--mode','preview','--project-id',$projectId,'--profile-id','onboarding_guard')+$common)
+    if($reviewPreview.Code-ne0){Fail "Onboarding review-template preview failed: $($reviewPreview.Raw)"}else{
+        $reviewHash=($reviewPreview.Raw|ConvertFrom-Json).previewHash
+        $reviewApply=Invoke-Host (@('application','setup-action','--operation','review-template','--mode','apply','--project-id',$projectId,'--profile-id','onboarding_guard','--preview-hash',$reviewHash)+$common)
+        if($reviewApply.Code-ne0){Fail "Typed onboarding review-template apply failed: $($reviewApply.Raw)"}
+    }
+    $completeProgress=Invoke-Host $progressArgs
+    if($completeProgress.Code-ne0-or($completeProgress.Raw|ConvertFrom-Json).completedStepCount-ne8){Fail 'Typed onboarding did not reach the incomplete-review-template stop point.'}
+
     $packageBefore = Hash-Tree $packageRoot
     $targetBefore = Hash-Tree $targetRoot
     $companion = Start-Companion
@@ -183,6 +212,18 @@ try {
     $projectId = [string]$session.activeProjectId
     $csrf = [string]$session.csrfToken
     $body = "{`"operationId`":`"protection`",`"projectId`":`"$projectId`"}"
+
+    $onboardingProgress=Invoke-Get $client "$($companion.Address)/api/v1/onboarding/progress/$projectId"
+    if($onboardingProgress.StatusCode-ne200-or-not(Test-Json -Json $onboardingProgress.Body -SchemaFile (Join-Path $packageRoot 'integrations/web/V4.Guards.WebCompanion/contracts/setup-progress.schema.json') -ErrorAction SilentlyContinue)){Fail "Web onboarding progress is invalid: $($onboardingProgress.Body)"}
+    $onboardingBody=(@{formatVersion=1;actionId='installation-integrity';mode='preview';projectId=$projectId;profileId=$null;projectRoot=$null;enabledClaims=@();allowedFrameworks=@();previewHash=$null}|ConvertTo-Json -Compress)
+    $onboardingPreview=Invoke-Post $client "$($companion.Address)/api/v1/onboarding/action" $onboardingBody $csrf -WithOrigin
+    if($onboardingPreview.StatusCode-ne200-or-not(Test-Json -Json $onboardingPreview.Body -SchemaFile (Join-Path $packageRoot 'integrations/web/V4.Guards.WebCompanion/contracts/setup-action-response.schema.json') -ErrorAction SilentlyContinue)){Fail "Web onboarding preview is invalid: $($onboardingPreview.Body)"}
+    $rawPathBody=(@{formatVersion=1;actionId='draft';mode='preview';projectId=$projectId;profileId='web_guard';projectRoot='.';enabledClaims=@();allowedFrameworks=@();previewHash=$null;rawPath='C:/forbidden'}|ConvertTo-Json -Compress)
+    $rawPathResponse=Invoke-Post $client "$($companion.Address)/api/v1/onboarding/action" $rawPathBody $csrf -WithOrigin
+    if($rawPathResponse.StatusCode-ne400-or$rawPathResponse.Body-notmatch'Unknown request field'){Fail 'Web onboarding accepted a browser-supplied raw path field.'}
+    $staleWebBody=(@{formatVersion=1;actionId='draft';mode='apply';projectId=$projectId;profileId='web_guard';projectRoot='.';enabledClaims=@();allowedFrameworks=@();previewHash=('0'*64)}|ConvertTo-Json -Compress)
+    $staleWeb=Invoke-Post $client "$($companion.Address)/api/v1/onboarding/action" $staleWebBody $csrf -WithOrigin
+    if($staleWeb.StatusCode-ne409-or$staleWeb.Body-notmatch'stale'){Fail 'Web onboarding did not return a stale-preview conflict.'}
 
     $anonymous = [Net.Http.HttpClient]::new()
     try { if ((Invoke-Post $anonymous "$($companion.Address)/api/v1/application/preview" $body $csrf -WithOrigin).StatusCode -ne 403) { Fail 'Application preview without session was not refused.' } }

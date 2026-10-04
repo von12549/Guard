@@ -31,6 +31,29 @@ internal static class ApplicationRuntime
         try
         {
             var arguments = Arguments.Parse(args);
+            if (arguments.Action == "setup-progress")
+            {
+                arguments.RequireOnly("package-root", "target-root", "state-root", "evidence-root", "plan-root", "project-id");
+                var onboardingRoots = ResolveRoots(arguments);
+                VerifyApplicationContract(onboardingRoots.PackageRoot);
+                var onboarding = BuildOnboardingContext(onboardingRoots, arguments.Required("project-id"));
+                var progress = SetupProgress(onboarding);
+                ValidateDocument(onboardingRoots.PackageRoot, "setup-progress", progress);
+                Console.WriteLine(progress.ToJsonString(JsonOptions));
+                return 0;
+            }
+            if (arguments.Action == "setup-action")
+            {
+                arguments.RequireAllowed("package-root", "target-root", "state-root", "evidence-root", "plan-root", "project-id",
+                    "operation", "mode", "profile-id", "project-root", "enabled-claims", "allowed-frameworks", "preview-hash");
+                var onboardingRoots = ResolveRoots(arguments);
+                VerifyApplicationContract(onboardingRoots.PackageRoot);
+                var onboarding = BuildOnboardingContext(onboardingRoots, arguments.Required("project-id"));
+                var response = SetupAction(onboarding, arguments);
+                ValidateDocument(onboardingRoots.PackageRoot, "setup-action-response", response);
+                Console.WriteLine(response.ToJsonString(JsonOptions));
+                return 0;
+            }
             if (arguments.Action != "preview") throw Invalid($"Unknown application action: {arguments.Action}");
             arguments.RequireOnly("operation", "package-root", "target-root", "state-root", "evidence-root", "plan-root");
             var operation = arguments.Required("operation");
@@ -101,6 +124,234 @@ internal static class ApplicationRuntime
         {
             return Error(19, "internal-error", ex.Message);
         }
+    }
+
+    private static OnboardingContext BuildOnboardingContext(Roots roots, string requestedProjectId)
+    {
+        if (!Regex.IsMatch(requestedProjectId, "^[a-f0-9]{32}$", RegexOptions.CultureInvariant)) throw Invalid("Project ID is invalid.");
+        var project = QueryRuntime.QueryForApplication([
+            "query", "project", "--package-root", roots.PackageRoot, "--target-root", roots.TargetRoot,
+            "--state-root", roots.StateRoot, "--evidence-root", roots.EvidenceRoot
+        ]);
+        var actualProjectId = project.GetProperty("project").GetProperty("projectId").GetString()!;
+        if (!string.Equals(actualProjectId, requestedProjectId, StringComparison.Ordinal)) throw Invalid("Project ID does not match the trusted TargetRoot.");
+        var profiles = QueryRuntime.QueryForApplication(["query", "profiles", "--package-root", roots.PackageRoot]);
+        var discovery = ProfileRuntime.DiscoverForApplication(roots.PackageRoot, roots.TargetRoot);
+        return new OnboardingContext(roots, actualProjectId, discovery, PackageAuthorityHash(roots.PackageRoot, profiles));
+    }
+
+    private static readonly string[] SetupStepIds =
+    [
+        "installation-integrity", "path-profile-safety", "roots", "target-snapshot",
+        "discovery", "draft", "configure", "review-template"
+    ];
+
+    private static JsonObject SetupProgress(OnboardingContext context)
+    {
+        var projectDirectory = Path.Combine(context.Roots.StateRoot, "profile-drafts", context.ProjectId);
+        var drafts = StateFiles(projectDirectory, "draft.json");
+        var configured = StateFiles(projectDirectory, "configured-draft.json");
+        var templates = StateFiles(projectDirectory, "review-template.json");
+        var completed = 5 + (drafts.Count > 0 ? 1 : 0) + (configured.Count > 0 ? 1 : 0) + (templates.Count > 0 ? 1 : 0);
+        var current = completed >= SetupStepIds.Length ? "incomplete-review-template-stop" : SetupStepIds[completed];
+        JsonObject Step(string id, int index, IReadOnlyList<string> evidence) => new()
+        {
+            ["id"] = id,
+            ["status"] = index < completed ? "pass" : index == completed ? "needs-decision" : "not-started",
+            ["humanConclusion"] = index < 5 ? "Host verification passed without changing consumer authority."
+                : index < completed ? "A StateRoot-owned non-authoritative artifact exists." : "Human input is required before this step can continue.",
+            ["machineErrorCategory"] = null,
+            ["exitCode"] = index < completed ? 0 : null,
+            ["safeRecoveryHint"] = index < completed ? "Continue to the next explicit step." : "Review the Host evidence and supply only the typed form fields.",
+            ["evidencePaths"] = new JsonArray(evidence.Select(value => (JsonNode)value).ToArray())
+        };
+        var steps = new JsonArray();
+        for (var index = 0; index < SetupStepIds.Length; index++)
+        {
+            IReadOnlyList<string> evidence = SetupStepIds[index] switch
+            {
+                "draft" => drafts,
+                "configure" => configured,
+                "review-template" => templates,
+                _ => []
+            };
+            steps.Add(Step(SetupStepIds[index], index, evidence));
+        }
+        return new JsonObject
+        {
+            ["formatVersion"] = 1,
+            ["status"] = completed == SetupStepIds.Length ? "pass" : "needs-decision",
+            ["authority"] = "v4-host",
+            ["projectId"] = context.ProjectId,
+            ["completedStepCount"] = completed,
+            ["totalStepCount"] = SetupStepIds.Length,
+            ["currentHostOperation"] = current,
+            ["steps"] = steps,
+            ["boundaries"] = Boundaries(true)
+        };
+    }
+
+    private static JsonObject SetupAction(OnboardingContext context, Arguments arguments)
+    {
+        var operation = arguments.Required("operation");
+        if (!SetupStepIds.Contains(operation, StringComparer.Ordinal)) throw Invalid("Setup action is not allowlisted.");
+        var mode = arguments.Required("mode");
+        if (mode is not ("preview" or "apply")) throw Invalid("Setup action mode must be preview or apply.");
+        var profileId = arguments.Optional("profile-id");
+        if (profileId is not null && !Regex.IsMatch(profileId, "^[a-z][a-z0-9_-]{0,62}$", RegexOptions.CultureInvariant)) throw Invalid("Profile ID is invalid.");
+        var projectRoot = arguments.Optional("project-root");
+        if (projectRoot is not null && projectRoot != ".") throw Invalid("The only supported onboarding project-root candidate is '.'.");
+        var claims = SplitValues(arguments.Optional("enabled-claims"));
+        var frameworks = SplitValues(arguments.Optional("allowed-frameworks"));
+        if (claims.Any(value => !Regex.IsMatch(value, "^ARCH\\.[A-Z0-9_]+$", RegexOptions.CultureInvariant))) throw Invalid("Enabled claim is invalid.");
+        if (frameworks.Any(value => !Regex.IsMatch(value, "^[A-Za-z0-9][A-Za-z0-9._-]*$", RegexOptions.CultureInvariant))) throw Invalid("Allowed framework is invalid.");
+        var snapshot = RequiredString(context.Discovery["target"]!.AsObject(), "snapshotSha256");
+        var identity = new JsonObject
+        {
+            ["operation"] = operation, ["projectId"] = context.ProjectId, ["profileId"] = profileId,
+            ["projectRoot"] = projectRoot, ["enabledClaims"] = new JsonArray(claims.Select(value => (JsonNode)value).ToArray()),
+            ["allowedFrameworks"] = new JsonArray(frameworks.Select(value => (JsonNode)value).ToArray()),
+            ["targetSnapshotSha256"] = snapshot, ["packageAuthoritySha256"] = context.PackageAuthority
+        };
+        var previewHash = HashText(identity.ToJsonString(CompactOptions));
+        var needsInput = operation switch
+        {
+            "draft" => profileId is null,
+            "configure" => profileId is null || projectRoot is null || claims.Length == 0 || frameworks.Length == 0,
+            "review-template" => profileId is null,
+            _ => false
+        };
+        if (mode == "apply")
+        {
+            var accepted = arguments.Optional("preview-hash") ?? throw Invalid("Apply requires --preview-hash.");
+            if (!FixedTimeEquals(accepted, previewHash)) throw Conflict("Setup action preview is stale.");
+            if (needsInput) throw Invalid("Typed human decisions are incomplete for this setup action.");
+        }
+
+        var evidence = new List<string>();
+        var stateWrite = false;
+        if (mode == "apply" && operation == "draft")
+        {
+            var result = ProfileRuntime.ExecuteForApplication("draft", ProfileValues(context, profileId!));
+            evidence.Add(RelativeStatePath(context.Roots.StateRoot, RequiredString(result, "storagePath")));
+            stateWrite = true;
+        }
+        else if (mode == "apply" && operation == "configure")
+        {
+            var original = FindProfileState(context, "draft.json", profileId!);
+            var candidatePath = WriteTypedCandidate(context, original.Path, original.Document, profileId!, claims, frameworks);
+            var values = ProfileValues(context, profileId!);
+            values.Remove("profile");
+            values["draft"] = original.Path;
+            values["candidate"] = candidatePath;
+            var result = ProfileRuntime.ExecuteForApplication("configure", values);
+            evidence.Add(RelativeStatePath(context.Roots.StateRoot, candidatePath));
+            evidence.Add(RelativeStatePath(context.Roots.StateRoot, RequiredString(result, "storagePath")));
+            stateWrite = true;
+        }
+        else if (mode == "apply" && operation == "review-template")
+        {
+            var configured = FindProfileState(context, "configured-draft.json", profileId!);
+            var values = ProfileValues(context, profileId!);
+            values.Remove("profile");
+            values["draft"] = configured.Path;
+            var result = ProfileRuntime.ExecuteForApplication("review-template", values);
+            evidence.Add(RelativeStatePath(context.Roots.StateRoot, RequiredString(result, "storagePath")));
+            stateWrite = true;
+        }
+        var progress = SetupProgress(context);
+        var completed = progress["completedStepCount"]!.GetValue<int>();
+        var status = needsInput ? "needs-decision" : mode == "apply" ? "pass" : "running";
+        var response = new JsonObject
+        {
+            ["formatVersion"] = 1, ["status"] = status, ["authority"] = "v4-host", ["actionId"] = operation,
+            ["projectId"] = context.ProjectId, ["currentHostOperation"] = operation switch
+            {
+                "draft" => "profile draft", "configure" => "profile configure", "review-template" => "profile review-template", _ => "application setup-action"
+            },
+            ["previewHash"] = previewHash, ["completedStepCount"] = completed, ["totalStepCount"] = SetupStepIds.Length,
+            ["humanConclusion"] = needsInput ? "Complete the typed human decision fields; no policy has been inferred."
+                : mode == "apply" ? "The Host stored only non-authoritative StateRoot artifacts." : "Review this bound preview before applying.",
+            ["machine"] = new JsonObject { ["exitCategory"] = "success", ["exitCode"] = 0 },
+            ["safeRecoveryHint"] = "Request a fresh preview after any Target, package or form change.",
+            ["evidencePaths"] = new JsonArray(evidence.Select(value => (JsonNode)value).ToArray()),
+            ["boundaries"] = new JsonObject { ["stateWrite"] = stateWrite, ["targetWrite"] = false, ["ciActivation"] = false, ["remoteMutation"] = false, ["humanAcceptance"] = false }
+        };
+        return response;
+    }
+
+    private static Dictionary<string, string> ProfileValues(OnboardingContext context, string profileId) => new(StringComparer.Ordinal)
+    {
+        ["package-root"] = context.Roots.PackageRoot, ["target-root"] = context.Roots.TargetRoot,
+        ["state-root"] = context.Roots.StateRoot, ["profile"] = profileId
+    };
+
+    private static string WriteTypedCandidate(OnboardingContext context, string draftPath, JsonObject draft, string profileId,
+        string[] claims, string[] frameworks)
+    {
+        var selection = new JsonObject
+        {
+            ["id"] = "architecture-conformance", ["versionRange"] = ">=1.0.0 <2.0.0",
+            ["config"] = new JsonObject
+            {
+                ["enabledClaims"] = new JsonArray(claims.Select(value => (JsonNode)value).ToArray()),
+                ["allowedTargetFrameworks"] = new JsonArray(frameworks.Select(value => (JsonNode)value).ToArray())
+            }
+        };
+        var profile = new JsonObject
+        {
+            ["formatVersion"] = 1, ["id"] = profileId, ["version"] = "0.1.0",
+            ["projectIdentity"] = new JsonObject { ["id"] = profileId, ["relativeRoots"] = new JsonArray(".") },
+            ["moduleSelections"] = new JsonArray(selection),
+            ["stageConfiguration"] = new JsonObject
+            {
+                ["bootstrap"] = DisabledStage(), ["analysis"] = DisabledStage(),
+                ["pre"] = new JsonObject { ["enabled"] = true, ["modules"] = new JsonArray("architecture-conformance") },
+                ["post"] = DisabledStage()
+            },
+            ["rules"] = new JsonArray(claims.Select(value => (JsonNode)value).ToArray()), ["baselineRefs"] = new JsonArray()
+        };
+        var candidate = new JsonObject
+        {
+            ["formatVersion"] = 1, ["status"] = "candidate", ["authority"] = "human-authored-unaccepted",
+            ["sourceDraftSha256"] = HashFile(draftPath), ["discoverySha256"] = RequiredString(draft, "discoverySha256"),
+            ["targetSnapshotSha256"] = RequiredString(draft, "targetSnapshotSha256"), ["candidateProfile"] = profile
+        };
+        var path = Path.Combine(context.Roots.StateRoot, "onboarding", context.ProjectId, profileId, "candidate.json");
+        WriteNewOrSame(path, candidate.ToJsonString(JsonOptions).Replace("\r\n", "\n") + "\n");
+        return path;
+    }
+
+    private static JsonObject DisabledStage() => new() { ["enabled"] = false, ["modules"] = new JsonArray() };
+
+    private static (string Path, JsonObject Document) FindProfileState(OnboardingContext context, string fileName, string profileId)
+    {
+        var root = Path.Combine(context.Roots.StateRoot, "profile-drafts", context.ProjectId);
+        var paths = Directory.Exists(root) ? Directory.GetFiles(root, fileName, SearchOption.AllDirectories).Order(StringComparer.Ordinal) : Enumerable.Empty<string>();
+        foreach (var path in paths)
+        {
+            var document = JsonNode.Parse(File.ReadAllText(path))?.AsObject() ?? throw Integrity("Profile State document is invalid.");
+            if (RequiredString(document["candidateProfile"]!.AsObject(), "id") == profileId) return (path, document);
+        }
+        throw Invalid($"No {fileName} exists for the selected Profile ID.");
+    }
+
+    private static List<string> StateFiles(string root, string fileName) => Directory.Exists(root)
+        ? Directory.GetFiles(root, fileName, SearchOption.AllDirectories).Order(StringComparer.Ordinal)
+            .Select(path => RelativeStatePath(Path.GetFullPath(Path.Combine(root, "../../")), path)).ToList()
+        : [];
+
+    private static string RelativeStatePath(string stateRoot, string path) => Path.GetRelativePath(stateRoot, path).Replace('\\', '/');
+    private static string[] SplitValues(string? value) => string.IsNullOrWhiteSpace(value) ? [] : value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+    private static bool FixedTimeEquals(string left, string right) => left.Length == right.Length && CryptographicOperations.FixedTimeEquals(Encoding.ASCII.GetBytes(left), Encoding.ASCII.GetBytes(right));
+    private static JsonObject Boundaries(bool stateRootOnly) => new() { ["stateRootOnly"] = stateRootOnly, ["targetWrite"] = false, ["ciActivation"] = false, ["remoteMutation"] = false, ["humanAcceptance"] = false };
+    private static void WriteNewOrSame(string path, string text)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        if (File.Exists(path)) { if (File.ReadAllText(path) != text) throw Conflict("Existing typed candidate differs; request a fresh preview."); return; }
+        var temporary = path + $".{Guid.NewGuid():N}.tmp";
+        try { File.WriteAllText(temporary, text, new UTF8Encoding(false)); File.Move(temporary, path); }
+        finally { if (File.Exists(temporary)) File.Delete(temporary); }
     }
 
     private static JsonObject SetupPayload(PreviewContext context)
@@ -427,9 +678,11 @@ internal static class ApplicationRuntime
     private static ApplicationException Unsafe(string message) => new(11, "unsafe-path", message);
     private static ApplicationException Integrity(string message) => new(12, "integrity-failure", message);
     private static ApplicationException Findings(string message) => new(16, "findings-blocking", message);
+    private static ApplicationException Conflict(string message) => new(17, "state-conflict", message);
 
     private sealed record Roots(string PackageRoot, string TargetRoot, string StateRoot, string EvidenceRoot, string PlanRoot);
     private sealed record PreviewContext(Roots Roots, JsonElement Project, JsonElement Profiles, string ProjectId, string TargetSnapshot, string PackageAuthority);
+    private sealed record OnboardingContext(Roots Roots, string ProjectId, JsonObject Discovery, string PackageAuthority);
     private sealed class ApplicationException(int code, string category, string message) : Exception(message)
     {
         public int Code { get; } = code;
@@ -451,11 +704,19 @@ internal static class ApplicationRuntime
             return new Arguments(args[1], values);
         }
         public string Required(string name) => values.TryGetValue(name, out var value) && !string.IsNullOrWhiteSpace(value) ? value : throw Invalid($"Missing --{name}.");
+        public string? Optional(string name) => values.TryGetValue(name, out var value) && !string.IsNullOrWhiteSpace(value) ? value : null;
         public void RequireOnly(params string[] names)
         {
             var unknown = values.Keys.FirstOrDefault(name => !names.Contains(name, StringComparer.Ordinal));
             if (unknown is not null) throw Invalid($"Unknown argument: --{unknown}");
             foreach (var name in names) _ = Required(name);
+        }
+        public void RequireAllowed(params string[] names)
+        {
+            var unknown = values.Keys.FirstOrDefault(name => !names.Contains(name, StringComparer.Ordinal));
+            if (unknown is not null) throw Invalid($"Unknown argument: --{unknown}");
+            foreach (var name in new[] { "package-root", "target-root", "state-root", "evidence-root", "plan-root", "project-id", "operation", "mode" })
+                _ = Required(name);
         }
     }
 }

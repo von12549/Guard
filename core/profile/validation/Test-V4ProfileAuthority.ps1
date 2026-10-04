@@ -120,6 +120,61 @@ try {
     Assert ($draftRun.Text -ceq $draftAgain.Text) 'Idempotent draft output changed.'
     Assert ((Target-Hash) -ceq $targetBefore) 'Draft changed TargetRoot.'
 
+    $draftHashBeforeConfigure = Hash $draftPath
+    $candidateProfile = ($draft.candidateProfile | ConvertTo-Json -Depth 100) | ConvertFrom-Json -AsHashtable -Depth 100
+    $candidateProfile.moduleSelections = @([ordered]@{
+        id='architecture-conformance'; versionRange='>=1.0.0 <2.0.0'
+        config=[ordered]@{ enabledClaims=@('ARCH.TARGET_FRAMEWORK'); allowedTargetFrameworks=@('net10.0') }
+    })
+    $candidateProfile.stageConfiguration.pre = [ordered]@{enabled=$true;modules=@('architecture-conformance')}
+    $candidateProfile.rules = @('ARCH.TARGET_FRAMEWORK')
+    $candidateDocument = [ordered]@{
+        formatVersion=1;status='candidate';authority='human-authored-unaccepted'
+        sourceDraftSha256=$draftHashBeforeConfigure;discoverySha256=[string]$draft.discoverySha256
+        targetSnapshotSha256=[string]$draft.targetSnapshotSha256;candidateProfile=$candidateProfile
+    }
+    $candidateInputPath = Join-Path $case 'human-candidate.json'
+    Write-Json $candidateInputPath $candidateDocument
+    Assert-Schema $candidateInputPath 'profile-candidate'
+    $candidateInputHash = Hash $candidateInputPath
+    $configureArgs = @('profile','configure','--package-root',$packageRoot,'--target-root',$target,'--state-root',$state,'--draft',$draftPath,'--candidate',$candidateInputPath)
+    $configure = Invoke-Host $configureArgs
+    Expect-Code $configure 0 'configure' '"authority"\s*:\s*"state-configured-non-authoritative"'
+    if ($configure.Code -eq 0) {
+        $configured = $configure.Text | ConvertFrom-Json -AsHashtable -Depth 100
+        $configuredPath = [string]$configured.storagePath
+        Assert-Schema $configuredPath 'profile-draft'
+        Assert ($configured.coverage.status -ceq 'candidate-unaccepted') 'Configured candidate implied accepted protection.'
+        Assert ($configured.sourceDraftSha256 -ceq $draftHashBeforeConfigure) 'Configured Draft lost its original Draft binding.'
+        Assert ($configured.candidateSourceSha256 -ceq $candidateInputHash) 'Configured Draft lost its human candidate binding.'
+        Assert ((Hash $draftPath) -ceq $draftHashBeforeConfigure) 'Configure changed the original Draft bytes.'
+        Assert ((Hash $candidateInputPath) -ceq $candidateInputHash) 'Configure changed the human candidate bytes.'
+        Assert ([IO.Path]::GetRelativePath($state,$configuredPath) -notmatch '^\.\.') 'Configured Draft escaped StateRoot.'
+        $configureAgain = Invoke-Host $configureArgs
+        Assert ($configureAgain.Code -eq 0 -and $configureAgain.Text -ceq $configure.Text) 'Configure is not deterministic and idempotent.'
+
+        $templateArgs = @('profile','review-template','--package-root',$packageRoot,'--target-root',$target,'--state-root',$state,'--draft',$configuredPath)
+        $template = Invoke-Host $templateArgs
+        Expect-Code $template 0 'review template' '"status"\s*:\s*"incomplete"'
+        if ($template.Code -eq 0) {
+            $templateDocument = $template.Text | ConvertFrom-Json -AsHashtable -Depth 100
+            $templatePath = [string]$templateDocument.storagePath
+            Assert-Schema $templatePath 'profile-review-template'
+            Assert (-not (Test-Json -LiteralPath $templatePath -SchemaFile (Join-Path $packageRoot 'core/profile/contracts/profile-review.schema.json') -ErrorAction SilentlyContinue)) 'Incomplete template unexpectedly satisfies the accepted review schema.'
+            Assert (-not $templateDocument.ContainsKey('acceptedBy')) 'Review template fabricated acceptedBy.'
+            Assert (@($templateDocument.fixtureSlots | Where-Object status -ceq 'missing').Count -eq 2) 'Review template fabricated fixture results.'
+            $templateAgain = Invoke-Host $templateArgs
+            Assert ($templateAgain.Code -eq 0 -and $templateAgain.Text -ceq $template.Text) 'Review template is not deterministic and idempotent.'
+        }
+
+        $missingRule = ($candidateDocument | ConvertTo-Json -Depth 100) | ConvertFrom-Json -AsHashtable -Depth 100
+        $missingRule.candidateProfile.rules = @()
+        $missingRulePath = Join-Path $case 'missing-rule-candidate.json'
+        Write-Json $missingRulePath $missingRule
+        Expect-Code (Invoke-Host @('profile','configure','--package-root',$packageRoot,'--target-root',$target,'--state-root',$state,'--draft',$draftPath,'--candidate',$missingRulePath)) 16 'unselected architecture claim' 'do not select enabled architecture claim'
+    }
+    Assert ((Target-Hash) -ceq $targetBefore) 'Configure or review-template changed TargetRoot.'
+
     $ambiguousChoices = @()
     $storedDiscoveryPath = Join-Path (Split-Path -Parent $draftPath) 'discovery.json'
     $storedDiscovery = Get-Content -Raw -LiteralPath $storedDiscoveryPath | ConvertFrom-Json -AsHashtable -Depth 100
@@ -197,14 +252,14 @@ try {
     $authorityContractPath = Join-Path $packageRoot 'core/profile/contracts/profile-authority-contract.json'
     Assert-Schema $authorityContractPath 'profile-authority-contract'
     $cli = Get-Content -Raw -LiteralPath $authorityContractPath | ConvertFrom-Json
-    foreach ($id in @('profile.discover','profile.draft','profile.validate','profile.promote')) {
+    foreach ($id in @('profile.discover','profile.draft','profile.configure','profile.review-template','profile.validate','profile.promote')) {
         Assert (@($cli.commands | Where-Object id -ceq $id).Count -eq 1) "CLI contract is missing $id."
     }
 
     if ($failures.Count) { throw ($failures -join "`n") }
     [ordered]@{
         formatVersion=1;status='pass';discoveryDeterministic=$true;targetExecutionDenied=$true
-        stateDraftNonAuthoritative=$true;staleSnapshotRejected=$true;emptyCoverageUnprotected=$true
+        stateDraftNonAuthoritative=$true;configuredCandidateNonAuthoritative=$true;incompleteReviewTemplate=$true;staleSnapshotRejected=$true;emptyCoverageUnprotected=$true
         positiveAndNegativeFixturesRequired=$true;promotionCandidateCreated=$true;targetUnchanged=$true
         compositionCreated=$false;compositionSelected=$false;ciActivated=$false
     } | ConvertTo-Json -Depth 10

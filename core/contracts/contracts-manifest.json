@@ -5,7 +5,7 @@
     { "path": "core/contracts/capability-matrix.schema.json", "sha256": "d5c9e5d5b4d48431fca890f6e13d3cd6efe1a0ea4bdcca67f73543ffbed7e71e" },
     { "path": "core/contracts/ci-artifact-manifest.schema.json", "sha256": "e6f17458dc5704c0bcf2201443c9995cd446f322927257292f377ff364f20c69" },
     { "path": "core/contracts/ci-contract.schema.json", "sha256": "c6f40b8add796076ebcc9f9146d0f7e87a678f90fe9040b7ffefda74de28d2bb" },
-    { "path": "core/contracts/cli-contract.json", "sha256": "083cc8d1e246c0db17f3b37791d292c1c202e869425b3299ccf90715bf4723e5" },
+    { "path": "core/contracts/cli-contract.json", "sha256": "79ba4d4d77e971fbab1b5f7a6300939a581d5eaf2cecc04861081afa48df5002" },
     { "path": "core/contracts/cli-contract.schema.json", "sha256": "2686085e2af99f3c9edb5403f5ca2c73a13e50ddf942c91cc99c31092cdb50a6" },
     { "path": "core/contracts/compatibility-baseline.schema.json", "sha256": "acb63b6da9c767c11eee515d37ffb51f41ed43446e48ccd83fe94286ed123a1a" },
     { "path": "core/contracts/composition-manifest.schema.json", "sha256": "8061de689ee8a3126ab6ef9e8d4604d9ee988462a451119fed5415a459e04bde" },

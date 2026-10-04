@@ -22,6 +22,54 @@
       </div>
     </header>
 
+    <section class="onboarding" aria-labelledby="onboarding-title">
+      <header class="onboarding-header">
+        <div class="section-heading">
+          <h2 id="onboarding-title">First onboarding</h2>
+          <p>Installation integrity to configured candidate and the mandatory incomplete-review stop.</p>
+        </div>
+        <div id="onboarding-count" class="onboarding-count" role="status">0 / 8 complete</div>
+      </header>
+      <div class="onboarding-layout">
+        <ol id="onboarding-steps" class="onboarding-steps" aria-label="Onboarding progress">
+          <li class="not-started">Waiting for Host progress…</li>
+        </ol>
+        <form id="onboarding-form" class="onboarding-form">
+          <label for="onboarding-action">Current Host operation</label>
+          <select id="onboarding-action">
+            <option value="draft">Draft conservative Profile</option>
+            <option value="configure">Configure human candidate</option>
+            <option value="review-template">Create incomplete review template</option>
+          </select>
+          <label for="onboarding-profile">New Profile ID</label>
+          <input id="onboarding-profile" autocomplete="off" pattern="[a-z][a-z0-9_-]{0,62}" value="project_guard">
+          <label for="onboarding-root">Reviewed project-root candidate</label>
+          <select id="onboarding-root"><option value=".">. (root solution candidate)</option></select>
+          <fieldset>
+            <legend>Human-selected architecture claims</legend>
+            <label class="check-row"><input type="checkbox" name="onboarding-claim" value="ARCH.TARGET_FRAMEWORK" checked>Target framework</label>
+            <label class="check-row"><input type="checkbox" name="onboarding-claim" value="ARCH.PROJECT_REFERENCE">Project references</label>
+            <label class="check-row"><input type="checkbox" name="onboarding-claim" value="ARCH.GRAPH_COMPLETENESS">Graph completeness</label>
+          </fieldset>
+          <label for="onboarding-frameworks">Allowed frameworks (comma-separated literals)</label>
+          <input id="onboarding-frameworks" autocomplete="off" value="net10.0">
+          <div class="onboarding-actions">
+            <button id="onboarding-preview" type="button">Preview bound action</button>
+            <button id="onboarding-apply" type="button" disabled>Apply to StateRoot</button>
+          </div>
+          <p class="boundary-note">Forms send only typed IDs and policy choices. No raw paths, commands, executables, environment values or acceptedBy.</p>
+        </form>
+        <aside class="onboarding-result" aria-labelledby="onboarding-result-title">
+          <h3 id="onboarding-result-title">Host operation</h3>
+          <p id="onboarding-conclusion">Waiting for a Host-bound preview.</p>
+          <dl id="onboarding-machine">
+            <div><dt>Status</dt><dd>not started</dd></div>
+          </dl>
+          <pre id="onboarding-json" tabindex="0">{"status":"not-started"}</pre>
+        </aside>
+      </div>
+    </section>
+
     <div class="workspace-grid">
       <aside class="target-rail" aria-labelledby="targets-title">
         <div class="section-heading">

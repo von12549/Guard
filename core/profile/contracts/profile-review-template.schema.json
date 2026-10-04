@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/profile-review-template.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "status", "authority", "templateId", "storagePath", "configuredDraftSha256", "discoverySha256", "candidateProfileSha256", "targetSnapshotSha256", "moduleBindings", "unresolvedPolicy", "fixtureSlots", "nextAction", "prohibitions"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "const": "incomplete" },
+    "authority": { "const": "human-review-required" },
+    "templateId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+    "storagePath": { "type": "string", "minLength": 1 },
+    "configuredDraftSha256": { "$ref": "#/definitions/sha256" },
+    "discoverySha256": { "$ref": "#/definitions/sha256" },
+    "candidateProfileSha256": { "$ref": "#/definitions/sha256" },
+    "targetSnapshotSha256": { "$ref": "#/definitions/sha256" },
+    "moduleBindings": { "type": "array", "items": { "type": "object" } },
+    "unresolvedPolicy": {
+      "type": "array", "minItems": 6,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "explanation", "safeDefault", "candidateValues", "nextAction"],
+        "properties": {
+          "id": { "enum": ["gate-selection", "severity", "exceptions", "baselines", "unsupported-coverage", "ambiguous-modules"] },
+          "explanation": { "type": "string", "minLength": 1 },
+          "safeDefault": { "const": "unresolved-unprotected" },
+          "candidateValues": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+          "nextAction": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "fixtureSlots": {
+      "type": "array", "minItems": 2, "maxItems": 2,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["classification", "status", "requiredEvidence"],
+        "properties": {
+          "classification": { "enum": ["positive", "negative"] },
+          "status": { "const": "missing" },
+          "requiredEvidence": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "nextAction": { "const": "A human must decide every policy question, run positive and negative fixtures, and create a separate accepted profile-review document." },
+    "prohibitions": {
+      "type": "array", "uniqueItems": true,
+      "items": { "enum": ["acceptedBy", "policy-acceptance", "fixture-fabrication", "target-write", "composition-selection", "ci-activation", "remote-mutation"] }
+    }
+  },
+  "definitions": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}
