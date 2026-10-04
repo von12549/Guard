@@ -260,7 +260,9 @@ internal static class ApplicationRuntime
         var needsInput = operation switch
         {
             "draft" => profileId is null,
-            "configure" => profileId is null || projectRoot is null || claims.Length == 0 || frameworks.Length == 0,
+            "configure" => profileId is null || projectRoot is null || claims.Length == 0 ||
+                (claims.Contains("ARCH.TARGET_FRAMEWORK", StringComparer.Ordinal) && frameworks.Length == 0) ||
+                (claims.Contains("ARCH.PROJECT_REFERENCE", StringComparer.Ordinal) && forbiddenProjectReferences.Length == 0),
             "review-template" => profileId is null,
             _ => false
         };

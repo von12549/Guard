@@ -208,6 +208,43 @@ try {
     if($missingProjectPolicy.Code-ne10-or$missingProjectPolicy.Raw-notmatch'non-empty explicit forbidden-reference policy'){Fail 'Typed onboarding accepted PROJECT_REFERENCE without semantic policy.'}
     $missingGraphPolicyCandidate=[ordered]@{enabledClaims=@('ARCH.GRAPH_COMPLETENESS')}
     if(Test-Json -Json ($missingGraphPolicyCandidate|ConvertTo-Json -Compress) -SchemaFile (Join-Path $packageRoot 'modules/architecture-conformance/config.schema.json') -ErrorAction SilentlyContinue){Fail 'Architecture config schema accepted GRAPH_COMPLETENESS without requireResolvedProjectReferences=true.'}
+    $projectOnlyProfile='project_reference_only'
+    $projectOnlyDraftPreview=Invoke-Host (@('application','setup-action','--operation','draft','--mode','preview','--project-id',$projectId,'--profile-id',$projectOnlyProfile)+$common)
+    if($projectOnlyDraftPreview.Code-ne0){Fail "Project-reference-only Draft preview failed: $($projectOnlyDraftPreview.Raw)"}else{
+        $projectOnlyDraftApply=Invoke-Host (@('application','setup-action','--operation','draft','--mode','apply','--project-id',$projectId,'--profile-id',$projectOnlyProfile,'--preview-hash',(($projectOnlyDraftPreview.Raw|ConvertFrom-Json).previewHash))+$common)
+        if($projectOnlyDraftApply.Code-ne0){Fail "Project-reference-only Draft apply failed: $($projectOnlyDraftApply.Raw)"}
+    }
+    $projectOnlyPolicy='../Forbidden/*.csproj'
+    $projectOnlyPreview=Invoke-Host (@('application','setup-action','--operation','configure','--mode','preview','--project-id',$projectId,'--profile-id',$projectOnlyProfile,'--project-root','.','--enabled-claims','ARCH.PROJECT_REFERENCE','--forbidden-project-references',$projectOnlyPolicy)+$common)
+    if($projectOnlyPreview.Code-ne0-or($projectOnlyPreview.Raw|ConvertFrom-Json).status-cne'running'){Fail "Project-reference-only configure preview still requires an unrelated framework decision: $($projectOnlyPreview.Raw)"}else{
+        $projectOnlyApply=Invoke-Host (@('application','setup-action','--operation','configure','--mode','apply','--project-id',$projectId,'--profile-id',$projectOnlyProfile,'--project-root','.','--enabled-claims','ARCH.PROJECT_REFERENCE','--forbidden-project-references',$projectOnlyPolicy,'--preview-hash',(($projectOnlyPreview.Raw|ConvertFrom-Json).previewHash))+$common)
+        if($projectOnlyApply.Code-ne0-or($projectOnlyApply.Raw|ConvertFrom-Json).status-cne'pass'){Fail "Project-reference-only configure apply failed: $($projectOnlyApply.Raw)"}else{
+            $projectOnlyCandidate=Get-Content -Raw -LiteralPath (Join-Path $stateRoot "onboarding/$projectId/$projectOnlyProfile/candidate.json")|ConvertFrom-Json
+            $projectOnlyConfig=@($projectOnlyCandidate.candidateProfile.moduleSelections|Where-Object id -ceq 'architecture-conformance')[0].config
+            if(($projectOnlyConfig.enabledClaims-join',')-cne'ARCH.PROJECT_REFERENCE'-or@($projectOnlyConfig.forbiddenProjectReferences).Count-ne1-or
+                $projectOnlyConfig.psobject.Properties.Name-contains'allowedTargetFrameworks'-or$projectOnlyConfig.psobject.Properties.Name-contains'requireResolvedProjectReferences'){
+                Fail 'Project-reference-only candidate contains missing or orphan claim policy.'
+            }
+        }
+    }
+    $graphOnlyProfile='graph_completeness_only'
+    $graphOnlyDraftPreview=Invoke-Host (@('application','setup-action','--operation','draft','--mode','preview','--project-id',$projectId,'--profile-id',$graphOnlyProfile)+$common)
+    if($graphOnlyDraftPreview.Code-ne0){Fail "Graph-only Draft preview failed: $($graphOnlyDraftPreview.Raw)"}else{
+        $graphOnlyDraftApply=Invoke-Host (@('application','setup-action','--operation','draft','--mode','apply','--project-id',$projectId,'--profile-id',$graphOnlyProfile,'--preview-hash',(($graphOnlyDraftPreview.Raw|ConvertFrom-Json).previewHash))+$common)
+        if($graphOnlyDraftApply.Code-ne0){Fail "Graph-only Draft apply failed: $($graphOnlyDraftApply.Raw)"}
+    }
+    $graphOnlyPreview=Invoke-Host (@('application','setup-action','--operation','configure','--mode','preview','--project-id',$projectId,'--profile-id',$graphOnlyProfile,'--project-root','.','--enabled-claims','ARCH.GRAPH_COMPLETENESS')+$common)
+    if($graphOnlyPreview.Code-ne0-or($graphOnlyPreview.Raw|ConvertFrom-Json).status-cne'running'){Fail "Graph-only configure preview still requires an unrelated framework decision: $($graphOnlyPreview.Raw)"}else{
+        $graphOnlyApply=Invoke-Host (@('application','setup-action','--operation','configure','--mode','apply','--project-id',$projectId,'--profile-id',$graphOnlyProfile,'--project-root','.','--enabled-claims','ARCH.GRAPH_COMPLETENESS','--preview-hash',(($graphOnlyPreview.Raw|ConvertFrom-Json).previewHash))+$common)
+        if($graphOnlyApply.Code-ne0-or($graphOnlyApply.Raw|ConvertFrom-Json).status-cne'pass'){Fail "Graph-only configure apply failed: $($graphOnlyApply.Raw)"}else{
+            $graphOnlyCandidate=Get-Content -Raw -LiteralPath (Join-Path $stateRoot "onboarding/$projectId/$graphOnlyProfile/candidate.json")|ConvertFrom-Json
+            $graphOnlyConfig=@($graphOnlyCandidate.candidateProfile.moduleSelections|Where-Object id -ceq 'architecture-conformance')[0].config
+            if(($graphOnlyConfig.enabledClaims-join',')-cne'ARCH.GRAPH_COMPLETENESS'-or$graphOnlyConfig.requireResolvedProjectReferences-ne$true-or
+                $graphOnlyConfig.psobject.Properties.Name-contains'allowedTargetFrameworks'-or$graphOnlyConfig.psobject.Properties.Name-contains'forbiddenProjectReferences'){
+                Fail 'Graph-only candidate contains missing or orphan claim policy.'
+            }
+        }
+    }
     $selectedClaims='ARCH.TARGET_FRAMEWORK,ARCH.PROJECT_REFERENCE,ARCH.GRAPH_COMPLETENESS'
     $forbiddenReferences='../Forbidden/*.csproj'
     $configurePreview=Invoke-Host (@('application','setup-action','--operation','configure','--mode','preview','--project-id',$projectId,'--profile-id','onboarding_guard','--project-root','.','--enabled-claims',$selectedClaims,'--allowed-frameworks','net10.0','--forbidden-project-references',$forbiddenReferences)+$common)
