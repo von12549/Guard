@@ -39,16 +39,22 @@ if($builderAst.Count-ne1){
 $guardRuntimeFiles=Get-ChildItem -LiteralPath $repositoryRoot -Recurse -File | Where-Object{$_.Extension-in@('.ps1','.psm1','.cs','.cmd','.bat')}
 $registryHives=@('HK'+'CU:','HKEY_'+'CURRENT_USER','HK'+'LM:','HKEY_'+'LOCAL_MACHINE')-join'|'
 $registryWriters=@('Set-'+'ItemProperty','New-'+'ItemProperty')-join'|'
+$profileWriters=@('Set-'+'Content','Add-'+'Content','Out-'+'File','New-'+'Item','Copy-'+'Item','Move-'+'Item','Remove-'+'Item')-join'|'
+$profileReference='\$'+'PROFILE(?:\.|\b)'
 $permanentMutationPatterns=@(
     '(?is)Environment\.SetEnvironmentVariable\s*\(.{0,1000}?EnvironmentVariableTarget\.(?:User|Machine)',
     '(?is)\[Environment\]::SetEnvironmentVariable\s*\(.{0,1000}?,\s*[''"](?:User|Machine)[''"]\s*\)',
     '(?im)^\s*setx(?:\.exe)?\s+[''"]?Path[''"]?\b',
     '(?is)\breg(?:\.exe)?\s+add\s+.{0,500}?(?:HKCU|HKEY_CURRENT_USER|HKLM|HKEY_LOCAL_MACHINE).{0,500}?Environment',
-    "(?is)(?:$registryHives).{0,500}?Environment.{0,500}?(?:$registryWriters)"
+    "(?is)(?:$registryHives).{0,500}?Environment.{0,500}?(?:$registryWriters)",
+    "(?is)(?:$registryWriters).{0,500}?(?:$registryHives).{0,500}?Environment",
+    "(?is)(?:$profileWriters).{0,500}?$profileReference",
+    "(?is)$profileReference.{0,500}?\|\s*(?:$profileWriters)"
 )
 foreach($file in $guardRuntimeFiles){
     $content=[IO.File]::ReadAllText($file.FullName)
     foreach($pattern in $permanentMutationPatterns){if($content-match$pattern){$failures.Add("guard runtime contains a permanent environment mutation: $([IO.Path]::GetRelativePath($repositoryRoot,$file.FullName))");break}}
+    if($content-match'DOTNET_CLI_HOME'-and$content-notmatch'DOTNET_ADD_GLOBAL_TOOLS_TO_PATH'){$failures.Add("isolated DOTNET_CLI_HOME lacks DOTNET_ADD_GLOBAL_TOOLS_TO_PATH=0 in: $([IO.Path]::GetRelativePath($repositoryRoot,$file.FullName))")}
 }
 
 if(Test-Path $runRoot){$resolved=[IO.Path]::GetFullPath($runRoot);$prefix=[IO.Path]::GetFullPath($workRoot).TrimEnd([IO.Path]::DirectorySeparatorChar)+[IO.Path]::DirectorySeparatorChar;if(-not$resolved.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)){throw "Unsafe cleanup: $resolved"};Remove-Item -LiteralPath $resolved -Recurse -Force}
@@ -92,4 +98,4 @@ if($IsWindows){
 }
 
 if($failures.Count){throw($failures-join"`n")}
-Write-Host 'V4 P4E Build Evidence tests passed: isolated child environment, immutable User PATH/TargetRoot/PackageRoot, no permanent environment mutation APIs, schema/freshness bindings, stale/target/assembly drift, missing project and link refusal.'
+Write-Host 'V4 P4E Build Evidence tests passed: isolated child environment, immutable User PATH/TargetRoot/PackageRoot, paired DOTNET_CLI_HOME opt-out, no persistent environment/profile mutation APIs, schema/freshness bindings, stale/target/assembly drift, missing project and link refusal.'

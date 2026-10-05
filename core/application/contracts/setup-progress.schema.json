@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/application/contracts/setup-progress.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "status", "authority", "projectId", "completedStepCount", "totalStepCount", "currentHostOperation", "steps", "boundaries"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "enum": ["not-started", "running", "pass", "needs-decision", "blocked"] },
+    "authority": { "const": "v4-host" },
+    "projectId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+    "completedStepCount": { "type": "integer", "minimum": 0, "maximum": 8 },
+    "totalStepCount": { "const": 8 },
+    "currentHostOperation": { "type": "string", "minLength": 1 },
+    "steps": {
+      "type": "array", "minItems": 8, "maxItems": 8,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "status", "humanConclusion", "machineErrorCategory", "exitCode", "safeRecoveryHint", "evidencePaths"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["not-started", "running", "pass", "needs-decision", "blocked"] },
+          "humanConclusion": { "type": "string", "minLength": 1 },
+          "machineErrorCategory": { "type": ["string", "null"] },
+          "exitCode": { "type": ["integer", "null"], "minimum": 0, "maximum": 255 },
+          "safeRecoveryHint": { "type": "string", "minLength": 1 },
+          "evidencePaths": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/definitions/relativePath" } }
+        }
+      }
+    },
+    "boundaries": {
+      "type": "object", "additionalProperties": false,
+      "required": ["stateRootOnly", "targetWrite", "ciActivation", "remoteMutation", "humanAcceptance"],
+      "properties": { "stateRootOnly": { "const": true }, "targetWrite": { "const": false }, "ciActivation": { "const": false }, "remoteMutation": { "const": false }, "humanAcceptance": { "const": false } }
+    }
+  },
+  "definitions": { "relativePath": { "type": "string", "pattern": "^(?![A-Za-z]:|/|.*(?:^|/)\\.\\.(?:/|$)).+$" } }
+}

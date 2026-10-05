@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "moduleId": "architecture-conformance",
-  "matrixSha256": "23dc6e5dc499492a439bf8c7338796d0bfb1acaf94509d55f7894f912389520b",
+  "matrixSha256": "a205fb59213b62ff8969a26e6b1b22d2f115c5ee48e1495b779b906922ece8fb",
   "rules": [
     { "ruleId": "ARCH.PROJECT_REFERENCE", "claimId": "ARCH.PROJECT_REFERENCE", "stage": "pre", "detectors": ["project-model"], "evidenceKinds": ["project-model-raw"], "severity": "blocking", "baseline": null, "minimumMatches": 1 },
     { "ruleId": "ARCH.PACKAGE_REFERENCE", "claimId": "ARCH.PACKAGE_REFERENCE", "stage": "pre", "detectors": ["project-model"], "evidenceKinds": ["project-model-raw"], "severity": "blocking", "baseline": null, "minimumMatches": 1 },

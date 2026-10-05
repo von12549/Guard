@@ -8,25 +8,25 @@
     "formatVersion": { "const": 1 },
     "apiVersion": { "const": "1.0" },
     "commands": {
-      "type": "array", "minItems": 4, "maxItems": 4,
+      "type": "array", "minItems": 6, "maxItems": 6,
       "items": {
         "type": "object", "additionalProperties": false,
         "required": ["id", "syntax", "mutability", "requiredRoots", "resultSchema"],
         "properties": {
-          "id": { "enum": ["profile.discover", "profile.draft", "profile.validate", "profile.promote"] },
+          "id": { "enum": ["profile.discover", "profile.draft", "profile.configure", "profile.review-template", "profile.validate", "profile.promote"] },
           "syntax": { "type": "string", "minLength": 1 },
           "mutability": { "enum": ["read-only", "state-write", "candidate-write"] },
           "requiredRoots": { "type": "array", "uniqueItems": true, "items": { "enum": ["PackageRoot", "TargetRoot", "StateRoot"] } },
-          "resultSchema": { "enum": ["profile-discovery", "profile-draft", "profile-validation", "profile-promotion"] }
+          "resultSchema": { "enum": ["profile-discovery", "profile-draft", "profile-review-template", "profile-validation", "profile-promotion"] }
         }
       }
     },
     "schemas": {
-      "type": "array", "minItems": 5, "maxItems": 5, "uniqueItems": true,
+      "type": "array", "minItems": 7, "maxItems": 7, "uniqueItems": true,
       "items": {
         "type": "object", "additionalProperties": false, "required": ["id", "path", "sha256"],
         "properties": {
-          "id": { "enum": ["profile-discovery", "profile-draft", "profile-review", "profile-validation", "profile-promotion"] },
+          "id": { "enum": ["profile-candidate", "profile-discovery", "profile-draft", "profile-review", "profile-review-template", "profile-validation", "profile-promotion"] },
           "path": { "type": "string", "pattern": "^core/profile/contracts/[a-z-]+\\.schema\\.json$" },
           "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
         }

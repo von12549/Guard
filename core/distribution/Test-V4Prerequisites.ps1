@@ -4,7 +4,8 @@ param(
     [string] $Profile = 'default',
     [Parameter(Mandatory)][string] $ReportPath,
     [string] $RuntimeOverridesJson = '',
-    [string[]] $ExcludeHostRuntime = @()
+    [string[]] $ExcludeHostRuntime = @(),
+    [switch] $SkipProfile
 )
 
 Set-StrictMode -Version Latest
@@ -77,9 +78,6 @@ try {
     if (-not (Test-Json -LiteralPath $requirementsPath -SchemaFile (Join-Path $root 'core/contracts/runtime-requirements.schema.json') -ErrorAction SilentlyContinue)) {
         throw 'Package runtime requirements violate their schema.'
     }
-    $profilePath = Join-Path $root "profiles/catalog/$Profile/profile.json"
-    $profileData = Read-Json $profilePath "profile $Profile"
-    if ([string]$profileData.id -cne $Profile) { throw 'Profile path and identity differ.' }
     $registry = Read-Json (Join-Path $root 'modules/registry.json') 'module registry'
     $moduleById = @{}
     foreach ($entry in $registry.modules) { $moduleById[[string]$entry.id] = $entry }
@@ -90,7 +88,13 @@ try {
         if ($ExcludeHostRuntime -ccontains [string]$item.runtime) { continue }
         $declared.Add([ordered]@{ runtime=[string]$item.runtime; versionRange=[string]$item.versionRange; source='host' })
     }
-    $selectedModules = @($profileData.moduleSelections | ForEach-Object { [string]$_.id } | Sort-Object -Unique)
+    $selectedModules = @()
+    if (-not $SkipProfile) {
+        $profilePath = Join-Path $root "profiles/catalog/$Profile/profile.json"
+        $profileData = Read-Json $profilePath "profile $Profile"
+        if ([string]$profileData.id -cne $Profile) { throw 'Profile path and identity differ.' }
+        $selectedModules = @($profileData.moduleSelections | ForEach-Object { [string]$_.id } | Sort-Object -Unique)
+    }
     foreach ($moduleId in $selectedModules) {
         if (-not $moduleById.ContainsKey($moduleId)) { throw "Profile selects an unregistered module: $moduleId" }
         $manifest = Read-Json (Join-Path $root ([string]$moduleById[$moduleId].manifestPath)) "module $moduleId"

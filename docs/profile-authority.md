@@ -4,8 +4,8 @@ The experimental M2 Profile authority surface is defined by
 `core/profile/contracts/profile-authority-contract.json`. It deliberately sits outside the stable `1.0` CLI
 compatibility baseline while its contracts are exercised and reviewed.
 
-This surface is present in the 1.2.0 source candidate after M2 and is not contained in the latest formal
-1.1.6 release. It becomes released only after the 1.2.0 exact-commit gates and publication complete.
+The latest formal release is 1.2.0. The unpublished 1.2.1 local candidate adds supported configure and
+review-template steps; it is not publication, Target adoption, CI activation or consumer authorization.
 
 ## Operations
 
@@ -13,6 +13,8 @@ This surface is present in the 1.2.0 source candidate after M2 and is not contai
 | --- | --- | --- |
 | `profile discover` | Report deterministic inert Target facts, installed Modules and unresolved questions | none |
 | `profile draft` | Store a conservative snapshot-bound Profile scaffold | StateRoot only |
+| `profile configure` | Validate a separate typed candidate against the Draft, current Target snapshot, Module configuration, capabilities, stages and selected rules; store a new configured Draft | StateRoot only |
+| `profile review-template` | Create a deterministic incomplete review document with explicit fixture and policy questions | StateRoot only |
 | `profile validate` | Recheck snapshot, schema, hashes, capabilities, fixtures and human policy review | none |
 | `profile promote` | Emit an extension bundle and review handoff for the immutable sibling composer | operator-selected candidate root only |
 
@@ -20,6 +22,18 @@ Use the exact syntax and result-schema mapping in the contract. Drafts are not P
 never searched by Stage execution. A successful validation or promotion is not proof that a project is
 protected: the result reports whether coverage is non-vacuous and keeps Target adoption, immutable
 composition creation/selection and CI activation as explicit required follow-up transactions.
+
+The supported authoring sequence is `discover` → `draft` → `configure` → `review-template`. Configure
+never edits the original Draft, discovery evidence or supplied candidate. Review-template deliberately
+omits human identity/acceptance and positive/negative fixture receipts, so it cannot satisfy the
+accepted review schema or be promoted until an authorized human completes a separate review.
+
+Discovery reports actionable human explanations, safe defaults, candidate values and next actions.
+Project-local `TargetFramework`/`TargetFrameworks` wins; otherwise the nearest ancestor
+`Directory.Build.props` within TargetRoot may provide exactly one unconditional literal declaration.
+Conditional, imported, expression-based or ambiguous MSBuild values are unsupported coverage, never a
+fabricated missing-framework violation. A root solution that exactly covers discovered projects is
+offered explicitly as the `.` candidate.
 
 ## Review record
 

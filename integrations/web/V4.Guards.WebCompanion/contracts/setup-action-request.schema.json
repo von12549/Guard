@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/application/contracts/setup-action-request.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "actionId", "mode", "projectId", "profileId", "projectRoot", "enabledClaims", "allowedFrameworks", "forbiddenProjectReferences", "previewHash"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "actionId": { "enum": ["installation-integrity", "path-profile-safety", "roots", "target-snapshot", "discovery", "draft", "configure", "review-template"] },
+    "mode": { "enum": ["preview", "apply"] },
+    "projectId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+    "profileId": { "type": ["string", "null"], "pattern": "^[a-z][a-z0-9_-]{0,62}$" },
+    "projectRoot": { "type": ["string", "null"], "enum": [null, "."] },
+    "enabledClaims": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^ARCH\\.[A-Z0-9_]+$" } },
+    "allowedFrameworks": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" } },
+    "forbiddenProjectReferences": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Za-z0-9._*?/-]+$" } },
+    "previewHash": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" }
+  }
+}

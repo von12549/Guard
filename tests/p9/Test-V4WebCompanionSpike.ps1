@@ -113,7 +113,7 @@ try {
 
     foreach ($schema in @('session.schema.json','stage-run-request.schema.json','stage-run-response.schema.json',
         'workspace.schema.json','workspace-select-request.schema.json','workspace-select-response.schema.json',
-        'plan-detail.schema.json')) {
+        'plan-detail.schema.json','setup-action-request.schema.json','setup-action-response.schema.json','setup-progress.schema.json')) {
         $schemaPath = Join-Path $packageRoot "integrations/web/V4.Guards.WebCompanion/contracts/$schema"
         try { Get-Content -Raw -LiteralPath $schemaPath | ConvertFrom-Json | Out-Null }
         catch { Fail "Spike schema is not valid JSON: ${schema}: $($_.Exception.Message)" }
@@ -129,7 +129,7 @@ try {
     $pageResponse = $client.GetAsync($companion.Address).GetAwaiter().GetResult()
     $pageText = $pageResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult()
     if ([int]$pageResponse.StatusCode -ne 200 -or $pageResponse.Content.Headers.ContentType.MediaType -cne 'text/html' -or
-        $pageText -notmatch 'The V4 Host owns execution and the final verdict' -or
+        $pageText -notmatch 'The V4 Host owns execution and the final verdict' -or $pageText -notmatch 'First onboarding' -or
         $pageResponse.Headers.GetValues('Content-Security-Policy') -notcontains "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'") {
         Fail 'Offline UI entry point or its security headers are invalid.'
     }

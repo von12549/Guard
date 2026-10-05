@@ -16,6 +16,7 @@ internal static class Program
     private static readonly string[] AllowedStages = ["bootstrap", "analysis", "pre", "post"];
     private static readonly string[] AllowedQueries = ["query.runs", "query.evidence", "query.plans"];
     private static readonly string[] AllowedApplicationOperations = ["setup", "protection", "authorities", "lifecycle"];
+    private static readonly string[] AllowedSetupActions = ["installation-integrity", "path-profile-safety", "roots", "target-snapshot", "discovery", "draft", "configure", "review-template"];
     private static readonly Regex ProfilePattern = new("^[a-z][a-z0-9_-]*$", RegexOptions.CultureInvariant);
     private static readonly Regex ProjectIdPattern = new("^[a-f0-9]{32}$", RegexOptions.CultureInvariant);
     private static readonly Regex RunIdPattern = new("^[a-f0-9]{32}$", RegexOptions.CultureInvariant);
@@ -372,6 +373,49 @@ internal static class Program
                 finally { runGate.Release(); }
             });
 
+            app.MapGet("/api/v1/onboarding/progress/{projectId}", async (HttpContext context, string projectId) =>
+            {
+                if (!IsAuthorizedRead(context, sessionSecret))
+                    return Results.Json(Error("session-refused", "A loopback session is required."), JsonOptions, statusCode: 403);
+                if (!ProjectIdPattern.IsMatch(projectId))
+                    return Results.Json(Error("invalid-input", "Project ID is invalid."), JsonOptions, statusCode: 400);
+                if (!await runGate.WaitAsync(0, context.RequestAborted))
+                    return Results.Json(Error("run-active", "Another Companion operation is active."), JsonOptions, statusCode: 409);
+                try
+                {
+                    var target = await ResolveTrustedTarget(options, workspaceState, projectId, context.RequestAborted);
+                    var execution = await InvokeSetupProgress(options, target.TargetRoot, projectId, context.RequestAborted);
+                    return Results.Json(execution.Result, JsonOptions);
+                }
+                catch (RequestException ex) { return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 400); }
+                catch (HostInvocationException ex) { return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 502); }
+                finally { runGate.Release(); }
+            });
+
+            app.MapPost("/api/v1/onboarding/action", async (HttpContext context) =>
+            {
+                if (!IsAuthorizedApplicationRequest(context, sessionSecret, csrfToken))
+                    return Results.Json(Error("session-refused", "A same-origin loopback session and CSRF token are required."), JsonOptions, statusCode: 403);
+                SetupActionRequest request;
+                try { request = await ReadSetupActionRequest(context.Request, context.RequestAborted); }
+                catch (RequestException ex) { return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 400); }
+                if (!await runGate.WaitAsync(0, context.RequestAborted))
+                    return Results.Json(Error("run-active", "Another Companion operation is active."), JsonOptions, statusCode: 409);
+                try
+                {
+                    var target = await ResolveTrustedTarget(options, workspaceState, request.ProjectId, context.RequestAborted);
+                    var execution = await InvokeSetupAction(options, target.TargetRoot, request, context.RequestAborted);
+                    if (execution.ExitCode == 17)
+                        return Results.Json(execution.Result, JsonOptions, statusCode: 409);
+                    if (execution.ExitCode != 0)
+                        return Results.Json(execution.Result, JsonOptions, statusCode: 400);
+                    return Results.Json(execution.Result, JsonOptions);
+                }
+                catch (RequestException ex) { return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 400); }
+                catch (HostInvocationException ex) { return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 502); }
+                finally { runGate.Release(); }
+            });
+
             await app.StartAsync();
             var address = app.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()?
                 .Addresses.Single(value => value.StartsWith("http://127.0.0.1:", StringComparison.Ordinal));
@@ -656,6 +700,51 @@ internal static class Program
         return new ApplicationOperationRequest(operationId, projectId);
     }
 
+    private static async Task<SetupActionRequest> ReadSetupActionRequest(HttpRequest request, CancellationToken cancellationToken)
+    {
+        using var document = await ReadRequestObject(request, cancellationToken);
+        var root = document.RootElement;
+        RequireExactProperties(root, "formatVersion", "actionId", "mode", "projectId", "profileId", "projectRoot", "enabledClaims", "allowedFrameworks", "forbiddenProjectReferences", "previewHash");
+        if (root.GetProperty("formatVersion").ValueKind != JsonValueKind.Number || root.GetProperty("formatVersion").GetInt32() != 1)
+            throw new RequestException("invalid-input", "Setup request formatVersion must be 1.");
+        string RequiredStringField(string name)
+        {
+            var value = root.GetProperty(name);
+            if (value.ValueKind != JsonValueKind.String) throw new RequestException("invalid-input", $"{name} must be a string.");
+            return value.GetString()!;
+        }
+        string? NullableStringField(string name)
+        {
+            var value = root.GetProperty(name);
+            if (value.ValueKind == JsonValueKind.Null) return null;
+            if (value.ValueKind != JsonValueKind.String) throw new RequestException("invalid-input", $"{name} must be a string or null.");
+            return value.GetString();
+        }
+        string[] StringArray(string name, Regex pattern)
+        {
+            var value = root.GetProperty(name);
+            if (value.ValueKind != JsonValueKind.Array) throw new RequestException("invalid-input", $"{name} must be an array.");
+            var items = value.EnumerateArray().Select(item => item.ValueKind == JsonValueKind.String ? item.GetString()! : throw new RequestException("invalid-input", $"{name} items must be strings.")).ToArray();
+            if (items.Length > 32 || items.Distinct(StringComparer.Ordinal).Count() != items.Length || items.Any(item => !pattern.IsMatch(item)))
+                throw new RequestException("invalid-input", $"{name} contains an invalid or duplicate value.");
+            return items;
+        }
+        var action = RequiredStringField("actionId");
+        var mode = RequiredStringField("mode");
+        var projectId = RequiredStringField("projectId");
+        var profileId = NullableStringField("profileId");
+        var projectRoot = NullableStringField("projectRoot");
+        var previewHash = NullableStringField("previewHash");
+        if (!AllowedSetupActions.Contains(action, StringComparer.Ordinal) || mode is not ("preview" or "apply")) throw new RequestException("command-refused", "Setup action or mode is not allowlisted.");
+        if (!ProjectIdPattern.IsMatch(projectId) || (profileId is not null && !ProfilePattern.IsMatch(profileId)) || (projectRoot is not null && projectRoot != ".") ||
+            (previewHash is not null && !Regex.IsMatch(previewHash, "^[a-f0-9]{64}$", RegexOptions.CultureInvariant)))
+            throw new RequestException("invalid-input", "Setup request identity field is invalid.");
+        return new SetupActionRequest(action, mode, projectId, profileId, projectRoot,
+            StringArray("enabledClaims", new Regex("^ARCH\\.[A-Z0-9_]+$", RegexOptions.CultureInvariant)),
+            StringArray("allowedFrameworks", new Regex("^[A-Za-z0-9][A-Za-z0-9._-]*$", RegexOptions.CultureInvariant)),
+            StringArray("forbiddenProjectReferences", new Regex("^[A-Za-z0-9._*?/-]+$", RegexOptions.CultureInvariant)), previewHash);
+    }
+
     private static async Task<WorkspaceTarget> ResolveTrustedTarget(CompanionOptions options, WorkspaceState state, string projectId,
         CancellationToken cancellationToken)
     {
@@ -678,6 +767,37 @@ internal static class Program
                 throw new HostInvocationException("host-preview-refused", $"The V4 Host preview failed with exit {execution.ExitCode}: {execution.Result.GetRawText()}");
             return execution;
         }, cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+
+    private static Task<HostExecution> InvokeSetupProgress(CompanionOptions options, string targetRoot, string projectId,
+        CancellationToken cancellationToken) => InvokeHost(options,
+        [
+            "application", "setup-progress", "--package-root", options.PackageRoot, "--target-root", targetRoot,
+            "--state-root", options.StateRoot, "--evidence-root", options.EvidenceRoot, "--plan-root", options.PlanRoot,
+            "--project-id", projectId
+        ], cancellationToken).ContinueWith(task =>
+        {
+            var execution = task.GetAwaiter().GetResult();
+            if (execution.ExitCode != 0) throw new HostInvocationException("host-setup-refused", $"The V4 Host setup progress failed with exit {execution.ExitCode}: {execution.Result.GetRawText()}");
+            return execution;
+        }, cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+
+    private static Task<HostExecution> InvokeSetupAction(CompanionOptions options, string targetRoot, SetupActionRequest request,
+        CancellationToken cancellationToken)
+    {
+        var arguments = new List<string>
+        {
+            "application", "setup-action", "--package-root", options.PackageRoot, "--target-root", targetRoot,
+            "--state-root", options.StateRoot, "--evidence-root", options.EvidenceRoot, "--plan-root", options.PlanRoot,
+            "--project-id", request.ProjectId, "--operation", request.ActionId, "--mode", request.Mode
+        };
+        if (request.ProfileId is not null) { arguments.Add("--profile-id"); arguments.Add(request.ProfileId); }
+        if (request.ProjectRoot is not null) { arguments.Add("--project-root"); arguments.Add(request.ProjectRoot); }
+        if (request.EnabledClaims.Length > 0) { arguments.Add("--enabled-claims"); arguments.Add(string.Join(',', request.EnabledClaims)); }
+        if (request.AllowedFrameworks.Length > 0) { arguments.Add("--allowed-frameworks"); arguments.Add(string.Join(',', request.AllowedFrameworks)); }
+        if (request.ForbiddenProjectReferences.Length > 0) { arguments.Add("--forbidden-project-references"); arguments.Add(string.Join(',', request.ForbiddenProjectReferences)); }
+        if (request.PreviewHash is not null) { arguments.Add("--preview-hash"); arguments.Add(request.PreviewHash); }
+        return InvokeHost(options, arguments, cancellationToken);
+    }
 
     private static object ApplicationResponse(ApplicationOperationRequest request, JsonElement result) => new
     {
@@ -763,7 +883,7 @@ internal static class Program
         foreach (var value in arguments) start.ArgumentList.Add(value);
 
         var inherited = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
-        foreach (var name in new[] { "PATH", "PATHEXT", "SystemRoot", "WINDIR", "TEMP", "TMP", "HOME", "DOTNET_ROOT", "DOTNET_HOST_PATH" })
+        foreach (var name in new[] { "PATH", "PATHEXT", "SystemRoot", "WINDIR", "TEMP", "TMP", "HOME", "USERPROFILE", "DOTNET_ROOT", "DOTNET_HOST_PATH" })
             inherited[name] = Environment.GetEnvironmentVariable(name);
         start.Environment.Clear();
         foreach (var pair in inherited.Where(pair => !string.IsNullOrWhiteSpace(pair.Value))) start.Environment[pair.Key] = pair.Value!;
@@ -831,6 +951,8 @@ internal static class Program
     private sealed record WorkspaceSelection(string ProjectId);
     private sealed record ApplicationOperationRequest(string OperationId, string ProjectId);
     private sealed record ApplicationConfirmationRequest(string OperationId, string ProjectId, string PreviewHash);
+    private sealed record SetupActionRequest(string ActionId, string Mode, string ProjectId, string? ProfileId,
+        string? ProjectRoot, string[] EnabledClaims, string[] AllowedFrameworks, string[] ForbiddenProjectReferences, string? PreviewHash);
     private sealed record HostExecution(int ExitCode, JsonElement Result);
     private sealed record ProjectQueryProjection(ProjectProjection Project);
     private sealed record ProjectProjection(string ProjectId, string TargetRoot, string TargetIdentityHash, bool Bound,

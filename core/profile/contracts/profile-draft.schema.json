@@ -6,8 +6,8 @@
   "required": ["formatVersion", "status", "authority", "draftId", "storagePath", "project", "targetSnapshotSha256", "discoverySha256", "generator", "candidateProfile", "candidateProfileSha256", "recommendations", "unresolvedPolicy", "coverage"],
   "properties": {
     "formatVersion": { "const": 1 },
-    "status": { "const": "draft" },
-    "authority": { "const": "state-draft-non-authoritative" },
+    "status": { "enum": ["draft", "configured"] },
+    "authority": { "enum": ["state-draft-non-authoritative", "state-configured-non-authoritative"] },
     "draftId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
     "storagePath": { "type": "string", "minLength": 1 },
     "project": {
@@ -21,7 +21,7 @@
     "discoverySha256": { "$ref": "#/definitions/sha256" },
     "generator": {
       "type": "object", "additionalProperties": false, "required": ["id", "version"],
-      "properties": { "id": { "const": "v4-profile-scaffold" }, "version": { "const": "1.0.0" } }
+      "properties": { "id": { "enum": ["v4-profile-scaffold", "v4-profile-configurator"] }, "version": { "const": "1.0.0" } }
     },
     "candidateProfile": { "type": "object" },
     "candidateProfileSha256": { "$ref": "#/definitions/sha256" },
@@ -42,14 +42,36 @@
       "type": "array", "minItems": 6, "uniqueItems": true,
       "items": { "enum": ["gate-selection", "severity", "exceptions", "baselines", "unsupported-coverage", "ambiguous-modules"] }
     },
+    "sourceDraftSha256": { "$ref": "#/definitions/sha256" },
+    "candidateSourceSha256": { "$ref": "#/definitions/sha256" },
+    "moduleBindings": { "type": "array", "items": { "type": "object" } },
     "coverage": {
       "type": "object", "additionalProperties": false, "required": ["status", "selectedModuleCount", "enabledStageCount"],
       "properties": {
-        "status": { "const": "unprotected" },
-        "selectedModuleCount": { "const": 0 },
-        "enabledStageCount": { "const": 0 }
+        "status": { "enum": ["unprotected", "candidate-unaccepted"] },
+        "selectedModuleCount": { "type": "integer", "minimum": 0 },
+        "enabledStageCount": { "type": "integer", "minimum": 0 }
       }
     }
   },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "draft" } } },
+      "then": {
+        "properties": {
+          "authority": { "const": "state-draft-non-authoritative" },
+          "generator": { "properties": { "id": { "const": "v4-profile-scaffold" } } },
+          "coverage": { "properties": { "status": { "const": "unprotected" }, "selectedModuleCount": { "const": 0 }, "enabledStageCount": { "const": 0 } } }
+        }
+      },
+      "else": {
+        "required": ["sourceDraftSha256", "candidateSourceSha256", "moduleBindings"],
+        "properties": {
+          "authority": { "const": "state-configured-non-authoritative" },
+          "generator": { "properties": { "id": { "const": "v4-profile-configurator" } } }
+        }
+      }
+    }
+  ],
   "definitions": { "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } }
 }

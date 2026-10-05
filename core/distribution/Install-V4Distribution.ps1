@@ -104,6 +104,7 @@ try {
     if (-not (Test-Json -Json $manifestText -SchemaFile $manifestSchema -ErrorAction SilentlyContinue)) { throw 'Distribution manifest violates its schema.' }
     $manifest = $manifestText | ConvertFrom-Json -AsHashtable -Depth 100
     if ([string]$manifest.rootDirectory -cne $rootName) { throw 'Distribution root and manifest differ.' }
+    if ([IO.Path]::GetFileName($install) -cne $rootName) { throw 'InstallRoot leaf name does not match the distribution manifest root identity.' }
     $declared = @($manifest.files.path | ForEach-Object { "$rootName/$_" } | Sort-Object)
     $actual = @($entries | Where-Object { $_ -ne $manifestEntry[0] } | ForEach-Object { $_.FullName.Replace('\','/') } | Sort-Object)
     if (($declared -join "`0") -cne ($actual -join "`0")) { throw 'Archive payload does not exactly match the distribution manifest.' }

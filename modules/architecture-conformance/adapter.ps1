@@ -212,15 +212,82 @@ function Target-Snapshot([string] $Root) {
     $bytes = [Text.Encoding]::UTF8.GetBytes(($lines -join "`n"))
     return [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes)).ToLowerInvariant()
 }
+function Test-UnconditionalNode($Node) {
+    $current = $Node
+    while ($null -ne $current -and $current.NodeType -eq [Xml.XmlNodeType]::Element) {
+        if ($null -ne $current.Attributes['Condition']) { return $false }
+        $current = $current.ParentNode
+    }
+    return $true
+}
+function Resolve-LiteralFrameworks($Document, [string] $SourceRelative) {
+    $nodes = @($Document.SelectNodes("//*[local-name()='TargetFramework' or local-name()='TargetFrameworks']"))
+    if ($nodes.Count -ne 1 -or -not (Test-UnconditionalNode $nodes[0])) {
+        return [pscustomobject]@{Status='unsupported';Frameworks=@();Source=$SourceRelative;Message='Conditional or ambiguous target-framework declarations are unsupported.'}
+    }
+    $values = @(([string]$nodes[0].InnerText).Split(';',[StringSplitOptions]::RemoveEmptyEntries) | ForEach-Object { $_.Trim() })
+    if ($values.Count -eq 0 -or @($values | Where-Object { $_ -match '\$\(' -or $_ -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]*$' }).Count -gt 0) {
+        return [pscustomobject]@{Status='unsupported';Frameworks=@();Source=$SourceRelative;Message='Expression-based or non-literal target-framework declarations are unsupported.'}
+    }
+    return [pscustomobject]@{Status='resolved';Frameworks=$values;Source=$SourceRelative;Message=''}
+}
+function Resolve-ProjectFramework($Project, $ProjectXml) {
+    $projectRelative = Relative $Project.FullName
+    $localNodes = @($ProjectXml.SelectNodes("//*[local-name()='TargetFramework' or local-name()='TargetFrameworks']"))
+    if ($localNodes.Count -gt 0) { return Resolve-LiteralFrameworks $ProjectXml $projectRelative }
+    if (@($ProjectXml.SelectNodes("//*[local-name()='Import']")).Count -gt 0) {
+        return [pscustomobject]@{Status='unsupported';Frameworks=@();Source=$projectRelative;Message='Explicit project imports are unsupported for inherited framework analysis.'}
+    }
+    $directory = $Project.DirectoryName
+    while (Is-Under $directory $targetRoot) {
+        $propsPath = Join-Path $directory 'Directory.Build.props'
+        if ([IO.File]::Exists($propsPath)) {
+            $source = Relative $propsPath
+            try { $props = [xml][IO.File]::ReadAllText($propsPath) }
+            catch { return [pscustomobject]@{Status='unsupported';Frameworks=@();Source=$source;Message="Directory.Build.props XML is invalid: $($_.Exception.Message)"} }
+            if (@($props.SelectNodes("//*[local-name()='Import']")).Count -gt 0) {
+                return [pscustomobject]@{Status='unsupported';Frameworks=@();Source=$source;Message='Directory.Build.props imports are unsupported for framework analysis.'}
+            }
+            $nodes = @($props.SelectNodes("//*[local-name()='TargetFramework' or local-name()='TargetFrameworks']"))
+            if ($nodes.Count -eq 0) {
+                return [pscustomobject]@{Status='unsupported';Frameworks=@();Source=$source;Message='Directory.Build.props does not contain a simple literal framework declaration.'}
+            }
+            return Resolve-LiteralFrameworks $props $source
+        }
+        if ($directory.Equals($targetRoot,[StringComparison]::OrdinalIgnoreCase)) { break }
+        $directory = [IO.Path]::GetDirectoryName($directory)
+    }
+    return [pscustomobject]@{Status='missing';Frameworks=@();Source=$projectRelative;Message='No project-local or simple inherited target framework was declared.'}
+}
 
 $requestedProjectClaims = @($activeClaims | Where-Object { $_ -in $projectClaims })
 if ($requestedProjectClaims.Count -gt 0) {
+    $semanticConfigurationFailures = [Collections.Generic.List[string]]::new()
+    if ((Enabled 'ARCH.PROJECT_REFERENCE') -and @(Config-Array 'forbiddenProjectReferences').Count -eq 0) {
+        $semanticConfigurationFailures.Add('ARCH.PROJECT_REFERENCE requires a non-empty forbiddenProjectReferences policy.')
+    }
+    if ((Enabled 'ARCH.PACKAGE_REFERENCE') -and @(Config-Array 'forbiddenPackages').Count -eq 0) {
+        $semanticConfigurationFailures.Add('ARCH.PACKAGE_REFERENCE requires a non-empty forbiddenPackages policy.')
+    }
+    if ((Enabled 'ARCH.TARGET_FRAMEWORK') -and @(Config-Array 'allowedTargetFrameworks').Count -eq 0) {
+        $semanticConfigurationFailures.Add('ARCH.TARGET_FRAMEWORK requires a non-empty allowedTargetFrameworks policy.')
+    }
+    if ((Enabled 'ARCH.GRAPH_COMPLETENESS') -and
+        (-not ($config.PSObject.Properties.Name -contains 'requireResolvedProjectReferences') -or -not $config.requireResolvedProjectReferences)) {
+        $semanticConfigurationFailures.Add('ARCH.GRAPH_COMPLETENESS requires requireResolvedProjectReferences=true.')
+    }
+    if ($semanticConfigurationFailures.Count -gt 0) {
+        Add-Coverage $requestedProjectClaims 0
+        Write-Result 'error' 'invalid-input' ($semanticConfigurationFailures -join ' ')
+        exit 0
+    }
     $projects = @(Scoped-Files '*.csproj')
     if ($projects.Count -eq 0) {
         Add-Coverage $activeClaims 0
         Write-Result 'error' 'prerequisite-missing' 'No declared project files were found.'
         exit 0
     }
+    $unsupportedFrameworks = [Collections.Generic.List[string]]::new()
     foreach ($project in $projects) {
         try { $xml = [xml][IO.File]::ReadAllText($project.FullName) }
         catch { throw "Project XML is invalid: $(Relative $project.FullName): $($_.Exception.Message)" }
@@ -240,10 +307,15 @@ if ($requestedProjectClaims.Count -gt 0) {
             }
         }
         if (Enabled 'ARCH.TARGET_FRAMEWORK') {
-            $frameworks = @($xml.SelectNodes("//*[local-name()='TargetFramework' or local-name()='TargetFrameworks']") | ForEach-Object { ([string]$_.InnerText).Split(';',[StringSplitOptions]::RemoveEmptyEntries) } | ForEach-Object { $_.Trim() })
-            if ($frameworks.Count -eq 0) { Add-Finding 'ARCH.TARGET_FRAMEWORK' "$projectSubject -> <missing>" 'project-model-raw' 'project-model' }
-            foreach ($framework in $frameworks) {
-                if (@(Config-Array 'allowedTargetFrameworks') -notcontains $framework) { Add-Finding 'ARCH.TARGET_FRAMEWORK' "$projectSubject -> $framework" 'project-model-raw' 'project-model' }
+            $resolution = Resolve-ProjectFramework $project $xml
+            if ($resolution.Status -ceq 'unsupported') {
+                $unsupportedFrameworks.Add("$projectSubject <- $($resolution.Source): $($resolution.Message)")
+            } elseif ($resolution.Status -ceq 'missing') {
+                Add-Finding 'ARCH.TARGET_FRAMEWORK' "$projectSubject -> <missing>" 'project-model-raw' 'project-model'
+            } else {
+                foreach ($framework in @($resolution.Frameworks)) {
+                    if (@(Config-Array 'allowedTargetFrameworks') -notcontains $framework) { Add-Finding 'ARCH.TARGET_FRAMEWORK' "$projectSubject <- $($resolution.Source) -> $framework" 'project-model-raw' 'project-model' }
+                }
             }
         }
         if ((Enabled 'ARCH.GRAPH_COMPLETENESS') -and ($config.PSObject.Properties.Name -contains 'requireResolvedProjectReferences') -and $config.requireResolvedProjectReferences) {
@@ -258,7 +330,13 @@ if ($requestedProjectClaims.Count -gt 0) {
             }
         }
     }
-    Add-Coverage $requestedProjectClaims $projects.Count
+    foreach ($claim in $requestedProjectClaims) {
+        Add-Coverage @($claim) $(if($claim -ceq 'ARCH.TARGET_FRAMEWORK' -and $unsupportedFrameworks.Count -gt 0){0}else{$projects.Count})
+    }
+    if ($unsupportedFrameworks.Count -gt 0) {
+        Write-Result 'error' 'prerequisite-missing' ("Unsupported target-framework coverage: " + ($unsupportedFrameworks -join '; '))
+        exit 0
+    }
 }
 
 $requestedSourceClaims = @($activeClaims | Where-Object { $_ -in ($syntaxClaims + $semanticClaims) })

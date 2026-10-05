@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ifx.local/v4/contracts/profile-candidate.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "status", "authority", "sourceDraftSha256", "discoverySha256", "targetSnapshotSha256", "candidateProfile"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "status": { "const": "candidate" },
+    "authority": { "const": "human-authored-unaccepted" },
+    "sourceDraftSha256": { "$ref": "#/definitions/sha256" },
+    "discoverySha256": { "$ref": "#/definitions/sha256" },
+    "targetSnapshotSha256": { "$ref": "#/definitions/sha256" },
+    "candidateProfile": { "type": "object" }
+  },
+  "definitions": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

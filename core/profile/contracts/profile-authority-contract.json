@@ -17,6 +17,20 @@
       "resultSchema": "profile-draft"
     },
     {
+      "id": "profile.configure",
+      "syntax": "v4-guards profile configure --package-root <path> --target-root <path> --state-root <path> --draft <path> --candidate <path>",
+      "mutability": "state-write",
+      "requiredRoots": ["PackageRoot", "TargetRoot", "StateRoot"],
+      "resultSchema": "profile-draft"
+    },
+    {
+      "id": "profile.review-template",
+      "syntax": "v4-guards profile review-template --package-root <path> --target-root <path> --state-root <path> --draft <configured-draft-path>",
+      "mutability": "state-write",
+      "requiredRoots": ["PackageRoot", "TargetRoot", "StateRoot"],
+      "resultSchema": "profile-review-template"
+    },
+    {
       "id": "profile.validate",
       "syntax": "v4-guards profile validate --package-root <path> --target-root <path> --state-root <path> --draft <path> --review <path>",
       "mutability": "read-only",
@@ -32,10 +46,12 @@
     }
   ],
   "schemas": [
-    { "id": "profile-discovery", "path": "core/profile/contracts/profile-discovery.schema.json", "sha256": "df05eaec688915f09f26cb9732aea903d4a122b8264e860ffaddaaa9c7eb006e" },
-    { "id": "profile-draft", "path": "core/profile/contracts/profile-draft.schema.json", "sha256": "982003e38f3cd322f1ffaddad9bc6696e0fb2a9d3fa7db9b255b5ff65dbb0304" },
+    { "id": "profile-candidate", "path": "core/profile/contracts/profile-candidate.schema.json", "sha256": "7ab132170ce4976c02675ea05ca9954e57072ec87b86558bb58bc55861075603" },
+    { "id": "profile-discovery", "path": "core/profile/contracts/profile-discovery.schema.json", "sha256": "759cea5c140924946fbc11388152bccac5dcce3711816de049dadd167aeddb28" },
+    { "id": "profile-draft", "path": "core/profile/contracts/profile-draft.schema.json", "sha256": "4cb815f6131209443b66ab678b38dc368ff7ad55c8d73bb585f8f88e9e9da850" },
     { "id": "profile-promotion", "path": "core/profile/contracts/profile-promotion.schema.json", "sha256": "e60d377fa3c65f3637f43bd1c06111353162ed91166d8fa58cbc89109d0d3ff8" },
     { "id": "profile-review", "path": "core/profile/contracts/profile-review.schema.json", "sha256": "5dcad23f8d9c143df2bda9433c6a1619e5b276183c50d30967c73b04d3746829" },
+    { "id": "profile-review-template", "path": "core/profile/contracts/profile-review-template.schema.json", "sha256": "709f5cb550571c25c5053d17e2088f2d504839a4a4de0b354e9ec0cd34c19b96" },
     { "id": "profile-validation", "path": "core/profile/contracts/profile-validation.schema.json", "sha256": "163bb8cba3e3f453214bfbf71028e4d9f152b9815cb11ecceafe0492a33505dd" }
   ],
   "boundaries": {

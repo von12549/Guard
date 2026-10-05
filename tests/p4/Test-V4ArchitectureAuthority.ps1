@@ -107,7 +107,7 @@ $copy = Join-Path $fixtureRoot 'package'; Copy-Item -LiteralPath $packageRoot -D
 $checkOutput = @(& pwsh -NoProfile -File (Join-Path $copy 'core/runtime/Test-V4Package.ps1') -PackageRoot $copy 2>&1) -join "`n"
 if ($LASTEXITCODE -eq 0 -or $checkOutput -notmatch 'module authority hash drift') { $failures.Add('package checker accepted architecture authority hash drift') }
 
-$input = @{ formatVersion = 1; stage = 'pre'; targetRoot = $repositoryRoot; config = @{ enabledClaims=@('ARCH.PROJECT_REFERENCE'); forbiddenProjectReferences=@(); forbiddenPackages=@(); allowedTargetFrameworks=@('net10.0'); requireResolvedProjectReferences=$true } } | ConvertTo-Json -Compress
+$input = @{ formatVersion = 1; stage = 'pre'; targetRoot = $repositoryRoot; config = @{ enabledClaims=@('ARCH.PROJECT_REFERENCE'); forbiddenProjectReferences=@('Never.Match.csproj') } } | ConvertTo-Json -Compress
 $env:V4_STAGE_INPUT_JSON = $input
 try { $adapterJson = & pwsh -NoProfile -File (Join-Path $moduleRoot 'adapter.ps1'); $adapter = $adapterJson | ConvertFrom-Json }
 finally { Remove-Item Env:V4_STAGE_INPUT_JSON -ErrorAction SilentlyContinue }

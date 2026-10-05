@@ -4,14 +4,20 @@
     { "id": "setup", "class": "local-mutable-preview", "mutatesTarget": false, "remote": false, "available": true },
     { "id": "protection", "class": "query", "mutatesTarget": false, "remote": false, "available": true },
     { "id": "authorities", "class": "query", "mutatesTarget": false, "remote": false, "available": true },
-    { "id": "lifecycle", "class": "local-mutable-preview", "mutatesTarget": false, "remote": false, "available": true }
+    { "id": "lifecycle", "class": "local-mutable-preview", "mutatesTarget": false, "remote": false, "available": true },
+    { "id": "setup-progress", "class": "query", "mutatesTarget": false, "remote": false, "available": true },
+    { "id": "setup-action", "class": "state-write", "mutatesTarget": false, "remote": false, "available": true }
   ],
   "schemas": [
     { "id": "application-preview", "path": "core/application/contracts/application-preview.schema.json", "sha256": "56db9c8f5b746e3354877de0b11b2e7e242b602e0f2de9d77eb25dfba9999b19" },
-    { "id": "application-service-contract", "path": "core/application/contracts/application-service-contract.schema.json", "sha256": "8b178ff118792cfcc4ff82441fa11ff0b7c6000a08d580ad691472fee7340e02" },
+    { "id": "application-service-contract", "path": "core/application/contracts/application-service-contract.schema.json", "sha256": "40f9dca64242a7f7a7932f61a6f125c0dc81dd417cd0f1520b7e06ae55673cca" },
     { "id": "authority-handoff", "path": "core/application/contracts/authority-handoff.schema.json", "sha256": "c38463ac977ab1207b045107ac116406b2c047d11251aa779278724c8b958c97" },
+    { "id": "host-safety-proof", "path": "core/application/contracts/host-safety-proof.schema.json", "sha256": "cbbbfc3cca8ea7719644c2fcc46098a05929ffa4d410b34f3cb49a44dbdbba9b" },
     { "id": "lifecycle-preview", "path": "core/application/contracts/lifecycle-preview.schema.json", "sha256": "28822d383639feadd883226585f9e1e4641d14c0d58b0706524e7a0e71d98989" },
     { "id": "protection-status", "path": "core/application/contracts/protection-status.schema.json", "sha256": "9d175a667c4f19d40bbff8b68c6594f03d873bd02a54f94c24e73496358f5168" },
-    { "id": "setup-preview", "path": "core/application/contracts/setup-preview.schema.json", "sha256": "fedf75f87e9a5ea25578c76a575819ad21e9e71986b339a44de6ada2c4110246" }
+    { "id": "setup-preview", "path": "core/application/contracts/setup-preview.schema.json", "sha256": "fedf75f87e9a5ea25578c76a575819ad21e9e71986b339a44de6ada2c4110246" },
+    { "id": "setup-action-request", "path": "core/application/contracts/setup-action-request.schema.json", "sha256": "338d9dc04c31c25a7293bc37c7566e66099a64c0db1364eea8a748020d3591c2" },
+    { "id": "setup-action-response", "path": "core/application/contracts/setup-action-response.schema.json", "sha256": "012b2c4325d5da71237aff4dd675f30e96de24c034a6e59c4b8f68f128a7ab31" },
+    { "id": "setup-progress", "path": "core/application/contracts/setup-progress.schema.json", "sha256": "74e2f982fb2b1f3d95191a92d0af22f5486858222fe40753d7c9525cb975085d" }
   ]
 }

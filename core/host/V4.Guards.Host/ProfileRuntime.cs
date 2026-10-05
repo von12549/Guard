@@ -4,6 +4,8 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace V4.Guards.Host;
 
@@ -15,6 +17,7 @@ internal static class ProfileRuntime
     private const string DetectorVersion = "1.0.0";
     private const string GeneratorId = "v4-profile-scaffold";
     private const string GeneratorVersion = "1.0.0";
+    private const string ConfiguratorId = "v4-profile-configurator";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -31,7 +34,8 @@ internal static class ProfileRuntime
     private static readonly Regex HashPattern = new("^[a-f0-9]{64}$", RegexOptions.CultureInvariant);
     private static readonly HashSet<string> ExperimentalSchemaIds = new(StringComparer.Ordinal)
     {
-        "profile-discovery", "profile-draft", "profile-review", "profile-validation", "profile-promotion"
+        "profile-candidate", "profile-discovery", "profile-draft", "profile-review", "profile-review-template",
+        "profile-validation", "profile-promotion"
     };
     private static readonly HashSet<string> ExcludedDirectories = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -61,6 +65,8 @@ internal static class ProfileRuntime
             {
                 "discover" => DiscoverOperation(arguments),
                 "draft" => DraftOperation(arguments),
+                "configure" => ConfigureOperation(arguments),
+                "review-template" => ReviewTemplateOperation(arguments),
                 "validate" => ValidateOperation(arguments),
                 "promote" => PromoteOperation(arguments),
                 _ => throw Invalid($"Unknown profile operation: {arguments.Operation}")
@@ -94,6 +100,18 @@ internal static class ProfileRuntime
         var discovery = Discover(packageRoot, targetRoot);
         ValidateNode(packageRoot, "profile-discovery", discovery);
         return discovery;
+    }
+
+    internal static JsonObject ExecuteForApplication(string operation, IReadOnlyDictionary<string, string> values)
+    {
+        var arguments = new Arguments(operation, new Dictionary<string, string>(values, StringComparer.Ordinal));
+        return operation switch
+        {
+            "draft" => DraftOperation(arguments),
+            "configure" => ConfigureOperation(arguments),
+            "review-template" => ReviewTemplateOperation(arguments),
+            _ => throw Invalid($"Application cannot invoke Profile operation: {operation}")
+        };
     }
 
     private static JsonObject DiscoverOperation(Arguments arguments)
@@ -167,6 +185,126 @@ internal static class ProfileRuntime
         var validation = ValidateReview(context);
         ValidateNode(context.PackageRoot, "profile-validation", validation);
         return validation;
+    }
+
+    private static JsonObject ConfigureOperation(Arguments arguments)
+    {
+        arguments.RequireOnly("package-root", "target-root", "state-root", "draft", "candidate");
+        var context = ResolveDraftContext(arguments, "draft");
+        if (RequiredString(context.Draft, "status") != "draft") throw Conflict("Only an original conservative Draft can be configured.");
+        var candidatePath = ResolveExistingFile(arguments.Required("candidate"), "candidate");
+        var candidate = ReadObject(candidatePath, "candidate");
+        ValidateFile(context.PackageRoot, "profile-candidate", candidatePath);
+        var sourceDraftHash = HashFile(context.DraftPath);
+        foreach (var binding in new[]
+        {
+            ("sourceDraftSha256", sourceDraftHash),
+            ("discoverySha256", context.DiscoveryHash),
+            ("targetSnapshotSha256", context.TargetSnapshot)
+        })
+        {
+            if (RequiredString(candidate, binding.Item1) != binding.Item2)
+                throw Integrity($"Candidate {binding.Item1} binding does not match the original Draft.");
+        }
+
+        var profile = candidate["candidateProfile"]?.AsObject() ?? throw Invalid("Candidate Profile is missing.");
+        ValidateNode(context.PackageRoot, "profile", profile);
+        var originalProfile = context.Draft["candidateProfile"]?.AsObject() ?? throw Invalid("Original Draft Profile is missing.");
+        var profileId = RequiredString(profile, "id");
+        if (profileId != RequiredString(originalProfile, "id")) throw Conflict("Candidate Profile identity differs from the original Draft.");
+        if (InstalledProfileIds(context.PackageRoot).Contains(profileId)) throw Conflict("The candidate Profile ID collides with an installed Profile.");
+        var bindings = ValidateProfileModules(context.PackageRoot, profile, LoadModules(context.PackageRoot));
+        var candidateHash = HashCanonical(profile);
+        var candidateSourceHash = HashFile(candidatePath);
+        var configuredId = HashText($"{sourceDraftHash}\n{candidateSourceHash}\n{candidateHash}\n{ConfiguratorId}\n{GeneratorVersion}\n")[..32];
+        var projectId = RequiredString(context.Draft["project"]!.AsObject(), "id");
+        var configuredDirectory = Path.Combine(context.StateRoot, "profile-drafts", projectId, configuredId);
+        var configuredPath = Path.Combine(configuredDirectory, "configured-draft.json");
+        var selectedCount = profile["moduleSelections"]!.AsArray().Count;
+        var enabledCount = profile["stageConfiguration"]!.AsObject().Count(entry => entry.Value!.AsObject()["enabled"]!.GetValue<bool>());
+        var configured = new JsonObject
+        {
+            ["formatVersion"] = 1,
+            ["status"] = "configured",
+            ["authority"] = "state-configured-non-authoritative",
+            ["draftId"] = configuredId,
+            ["storagePath"] = configuredPath,
+            ["project"] = context.Draft["project"]!.DeepClone(),
+            ["targetSnapshotSha256"] = context.TargetSnapshot,
+            ["discoverySha256"] = context.DiscoveryHash,
+            ["generator"] = new JsonObject { ["id"] = ConfiguratorId, ["version"] = GeneratorVersion },
+            ["candidateProfile"] = profile.DeepClone(),
+            ["candidateProfileSha256"] = candidateHash,
+            ["recommendations"] = context.Draft["recommendations"]!.DeepClone(),
+            ["unresolvedPolicy"] = context.Draft["unresolvedPolicy"]!.DeepClone(),
+            ["sourceDraftSha256"] = sourceDraftHash,
+            ["candidateSourceSha256"] = candidateSourceHash,
+            ["moduleBindings"] = bindings.DeepClone(),
+            ["coverage"] = new JsonObject
+            {
+                ["status"] = selectedCount > 0 && enabledCount > 0 ? "candidate-unaccepted" : "unprotected",
+                ["selectedModuleCount"] = selectedCount,
+                ["enabledStageCount"] = enabledCount
+            }
+        };
+        ValidateNode(context.PackageRoot, "profile-draft", configured);
+        WriteStateDirectory(configuredDirectory, new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["configured-draft.json"] = Serialize(configured),
+            ["discovery.json"] = File.ReadAllText(context.StoredDiscoveryPath)
+        });
+        EnsureTargetUnchanged(context);
+        return configured;
+    }
+
+    private static JsonObject ReviewTemplateOperation(Arguments arguments)
+    {
+        arguments.RequireOnly("package-root", "target-root", "state-root", "draft");
+        var context = ResolveDraftContext(arguments, "draft");
+        if (RequiredString(context.Draft, "status") != "configured")
+            throw Conflict("Review templates require a configured Draft.");
+        var profile = context.Draft["candidateProfile"]?.AsObject() ?? throw Invalid("Configured candidate Profile is missing.");
+        var bindings = ValidateProfileModules(context.PackageRoot, profile, LoadModules(context.PackageRoot));
+        if (Canonical(bindings) != Canonical(context.Draft["moduleBindings"] ?? throw Invalid("Configured Module bindings are missing.")))
+            throw Integrity("Configured Module bindings have drifted.");
+        var configuredHash = HashFile(context.DraftPath);
+        var templateId = HashText($"{configuredHash}\n{context.DiscoveryHash}\n{context.TargetSnapshot}\nprofile-review-template\n")[..32];
+        var templatePath = Path.Combine(Path.GetDirectoryName(context.DraftPath)!, "review-template.json");
+        JsonObject Policy(string id, string explanation, params string[] candidates) => new()
+        {
+            ["id"] = id, ["explanation"] = explanation, ["safeDefault"] = "unresolved-unprotected",
+            ["candidateValues"] = new JsonArray(candidates.Select(value => (JsonNode)value).ToArray()),
+            ["nextAction"] = $"A human must choose and justify {id}."
+        };
+        var template = new JsonObject
+        {
+            ["formatVersion"] = 1,
+            ["status"] = "incomplete",
+            ["authority"] = "human-review-required",
+            ["templateId"] = templateId,
+            ["storagePath"] = templatePath,
+            ["configuredDraftSha256"] = configuredHash,
+            ["discoverySha256"] = context.DiscoveryHash,
+            ["candidateProfileSha256"] = RequiredString(context.Draft, "candidateProfileSha256"),
+            ["targetSnapshotSha256"] = context.TargetSnapshot,
+            ["moduleBindings"] = bindings.DeepClone(),
+            ["unresolvedPolicy"] = new JsonArray(
+                Policy("gate-selection", "Choose which stages are blocking gates.", "remain-unprotected", "accept-selected-gates"),
+                Policy("severity", "Choose blocking and advisory severities.", "remain-unprotected", "accept-severity-map"),
+                Policy("exceptions", "Review every proposed exception.", "no-exceptions", "accept-explicit-exceptions"),
+                Policy("baselines", "Review baseline ownership and freshness.", "no-baselines", "accept-bound-baselines"),
+                Policy("unsupported-coverage", "Decide how unsupported coverage affects protection.", "remain-unprotected", "accept-explicit-gap"),
+                Policy("ambiguous-modules", "Resolve every ambiguous Module recommendation.", "no-implicit-modules", "accept-explicit-selection")),
+            ["fixtureSlots"] = new JsonArray(
+                new JsonObject { ["classification"] = "positive", ["status"] = "missing", ["requiredEvidence"] = "A human-run clean fixture receipt." },
+                new JsonObject { ["classification"] = "negative", ["status"] = "missing", ["requiredEvidence"] = "A human-run blocking fixture receipt." }),
+            ["nextAction"] = "A human must decide every policy question, run positive and negative fixtures, and create a separate accepted profile-review document.",
+            ["prohibitions"] = new JsonArray("acceptedBy", "policy-acceptance", "fixture-fabrication", "target-write", "composition-selection", "ci-activation", "remote-mutation")
+        };
+        ValidateNode(context.PackageRoot, "profile-review-template", template);
+        WriteNewOrSame(templatePath, Serialize(template));
+        EnsureTargetUnchanged(context);
+        return template;
     }
 
     private static JsonObject PromoteOperation(Arguments arguments)
@@ -308,6 +446,41 @@ internal static class ProfileRuntime
         return new ReviewContext(packageRoot, targetRoot, stateRoot, draftPath, reviewPath, draft, review);
     }
 
+    private static DraftContext ResolveDraftContext(Arguments arguments, string draftArgument)
+    {
+        var packageRoot = ResolveExistingDirectory(arguments.Required("package-root"), "PackageRoot");
+        var targetRoot = ResolveExistingDirectory(arguments.Required("target-root"), "TargetRoot");
+        var stateRoot = ResolveExistingDirectory(arguments.Required("state-root"), "StateRoot");
+        EnsureDisjoint(packageRoot, targetRoot, "PackageRoot and TargetRoot");
+        EnsureDisjoint(stateRoot, targetRoot, "StateRoot and TargetRoot");
+        EnsureDisjoint(stateRoot, packageRoot, "StateRoot and PackageRoot");
+        var draftPath = ResolveExistingFile(arguments.Required(draftArgument), "draft");
+        EnsureUnder(draftPath, stateRoot, "Draft must be below StateRoot.");
+        var draft = ReadObject(draftPath, "draft");
+        ValidateFile(packageRoot, "profile-draft", draftPath);
+        if (!PathEquals(RequiredString(draft, "storagePath"), draftPath)) throw Conflict("Draft storage binding does not match its path.");
+        var project = draft["project"]?.AsObject() ?? throw Invalid("Draft project is missing.");
+        if (RequiredString(project, "id") != ProjectId(targetRoot) ||
+            !PathEquals(RequiredString(project, "targetCanonicalPath"), targetRoot))
+            throw Conflict("Draft project binding does not match TargetRoot.");
+        var currentDiscovery = Discover(packageRoot, targetRoot);
+        ValidateNode(packageRoot, "profile-discovery", currentDiscovery);
+        var discoveryText = Serialize(currentDiscovery);
+        var discoveryHash = HashText(discoveryText);
+        var snapshot = RequiredString(currentDiscovery["target"]!.AsObject(), "snapshotSha256");
+        if (RequiredString(draft, "targetSnapshotSha256") != snapshot || RequiredString(draft, "discoverySha256") != discoveryHash)
+            throw Conflict("Draft discovery or Target snapshot is stale.");
+        var storedDiscoveryPath = Path.Combine(Path.GetDirectoryName(draftPath)!, "discovery.json");
+        if (!File.Exists(storedDiscoveryPath)) throw Invalid("Stored discovery document is missing beside the draft.");
+        EnsureNoLinks(storedDiscoveryPath, "stored discovery");
+        ValidateFile(packageRoot, "profile-discovery", storedDiscoveryPath);
+        if (HashFile(storedDiscoveryPath) != discoveryHash) throw Integrity("Stored discovery document does not match current discovery.");
+        var profile = draft["candidateProfile"]?.AsObject() ?? throw Invalid("Draft candidate Profile is missing.");
+        ValidateNode(packageRoot, "profile", profile);
+        if (RequiredString(draft, "candidateProfileSha256") != HashCanonical(profile)) throw Integrity("Candidate Profile hash drift.");
+        return new DraftContext(packageRoot, targetRoot, stateRoot, draftPath, storedDiscoveryPath, draft, discoveryHash, snapshot);
+    }
+
     private static JsonObject ValidateReview(ReviewContext context)
     {
         var currentDiscovery = Discover(context.PackageRoot, context.TargetRoot);
@@ -335,10 +508,12 @@ internal static class ProfileRuntime
         var profileId = RequiredString(profile, "id");
         if (InstalledProfileIds(context.PackageRoot).Contains(profileId))
             throw Conflict("The candidate Profile ID collides with an installed Profile.");
-        var expectedDraftId = HashText($"{ProjectId(context.TargetRoot)}\n{snapshot}\n{profileId}\n{GeneratorId}\n{GeneratorVersion}\n")[..32];
+        var candidateHash = HashCanonical(profile);
+        var expectedDraftId = RequiredString(context.Draft, "status") == "configured"
+            ? HashText($"{RequiredString(context.Draft, "sourceDraftSha256")}\n{RequiredString(context.Draft, "candidateSourceSha256")}\n{candidateHash}\n{ConfiguratorId}\n{GeneratorVersion}\n")[..32]
+            : HashText($"{ProjectId(context.TargetRoot)}\n{snapshot}\n{profileId}\n{GeneratorId}\n{GeneratorVersion}\n")[..32];
         if (RequiredString(context.Draft, "draftId") != expectedDraftId)
             throw Integrity("Draft identity does not match its project, snapshot, Profile and generator bindings.");
-        var candidateHash = HashCanonical(profile);
         if (RequiredString(context.Draft, "candidateProfileSha256") != candidateHash)
             throw Integrity("Candidate Profile hash drift.");
         var draftHash = HashFile(context.DraftPath);
@@ -461,6 +636,17 @@ internal static class ProfileRuntime
                     throw Capability($"Module {id} does not support Stage {stageName}.");
             }
         }
+        var architecture = selections.Select(item => item!.AsObject())
+            .SingleOrDefault(item => RequiredString(item, "id") == "architecture-conformance");
+        if (architecture is not null)
+        {
+            var enabledClaims = architecture["config"]!.AsObject()["enabledClaims"]?.AsArray()
+                ?? throw Findings("architecture-conformance requires non-empty enabledClaims.");
+            if (enabledClaims.Count == 0) throw Findings("architecture-conformance requires non-empty enabledClaims.");
+            var rules = profile["rules"]!.AsArray().Select(item => item!.GetValue<string>()).ToHashSet(StringComparer.Ordinal);
+            foreach (var claim in enabledClaims.Select(item => item!.GetValue<string>()))
+                if (!rules.Contains(claim)) throw Findings($"Profile rules do not select enabled architecture claim {claim}.");
+        }
         return new JsonArray(bindings.OrderBy(item => RequiredString(item, "id")).Select(item => (JsonNode)item).ToArray());
     }
 
@@ -490,7 +676,8 @@ internal static class ProfileRuntime
         foreach (var language in observed.Select(file => SourceLanguages.TryGetValue(Path.GetExtension(file.RelativePath), out var value) ? value : null)
                      .Where(value => value is not null).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
             facts.Add(new Fact("language", LanguageSource(observed, language!), language!, "source-extension", DetectorVersion, snapshot));
-        foreach (var framework in FrameworkFacts(observed, targetRoot, snapshot)) facts.Add(framework);
+        var frameworkDiscovery = FrameworkFacts(observed, targetRoot, snapshot);
+        foreach (var framework in frameworkDiscovery.Facts) facts.Add(framework);
         foreach (var root in RootFacts(observed, snapshot)) facts.Add(root);
 
         var modules = LoadModules(packageRoot);
@@ -505,7 +692,7 @@ internal static class ProfileRuntime
                     $"{RequiredString(value, "runtime")}:{RequiredString(value, "versionRange")}", "module-prerequisite", DetectorVersion, snapshot));
             }
         }
-        var questions = Questions(observed, facts, modules);
+        var questions = Questions(observed, facts, modules, targetRoot, frameworkDiscovery.Unsupported);
         var factNodes = facts.OrderBy(item => item.Kind, StringComparer.Ordinal)
             .ThenBy(item => item.SourcePath, StringComparer.Ordinal).ThenBy(item => item.NormalizedValue, StringComparer.Ordinal)
             .Select(item => (JsonNode)new JsonObject
@@ -563,20 +750,23 @@ internal static class ProfileRuntime
         return files.OrderBy(file => file.RelativePath, StringComparer.Ordinal).ToList();
     }
 
-    private static IEnumerable<Fact> FrameworkFacts(IEnumerable<ObservedFile> observed, string targetRoot, string snapshot)
+    private static FrameworkDiscovery FrameworkFacts(IEnumerable<ObservedFile> observed, string targetRoot, string snapshot)
     {
         var facts = new List<Fact>();
+        var unsupported = new List<UnsupportedFramework>();
         foreach (var file in observed.Where(item => ManifestExtensions.Contains(Path.GetExtension(item.RelativePath)) || ManifestNames.Contains(Path.GetFileName(item.RelativePath))))
         {
             var name = Path.GetFileName(file.RelativePath);
             var extension = Path.GetExtension(file.RelativePath);
             if (extension is ".csproj" or ".fsproj" or ".vbproj")
             {
-                var text = File.ReadAllText(Path.Combine(targetRoot, file.RelativePath.Replace('/', Path.DirectorySeparatorChar)));
-                var matches = Regex.Matches(text, "<TargetFrameworks?>([^<]+)</TargetFrameworks?>", RegexOptions.CultureInvariant);
-                foreach (Match match in matches)
-                foreach (var framework in match.Groups[1].Value.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-                    facts.Add(new Fact("framework", file.RelativePath, $"dotnet:{framework}", "project-framework", DetectorVersion, snapshot));
+                var analysis = AnalyzeFramework(targetRoot, file.RelativePath);
+                if (analysis.Unsupported)
+                    unsupported.Add(new UnsupportedFramework(file.RelativePath, analysis.SourceRelativePath ?? file.RelativePath, analysis.Message ?? "Unsupported framework declaration."));
+                else
+                    foreach (var framework in analysis.Frameworks)
+                        facts.Add(new Fact("framework", analysis.SourceRelativePath ?? file.RelativePath, $"dotnet:{framework}",
+                            analysis.SourceRelativePath == file.RelativePath ? "project-framework" : "central-props-framework", DetectorVersion, snapshot));
             }
             else if (name.Equals("package.json", StringComparison.OrdinalIgnoreCase))
                 facts.Add(new Fact("framework", file.RelativePath, "node:declared", "package-manifest", DetectorVersion, snapshot));
@@ -589,7 +779,64 @@ internal static class ProfileRuntime
             else if (name.Equals("pom.xml", StringComparison.OrdinalIgnoreCase) || name.StartsWith("build.gradle", StringComparison.OrdinalIgnoreCase))
                 facts.Add(new Fact("framework", file.RelativePath, "jvm:declared", "package-manifest", DetectorVersion, snapshot));
         }
-        return facts;
+        return new FrameworkDiscovery(facts, unsupported);
+    }
+
+    private static FrameworkAnalysis AnalyzeFramework(string targetRoot, string projectRelativePath)
+    {
+        var projectPath = Path.Combine(targetRoot, projectRelativePath.Replace('/', Path.DirectorySeparatorChar));
+        var project = LoadXml(projectPath);
+        var local = FrameworkElements(project).ToArray();
+        if (local.Length > 0) return AnalyzeFrameworkElements(local, projectRelativePath);
+        if (project.Descendants().Any(element => element.Name.LocalName == "Import"))
+            return new FrameworkAnalysis([], projectRelativePath, true, "Explicit project imports are unsupported for inherited framework analysis.");
+        var directory = Path.GetDirectoryName(projectPath)!;
+        while (IsUnder(directory, targetRoot))
+        {
+            var propsPath = Path.Combine(directory, "Directory.Build.props");
+            if (File.Exists(propsPath))
+            {
+                var relative = Path.GetRelativePath(targetRoot, propsPath).Replace('\\', '/');
+                var props = LoadXml(propsPath);
+                if (props.Descendants().Any(element => element.Name.LocalName == "Import"))
+                    return new FrameworkAnalysis([], relative, true, "Directory.Build.props imports are unsupported for framework analysis.");
+                var inherited = FrameworkElements(props).ToArray();
+                if (inherited.Length == 0)
+                    return new FrameworkAnalysis([], relative, true, "Directory.Build.props does not contain a simple literal framework declaration.");
+                return AnalyzeFrameworkElements(inherited, relative);
+            }
+            if (PathEquals(directory, targetRoot)) break;
+            directory = Path.GetDirectoryName(directory)!;
+        }
+        return new FrameworkAnalysis([], projectRelativePath, false, null);
+    }
+
+    private static XDocument LoadXml(string path)
+    {
+        try
+        {
+            var settings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
+            using var reader = XmlReader.Create(path, settings);
+            return XDocument.Load(reader, LoadOptions.None);
+        }
+        catch (Exception ex) when (ex is XmlException or IOException)
+        {
+            throw Invalid($"Project discovery XML is invalid: {Path.GetFileName(path)}: {ex.Message}");
+        }
+    }
+
+    private static IEnumerable<XElement> FrameworkElements(XDocument document) => document.Descendants()
+        .Where(element => element.Name.LocalName is "TargetFramework" or "TargetFrameworks");
+
+    private static FrameworkAnalysis AnalyzeFrameworkElements(IReadOnlyList<XElement> elements, string sourceRelativePath)
+    {
+        if (elements.Count != 1 || elements.Any(element => element.AncestorsAndSelf().Any(ancestor => ancestor.Attribute("Condition") is not null)))
+            return new FrameworkAnalysis([], sourceRelativePath, true, "Conditional or ambiguous target-framework declarations are unsupported.");
+        var values = elements[0].Value.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (values.Length == 0 || values.Any(value => value.Contains("$(", StringComparison.Ordinal) ||
+            !Regex.IsMatch(value, "^[A-Za-z0-9][A-Za-z0-9._-]*$", RegexOptions.CultureInvariant)))
+            return new FrameworkAnalysis([], sourceRelativePath, true, "Expression-based or non-literal target-framework declarations are unsupported.");
+        return new FrameworkAnalysis(values, sourceRelativePath, false, null);
     }
 
     private static IEnumerable<Fact> RootFacts(IEnumerable<ObservedFile> observed, string snapshot)
@@ -612,31 +859,54 @@ internal static class ProfileRuntime
         }
     }
 
-    private static JsonArray Questions(IReadOnlyList<ObservedFile> observed, IReadOnlyList<Fact> facts, IReadOnlyDictionary<string, ModuleInfo> modules)
+    private static JsonArray Questions(IReadOnlyList<ObservedFile> observed, IReadOnlyList<Fact> facts,
+        IReadOnlyDictionary<string, ModuleInfo> modules, string targetRoot, IReadOnlyList<UnsupportedFramework> unsupportedFrameworks)
     {
         var questions = new List<JsonObject>();
-        var projects = observed.Where(file => new[] { ".sln", ".slnx", ".csproj", ".fsproj", ".vbproj" }
+        var projects = observed.Where(file => new[] { ".csproj", ".fsproj", ".vbproj" }
             .Contains(Path.GetExtension(file.RelativePath), StringComparer.OrdinalIgnoreCase)).Select(file => file.RelativePath).ToArray();
-        if (projects.Length > 1)
-            questions.Add(Question("ambiguous-project-root", "ambiguous-project", projects, "Multiple project or solution manifests require an explicit project-root decision."));
+        var rootSolutions = observed.Where(file => !file.RelativePath.Contains('/') && Path.GetExtension(file.RelativePath) is ".sln" or ".slnx").ToArray();
+        var covering = rootSolutions.Where(solution => SolutionProjects(Path.Combine(targetRoot, solution.RelativePath.Replace('/', Path.DirectorySeparatorChar)))
+            .Order(StringComparer.Ordinal).SequenceEqual(projects.Order(StringComparer.Ordinal), StringComparer.Ordinal)).ToArray();
+        if (covering.Length == 1 && projects.Length > 0)
+            questions.Add(Question("root-solution-project-root", "ambiguous-project", [covering[0].RelativePath],
+                "One root solution covers every discovered project; '.' is a reviewable project-root candidate, not an automatic policy decision.", ["."]));
+        else if (projects.Length > 1)
+            questions.Add(Question("ambiguous-project-root", "ambiguous-project", projects,
+                "Multiple project manifests require an explicit project-root decision.", projects.Select(Path.GetDirectoryName).Where(value => !string.IsNullOrWhiteSpace(value)).Select(value => value!.Replace('\\','/')).Distinct(StringComparer.Ordinal)));
+        foreach (var unsupported in unsupportedFrameworks.OrderBy(item => item.ProjectPath, StringComparer.Ordinal))
+            questions.Add(Question($"unsupported-framework-{HashText(unsupported.ProjectPath)[..12]}", "unsupported-manifest", [unsupported.SourcePath],
+                unsupported.Message, ["remain-unprotected", "supply-explicit-human-framework-policy"]));
         var frameworks = facts.Where(fact => fact.Kind == "framework").Select(fact => fact.NormalizedValue).Distinct(StringComparer.Ordinal).ToArray();
         if (frameworks.Length > 1)
             questions.Add(Question("ambiguous-framework-set", "ambiguous-framework",
                 facts.Where(fact => fact.Kind == "framework").Select(fact => fact.SourcePath).Distinct(StringComparer.Ordinal).ToArray(),
-                "Multiple declared framework families require explicit coverage review."));
+                "Multiple declared framework families require explicit coverage review.", frameworks));
         var hasDotNet = facts.Any(fact => fact.Kind == "language" && fact.NormalizedValue is "csharp" or "fsharp" or "visual-basic");
         if (hasDotNet && modules.ContainsKey("architecture-conformance") && modules.ContainsKey("build-evidence-provider"))
             questions.Add(Question("ambiguous-module-dotnet-coverage", "ambiguous-module", projects,
-                "Installed .NET-related Modules are recommendations only; a human must decide their policy role."));
+                "Installed .NET-related Modules are recommendations only; a human must decide their policy role.", ["select-none", "architecture-conformance", "build-evidence-provider"]));
         return new JsonArray(questions.OrderBy(item => RequiredString(item, "id"), StringComparer.Ordinal).Select(item => (JsonNode)item).ToArray());
     }
 
-    private static JsonObject Question(string id, string kind, IEnumerable<string> sourcePaths, string message) => new()
+    private static string[] SolutionProjects(string path)
+    {
+        var directory = Path.GetDirectoryName(path)!;
+        return Regex.Matches(File.ReadAllText(path), "\"([^\"]+\\.(?:cs|fs|vb)proj)\"", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+            .Select(match => Path.GetRelativePath(Path.GetDirectoryName(path)!, Path.GetFullPath(Path.Combine(directory, match.Groups[1].Value)))
+                .Replace('\\','/')).Distinct(StringComparer.Ordinal).ToArray();
+    }
+
+    private static JsonObject Question(string id, string kind, IEnumerable<string> sourcePaths, string message, IEnumerable<string> candidateValues) => new()
     {
         ["id"] = id,
         ["kind"] = kind,
         ["sourcePaths"] = new JsonArray(sourcePaths.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).Select(path => (JsonNode)path).ToArray()),
-        ["message"] = message
+        ["message"] = message,
+        ["humanExplanation"] = "Host observations do not decide project or protection policy.",
+        ["safeDefault"] = "unresolved-unprotected",
+        ["candidateValues"] = new JsonArray(candidateValues.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).Select(value => (JsonNode)value).ToArray()),
+        ["nextAction"] = "Review the evidence and record an explicit human decision in the candidate and accepted review."
     };
 
     private static JsonArray Recommendations(JsonObject discovery, string packageRoot)
@@ -872,6 +1142,39 @@ internal static class ProfileRuntime
     private static bool PathEquals(string left, string right) => string.Equals(Path.TrimEndingDirectorySeparator(Path.GetFullPath(left)),
         Path.TrimEndingDirectorySeparator(Path.GetFullPath(right)), OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
 
+    private static void WriteStateDirectory(string destination, IReadOnlyDictionary<string, string> files)
+    {
+        var parent = Path.GetDirectoryName(destination) ?? throw Unsafe("State output has no parent directory.");
+        Directory.CreateDirectory(parent);
+        EnsureNoLinks(parent, "State output parent");
+        if (Directory.Exists(destination))
+        {
+            foreach (var entry in files)
+            {
+                var existing = Path.Combine(destination, entry.Key);
+                if (!File.Exists(existing) || File.ReadAllText(existing) != entry.Value)
+                    throw Conflict($"Existing deterministic State output differs: {existing}");
+            }
+            return;
+        }
+        var temporary = Path.Combine(parent, $".profile-state-{Guid.NewGuid():N}");
+        try
+        {
+            Directory.CreateDirectory(temporary);
+            foreach (var entry in files)
+                File.WriteAllText(Path.Combine(temporary, entry.Key), entry.Value, new UTF8Encoding(false));
+            Directory.Move(temporary, destination);
+        }
+        finally { if (Directory.Exists(temporary)) Directory.Delete(temporary, true); }
+    }
+
+    private static void EnsureTargetUnchanged(DraftContext context)
+    {
+        var after = Discover(context.PackageRoot, context.TargetRoot);
+        if (RequiredString(after["target"]!.AsObject(), "snapshotSha256") != context.TargetSnapshot)
+            throw Conflict("Target snapshot changed during the StateRoot operation.");
+    }
+
     private static void WriteNewOrSame(string path, string text)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
@@ -922,7 +1225,12 @@ internal static class ProfileRuntime
 
     private sealed record ObservedFile(string RelativePath, string Sha256, long Size);
     private sealed record Fact(string Kind, string SourcePath, string NormalizedValue, string DetectorId, string DetectorVersion, string TargetSnapshotSha256);
+    private sealed record FrameworkAnalysis(string[] Frameworks, string? SourceRelativePath, bool Unsupported, string? Message);
+    private sealed record UnsupportedFramework(string ProjectPath, string SourcePath, string Message);
+    private sealed record FrameworkDiscovery(IReadOnlyList<Fact> Facts, IReadOnlyList<UnsupportedFramework> Unsupported);
     private sealed record ModuleInfo(string Id, string ManifestPath, string ManifestSha256, JsonObject Manifest, JsonObject AllowedCapabilities, string ConfigSchema);
+    private sealed record DraftContext(string PackageRoot, string TargetRoot, string StateRoot, string DraftPath,
+        string StoredDiscoveryPath, JsonObject Draft, string DiscoveryHash, string TargetSnapshot);
     private sealed record ReviewContext(string PackageRoot, string TargetRoot, string StateRoot, string DraftPath, string ReviewPath, JsonObject Draft, JsonObject Review);
 
     private sealed class Arguments(string operation, Dictionary<string, string> values)
@@ -931,7 +1239,7 @@ internal static class ProfileRuntime
 
         public static Arguments Parse(string[] args)
         {
-            if (args.Length < 2 || args[0] != "profile") throw Invalid("Expected 'profile <discover|draft|validate|promote>'.");
+            if (args.Length < 2 || args[0] != "profile") throw Invalid("Expected 'profile <discover|draft|configure|review-template|validate|promote>'.");
             var values = new Dictionary<string, string>(StringComparer.Ordinal);
             for (var index = 2; index < args.Length; index += 2)
             {

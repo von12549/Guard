@@ -4,8 +4,9 @@ The M3 Workbench expands the existing separately packaged Web Companion. It rema
 presentation and orchestration surface over the V4 Host; it is not a second setup engine, policy judge
 or remote control plane.
 
-M3 is present in the 1.2.0 source candidate and is not in the latest formal 1.1.6 release. Preview or confirmation evidence
-does not mean Target adoption, CI activation, remote enablement or publication.
+The latest formal release is 1.2.0. The unpublished 1.2.1 local candidate adds a typed First onboarding
+stepper. Preview or confirmation evidence does not mean Target adoption, CI activation, remote
+enablement, publication or human acceptance.
 
 ## Host operation
 
@@ -17,6 +18,21 @@ v4-guards application preview \
   --package-root <path> --target-root <path> \
   --state-root <path> --evidence-root <path> --plan-root <relative-path>
 ```
+
+Onboarding also uses `application setup-progress` and `application setup-action`. Progress has exactly
+eight Host-derived steps: installation integrity, PATH/profile safety, roots, Target snapshot,
+discovery, Draft, configure and review-template. Status is count-based (`not-started`, `running`,
+`pass`, `needs-decision` or `blocked`) and never invents a percentage.
+
+The first five steps are not a fixed baseline. Installation passes only after current package/contract
+validation; the remaining four stay blocked until StateRoot contains a fresh hash-only safety proof
+bound to the current package, project and Target snapshot. The proof compares unexpanded persistent
+User/Machine environment state, Process PATH and all four PowerShell profile locations. Any mismatch
+is a host-safety incident and no later step is counted as complete.
+
+Every setup action is typed and preview-first. Apply must present the exact preview identity binding the
+operation, project, form choices, Target snapshot and package authority; drift returns exit 17
+`state-conflict` (HTTP 409). The only permitted writes are new artifacts below StateRoot.
 
 The launcher fixes every root before the browser connects. Browser requests contain only one
 startup-registered project ID and one of the four operation IDs. There is no raw Host argument,
@@ -31,8 +47,14 @@ Each Host result binds:
 - the strict operation payload; and
 - a SHA-256 preview identity over all of those values.
 
+Candidate configuration is claim-specific: `ARCH.PROJECT_REFERENCE` requires an explicit non-empty
+forbidden-reference list, `ARCH.TARGET_FRAMEWORK` requires an explicit non-empty framework list, and
+`ARCH.GRAPH_COMPLETENESS` sets `requireResolvedProjectReferences=true`. Adapter coverage is emitted
+only after the corresponding semantic check is configured and executed.
+
 The experimental schema catalog at `core/application/contracts/application-service-contract.json`
-hash-binds the envelope and four payload contracts without changing the frozen stable CLI contract.
+hash-binds all ten application/onboarding schemas. New CLI entries remain experimental; the stable
+API version and stable command semantics are unchanged.
 
 ## Protection semantics
 
@@ -56,6 +78,11 @@ evidence. A local pass, workflow file or default/no-op Profile cannot produce a 
 HTTP-only same-site session cookie, exact loopback Host and Origin, the session's independent
 `X-V4-CSRF` token and the 4 KiB server body limit. Both share the existing serial run gate and propagate
 client cancellation to the Host process.
+
+`GET /api/v1/onboarding/progress/{projectId}` and `POST /api/v1/onboarding/action` use the same session,
+Origin, CSRF, body-size and single-run controls. The action endpoint accepts only the exact typed
+project/operation/mode/preview/profile/project-root/claim/framework/project-reference-policy fields. Unknown properties,
+including raw paths, executable names, Host arguments, shell text or environment values, are rejected.
 
 Confirmation reruns the same Host preview. A changed package, Target snapshot, project or payload
 returns `409 stale-preview`. A matching preview produces a process-local receipt that binds the exact

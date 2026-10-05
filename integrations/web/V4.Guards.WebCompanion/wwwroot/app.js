@@ -34,6 +34,18 @@ const applicationPreview = document.querySelector("#application-preview");
 const previewProof = document.querySelector("#preview-proof");
 const confirmPreview = document.querySelector("#confirm-preview");
 const applicationReceipt = document.querySelector("#application-receipt");
+const onboardingCount = document.querySelector("#onboarding-count");
+const onboardingSteps = document.querySelector("#onboarding-steps");
+const onboardingAction = document.querySelector("#onboarding-action");
+const onboardingProfile = document.querySelector("#onboarding-profile");
+const onboardingRoot = document.querySelector("#onboarding-root");
+const onboardingFrameworks = document.querySelector("#onboarding-frameworks");
+const onboardingProjectReferences = document.querySelector("#onboarding-project-references");
+const onboardingPreview = document.querySelector("#onboarding-preview");
+const onboardingApply = document.querySelector("#onboarding-apply");
+const onboardingConclusion = document.querySelector("#onboarding-conclusion");
+const onboardingMachine = document.querySelector("#onboarding-machine");
+const onboardingJson = document.querySelector("#onboarding-json");
 
 let workspace = null;
 let selectedStage = "analysis";
@@ -47,6 +59,7 @@ let inspectionVersion = 0;
 let csrfToken = null;
 let selectedOperation = "protection";
 let lastApplicationPreview = null;
+let lastOnboardingPreview = null;
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -160,6 +173,96 @@ function setBusy(value) {
   renderStages();
   for (const button of operationChoices) button.disabled = value || !workspace;
   confirmPreview.disabled = value || !lastApplicationPreview;
+  onboardingPreview.disabled = value || !workspace;
+  onboardingApply.disabled = value || !lastOnboardingPreview;
+}
+
+function onboardingRequest(mode, previewHash = null) {
+  const claims = [...document.querySelectorAll('input[name="onboarding-claim"]:checked')].map((input) => input.value);
+  const allowedFrameworks = claims.includes("ARCH.TARGET_FRAMEWORK")
+    ? onboardingFrameworks.value.split(",").map((value) => value.trim()).filter(Boolean)
+    : [];
+  const forbiddenProjectReferences = claims.includes("ARCH.PROJECT_REFERENCE")
+    ? onboardingProjectReferences.value.split(",").map((value) => value.trim()).filter(Boolean)
+    : [];
+  return {
+    formatVersion: 1,
+    actionId: onboardingAction.value,
+    mode,
+    projectId: currentTarget()?.projectId,
+    profileId: onboardingProfile.value || null,
+    projectRoot: onboardingRoot.value || null,
+    enabledClaims: claims,
+    allowedFrameworks,
+    forbiddenProjectReferences,
+    previewHash
+  };
+}
+
+function renderOnboardingProgress(progress) {
+  onboardingCount.textContent = `${progress.completedStepCount} / ${progress.totalStepCount} complete · ${progress.currentHostOperation}`;
+  onboardingSteps.replaceChildren();
+  for (const step of progress.steps) {
+    const item = element("li", step.status, `${step.id} · ${step.status}`);
+    item.append(element("small", "", `${step.humanConclusion} ${step.safeRecoveryHint}`));
+    if (step.machineErrorCategory) item.append(element("small", "", `Machine: ${step.machineErrorCategory} · exit ${step.exitCode}`));
+    if (step.evidencePaths.length) item.append(element("small", "", `Evidence: ${step.evidencePaths.join(", ")}`));
+    onboardingSteps.append(item);
+  }
+  if (["path-profile-safety", "draft", "configure", "review-template"].includes(progress.currentHostOperation)) onboardingAction.value = progress.currentHostOperation;
+}
+
+function renderOnboardingResult(result) {
+  onboardingConclusion.textContent = result.humanConclusion;
+  onboardingMachine.replaceChildren(
+    proofRow("Status", result.status),
+    proofRow("Host operation", result.currentHostOperation),
+    proofRow("Machine", `${result.machine.exitCategory} · exit ${result.machine.exitCode}`),
+    proofRow("Recovery", result.safeRecoveryHint),
+    proofRow("Evidence", result.evidencePaths.length ? result.evidencePaths.join(", ") : "No StateRoot artifact written")
+  );
+  onboardingJson.textContent = JSON.stringify(result, null, 2);
+}
+
+async function refreshOnboarding() {
+  const target = currentTarget();
+  if (!target) return;
+  try {
+    const response = await fetch(`/api/v1/onboarding/progress/${encodeURIComponent(target.projectId)}`, { credentials: "same-origin" });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.message || `HTTP ${response.status}`);
+    renderOnboardingProgress(payload);
+  } catch (error) {
+    onboardingCount.textContent = "Onboarding blocked";
+    onboardingSteps.replaceChildren(element("li", "blocked", error.message));
+  }
+}
+
+async function runOnboardingAction(mode) {
+  const target = currentTarget();
+  if (!target || !csrfToken) return;
+  const previewHash = mode === "apply" ? lastOnboardingPreview?.previewHash || null : null;
+  setBusy(true);
+  onboardingConclusion.textContent = mode === "apply" ? "Waiting for stale-refusing Host apply…" : "Waiting for Host-bound preview…";
+  try {
+    const response = await fetch("/api/v1/onboarding/action", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", "X-V4-CSRF": csrfToken },
+      body: JSON.stringify(onboardingRequest(mode, previewHash))
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.message || `HTTP ${response.status}`);
+    renderOnboardingResult(payload);
+    lastOnboardingPreview = mode === "preview" ? payload : null;
+    onboardingApply.disabled = mode !== "preview";
+    if (mode === "apply") await refreshOnboarding();
+  } catch (error) {
+    lastOnboardingPreview = null;
+    onboardingApply.disabled = true;
+    onboardingConclusion.textContent = `Blocked: ${error.message}`;
+    onboardingJson.textContent = JSON.stringify({ status: "blocked", message: error.message }, null, 2);
+  } finally { setBusy(false); }
 }
 
 function resetApplicationPreview(message = "Select an operation above") {
@@ -707,6 +810,7 @@ async function selectTarget(projectId) {
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.message || `HTTP ${response.status}`);
     await refreshWorkspace();
+    await refreshOnboarding();
     showResult(payload, "The active Target changed by Host-derived project ID.");
     resetInspection();
     resetApplicationPreview("Target changed; request a fresh preview");
@@ -727,6 +831,7 @@ async function connect() {
     await refreshWorkspace();
     setBusy(false);
     setConnection("ready", "Loopback workspace ready");
+    await refreshOnboarding();
     await refreshInspection();
   } catch (error) {
     setConnection("error", "Companion unavailable");
@@ -744,6 +849,11 @@ runsTab.addEventListener("click", () => selectInspectionMode("runs"));
 plansTab.addEventListener("click", () => selectInspectionMode("plans"));
 for (const button of operationChoices) button.addEventListener("click", () => loadApplicationPreview(button.dataset.operation));
 confirmPreview.addEventListener("click", confirmApplicationPreview);
+onboardingPreview.addEventListener("click", () => runOnboardingAction("preview"));
+onboardingApply.addEventListener("click", () => runOnboardingAction("apply"));
+for (const input of [onboardingAction, onboardingProfile, onboardingRoot, onboardingFrameworks, ...document.querySelectorAll('input[name="onboarding-claim"]')]) {
+  input.addEventListener("change", () => { lastOnboardingPreview = null; onboardingApply.disabled = true; });
+}
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();

@@ -7,6 +7,9 @@ The stable V4 1.0 command API and local, non-authoritative Web Companion are pre
 
 The latest formal release is **1.2.0**, published from exact commit
 `cf8a9cb631e120309568f18ac965540e381f8027` as annotated tag `v4-guards-v1.2.0`.
+This branch prepares the unpublished local **1.2.1 candidate** that repairs installed onboarding and
+adds typed Profile configuration/review-template steps. It is not a tag, Release, consumer adoption or
+authorization to start IFX P03.
 Local success or a promotion candidate is still not consumer adoption, trusted CI enablement or remote
 activation. See the [completed remediation and release program](docs/plans/20261001-m1-m5-remediation-and-1-2-0-release.md)
 and [final release report](docs/plans/20261002-v4-guards-1-2-0-release-report.md).
@@ -110,8 +113,8 @@ v4-guards query <project|profiles|doctor|runs|evidence|plans> ...
 v4-guards plan <validate|compose> ...
 v4-guards plan <scaffold|finalize|verify-pair> ...
 v4-guards target-trust <authorize|validate> ...
-v4-guards profile <discover|draft|validate|promote> ...
-v4-guards application preview --operation <setup|protection|authorities|lifecycle> ...
+v4-guards profile <discover|draft|configure|review-template|validate|promote> ...
+v4-guards application <preview|setup-progress|setup-action> ...
 v4-guards reset <project|factory> --mode <preview|apply> ...
 ```
 
@@ -119,7 +122,8 @@ Use [commands.md](docs/commands.md) for stable syntax and [queries.md](docs/quer
 experimental read-only query surface. A Stage can run directly; dependency execution occurs only when
 explicitly requested and is reported in order.
 
-The `profile` and `application` entries are experimental M2/M3 surfaces shipped in 1.2.0. Use the exact
+The `profile` and `application` entries are experimental M2/M3 surfaces. The 1.2.1 candidate adds the
+typed onboarding operations while retaining the 1.2.0 authority boundaries. Use the exact
 Profile syntax in
 [Profile discovery and reviewed promotion](docs/profile-authority.md) and the typed preview syntax in
 [Local application Workbench](docs/application-workbench.md). Neither surface applies Target changes,
@@ -171,6 +175,25 @@ It is a presentation/control surface, not a policy or verdict authority. It prov
 input, authority or Plan editing, Target mutation, Reset, Git/PR operation, terminal/raw arguments,
 remote access, automatic extension installation, multi-project parallelism or IFX-specific action.
 See the [Web Companion guide](integrations/web/README.md).
+
+For a new project, the primary supported onboarding path is one installed-launcher command followed by
+typed browser forms (replace the four local paths):
+
+```powershell
+pwsh -NoProfile -File <install>\package\guard-web.ps1 `
+  -PrerequisiteReportPath <state>\web-prerequisites.json `
+  --target-root <repository> --state-root <state> --evidence-root <evidence> --plan-root plans
+```
+
+The **First onboarding** stepper verifies installation, then captures a current hash-only
+User/Machine-environment, Process-PATH and PowerShell-profile proof bound to the package, project and
+Target before roots/discovery may pass. It creates a Draft, validates a separate candidate, and writes
+an intentionally incomplete human-review template below StateRoot. Project-reference checks require
+an explicit non-empty forbidden-reference policy; graph-completeness checks require resolved project
+references, and target-framework checks require an explicit framework policy. The browser cannot
+submit raw paths, Host arguments, shell text, environment values, Target writes, activation, remote
+changes or human acceptance. The public Host launcher no longer accepts a wrapper `-Profile` trick
+for discovery or drafting.
 
 ## Validation and development
 
