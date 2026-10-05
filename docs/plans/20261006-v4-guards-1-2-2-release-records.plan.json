@@ -1,0 +1,40 @@
+{
+  "formatVersion": 1,
+  "id": "20261006-v4-guards-1-2-2-release-records",
+  "title": "Record V4 Guards 1.2.2 publication and verification",
+  "goal": "Capture the exact 1.2.2 release commit, certification, immutable asset identities, safety checkpoints and fresh-download Windows/Linux verification without changing published bytes.",
+  "acceptanceCriteria": [
+    "The report records the repair and release-preparation PRs, exact release source, annotated tag and non-draft, non-prerelease GitHub Release with exactly four assets.",
+    "The report records passing full Guardrails and dual-platform Certification, matching source packageHash, both RID package identities, archive SHA-256 values and recovery source.",
+    "The report records byte-identical independent builds plus fresh-download hash, install, public API, four Stage, Companion and verified-uninstall results on Windows and network-isolated Linux.",
+    "The report preserves P03 FAIL, A1/B3 gaps and the absence of IFX adoption or protection; base-owned Contract, Linux, package, Windows and required checks pass."
+  ],
+  "plannedPaths": [
+    "README.md",
+    "docs/1.2.2-release-notes.md",
+    "docs/plans/20261006-v4-guards-1-2-2-release.md",
+    "docs/plans/20261006-v4-guards-1-2-2-release-records.md",
+    "docs/plans/20261006-v4-guards-1-2-2-release-records.plan.json",
+    "docs/plans/20261006-v4-guards-1-2-2-release-report.md",
+    "docs/plans/README.md"
+  ],
+  "areas": ["GuardDocs"],
+  "risks": [
+    "Confusing the clean source packageHash, RID package identity and ZIP hash would misstate provenance.",
+    "Post-publication status documentation changes current main package identity but must not be confused with or replace the immutable release source and assets."
+  ],
+  "decisions": [
+    "Record the release source as the tag's peeled commit and preserve all published bytes.",
+    "Disclose the superseded local preflight identity caused by ignored diagnostic obj output; use only the clean identity that matches both platform reports.",
+    "Preserve P03 FAIL and keep consumer adoption and activation separately governed."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-windows when selected by the trusted-base Contract",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

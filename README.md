@@ -1,14 +1,15 @@
 # V4 Guards
 
 V4 Guards is a self-contained, profile-driven guard package for inspecting repositories through four
-independently runnable stages: Bootstrap, Analysis, Pre and Post. Current source is the `1.2.2`
-P04 release candidate; the published `1.2.1` release and earlier releases remain immutable.
+independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.2.2` is published from
+immutable tag `v4-guards-v1.2.2`; the `1.2.1` release and earlier releases remain immutable.
 The stable V4 1.0 command API and local, non-authoritative Web Companion are preserved.
 
 Version **1.2.2** repairs proof expiry recovery, stale browser state, the first installed Companion
 command and preflight safety evidence. Its exact source, certification and assets are governed by the
-[1.2.2 release Plan](docs/plans/20261006-v4-guards-1-2-2-release.md). The 1.2.1 release remains
-available at its immutable tag `v4-guards-v1.2.1`.
+[1.2.2 release Plan](docs/plans/20261006-v4-guards-1-2-2-release.md) and
+[final release report](docs/plans/20261006-v4-guards-1-2-2-release-report.md). The 1.2.1 release
+remains available at its immutable tag `v4-guards-v1.2.1`.
 Local success or a promotion candidate is still not consumer adoption, trusted CI enablement or remote
 activation. See the [completed remediation and release program](docs/plans/20261001-m1-m5-remediation-and-1-2-0-release.md)
 and [final release report](docs/plans/20261002-v4-guards-1-2-0-release-report.md).
