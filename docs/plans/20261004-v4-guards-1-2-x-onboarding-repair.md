@@ -1,6 +1,6 @@
 # V4 Guards 1.2.x onboarding, Profile authoring and UI-first repair
 
-Status: `IMPLEMENTATION COMPLETE — 12/12 PLAN GATES PASS; READY FOR HUMAN RETEST 2026-10-05`
+Status: `IMPLEMENTATION IN PROGRESS — REMOTE MAIN PLAN RECONCILIATION 2026-10-05`
 
 Formal Plan ID: `20261004-v4-guards-1-2-x-onboarding-repair`.
 
@@ -178,6 +178,13 @@ identity and launcher validation cannot be satisfied if the installer accepts a 
 resolver must reject. The amendment only enforces the existing manifest/archive root identity before
 extraction; it does not relax layout verification or add a new installation mode.
 
+Plan-path amendment (remote-main reconciliation):
+`.gitignore` is included because the preserved local host-safety commit that excludes generated fixture
+`obj` directories is part of the candidate diff from trusted base `333d4583778ed5300dd0cdb120f5170a7a92bb75`.
+Nine build/validation source paths that are exercised but byte-identical to that trusted base are removed
+from `plannedPaths`; validation commands remain unchanged. The branch already descends from remote main,
+so no synthetic merge commit or history rewrite is required.
+
 ## Acceptance gates
 
 1. `version` and Profile onboarding work through the single public installed launcher without a wrapper
@@ -214,8 +221,9 @@ extraction; it does not relax layout verification or add a new installation mode
   mismatch leaves no InstallRoot, receipt or temporary extraction directory.
 - Correct-root install, `pwsh -File` and literal call-operator version, structured same-process stderr and
   verified uninstall pass with unchanged segmented environment/profile hashes.
-- The focused regressions and all 12 formal validation commands pass, including the clean-commit
-  independent distribution build. This is ready for human retest, not IFX acceptance or release authority.
+- The focused regressions and all 12 formal validation commands passed before remote delivery. PR CI then
+  exposed a trusted-base Plan-set mismatch after remote main coordination. Human retest is paused until
+  the exact-diff contract, full gates, final source-bound candidate and required PR checks pass again.
 
 ## Recovery and stop conditions
 
