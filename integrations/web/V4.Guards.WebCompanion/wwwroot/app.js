@@ -41,6 +41,17 @@ const onboardingProfile = document.querySelector("#onboarding-profile");
 const onboardingRoot = document.querySelector("#onboarding-root");
 const onboardingFrameworks = document.querySelector("#onboarding-frameworks");
 const onboardingProjectReferences = document.querySelector("#onboarding-project-references");
+const onboardingProfileFields = document.querySelector("#onboarding-profile-fields");
+const onboardingConfigureFields = document.querySelector("#onboarding-configure-fields");
+const onboardingFrameworkFields = document.querySelector("#onboarding-framework-fields");
+const onboardingReferenceFields = document.querySelector("#onboarding-reference-fields");
+const onboardingStepTitle = document.querySelector("#onboarding-step-title");
+const onboardingStepPurpose = document.querySelector("#onboarding-step-purpose");
+const onboardingStepNext = document.querySelector("#onboarding-step-next");
+const onboardingRoots = document.querySelector("#onboarding-roots");
+const onboardingProofTime = document.querySelector("#onboarding-proof-time");
+const onboardingPreflight = document.querySelector("#onboarding-preflight");
+const onboardingWritePreview = document.querySelector("#onboarding-write-preview");
 const onboardingPreview = document.querySelector("#onboarding-preview");
 const onboardingApply = document.querySelector("#onboarding-apply");
 const onboardingConclusion = document.querySelector("#onboarding-conclusion");
@@ -60,6 +71,24 @@ let csrfToken = null;
 let selectedOperation = "protection";
 let lastApplicationPreview = null;
 let lastOnboardingPreview = null;
+let trustedRoots = [];
+let currentSafetyProof = null;
+let onboardingVersion = 0;
+let activeOnboardingRequest = 0;
+let progressVersion = 0;
+let proofExpiryTimer = null;
+
+const setupGuidance = {
+  "path-profile-safety": ["1. Verify host safety", "Compare User and Machine environment, Process PATH and four PowerShell Profiles. This writes a time-limited hash-only proof to StateRoot.", "Preview, then explicitly Apply verification. A renewed proof requires a new Preview for later steps."],
+  draft: ["2. Name a Draft", "Choose a candidate Profile identity. The Draft is non-authoritative and leaves the Target unchanged.", "Preview, then Apply the Draft to StateRoot."],
+  configure: ["3. Configure a candidate", "Select only the claims you intend to propose. Each selected claim needs its own policy.", "Preview the proposed files, then Apply to StateRoot. The candidate remains unprotected."],
+  "review-template": ["4. Create review template", "Create an incomplete template for later human review; it cannot grant protection.", "Preview, then Apply the incomplete template to StateRoot."]
+};
+const setupStepNames = {
+  "installation-integrity": "Installation check", "path-profile-safety": "Host safety",
+  roots: "File boundaries", "target-snapshot": "Target snapshot", discovery: "Project discovery",
+  draft: "Profile Draft", configure: "Candidate configuration", "review-template": "Human review template"
+};
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -107,6 +136,7 @@ function renderTargets() {
     targetList.append(button);
   }
   activeTarget.textContent = currentTarget()?.targetRoot || "No active Target";
+  renderRootBoundaries();
 }
 
 function renderProfiles() {
@@ -177,8 +207,33 @@ function setBusy(value) {
   onboardingApply.disabled = value || !lastOnboardingPreview;
 }
 
-function onboardingRequest(mode, previewHash = null) {
+function renderRootBoundaries() {
+  onboardingRoots.replaceChildren(element("h4", "", "Actual file boundaries"));
+  for (const root of trustedRoots) {
+    const row = element("div", "root-row");
+    const path = root.name === "TargetRoot" ? currentTarget()?.targetRoot || root.path : root.path;
+    row.append(element("strong", "", `${root.name} · ${root.access}`), element("code", "", path));
+    onboardingRoots.append(row);
+  }
+}
+
+function renderOnboardingFields() {
+  const action = onboardingAction.value;
+  onboardingProfileFields.hidden = !["draft", "configure", "review-template"].includes(action);
+  onboardingConfigureFields.hidden = action !== "configure";
   const claims = [...document.querySelectorAll('input[name="onboarding-claim"]:checked')].map((input) => input.value);
+  onboardingFrameworkFields.hidden = action !== "configure" || !claims.includes("ARCH.TARGET_FRAMEWORK");
+  onboardingReferenceFields.hidden = action !== "configure" || !claims.includes("ARCH.PROJECT_REFERENCE");
+  const [title, purpose, next] = setupGuidance[action] || ["Choose a step", "Host progress selects the next step.", "Refresh progress."];
+  onboardingStepTitle.textContent = title;
+  onboardingStepPurpose.textContent = purpose;
+  onboardingStepNext.textContent = next;
+}
+
+function onboardingRequest(mode, previewHash = null) {
+  const action = onboardingAction.value;
+  const claims = action === "configure"
+    ? [...document.querySelectorAll('input[name="onboarding-claim"]:checked')].map((input) => input.value) : [];
   const allowedFrameworks = claims.includes("ARCH.TARGET_FRAMEWORK")
     ? onboardingFrameworks.value.split(",").map((value) => value.trim()).filter(Boolean)
     : [];
@@ -187,11 +242,11 @@ function onboardingRequest(mode, previewHash = null) {
     : [];
   return {
     formatVersion: 1,
-    actionId: onboardingAction.value,
+    actionId: action,
     mode,
     projectId: currentTarget()?.projectId,
-    profileId: onboardingProfile.value || null,
-    projectRoot: onboardingRoot.value || null,
+    profileId: ["draft", "configure", "review-template"].includes(action) ? onboardingProfile.value || null : null,
+    projectRoot: action === "configure" ? onboardingRoot.value || null : null,
     enabledClaims: claims,
     allowedFrameworks,
     forbiddenProjectReferences,
@@ -200,16 +255,36 @@ function onboardingRequest(mode, previewHash = null) {
 }
 
 function renderOnboardingProgress(progress) {
+  currentSafetyProof = progress.safetyProof;
   onboardingCount.textContent = `${progress.completedStepCount} / ${progress.totalStepCount} complete · ${progress.currentHostOperation}`;
   onboardingSteps.replaceChildren();
   for (const step of progress.steps) {
-    const item = element("li", step.status, `${step.id} · ${step.status}`);
+    const item = element("li", step.status, `${setupStepNames[step.id] || step.id}: ${step.status.replaceAll("-", " ")}`);
     item.append(element("small", "", `${step.humanConclusion} ${step.safeRecoveryHint}`));
     if (step.machineErrorCategory) item.append(element("small", "", `Machine: ${step.machineErrorCategory} · exit ${step.exitCode}`));
     if (step.evidencePaths.length) item.append(element("small", "", `Evidence: ${step.evidencePaths.join(", ")}`));
     onboardingSteps.append(item);
   }
   if (["path-profile-safety", "draft", "configure", "review-template"].includes(progress.currentHostOperation)) onboardingAction.value = progress.currentHostOperation;
+  renderOnboardingFields();
+  const proof = progress.safetyProof;
+  onboardingProofTime.textContent = proof.capturedAtUtc
+    ? `Proof captured ${proof.capturedAtUtc}; expires ${proof.expiresAtUtc}. ${proof.valid ? "Currently valid." : proof.category + ". " + proof.recovery}`
+    : `Safety proof: ${proof.category}. ${proof.recovery}`;
+  if (proofExpiryTimer) clearTimeout(proofExpiryTimer);
+  if (proof.valid && proof.expiresAtUtc) {
+    const delay = Date.parse(proof.expiresAtUtc) - Date.now();
+    if (Number.isFinite(delay) && delay > 0) proofExpiryTimer = setTimeout(() => {
+      onboardingVersion++;
+      lastOnboardingPreview = null;
+      onboardingApply.disabled = true;
+      refreshOnboarding();
+    }, delay);
+  }
+  if (!proof.valid && lastOnboardingPreview?.actionId !== "path-profile-safety") {
+    lastOnboardingPreview = null;
+    onboardingApply.disabled = true;
+  }
 }
 
 function renderOnboardingResult(result) {
@@ -219,22 +294,47 @@ function renderOnboardingResult(result) {
     proofRow("Host operation", result.currentHostOperation),
     proofRow("Machine", `${result.machine.exitCategory} · exit ${result.machine.exitCode}`),
     proofRow("Recovery", result.safeRecoveryHint),
+    proofRow("Planned StateRoot files", result.plannedOutputs?.length ? result.plannedOutputs.join(", ") : "None"),
     proofRow("Evidence", result.evidencePaths.length ? result.evidencePaths.join(", ") : "No StateRoot artifact written")
   );
+  onboardingWritePreview.textContent = result.status === "running"
+    ? `Preview only — no files written. Planned below StateRoot: ${result.plannedOutputs?.join(", ") || "none"}.`
+    : `Apply result below StateRoot: ${result.evidencePaths.join(", ") || "no new artifact"}.`;
   onboardingJson.textContent = JSON.stringify(result, null, 2);
+}
+
+function renderOnboardingFailure(payload, action) {
+  const category = payload?.exitCategory || "no-machine-result";
+  const exit = Number.isInteger(payload?.exitCode) ? `exit ${payload.exitCode}` : "No current machine result";
+  const recovery = currentSafetyProof && !currentSafetyProof.valid ? currentSafetyProof.recovery
+    : category === "state-conflict" ? "Request a fresh Preview after the changed proof, Target, package or form." : "Review the current Host reason, then retry Preview after correction.";
+  onboardingConclusion.textContent = `Blocked: ${payload?.message || "The request did not return a usable result."}`;
+  onboardingMachine.replaceChildren(
+    proofRow("Status", "blocked"), proofRow("Host operation", action),
+    proofRow("Machine", `${category} · ${exit}`), proofRow("Recovery", recovery),
+    proofRow("Evidence", "No artifact confirmed by this request")
+  );
+  onboardingWritePreview.textContent = "This request confirmed no new artifact. Inspect StateRoot evidence before retrying.";
+  onboardingJson.textContent = JSON.stringify({ status: "blocked", ...payload, safeRecoveryHint: recovery }, null, 2);
 }
 
 async function refreshOnboarding() {
   const target = currentTarget();
-  if (!target) return;
+  if (!target) return null;
+  const version = ++progressVersion;
   try {
     const response = await fetch(`/api/v1/onboarding/progress/${encodeURIComponent(target.projectId)}`, { credentials: "same-origin" });
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.message || `HTTP ${response.status}`);
+    if (version !== progressVersion || target.projectId !== currentTarget()?.projectId) return null;
     renderOnboardingProgress(payload);
+    return payload;
   } catch (error) {
+    if (version !== progressVersion || target.projectId !== currentTarget()?.projectId) return null;
+    currentSafetyProof = null;
     onboardingCount.textContent = "Onboarding blocked";
     onboardingSteps.replaceChildren(element("li", "blocked", error.message));
+    return null;
   }
 }
 
@@ -242,27 +342,42 @@ async function runOnboardingAction(mode) {
   const target = currentTarget();
   if (!target || !csrfToken) return;
   const previewHash = mode === "apply" ? lastOnboardingPreview?.previewHash || null : null;
+  const request = onboardingRequest(mode, previewHash);
+  const action = request.actionId;
+  const version = ++onboardingVersion;
+  const requestId = ++activeOnboardingRequest;
   setBusy(true);
   onboardingConclusion.textContent = mode === "apply" ? "Waiting for stale-refusing Host apply…" : "Waiting for Host-bound preview…";
+  onboardingMachine.replaceChildren(proofRow("Status", "running"), proofRow("Machine", "No current machine result"));
+  let failure = null;
   try {
+    if (mode === "apply" && action !== "path-profile-safety") {
+      const progress = await refreshOnboarding();
+      if (version !== onboardingVersion) return;
+      if (!progress?.safetyProof?.valid) throw { exitCategory: progress?.safetyProof?.category || "progress-unavailable", message: progress?.safetyProof?.recovery || "Current Host progress is unavailable." };
+    }
     const response = await fetch("/api/v1/onboarding/action", {
       method: "POST",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json", "X-V4-CSRF": csrfToken },
-      body: JSON.stringify(onboardingRequest(mode, previewHash))
+      body: JSON.stringify(request)
     });
     const payload = await response.json();
-    if (!response.ok) throw new Error(payload.message || `HTTP ${response.status}`);
+    if (version !== onboardingVersion) return;
+    if (!response.ok) throw payload;
     renderOnboardingResult(payload);
-    lastOnboardingPreview = mode === "preview" ? payload : null;
-    onboardingApply.disabled = mode !== "preview";
-    if (mode === "apply") await refreshOnboarding();
+    lastOnboardingPreview = mode === "preview" && payload.status === "running" ? payload : null;
+    onboardingApply.disabled = !lastOnboardingPreview;
+    if (mode === "apply" && !await refreshOnboarding()) throw { exitCategory: "progress-unavailable", message: "Host progress could not be refreshed after Apply." };
   } catch (error) {
+    if (version !== onboardingVersion) return;
+    failure = error instanceof Error ? { message: error.message } : error;
     lastOnboardingPreview = null;
     onboardingApply.disabled = true;
-    onboardingConclusion.textContent = `Blocked: ${error.message}`;
-    onboardingJson.textContent = JSON.stringify({ status: "blocked", message: error.message }, null, 2);
-  } finally { setBusy(false); }
+    await refreshOnboarding();
+    if (version !== onboardingVersion) return;
+    renderOnboardingFailure(failure, action);
+  } finally { if (requestId === activeOnboardingRequest) setBusy(false); }
 }
 
 function resetApplicationPreview(message = "Select an operation above") {
@@ -799,6 +914,9 @@ async function refreshInspection(preferredRunId = null) {
 }
 
 async function selectTarget(projectId) {
+  onboardingVersion++;
+  lastOnboardingPreview = null;
+  onboardingApply.disabled = true;
   setBusy(true);
   try {
     const response = await fetch("/api/v1/workspace/select", {
@@ -828,6 +946,12 @@ async function connect() {
     if (!response.ok) throw new Error(`Session endpoint returned HTTP ${response.status}.`);
     const session = await response.json();
     csrfToken = session.csrfToken;
+    trustedRoots = session.roots || [];
+    renderRootBoundaries();
+    const preflight = session.preflight;
+    onboardingPreflight.textContent = preflight?.status === "reported-pass"
+      ? `Preflight reported pass at ${preflight.atUtc}. Report: ${preflight.path} (SHA-256 ${preflight.sha256}). Host proof remains a separate current check.`
+      : `Preflight report ${preflight?.status || "unavailable"}. Expected location: ${preflight?.path || "EvidenceRoot/preflight-report.json"}. Review before installation or onboarding.`;
     await refreshWorkspace();
     setBusy(false);
     setConnection("ready", "Loopback workspace ready");
@@ -851,8 +975,16 @@ for (const button of operationChoices) button.addEventListener("click", () => lo
 confirmPreview.addEventListener("click", confirmApplicationPreview);
 onboardingPreview.addEventListener("click", () => runOnboardingAction("preview"));
 onboardingApply.addEventListener("click", () => runOnboardingAction("apply"));
-for (const input of [onboardingAction, onboardingProfile, onboardingRoot, onboardingFrameworks, ...document.querySelectorAll('input[name="onboarding-claim"]')]) {
-  input.addEventListener("change", () => { lastOnboardingPreview = null; onboardingApply.disabled = true; });
+function invalidateOnboardingPreview() {
+  onboardingVersion++;
+  lastOnboardingPreview = null;
+  onboardingApply.disabled = true;
+  onboardingWritePreview.textContent = "Inputs changed. Preview this step again before saving.";
+  renderOnboardingFields();
+}
+for (const input of [onboardingAction, onboardingProfile, onboardingRoot, onboardingFrameworks, onboardingProjectReferences, ...document.querySelectorAll('input[name="onboarding-claim"]')]) {
+  input.addEventListener("change", invalidateOnboardingPreview);
+  if (input instanceof HTMLInputElement && input.type === "text") input.addEventListener("input", invalidateOnboardingPreview);
 }
 
 form.addEventListener("submit", async (event) => {

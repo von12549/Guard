@@ -102,7 +102,8 @@ internal static class Program
                         allowedProfiles = workspace.Profiles.Select(profile => profile.Id).ToArray(),
                         activeProjectId = workspace.ActiveProjectId,
                         targetCount = workspace.Targets.Length,
-                        roots = Roots(options, active.TargetRoot)
+                        roots = Roots(options, active.TargetRoot),
+                        preflight = PreflightSummary(options)
                     }, JsonOptions);
                 }
                 catch (HostInvocationException ex)
@@ -406,9 +407,9 @@ internal static class Program
                     var target = await ResolveTrustedTarget(options, workspaceState, request.ProjectId, context.RequestAborted);
                     var execution = await InvokeSetupAction(options, target.TargetRoot, request, context.RequestAborted);
                     if (execution.ExitCode == 17)
-                        return Results.Json(execution.Result, JsonOptions, statusCode: 409);
+                        return Results.Json(SetupFailure(execution), JsonOptions, statusCode: 409);
                     if (execution.ExitCode != 0)
-                        return Results.Json(execution.Result, JsonOptions, statusCode: 400);
+                        return Results.Json(SetupFailure(execution), JsonOptions, statusCode: 400);
                     return Results.Json(execution.Result, JsonOptions);
                 }
                 catch (RequestException ex) { return Results.Json(Error(ex.Category, ex.Message), JsonOptions, statusCode: 400); }
@@ -427,7 +428,8 @@ internal static class Program
                 status = "ready",
                 address,
                 authority = "v4-host",
-                allowedCommand = "stage.run"
+                allowedCommand = "stage.run",
+                roots = Roots(options, options.TargetRoots[0])
             }));
             await app.WaitForShutdownAsync();
             return 0;
@@ -451,6 +453,45 @@ internal static class Program
         new { name = "StateRoot", path = options.StateRoot, access = "v4-owned mutable" },
         new { name = "EvidenceRoot", path = options.EvidenceRoot, access = "v4-owned mutable" }
     ];
+
+    private static object PreflightSummary(CompanionOptions options)
+    {
+        var path = Path.Combine(options.EvidenceRoot, "preflight-report.json");
+        if (!File.Exists(path)) return new { status = "missing", path, sha256 = (string?)null, atUtc = (string?)null };
+        try
+        {
+            CompanionOptions.EnsureNoLinks(path, "Preflight report");
+            using var document = JsonDocument.Parse(File.ReadAllText(path));
+            var report = document.RootElement;
+            var passed = report.GetProperty("passed").GetBoolean();
+            var safetyEqual = report.GetProperty("safety").GetProperty("equal").GetBoolean();
+            var steps = report.GetProperty("steps").EnumerateArray().ToArray();
+            if (steps.Length < 3 || steps.Any(step => !step.GetProperty("passed").GetBoolean())) passed = false;
+            return new
+            {
+                status = passed && safetyEqual ? "reported-pass" : "reported-fail", path,
+                sha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant(),
+                atUtc = report.GetProperty("atUtc").GetString()
+            };
+        }
+        catch
+        {
+            return new { status = "invalid", path, sha256 = (string?)null, atUtc = (string?)null };
+        }
+    }
+
+    private static object SetupFailure(HostExecution execution)
+    {
+        var result = execution.Result;
+        return new
+        {
+            formatVersion = 1,
+            status = "blocked",
+            exitCategory = result.TryGetProperty("exitCategory", out var category) ? category.GetString() : "host-refused",
+            exitCode = execution.ExitCode,
+            message = result.TryGetProperty("message", out var message) ? message.GetString() : "The Host refused this action."
+        };
+    }
 
     private static async Task<WorkspaceDocument> BuildWorkspace(CompanionOptions options, WorkspaceState state, CancellationToken cancellationToken)
     {
@@ -1053,7 +1094,8 @@ internal static class Program
             string Required(string name) => values.TryGetValue(name, out var value) && !string.IsNullOrWhiteSpace(value)
                 ? value : throw new CompanionException(10, "invalid-input", $"Missing --{name}.");
             if (targetValues.Count == 0) throw new CompanionException(10, "invalid-input", "At least one --target-root is required.");
-            if (!int.TryParse(Required("port"), out var port) || port is < 0 or > 65535)
+            var portText = values.TryGetValue("port", out var suppliedPort) ? suppliedPort : "0";
+            if (!int.TryParse(portText, out var port) || port is < 0 or > 65535)
                 throw new CompanionException(10, "invalid-input", "Port must be an integer from 0 through 65535.");
 
             var packageRoot = ResolveDirectory(Required("package-root"), "PackageRoot");
@@ -1127,7 +1169,7 @@ internal static class Program
             return full;
         }
 
-        private static void EnsureNoLinks(string path, string label)
+        internal static void EnsureNoLinks(string path, string label)
         {
             DirectoryInfo? current = new(path);
             while (current is not null)

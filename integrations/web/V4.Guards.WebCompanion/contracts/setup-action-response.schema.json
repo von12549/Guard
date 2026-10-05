@@ -3,7 +3,7 @@
   "$id": "https://ifx.local/v4/application/contracts/setup-action-response.schema.json",
   "type": "object",
   "additionalProperties": false,
-  "required": ["formatVersion", "status", "authority", "actionId", "projectId", "currentHostOperation", "previewHash", "completedStepCount", "totalStepCount", "humanConclusion", "machine", "safeRecoveryHint", "evidencePaths", "boundaries"],
+  "required": ["formatVersion", "status", "authority", "actionId", "projectId", "currentHostOperation", "previewHash", "completedStepCount", "totalStepCount", "humanConclusion", "machine", "safeRecoveryHint", "plannedOutputs", "evidencePaths", "boundaries"],
   "properties": {
     "formatVersion": { "const": 1 },
     "status": { "enum": ["not-started", "running", "pass", "needs-decision", "blocked"] },
@@ -21,6 +21,7 @@
       "properties": { "exitCategory": { "type": "string", "minLength": 1 }, "exitCode": { "type": "integer", "minimum": 0, "maximum": 255 } }
     },
     "safeRecoveryHint": { "type": "string", "minLength": 1 },
+    "plannedOutputs": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/definitions/relativePath" } },
     "evidencePaths": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/definitions/relativePath" } },
     "boundaries": {
       "type": "object", "additionalProperties": false,

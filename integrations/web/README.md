@@ -1,7 +1,7 @@
 # V4 Web Companion
 
-The Web Companion is a local presentation and manual-control integration over the V4 Host. Version 1.2.1
-contains the repaired typed onboarding flow described below.
+The Web Companion is a local presentation and manual-control integration over the V4 Host. Source version
+1.2.2 adds the P04 safety and first-use repair to the published 1.2.1 typed onboarding flow.
 It is not a guard engine, policy authority or verdict producer.
 
 ## Primary onboarding flow
@@ -14,14 +14,23 @@ pwsh -NoProfile -File <install>\package\guard-web.ps1 `
   --target-root <repository> --state-root <state> --evidence-root <evidence> --plan-root plans
 ```
 
+`--port` defaults to `0`, so the ready report gives the selected loopback address and actual four root
+paths. The same command works through `pwsh -File` or the PowerShell call operator, from another working
+directory and with paths containing spaces. Before installation, use the verified
+`core/distribution/Invoke-V4Preflight.ps1` and its independent hash-only baseline; the Companion shows
+`EvidenceRoot/preflight-report.json` as a report, not as a replacement for the current Host proof.
+
 The **First onboarding** stepper obtains eight-step progress from the Host and offers typed,
-preview-bound actions for discovery, Draft creation, candidate configuration and creation of an
+preview-bound actions for safety verification, Draft creation, candidate configuration and creation of an
 intentionally incomplete review template. The UI shows human conclusions, machine category/exit,
-recovery guidance and relative evidence paths. It never calculates authority or acceptance.
+recovery guidance, absolute roots, proof capture/expiry times, planned files and actual evidence paths.
+On failed Apply it replaces the prior machine result and refreshes Host progress. It never calculates
+authority or acceptance.
 
 Progress begins with current package validation and a separate hash-only host-safety proof bound to the
 package, project and Target snapshot; roots, Target snapshot and discovery do not pass until that proof
-is current. Candidate forms require explicit policy for each selected claim: forbidden project-reference
+is current. An expired proof reports `proof-expired`; explicit re-verification archives the old proof
+and requires a new Preview. Actual drift is a host safety incident and stops operations. Candidate forms require explicit policy for each selected claim: forbidden project-reference
 patterns, allowed target frameworks, and resolved-project-reference enforcement for graph completeness.
 
 Browser requests carry a Host-derived project ID and enumerated/form fields only. They cannot provide

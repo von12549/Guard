@@ -3,7 +3,7 @@
   "$id": "https://ifx.local/v4/application/contracts/setup-progress.schema.json",
   "type": "object",
   "additionalProperties": false,
-  "required": ["formatVersion", "status", "authority", "projectId", "completedStepCount", "totalStepCount", "currentHostOperation", "steps", "boundaries"],
+  "required": ["formatVersion", "status", "authority", "projectId", "completedStepCount", "totalStepCount", "currentHostOperation", "safetyProof", "steps", "boundaries"],
   "properties": {
     "formatVersion": { "const": 1 },
     "status": { "enum": ["not-started", "running", "pass", "needs-decision", "blocked"] },
@@ -12,6 +12,17 @@
     "completedStepCount": { "type": "integer", "minimum": 0, "maximum": 8 },
     "totalStepCount": { "const": 8 },
     "currentHostOperation": { "type": "string", "minLength": 1 },
+    "safetyProof": {
+      "type": "object", "additionalProperties": false,
+      "required": ["valid", "category", "capturedAtUtc", "expiresAtUtc", "recovery"],
+      "properties": {
+        "valid": { "type": "boolean" },
+        "category": { "type": "string", "minLength": 1 },
+        "capturedAtUtc": { "type": ["string", "null"] },
+        "expiresAtUtc": { "type": ["string", "null"] },
+        "recovery": { "type": "string", "minLength": 1 }
+      }
+    },
     "steps": {
       "type": "array", "minItems": 8, "maxItems": 8,
       "items": {

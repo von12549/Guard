@@ -37,3 +37,10 @@ Migration provenance (path dispositions, commit map, release inventory and recei
   onboarding source on the final merge commit, builds reproducible `linux-x64` and `win-x64` assets,
   publishes an immutable release after all gates pass, and records independent verification. It reached
   `G-RELEASE = GO`; see the [final release report](20261005-v4-guards-1-2-1-release-report.md).
+
+## P04 repair and 1.2.2 candidate
+
+- [P04 onboarding and safety repair Plan](20261006-v4-guards-p04-onboarding-safety-repair.md) maps the
+  IFX P03 failure evidence to Guard changes and regressions. P03 remains FAIL; this candidate does not
+  claim IFX protection. The 1.2.2 release requires its own exact-commit certification and immutable
+  publication record.

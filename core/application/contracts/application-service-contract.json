@@ -17,7 +17,7 @@
     { "id": "protection-status", "path": "core/application/contracts/protection-status.schema.json", "sha256": "9d175a667c4f19d40bbff8b68c6594f03d873bd02a54f94c24e73496358f5168" },
     { "id": "setup-preview", "path": "core/application/contracts/setup-preview.schema.json", "sha256": "fedf75f87e9a5ea25578c76a575819ad21e9e71986b339a44de6ada2c4110246" },
     { "id": "setup-action-request", "path": "core/application/contracts/setup-action-request.schema.json", "sha256": "338d9dc04c31c25a7293bc37c7566e66099a64c0db1364eea8a748020d3591c2" },
-    { "id": "setup-action-response", "path": "core/application/contracts/setup-action-response.schema.json", "sha256": "012b2c4325d5da71237aff4dd675f30e96de24c034a6e59c4b8f68f128a7ab31" },
-    { "id": "setup-progress", "path": "core/application/contracts/setup-progress.schema.json", "sha256": "74e2f982fb2b1f3d95191a92d0af22f5486858222fe40753d7c9525cb975085d" }
+    { "id": "setup-action-response", "path": "core/application/contracts/setup-action-response.schema.json", "sha256": "32b7c1dc532aaf8c448de4ccd43c291c75d8351dd44be2237119d065757d1ddd" },
+    { "id": "setup-progress", "path": "core/application/contracts/setup-progress.schema.json", "sha256": "fe5cd84fb8dd5cf4c4a41d2b29691f284d01e1f5bfc6ed731c642d397bddd955" }
   ]
 }

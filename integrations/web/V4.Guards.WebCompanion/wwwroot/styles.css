@@ -17,6 +17,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 body {
   margin: 0;
@@ -438,6 +439,19 @@ button:focus-visible, select:focus-visible, input:focus-visible, pre:focus-visib
 .onboarding-steps li.blocked { color: #ff8d7a; }
 .onboarding-steps small { display: block; margin-top: 3px; color: #81959f; line-height: 1.35; }
 .onboarding-form { display: grid; gap: 8px; padding: 22px 28px; border-right: 1px solid #334651; }
+.step-guide { padding: 15px; border-left: 4px solid var(--cyan); background: #192b35; }
+.step-guide h3 { margin: 0 0 8px; }
+.step-guide p + p { margin-top: 8px; }
+.step-guide p, .field-help, .proof-time { color: #a6b8c0; font-size: .82rem; line-height: 1.5; }
+.root-boundaries { margin: 10px 0; padding: 13px; border: 1px solid #405562; }
+.root-boundaries h4 { margin: 0 0 8px; }
+.root-row { display: grid; gap: 3px; padding: 7px 0; border-top: 1px solid #334651; }
+.root-row strong { font-size: .74rem; }
+.root-row code { color: #a6c4cf; overflow-wrap: anywhere; font-size: .72rem; }
+.step-fields { display: grid; gap: 8px; }
+.proof-time { padding: 10px; background: #182834; overflow-wrap: anywhere; }
+.secondary-tools { border-top: 1px solid #40515e; }
+.secondary-tools > summary { padding: 18px 30px; color: var(--cyan); cursor: pointer; font-weight: 650; }
 .onboarding-form label, .onboarding-form legend { color: #9fb2bb; font-size: .78rem; }
 .onboarding-form input, .onboarding-form select { width: 100%; padding: 9px 10px; border: 1px solid #526675; background: #0d171e; color: #e4edf0; }
 .onboarding-form fieldset { display: grid; gap: 7px; margin: 7px 0; padding: 12px; border: 1px solid #334651; }
