@@ -1,0 +1,40 @@
+{
+  "formatVersion": 1,
+  "id": "20261005-v4-guards-1-2-x-onboarding-repair-authorization-r3",
+  "title": "完整授权 V4 Guards 1.2.x onboarding 修复的受保护变更",
+  "goal": "以新的 consuming Plan ID 增加一次性、base-held 的完整授权，覆盖全部七个受保护候选路径。",
+  "acceptanceCriteria": [
+    "受信任 base runner 将本 PR 判定为 authorization-added，且 required checks 全部通过。",
+    "授权精确覆盖一个 certification component、一个 CI verdict component 与五个 approved tests。",
+    "每个 base SHA-256 来自可信 main，每个 head SHA-256 来自当前修复候选的精确字节。",
+    "记录指向新的 consuming Plan 20261004-v4-guards-1-2-x-onboarding-repair-v3，并禁止 candidate Host 自我裁决。",
+    "本 PR 不修改或删除旧授权记录，也不修改受保护文件、产品实现、版本、baseline 或发布状态。"
+  ],
+  "plannedPaths": [
+    "docs/plans/20261005-v4-guards-1-2-x-onboarding-repair-authorization-r3.md",
+    "docs/plans/20261005-v4-guards-1-2-x-onboarding-repair-authorization-r3.plan.json",
+    "docs/plans/authorizations/20261005-v4-guards-1-2-x-onboarding-repair-record-r3.json"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "任何候选字节变化都会使授权哈希失配；consuming PR 必须失败关闭并重新授权。",
+    "旧记录仍留在 main 且不得消费；后续 candidate 必须使用新的 v3 Plan ID 和 r3 记录。"
+  ],
+  "decisions": [
+    "直接按 base trust-policy 对完整候选 diff 枚举受保护路径，不再依据单一错误消息推断授权集合。",
+    "除五个 approved tests 和 ci-contract.json 外，同时授权 compatibility-baseline.json 的既有候选变更。",
+    "不修改已合并的旧授权记录；使用新的 consuming Plan ID 遵守 planId 唯一性约束。"
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "authorization"
+  ]
+}
