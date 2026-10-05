@@ -1,0 +1,18 @@
+{
+  "formatVersion": 1,
+  "id": "20261006-v4-guards-p04-trust-record",
+  "planId": "20261006-v4-guards-p04-onboarding-safety-repair",
+  "reason": "P04 patch version 1.2.2 changes plugin.json, requiring the exact protected compatibility baseline plugin hash to be rebound without changing API version or any other frozen entry.",
+  "entries": [
+    {
+      "path": "core/certification/compatibility-baseline.json",
+      "baseSha256": "4203305832b60f634e9481bf1b56277c08abd0d5d454303efdc7bd6c92b00943",
+      "headSha256": "489fac661945630b7f0cde960f15d6b1696dcbccf818b92e136a1d0cf09892c3"
+    }
+  ],
+  "acceptedBy": {
+    "kind": "human-review",
+    "authority": "Guard operator (von12549): explicitly authorized P04 repair and new 1.2.x patch release in the Local Project Guard chat on 2026-10-06",
+    "candidateHostVerdictAllowed": false
+  }
+}
