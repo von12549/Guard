@@ -7,7 +7,7 @@
     "The report records the release-prep PR, exact main merge commit, annotated tag and non-draft, non-prerelease GitHub Release with exactly four assets.",
     "The report records passing full Guardrails and dual-platform Certification, matching source packageHash, both RID package identities, archive SHA-256 values and recovery source.",
     "The report records fresh-download hash, install, public launcher, four Stage, Companion and verified-uninstall results on Windows and isolated Linux.",
-    "Only docs/plans paths change; base-owned Contract, Linux, package, Windows and required checks pass."
+    "Only docs/plans paths change; base-owned Contract, Linux, package and required checks pass, and Windows selection follows the trusted-base Contract."
   ],
   "plannedPaths": [
     "docs/plans/20261005-v4-guards-1-2-1-release.md",
@@ -29,7 +29,7 @@
     "v4-contract",
     "v4-linux",
     "v4-package",
-    "v4-windows",
+    "v4-windows when selected by the trusted-base Contract",
     "v4-required"
   ],
   "dependencies": [],
