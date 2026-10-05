@@ -38,10 +38,12 @@ Migration provenance (path dispositions, commit map, release inventory and recei
   publishes an immutable release after all gates pass, and records independent verification. It reached
   `G-RELEASE = GO`; see the [final release report](20261005-v4-guards-1-2-1-release-report.md).
 
-## P04 repair and 1.2.2 candidate
+## P04 repair and 1.2.2 release
 
 - [P04 onboarding and safety repair Plan](20261006-v4-guards-p04-onboarding-safety-repair.md) maps the
   IFX P03 failure evidence to Guard changes and regressions. PR #58 passed its required checks and
   merged the repair; P03 remains FAIL and IFX protection is not claimed.
 - [V4 Guards 1.2.2 release Plan](20261006-v4-guards-1-2-2-release.md) freezes the two-RID matrix,
   exact-commit certification, P04 safety regressions, reproducible archives and fresh-download checks.
+  It reached `G-RELEASE = GO`; see the
+  [final release report](20261006-v4-guards-1-2-2-release-report.md).

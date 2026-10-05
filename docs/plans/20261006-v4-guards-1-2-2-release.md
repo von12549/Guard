@@ -1,6 +1,6 @@
 # V4 Guards 1.2.2 release
 
-Status: `IN PROGRESS — release source and publication gates pending`.
+Status: `COMPLETE 2026-10-06 — G-RELEASE = GO`.
 
 Formal Plan ID: `20261006-v4-guards-1-2-2-release`.
 
@@ -56,3 +56,11 @@ uses a new version.
 
 No release gate adopts IFX, accepts policy, installs `ifx_profile`, writes an IFX Target, activates its CI
 or establishes protection. A future human-operated IFX retest requires a fresh run topology and evidence.
+
+## Outcome
+
+All gates passed for exact source commit `b56ca17ba60a8e9383931101077ad75cb129257f` and annotated tag
+`v4-guards-v1.2.2`. The non-draft, non-prerelease Release contains exactly the two fixed ZIPs and their
+sidecars. Freshly downloaded assets passed Windows and network-isolated Linux install, public API,
+four-Stage, Companion and verified-uninstall checks. See the
+[final release report](20261006-v4-guards-1-2-2-release-report.md).
