@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "id": "20261005-v4-guards-1-2-1-release-records",
+  "title": "Record V4 Guards 1.2.1 publication and verification",
+  "goal": "Capture the exact 1.2.1 release commit, certification, immutable asset identities and fresh-download Windows/Linux verification without changing package authority.",
+  "acceptanceCriteria": [
+    "The report records the release-prep PR, exact main merge commit, annotated tag and non-draft, non-prerelease GitHub Release with exactly four assets.",
+    "The report records passing full Guardrails and dual-platform Certification, matching source packageHash, both RID package identities, archive SHA-256 values and recovery source.",
+    "The report records fresh-download hash, install, public launcher, four Stage, Companion and verified-uninstall results on Windows and isolated Linux.",
+    "Only docs/plans paths change; base-owned Contract, Linux, package, Windows and required checks pass."
+  ],
+  "plannedPaths": [
+    "docs/plans/20261005-v4-guards-1-2-1-release.md",
+    "docs/plans/20261005-v4-guards-1-2-1-release-records.md",
+    "docs/plans/20261005-v4-guards-1-2-1-release-records.plan.json",
+    "docs/plans/20261005-v4-guards-1-2-1-release-report.md",
+    "docs/plans/README.md"
+  ],
+  "areas": ["GuardDocs"],
+  "risks": [
+    "Confusing source packageHash with RID package identity or ZIP hash would misstate asset provenance."
+  ],
+  "decisions": [
+    "Record only completed publication evidence under docs/plans, outside package authority.",
+    "Preserve the published tag, Release and four assets without replacement or deletion.",
+    "Consumer adoption and activation remain separately governed."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-windows",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

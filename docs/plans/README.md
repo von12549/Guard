@@ -35,4 +35,5 @@ Migration provenance (path dispositions, commit map, release inventory and recei
 
 - [V4 Guards 1.2.1 release Plan](20261005-v4-guards-1-2-1-release.md): certifies the repaired installed
   onboarding source on the final merge commit, builds reproducible `linux-x64` and `win-x64` assets,
-  publishes an immutable release after all gates pass, and records independent verification.
+  publishes an immutable release after all gates pass, and records independent verification. It reached
+  `G-RELEASE = GO`; see the [final release report](20261005-v4-guards-1-2-1-release-report.md).
