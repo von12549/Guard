@@ -182,8 +182,11 @@ Plan-path amendment (remote-main reconciliation):
 `.gitignore` is included because the preserved local host-safety commit that excludes generated fixture
 `obj` directories is part of the candidate diff from trusted base `333d4583778ed5300dd0cdb120f5170a7a92bb75`.
 Nine build/validation source paths that are exercised but byte-identical to that trusted base are removed
-from `plannedPaths`; validation commands remain unchanged. The branch already descends from remote main,
-so no synthetic merge commit or history rewrite is required.
+from `plannedPaths`; validation commands remain unchanged. Root `AGENTS.md` remains preserved on untouched
+local main `da81855cfe0278e35a58904c992fbcf269304548`, but a compensating repair-branch deletion keeps that
+trusted-base-disallowed path out of the PR candidate. The task's repository safety instructions remain
+binding. The branch already descends from remote main, so no synthetic merge commit or history rewrite is
+required.
 
 ## Acceptance gates
 

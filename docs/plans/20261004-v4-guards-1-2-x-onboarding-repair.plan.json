@@ -17,7 +17,6 @@
   ],
   "plannedPaths": [
     ".gitignore",
-    "AGENTS.md",
     "README.md",
     "plugin.json",
     "core/application/contracts/application-service-contract.json",
