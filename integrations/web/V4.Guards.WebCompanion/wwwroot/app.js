@@ -74,6 +74,7 @@ let lastOnboardingPreview = null;
 let trustedRoots = [];
 let currentSafetyProof = null;
 let onboardingVersion = 0;
+let activeOnboardingRequest = 0;
 let progressVersion = 0;
 let proofExpiryTimer = null;
 
@@ -329,7 +330,7 @@ async function refreshOnboarding() {
     renderOnboardingProgress(payload);
     return payload;
   } catch (error) {
-    if (version !== progressVersion) return null;
+    if (version !== progressVersion || target.projectId !== currentTarget()?.projectId) return null;
     currentSafetyProof = null;
     onboardingCount.textContent = "Onboarding blocked";
     onboardingSteps.replaceChildren(element("li", "blocked", error.message));
@@ -341,8 +342,10 @@ async function runOnboardingAction(mode) {
   const target = currentTarget();
   if (!target || !csrfToken) return;
   const previewHash = mode === "apply" ? lastOnboardingPreview?.previewHash || null : null;
-  const action = onboardingAction.value;
+  const request = onboardingRequest(mode, previewHash);
+  const action = request.actionId;
   const version = ++onboardingVersion;
+  const requestId = ++activeOnboardingRequest;
   setBusy(true);
   onboardingConclusion.textContent = mode === "apply" ? "Waiting for stale-refusing Host apply…" : "Waiting for Host-bound preview…";
   onboardingMachine.replaceChildren(proofRow("Status", "running"), proofRow("Machine", "No current machine result"));
@@ -350,13 +353,14 @@ async function runOnboardingAction(mode) {
   try {
     if (mode === "apply" && action !== "path-profile-safety") {
       const progress = await refreshOnboarding();
+      if (version !== onboardingVersion) return;
       if (!progress?.safetyProof?.valid) throw { exitCategory: progress?.safetyProof?.category || "progress-unavailable", message: progress?.safetyProof?.recovery || "Current Host progress is unavailable." };
     }
     const response = await fetch("/api/v1/onboarding/action", {
       method: "POST",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json", "X-V4-CSRF": csrfToken },
-      body: JSON.stringify(onboardingRequest(mode, previewHash))
+      body: JSON.stringify(request)
     });
     const payload = await response.json();
     if (version !== onboardingVersion) return;
@@ -371,8 +375,9 @@ async function runOnboardingAction(mode) {
     lastOnboardingPreview = null;
     onboardingApply.disabled = true;
     await refreshOnboarding();
+    if (version !== onboardingVersion) return;
     renderOnboardingFailure(failure, action);
-  } finally { setBusy(false); }
+  } finally { if (requestId === activeOnboardingRequest) setBusy(false); }
 }
 
 function resetApplicationPreview(message = "Select an operation above") {

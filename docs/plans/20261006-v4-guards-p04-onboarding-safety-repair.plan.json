@@ -39,7 +39,7 @@
     "integrations/web/V4.Guards.WebCompanion/wwwroot/index.html",
     "integrations/web/V4.Guards.WebCompanion/wwwroot/styles.css",
     "plugin.json",
-    "tests/p9/Test-V4OfflineWebDistribution.ps1"
+    "core/distribution/validation/Test-V4P04InstalledLauncher.ps1"
   ],
   "areas": ["application", "distribution", "documentation", "host", "security", "tests", "web-companion"],
   "risks": [
@@ -58,6 +58,7 @@
     "pwsh -NoProfile -File core/distribution/validation/Test-V4Preflight.ps1",
     "pwsh -NoProfile -File tests/p9/Test-V4WebCompanionSpike.ps1",
     "pwsh -NoProfile -File tests/p9/Test-V4OfflineWebDistribution.ps1",
+    "pwsh -NoProfile -File core/distribution/validation/Test-V4P04InstalledLauncher.ps1 -ArchivePath <candidate-archive>",
     "pwsh -NoProfile -File tests/p7/Test-V4Distribution.ps1",
     "pwsh -NoProfile -File tests/p1/Test-V4Package.ps1",
     "Windows full and required CI at the frozen release source"
