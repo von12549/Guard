@@ -1,6 +1,6 @@
 # V4 Guards 1.2.1 release
 
-Status: `IN PROGRESS — G-RELEASE pending`.
+Status: `COMPLETE 2026-10-05 — G-RELEASE = GO`.
 
 Formal Plan ID: `20261005-v4-guards-1-2-1-release`.
 
@@ -45,3 +45,15 @@ publication, preserve the tag and assets; a defect requires a new version rather
 
 No local candidate or passing release gate authorizes IFX adoption, Target writes, trusted CI activation
 or remote changes.
+
+## Completion record
+
+- Release commit: `6e8d3ec02a8bb2eab4a83131de7d59b59fa4c2f7` (release-prep PR #55).
+- [Full Guardrails run 37276209500](https://github.com/von12549/Guard/actions/runs/37276209500): all five jobs passed.
+- [Dual-platform Certification run 37276209649](https://github.com/von12549/Guard/actions/runs/37276209649): Linux-complete 35 tests and Windows-full 36 tests passed with the same source `packageHash`.
+- Both RID archives matched independent A/B builds, repeated packaging, sidecars and candidate/recovery
+  certification. Annotated tag [`v4-guards-v1.2.1`](https://github.com/von12549/Guard/releases/tag/v4-guards-v1.2.1)
+  points to the release commit; its Release contains exactly the four fixed assets.
+- Freshly downloaded Windows and Linux assets passed install, public version and four Stage commands,
+  loopback Companion, receipt validation and verified uninstall. See the
+  [final release report](20261005-v4-guards-1-2-1-release-report.md) for hashes and details.
