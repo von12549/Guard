@@ -242,18 +242,22 @@ without `authorization`; test selection, required contexts and candidate Host au
   Profile-dependent Host operation even though the stable reset CLI has no `--profile` argument. The
   installed runner now skips Profile-module prerequisite selection for reset only; the exact failing P7
   lifecycle test and the full installed-launcher suite both pass after the repair.
+- The next Linux run reached the application safety proof and exposed case-sensitive Unix environment
+  lookup: the Host requested Windows-style `Path` instead of Unix `PATH`. Process PATH capture and pwsh
+  discovery now share one platform-correct lookup. The complete ApplicationBoundary suite passes in an
+  Ubuntu 24.04.5 container with the authorized test bytes unchanged.
 
 ## Final local candidate evidence
 
 - Trusted base is merged `main` commit `5a912e718d1a3a4e6a51e020b6e91f4642dcfd79` from authorization
   PR #54. The base-owned CI contract passed against implementation/trust-consumption commit
-  `bf4aca6c1c237bc82dbead4df6e7d56f1b589a7b`, reported `trustChange.status = authorized`, and bound all
+  `e17e0d6388328504515aee5d3dcfa23c9e95ec20`, reported `trustChange.status = authorized`, and bound all
   seven protected paths to the consumed r3 authorization record.
 - Exact Plan-path accounting passed with 59 planned paths and 59 actual paths.
 - The source-bound self-contained candidate is version `1.2.1`, RID `win-x64`, built from
-  `bf4aca6c1c237bc82dbead4df6e7d56f1b589a7b`. Its archive is
+  `e17e0d6388328504515aee5d3dcfa23c9e95ec20`. Its archive is
   `v4-guards-1.2.1-win-x64.zip` with SHA-256
-  `d33de646ad4baf87d58eadb91d59cba4850c03314ef1b805905d3ec922a7ddd1`.
+  `a0b55cc246646368861d180673f1b88c1d3574fb4ac98f1a79b4c57dd5b42035`.
 - Fresh candidate installation, installed `package/guard.ps1` version through both `pwsh -File` and
   literal call-operator invocation, receipted uninstall and InstallRoot removal all passed. User and
   Machine environment hashes, process PATH hash and the four PowerShell profile-state hashes remained
