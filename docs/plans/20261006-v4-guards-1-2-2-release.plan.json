@@ -1,0 +1,45 @@
+{
+  "formatVersion": 1,
+  "id": "20261006-v4-guards-1-2-2-release",
+  "title": "Certify and publish V4 Guards 1.2.2",
+  "goal": "Freeze the P04 repair on one exact commit, certify and reproducibly package two self-contained RIDs, publish an immutable 1.2.2 release, and independently verify fresh downloads.",
+  "acceptanceCriteria": [
+    "The documentation-only release-prep PR passes all base-owned required checks and its final merge commit is the sole release source.",
+    "Full Guardrails and native Linux-complete and Windows-full Certification pass at that commit with the same source packageHash.",
+    "P04 proof, preflight and public-launcher regressions pass under unchanged independent host and Target checkpoints.",
+    "Two independent clean checkouts produce byte-identical linux-x64 and win-x64 archives with matching sidecars and the sole v4-guards-1.2.2 root.",
+    "Candidate/recovery certification passes before an annotated v4-guards-v1.2.2 tag and a non-draft, non-prerelease Release with exactly four assets are created.",
+    "Freshly downloaded Windows and Linux assets pass hash, install, public CLI, Companion and verified-uninstall checks; a records PR captures the evidence."
+  ],
+  "plannedPaths": [
+    "README.md",
+    "docs/1.2.2-release-notes.md",
+    "docs/application-workbench.md",
+    "docs/plans/20261006-v4-guards-1-2-2-release.md",
+    "docs/plans/20261006-v4-guards-1-2-2-release.plan.json",
+    "docs/plans/README.md",
+    "docs/profile-authority.md",
+    "docs/v1-certification.md",
+    "integrations/web/README.md"
+  ],
+  "areas": ["GuardDocs"],
+  "risks": [
+    "Packaged documentation changes the source packageHash, so every certification and asset must use the final merged release commit.",
+    "A local success could hide drift or a mismatch in the published bytes unless fresh downloads and independent checkpoints are retained."
+  ],
+  "decisions": [
+    "The 1.2.2 matrix contains only self-contained linux-x64 and win-x64 ZIPs and their SHA-256 sidecars.",
+    "The release-prep PR changes documentation only and carries no protected trust change.",
+    "P03 remains failed and release success does not imply IFX adoption or protection.",
+    "Exact publication evidence is added through a later records PR to avoid a circular source package hash."
+  ],
+  "validationCommands": [
+    "v4-contract, v4-linux, v4-package, v4-windows and v4-required",
+    "full Guardrails and exact-commit V4 Certification",
+    "P04 application, preflight and installed public-launcher regressions with external safety checkpoints",
+    "two-clean-checkout RID reproducibility and candidate/recovery certification",
+    "fresh-download Windows and isolated Linux install/run/uninstall"
+  ],
+  "dependencies": [],
+  "boundaries": []
+}

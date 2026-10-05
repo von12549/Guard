@@ -4,7 +4,7 @@ The M3 Workbench expands the existing separately packaged Web Companion. It rema
 presentation and orchestration surface over the V4 Host; it is not a second setup engine, policy judge
 or remote control plane.
 
-Version 1.2.2 source repairs the typed First onboarding stepper. Preview or confirmation evidence does not mean
+Version 1.2.2 repairs the typed First onboarding stepper. Preview or confirmation evidence does not mean
 Target adoption, CI activation, remote enablement or human acceptance.
 
 ## Host operation

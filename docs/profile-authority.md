@@ -4,7 +4,7 @@ The experimental M2 Profile authority surface is defined by
 `core/profile/contracts/profile-authority-contract.json`. It deliberately sits outside the stable `1.0` CLI
 compatibility baseline while its contracts are exercised and reviewed.
 
-Version 1.2.1 includes supported configure and review-template steps; these do not grant Target adoption,
+Version 1.2.2 includes the supported configure and review-template steps with repaired proof-state handling; these do not grant Target adoption,
 CI activation or consumer authorization.
 
 ## Operations
