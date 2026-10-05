@@ -42,6 +42,6 @@
     "two-clean-checkout RID reproducibility and candidate/recovery certification",
     "fresh-download Windows and isolated Linux install/run/uninstall"
   ],
-  "dependencies": ["20261004-v4-guards-1-2-x-onboarding-repair"],
+  "dependencies": [],
   "boundaries": []
 }
