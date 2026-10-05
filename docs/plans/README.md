@@ -41,6 +41,7 @@ Migration provenance (path dispositions, commit map, release inventory and recei
 ## P04 repair and 1.2.2 candidate
 
 - [P04 onboarding and safety repair Plan](20261006-v4-guards-p04-onboarding-safety-repair.md) maps the
-  IFX P03 failure evidence to Guard changes and regressions. P03 remains FAIL; this candidate does not
-  claim IFX protection. The 1.2.2 release requires its own exact-commit certification and immutable
-  publication record.
+  IFX P03 failure evidence to Guard changes and regressions. PR #58 passed its required checks and
+  merged the repair; P03 remains FAIL and IFX protection is not claimed.
+- [V4 Guards 1.2.2 release Plan](20261006-v4-guards-1-2-2-release.md) freezes the two-RID matrix,
+  exact-commit certification, P04 safety regressions, reproducible archives and fresh-download checks.

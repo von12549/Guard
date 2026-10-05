@@ -1,7 +1,7 @@
 # V4 Web Companion
 
-The Web Companion is a local presentation and manual-control integration over the V4 Host. Source version
-1.2.2 adds the P04 safety and first-use repair to the published 1.2.1 typed onboarding flow.
+The Web Companion is a local presentation and manual-control integration over the V4 Host. Version
+1.2.2 adds the P04 safety and first-use repair to the typed onboarding flow.
 It is not a guard engine, policy authority or verdict producer.
 
 ## Primary onboarding flow
