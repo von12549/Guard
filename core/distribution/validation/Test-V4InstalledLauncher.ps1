@@ -85,6 +85,15 @@ $publish = Run $publisher @('-PackageRoot',$packageRoot,'-RuntimeIdentifier',$ri
 if ($publish.Code -ne 0) { throw "Self-contained publish failed: $($publish.Text)" }
 Assert-HostSafetyBoundary 'self-contained dotnet publish'
 $archive = [string](($publish.Text | ConvertFrom-Json).archivePath)
+$rejectedInstallRoot = Join-Path $runRoot 'rejected-install/install'
+$rejectedReceipt = Join-Path $runRoot 'rejected-install-receipt.json'
+$rejectedInstall = Run $installer @('-Mode','Install','-ArchivePath',$archive,'-InstallRoot',$rejectedInstallRoot,'-ReceiptPath',$rejectedReceipt)
+$rejectedTemporary = @(Get-ChildItem -LiteralPath $runRoot -Directory -Recurse -Force -Filter '.v4-install-*' -ErrorAction SilentlyContinue)
+if ($rejectedInstall.Code -eq 0 -or $rejectedInstall.Text -notmatch 'manifest root identity' -or
+    (Test-Path -LiteralPath $rejectedInstallRoot) -or (Test-Path -LiteralPath $rejectedReceipt) -or $rejectedTemporary.Count -ne 0) {
+    $failures.Add("Mismatched InstallRoot leaf was not rejected before installation state: $($rejectedInstall.Text)")
+}
+Assert-HostSafetyBoundary 'mismatched InstallRoot refusal'
 $installRoot = Join-Path $runRoot "installed/v4-guards-$productVersion"
 $receipt = Join-Path $runRoot 'receipts/install.json'
 $install = Run $installer @('-Mode','Install','-ArchivePath',$archive,'-InstallRoot',$installRoot,'-ReceiptPath',$receipt)
@@ -106,8 +115,20 @@ try {
         $prerequisites = Get-Content -Raw -LiteralPath $versionReport | ConvertFrom-Json
         if (@($prerequisites.requirements | Where-Object runtime -eq 'dotnet').Count -ne 0) { $failures.Add('Self-contained default Profile still required Host-owned dotnet.') }
     }
+    $directVersionReport = Join-Path $runRoot 'version-direct-prerequisites.json'
+    $directVersion = Run-WithErrorFile 'direct-version' { & $guard -PrerequisiteReportPath $directVersionReport version }
+    if ($directVersion.Code -ne 0 -or -not [string]::IsNullOrEmpty($directVersion.Stderr)) {
+        $failures.Add("Installed call-operator version failed or wrote stderr (exit $($directVersion.Code), stdout chars $($directVersion.Stdout.Length), stderr chars $($directVersion.Stderr.Length)).")
+    }
+    else {
+        try { $directVersionDocument = $directVersion.Stdout | ConvertFrom-Json }
+        catch { $failures.Add('Installed call-operator version did not return JSON.'); $directVersionDocument = $null }
+        if ($null -ne $directVersionDocument -and ($directVersionDocument.status -cne 'pass' -or $directVersionDocument.command -cne 'version')) {
+            $failures.Add('Installed call-operator version returned an invalid result.')
+        }
+    }
 } finally { $env:PATH = $oldPath }
-Assert-HostSafetyBoundary 'public version launcher'
+Assert-HostSafetyBoundary 'public version launchers'
 
 $internal = Join-Path $installRoot 'package/core/distribution/Invoke-V4Installed.ps1'
 $mismatch = Run $internal @('-PackageRoot',(Join-Path $runRoot 'wrong-package'),'-Profile','default','-PrerequisiteReportPath',(Join-Path $runRoot 'mismatch.json'),'-HostArgumentsJson','["version"]')
@@ -133,8 +154,8 @@ $draft = Run $guard @('-PrerequisiteReportPath',(Join-Path $runRoot 'draft-prere
 if ($draft.Code -ne 0 -or ($draft.Text | ConvertFrom-Json).candidateProfile.id -cne 'onboarding_new') { $failures.Add("Unknown Profile draft was blocked by installed-Profile prerequisite selection: $($draft.Text)") }
 Assert-HostSafetyBoundary 'public draft launcher'
 
-$directArguments = @('-PrerequisiteReportPath',(Join-Path $runRoot 'invalid-direct.json'))
-$noArgumentsDirect = Run-WithErrorFile 'direct-call-operator' { & $guard @directArguments }
+$directInvalidReport = Join-Path $runRoot 'invalid-direct.json'
+$noArgumentsDirect = Run-WithErrorFile 'direct-call-operator' { & $guard -PrerequisiteReportPath $directInvalidReport }
 Assert-StructuredLauncherFailure $noArgumentsDirect 'same-process call operator' 'invalid-input' 10
 $fileArguments = @('-PrerequisiteReportPath',(Join-Path $runRoot 'invalid-file.json'))
 $noArgumentsFile = Run-WithErrorFile 'pwsh-file' { & pwsh -NoLogo -NoProfile -NonInteractive -File $guard @fileArguments }
@@ -182,4 +203,4 @@ if ($safetyDrift.Count) {
 }
 
 if ($failures.Count) { throw ($failures -join "`n") }
-Write-Host "M1 installed launcher tests passed for ${rid}: derived PackageRoot, native apphost, operation-aware prerequisites, integrity refusal, relocation, verified cleanup and unchanged environment/profile hashes."
+Write-Host "M1 installed launcher tests passed for ${rid}: manifest-bound InstallRoot refusal, both public invocation styles, native apphost, operation-aware prerequisites, integrity refusal, relocation, verified cleanup and unchanged environment/profile hashes."

@@ -1,6 +1,6 @@
 # V4 Guards 1.2.x onboarding, Profile authoring and UI-first repair
 
-Status: `IMPLEMENTATION COMPLETE — 12/12 PLAN GATES PASS; READY FOR HUMAN RETEST 2026-10-05`
+Status: `INSTALL ROOT IDENTITY P1 FIXED — 11/12 PLAN GATES PASS; CLEAN-COMMIT DISTRIBUTION PENDING 2026-10-05`
 
 Formal Plan ID: `20261004-v4-guards-1-2-x-onboarding-repair`.
 
@@ -172,6 +172,12 @@ mark PATH/Profile safety complete only from a current StateRoot proof bound to p
 Target identities. The proof permits hashes, existence flags and equality results only; it cannot
 contain environment values, PATH text, profile paths, Target writes or human acceptance.
 
+Plan-path amendment (install-root identity P1 repair):
+`core/distribution/Install-V4Distribution.ps1` is included because the already planned installed-layout
+identity and launcher validation cannot be satisfied if the installer accepts a leaf name that the
+resolver must reject. The amendment only enforces the existing manifest/archive root identity before
+extraction; it does not relax layout verification or add a new installation mode.
+
 ## Acceptance gates
 
 1. `version` and Profile onboarding work through the single public installed launcher without a wrapper
@@ -203,8 +209,13 @@ contain environment values, PATH text, profile paths, Target writes or human acc
 - Independent review found that valid project-reference-only and graph-completeness-only configure
   applies were blocked by an unrelated framework decision. Configure readiness is now claim-specific,
   and both single-claim paths pass preview/apply with exact non-orphan candidate configuration.
-- The focused regressions and all 12 formal validation commands pass, including the clean-commit
-  independent distribution build. This is ready for human retest, not IFX acceptance or release authority.
+- Independent review found that the installer accepted a leaf name the installed-layout resolver must
+  reject. The installer now requires the validated manifest/archive root identity before extraction;
+  mismatch leaves no InstallRoot, receipt or temporary extraction directory.
+- Correct-root install, `pwsh -File` and literal call-operator version, structured same-process stderr and
+  verified uninstall pass with unchanged segmented environment/profile hashes.
+- The focused regressions and 11 source-checkout validation commands pass. The independent distribution
+  command is intentionally pending until the installer repair bytes exist in a clean commit.
 
 ## Recovery and stop conditions
 

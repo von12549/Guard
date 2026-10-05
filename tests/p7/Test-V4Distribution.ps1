@@ -88,7 +88,7 @@ if ($a.Code -eq 0 -and $b.Code -eq 0) {
         $entry.Delete(); $replacement=$zip.CreateEntry("$archiveRoot/package/plugin.json",[IO.Compression.CompressionLevel]::NoCompression)
         $writer=[IO.StreamWriter]::new($replacement.Open(),[Text.UTF8Encoding]::new($false)); try{$writer.Write('{"tampered":true}')}finally{$writer.Dispose()}
     } finally { $zip.Dispose() }
-    $tamperRun = Run $installer @('-Mode','Install','-ArchivePath',$tampered,'-InstallRoot',(Join-Path $runRoot 'tampered-install'),'-ReceiptPath',(Join-Path $runRoot 'tampered-receipt.json'))
+    $tamperRun = Run $installer @('-Mode','Install','-ArchivePath',$tampered,'-InstallRoot',(Join-Path $runRoot "tampered/$archiveRoot"),'-ReceiptPath',(Join-Path $runRoot 'tampered-receipt.json'))
     if ($tamperRun.Code -eq 0 -or $tamperRun.Output -notmatch 'hash drift') { $failures.Add("tampered payload was not rejected: $($tamperRun.Output)") }
 
     # V4-TODO-018: an independent build from a second clone at another location yields the same archive.

@@ -31,6 +31,7 @@
     "core/contracts/cli-contract.json",
     "core/contracts/contracts-manifest.json",
     "core/distribution/guard.ps1",
+    "core/distribution/Install-V4Distribution.ps1",
     "core/distribution/Invoke-V4Installed.ps1",
     "core/distribution/New-V4Distribution.ps1",
     "core/distribution/Publish-V4SelfContainedDistribution.ps1",
