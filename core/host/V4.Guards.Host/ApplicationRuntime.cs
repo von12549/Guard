@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -11,6 +12,17 @@ namespace V4.Guards.Host;
 
 internal static class ApplicationRuntime
 {
+    internal static TimeProvider Clock { get; set; } = TimeProvider.System;
+    private static readonly TimeSpan SafetyProofLifetime = TimeSpan.FromMinutes(10);
+    private static DateTimeOffset UtcNow()
+    {
+#if DEBUG
+        var testClock = Environment.GetEnvironmentVariable("V4_GUARD_TEST_UTC_NOW");
+        if (!string.IsNullOrWhiteSpace(testClock) && DateTimeOffset.TryParseExact(testClock, "O", CultureInfo.InvariantCulture,
+            DateTimeStyles.RoundtripKind, out var testTime)) return testTime;
+#endif
+        return Clock.GetUtcNow();
+    }
     private const string ContractRelative = "core/application/contracts/application-service-contract.json";
     private const string ContractSchemaRelative = "core/application/contracts/application-service-contract.schema.json";
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -173,9 +185,7 @@ internal static class ApplicationRuntime
             Step("installation-integrity", "pass", "The Host validated the current package contract and authority hashes.",
                 "Continue only with this verified package identity.", [ContractRelative], null, 0),
             Step("path-profile-safety", safety.Valid ? "pass" : "blocked", safety.Conclusion,
-                safety.Valid ? "Continue while the bound proof remains current."
-                    : safety.Incident ? "Stop immediately; preserve hash-only evidence and do not auto-repair."
-                    : "Run a typed path-profile-safety preview/apply to create a current bound proof.",
+                safety.Recovery,
                 safety.EvidencePath is null ? [] : [safety.EvidencePath], safety.Valid ? null : safety.Category, safety.Valid ? 0 : safety.Code),
             Step("roots", safety.Valid ? "pass" : "not-started", safety.Valid
                     ? "The Host canonicalized and separated the explicit Package, Target, State and Evidence roots."
@@ -208,6 +218,12 @@ internal static class ApplicationRuntime
             ["completedStepCount"] = completed,
             ["totalStepCount"] = SetupStepIds.Length,
             ["currentHostOperation"] = current,
+            ["safetyProof"] = new JsonObject
+            {
+                ["valid"] = safety.Valid, ["category"] = safety.Category,
+                ["capturedAtUtc"] = safety.CapturedAtUtc, ["expiresAtUtc"] = safety.ExpiresAtUtc,
+                ["recovery"] = safety.Recovery
+            },
             ["steps"] = steps,
             ["boundaries"] = Boundaries(true)
         };
@@ -248,13 +264,28 @@ internal static class ApplicationRuntime
         if (operation == "configure" && claims.Contains("ARCH.PROJECT_REFERENCE", StringComparer.Ordinal) != (forbiddenProjectReferences.Length > 0))
             throw Invalid("ARCH.PROJECT_REFERENCE requires a non-empty explicit forbidden-reference policy and no orphan policy values.");
         var snapshot = RequiredString(context.Discovery["target"]!.AsObject(), "snapshotSha256");
+        SafetyProofStatus? currentSafety = null;
+        if (operation is "draft" or "configure" or "review-template")
+        {
+            currentSafety = InspectHostSafetyProof(context);
+            if (!currentSafety.Valid) throw new ApplicationException(currentSafety.Code, currentSafety.Category,
+                currentSafety.Conclusion + " " + currentSafety.Recovery);
+        }
+        else if (operation == "path-profile-safety")
+        {
+            currentSafety = InspectHostSafetyProof(context);
+            if (currentSafety.Incident) throw Integrity(currentSafety.Conclusion);
+        }
+        var proofPath = SafetyProofPath(context);
+        var proofSha256 = File.Exists(proofPath) ? HashFile(proofPath) : null;
         var identity = new JsonObject
         {
             ["operation"] = operation, ["projectId"] = context.ProjectId, ["profileId"] = profileId,
             ["projectRoot"] = projectRoot, ["enabledClaims"] = new JsonArray(claims.Select(value => (JsonNode)value).ToArray()),
             ["allowedFrameworks"] = new JsonArray(frameworks.Select(value => (JsonNode)value).ToArray()),
             ["forbiddenProjectReferences"] = new JsonArray(forbiddenProjectReferences.Select(value => (JsonNode)value).ToArray()),
-            ["targetSnapshotSha256"] = snapshot, ["packageAuthoritySha256"] = context.PackageAuthority
+            ["targetSnapshotSha256"] = snapshot, ["packageAuthoritySha256"] = context.PackageAuthority,
+            ["safetyProofSha256"] = proofSha256
         };
         var previewHash = HashText(identity.ToJsonString(CompactOptions));
         var needsInput = operation switch
@@ -266,17 +297,10 @@ internal static class ApplicationRuntime
             "review-template" => profileId is null,
             _ => false
         };
-        if (operation is "draft" or "configure" or "review-template")
-        {
-            var safety = InspectHostSafetyProof(context);
-            if (!safety.Valid) throw safety.Incident
-                ? Integrity("BLOCKED — HOST SAFETY INCIDENT: " + safety.Conclusion)
-                : Prerequisite("A current bound host safety proof is required before Profile authoring.");
-        }
         if (mode == "apply")
         {
             var accepted = arguments.Optional("preview-hash") ?? throw Invalid("Apply requires --preview-hash.");
-            if (!FixedTimeEquals(accepted, previewHash)) throw Conflict("Setup action preview is stale.");
+            if (!FixedTimeEquals(accepted, previewHash)) throw Conflict("Setup action preview is stale; request a new Preview after proof, Target, package or form changes.");
             if (needsInput) throw Invalid("Typed human decisions are incomplete for this setup action.");
         }
 
@@ -289,6 +313,7 @@ internal static class ApplicationRuntime
         }
         else if (mode == "apply" && operation == "draft")
         {
+            RequireCurrentSafety(context, proofSha256);
             var result = ProfileRuntime.ExecuteForApplication("draft", ProfileValues(context, profileId!));
             evidence.Add(RelativeStatePath(context.Roots.StateRoot, RequiredString(result, "storagePath")));
             stateWrite = true;
@@ -296,7 +321,9 @@ internal static class ApplicationRuntime
         else if (mode == "apply" && operation == "configure")
         {
             var original = FindProfileState(context, "draft.json", profileId!);
+            RequireCurrentSafety(context, proofSha256);
             var candidatePath = WriteTypedCandidate(context, original.Path, original.Document, profileId!, claims, frameworks, forbiddenProjectReferences);
+            RequireCurrentSafety(context, proofSha256);
             var values = ProfileValues(context, profileId!);
             values.Remove("profile");
             values["draft"] = original.Path;
@@ -309,6 +336,7 @@ internal static class ApplicationRuntime
         else if (mode == "apply" && operation == "review-template")
         {
             var configured = FindProfileState(context, "configured-draft.json", profileId!);
+            RequireCurrentSafety(context, proofSha256);
             var values = ProfileValues(context, profileId!);
             values.Remove("profile");
             values["draft"] = configured.Path;
@@ -331,11 +359,34 @@ internal static class ApplicationRuntime
                 : mode == "apply" ? "The Host stored only non-authoritative StateRoot artifacts." : "Review this bound preview before applying.",
             ["machine"] = new JsonObject { ["exitCategory"] = "success", ["exitCode"] = 0 },
             ["safeRecoveryHint"] = "Request a fresh preview after any Target, package or form change.",
+            ["plannedOutputs"] = new JsonArray(PlannedOutputs(context, operation, profileId)
+                .Select(value => (JsonNode)value).ToArray()),
             ["evidencePaths"] = new JsonArray(evidence.Select(value => (JsonNode)value).ToArray()),
             ["boundaries"] = new JsonObject { ["stateWrite"] = stateWrite, ["targetWrite"] = false, ["ciActivation"] = false, ["remoteMutation"] = false, ["humanAcceptance"] = false }
         };
         return response;
     }
+
+    private static void RequireCurrentSafety(OnboardingContext context, string? previewedProofSha256)
+    {
+        var safety = InspectHostSafetyProof(context);
+        if (!safety.Valid) throw new ApplicationException(safety.Code, safety.Category, safety.Conclusion + " " + safety.Recovery);
+        var path = SafetyProofPath(context);
+        if (previewedProofSha256 is null || !FixedTimeEquals(HashFile(path), previewedProofSha256))
+            throw Conflict("The safety proof changed during Apply; request a new Preview.");
+    }
+
+    private static string[] PlannedOutputs(OnboardingContext context, string operation, string? profileId) => operation switch
+    {
+        "path-profile-safety" => [RelativeStatePath(context.Roots.StateRoot, SafetyProofPath(context))],
+        "draft" => ["profile-drafts/" + context.ProjectId + "/<draft-id>/discovery.json",
+            "profile-drafts/" + context.ProjectId + "/<draft-id>/draft.json"],
+        "configure" => ["onboarding/" + context.ProjectId + "/" + (profileId ?? "<profile-id>") + "/candidate.json",
+            "profile-drafts/" + context.ProjectId + "/<configured-id>/discovery.json",
+            "profile-drafts/" + context.ProjectId + "/<configured-id>/configured-draft.json"],
+        "review-template" => ["profile-drafts/" + context.ProjectId + "/<configured-id>/review-template.json"],
+        _ => []
+    };
 
     private static Dictionary<string, string> ProfileValues(OnboardingContext context, string profileId) => new(StringComparer.Ordinal)
     {
@@ -429,7 +480,7 @@ internal static class ApplicationRuntime
         var proof = new JsonObject
         {
             ["formatVersion"] = 1, ["status"] = "pass", ["authority"] = "v4-host-safety-proof",
-            ["capturedAtUtc"] = DateTimeOffset.UtcNow.ToString("O"), ["projectId"] = context.ProjectId,
+            ["capturedAtUtc"] = UtcNow().ToString("O"), ["projectId"] = context.ProjectId,
             ["packageAuthoritySha256"] = context.PackageAuthority, ["targetSnapshotSha256"] = targetSnapshot,
             ["checks"] = new JsonObject
             {
@@ -447,6 +498,16 @@ internal static class ApplicationRuntime
         };
         ValidateDocument(context.Roots.PackageRoot, "host-safety-proof", proof);
         var path = SafetyProofPath(context);
+        if (File.Exists(path))
+        {
+            var oldBytes = File.ReadAllBytes(path);
+            var oldHash = Convert.ToHexString(SHA256.HashData(oldBytes)).ToLowerInvariant();
+            var archive = Path.Combine(context.Roots.StateRoot, "onboarding", context.ProjectId, "proof-history",
+                UtcNow().ToString("yyyyMMddTHHmmssfffffffZ", CultureInfo.InvariantCulture) + "-" + oldHash + ".json");
+            Directory.CreateDirectory(Path.GetDirectoryName(archive)!);
+            using (var output = new FileStream(archive, FileMode.CreateNew, FileAccess.Write, FileShare.None)) output.Write(oldBytes);
+            if (HashFile(archive) != oldHash) throw Integrity("The previous safety proof could not be archived intact.");
+        }
         WriteAtomicReplace(path, proof.ToJsonString(JsonOptions).Replace("\r\n", "\n") + "\n");
         return RelativeStatePath(context.Roots.StateRoot, path);
     }
@@ -456,7 +517,8 @@ internal static class ApplicationRuntime
         var path = SafetyProofPath(context);
         var relative = RelativeStatePath(context.Roots.StateRoot, path);
         if (!File.Exists(path))
-            return new(false, false, "prerequisite-missing", 15, "No current bound PATH/Profile safety proof exists.", null);
+            return new(false, false, "prerequisite-missing", 15, "No bound PATH/Profile safety proof exists.",
+                "Run safety Preview, then explicitly Apply verification.", null, null, null);
         try
         {
             var proof = JsonNode.Parse(File.ReadAllText(path))?.AsObject() ?? throw new JsonException("Proof is not an object.");
@@ -465,11 +527,19 @@ internal static class ApplicationRuntime
             if (RequiredString(proof, "projectId") != context.ProjectId ||
                 RequiredString(proof, "packageAuthoritySha256") != context.PackageAuthority ||
                 RequiredString(proof, "targetSnapshotSha256") != targetSnapshot)
-                return new(false, false, "state-conflict", 17, "The host safety proof is not bound to the current package, project and Target identity.", relative);
-            if (!DateTimeOffset.TryParse(RequiredString(proof, "capturedAtUtc"), out var captured) ||
-                captured > DateTimeOffset.UtcNow.AddMinutes(1) || DateTimeOffset.UtcNow - captured > TimeSpan.FromMinutes(10))
-                return new(false, false, "state-conflict", 17, "The host safety proof is stale and must be recaptured.", relative);
-
+                return new(false, false, "proof-binding-mismatch", 17, "The safety proof is bound to a different package, project or Target snapshot.",
+                    "Review the changed identity, explicitly verify safety again, then request a new Preview.", relative, null, null);
+            var rawCaptured = RequiredString(proof, "capturedAtUtc");
+            if (!DateTimeOffset.TryParseExact(rawCaptured, "O", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var captured))
+                return new(false, false, "proof-invalid-time", 17, "The safety proof capture time is invalid.",
+                    "Preserve the invalid proof and explicitly verify safety again.", relative, rawCaptured, null);
+            var expires = captured.Add(SafetyProofLifetime);
+            var capturedUtc = captured.ToUniversalTime().ToString("O");
+            var expiresUtc = expires.ToUniversalTime().ToString("O");
+            var now = UtcNow();
+            if (captured > now.AddMinutes(1))
+                return new(false, false, "proof-invalid-time", 17, "The safety proof capture time is in the future.",
+                    "Check the clock, then explicitly verify safety and request a new Preview.", relative, capturedUtc, expiresUtc);
             var current = CaptureHostSafety();
             var checks = proof["checks"]!.AsObject();
             bool HashMatches(string name, string hash)
@@ -502,14 +572,20 @@ internal static class ApplicationRuntime
                 if (!processPathMatches) changedScopes.Add("Process PATH");
                 if (!profileMatches) changedScopes.Add("PowerShell profiles");
                 return new(false, true, "integrity-failure", 12,
-                    "BLOCKED — HOST SAFETY INCIDENT: hash/equality proof mismatch in " + string.Join(", ", changedScopes) + ".", relative);
+                    "BLOCKED — HOST SAFETY INCIDENT: hash/equality proof mismatch in " + string.Join(", ", changedScopes) + ".",
+                    "Stop Guard operations; preserve hash-only evidence for human review. Do not auto-repair.", relative, capturedUtc, expiresUtc);
             }
+            if (now >= expires)
+                return new(false, false, "proof-expired", 17, "The safety proof has expired.",
+                    "Explicitly verify safety again, then request a new Preview before Apply.", relative, capturedUtc, expiresUtc);
             return new(true, false, "success", 0,
-                "Current User/Machine environment, Process PATH and four PowerShell profile observations match the bound hash-only proof.", relative);
+                "Current User/Machine environment, Process PATH and four PowerShell profile observations match the bound hash-only proof.",
+                "Continue before expiry; a renewed proof requires a new Preview.", relative, capturedUtc, expiresUtc);
         }
         catch (Exception ex) when (ex is IOException or JsonException or ApplicationException or InvalidOperationException)
         {
-            return new(false, false, "integrity-failure", 12, "The host safety proof is invalid: " + ex.Message, relative);
+            return new(false, false, "integrity-failure", 12, "The host safety proof is invalid: " + ex.Message,
+                "Preserve the invalid proof; review it before explicit safety verification.", relative, null, null);
         }
     }
 
@@ -963,7 +1039,8 @@ internal static class ApplicationRuntime
     private sealed record ProfileSafetyState(string Scope, bool Exists, string? Sha256);
     private sealed record HostSafetySnapshot(string UserEnvironmentSha256, string MachineEnvironmentSha256, string ProcessPathSha256,
         IReadOnlyList<ProfileSafetyState> Profiles);
-    private sealed record SafetyProofStatus(bool Valid, bool Incident, string Category, int Code, string Conclusion, string? EvidencePath);
+    private sealed record SafetyProofStatus(bool Valid, bool Incident, string Category, int Code, string Conclusion,
+        string Recovery, string? EvidencePath, string? CapturedAtUtc, string? ExpiresAtUtc);
     private sealed class ApplicationException(int code, string category, string message) : Exception(message)
     {
         public int Code { get; } = code;

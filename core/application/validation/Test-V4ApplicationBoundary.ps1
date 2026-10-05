@@ -185,7 +185,7 @@ try {
     }
     $draftPreviewArgs=@('application','setup-action','--operation','draft','--mode','preview','--project-id',$projectId,'--profile-id','onboarding_guard')+$common
     $draftPreview=Invoke-Host $draftPreviewArgs
-    if($draftPreview.Code-ne15-or$draftPreview.Raw-notmatch'host safety proof'){Fail 'Profile drafting was not gated on a current host safety proof.'}
+    if($draftPreview.Code-ne15-or$draftPreview.Raw-notmatch'safety proof'){Fail 'Profile drafting was not gated on a current host safety proof.'}
     $safetyPreview=Invoke-Host (@('application','setup-action','--operation','path-profile-safety','--mode','preview','--project-id',$projectId)+$common)
     if($safetyPreview.Code-ne0){Fail "Host safety preview failed: $($safetyPreview.Raw)"}else{
         $safetyHash=($safetyPreview.Raw|ConvertFrom-Json).previewHash
@@ -199,6 +199,21 @@ try {
     $draftPreview=Invoke-Host $draftPreviewArgs
     if($draftPreview.Code-ne0){Fail "Onboarding draft preview failed: $($draftPreview.Raw)"}else{
         $draftPreviewDocument=$draftPreview.Raw|ConvertFrom-Json
+        $capturedAt=[DateTimeOffset]::ParseExact((Get-Content -Raw -LiteralPath $safetyProofPath|ConvertFrom-Json -DateKind String).capturedAtUtc,'O',[Globalization.CultureInfo]::InvariantCulture)
+        try {
+            $env:V4_GUARD_TEST_UTC_NOW=$capturedAt.AddMinutes(10).AddTicks(-1).ToString('O')
+            $beforeExpiry=Invoke-Host $progressArgs
+            if($beforeExpiry.Code-ne0-or($beforeExpiry.Raw|ConvertFrom-Json).safetyProof.valid-ne$true){Fail 'Safety proof was rejected before its exact expiry boundary.'}
+            $env:V4_GUARD_TEST_UTC_NOW=$capturedAt.AddMinutes(10).ToString('O')
+            $atExpiry=Invoke-Host $progressArgs
+            $expiryDocument=$atExpiry.Raw|ConvertFrom-Json
+            if($atExpiry.Code-ne0-or$expiryDocument.safetyProof.valid-ne$false-or$expiryDocument.safetyProof.category-cne'proof-expired'-or$expiryDocument.completedStepCount-ne1){Fail 'Safety proof did not expire at the exact boundary.'}
+            $expiredApply=Invoke-Host (@('application','setup-action','--operation','draft','--mode','apply','--project-id',$projectId,'--profile-id','onboarding_guard','--preview-hash',$draftPreviewDocument.previewHash)+$common)
+            if($expiredApply.Code-ne17-or($expiredApply.Raw|ConvertFrom-Json).exitCategory-cne'proof-expired'){Fail 'Apply after Preview did not report the precise expired-proof reason.'}
+            $env:V4_GUARD_TEST_UTC_NOW=$capturedAt.AddMinutes(10).AddTicks(1).ToString('O')
+            $afterExpiry=Invoke-Host $progressArgs
+            if($afterExpiry.Code-ne0-or($afterExpiry.Raw|ConvertFrom-Json).safetyProof.category-cne'proof-expired'){Fail 'Safety proof did not remain expired after its boundary.'}
+        } finally { Remove-Item Env:V4_GUARD_TEST_UTC_NOW -ErrorAction SilentlyContinue }
         $staleDraft=Invoke-Host (@('application','setup-action','--operation','draft','--mode','apply','--project-id',$projectId,'--profile-id','onboarding_guard','--preview-hash',('0'*64))+$common)
         if($staleDraft.Code-ne17-or$staleDraft.Raw-notmatch'stale'){Fail 'Onboarding apply did not refuse a stale preview.'}
         $draftApply=Invoke-Host (@('application','setup-action','--operation','draft','--mode','apply','--project-id',$projectId,'--profile-id','onboarding_guard','--preview-hash',$draftPreviewDocument.previewHash)+$common)
@@ -267,7 +282,8 @@ try {
     }
     $completeProgress=Invoke-Host $progressArgs
     if($completeProgress.Code-ne0-or($completeProgress.Raw|ConvertFrom-Json).completedStepCount-ne8){Fail 'Typed onboarding did not reach the incomplete-review-template stop point.'}
-    $tamperedProof=Get-Content -Raw -LiteralPath $safetyProofPath|ConvertFrom-Json
+    $originalProofBytes=[IO.File]::ReadAllBytes($safetyProofPath)
+    $tamperedProof=Get-Content -Raw -LiteralPath $safetyProofPath|ConvertFrom-Json -DateKind String
     $tamperedProof.checks.processPath.afterSha256='0'*64
     [IO.File]::WriteAllText($safetyProofPath,($tamperedProof|ConvertTo-Json -Depth 20)+"`n",[Text.UTF8Encoding]::new($false))
     $blockedProgress=Invoke-Host $progressArgs
@@ -276,9 +292,18 @@ try {
     if($null-eq$blockedDocument-or$blockedDocument.status-cne'blocked'-or$blockedSafety.Count-ne1-or$blockedSafety[0].humanConclusion-notmatch'HOST SAFETY INCIDENT'-or$blockedDocument.completedStepCount-ne1){
         Fail 'Tampered/current-mismatched host safety proof did not block all subsequent onboarding completion.'
     }
-    $safetyRefresh=Invoke-Host (@('application','setup-action','--operation','path-profile-safety','--mode','apply','--project-id',$projectId,'--preview-hash',(($safetyPreview.Raw|ConvertFrom-Json).previewHash))+$common)
+    $incidentRefresh=Invoke-Host (@('application','setup-action','--operation','path-profile-safety','--mode','apply','--project-id',$projectId,'--preview-hash',(($safetyPreview.Raw|ConvertFrom-Json).previewHash))+$common)
+    if($incidentRefresh.Code-ne12-or$incidentRefresh.Raw-notmatch'HOST SAFETY INCIDENT'){Fail 'Tampered proof was silently renewed instead of stopping.'}
+    [IO.File]::WriteAllBytes($safetyProofPath,$originalProofBytes)
+    $renewalPreview=Invoke-Host (@('application','setup-action','--operation','path-profile-safety','--mode','preview','--project-id',$projectId)+$common)
+    $safetyRefresh=Invoke-Host (@('application','setup-action','--operation','path-profile-safety','--mode','apply','--project-id',$projectId,'--preview-hash',(($renewalPreview.Raw|ConvertFrom-Json).previewHash))+$common)
     $refreshedProgress=Invoke-Host $progressArgs
     if($safetyRefresh.Code-ne0-or$refreshedProgress.Code-ne0-or($refreshedProgress.Raw|ConvertFrom-Json).completedStepCount-ne8){Fail 'A fresh verified host safety proof did not restore evidence-driven progress.'}
+    $history=@(Get-ChildItem -LiteralPath (Join-Path $stateRoot "onboarding/$projectId/proof-history") -File)
+    $oldProofHash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($originalProofBytes))
+    if($history.Count-ne1-or(Get-FileHash -LiteralPath $history[0].FullName -Algorithm SHA256).Hash-cne$oldProofHash){Fail 'Explicit renewal did not retain the old proof byte-for-byte.'}
+    $oldDraftAfterRenewal=Invoke-Host (@('application','setup-action','--operation','draft','--mode','apply','--project-id',$projectId,'--profile-id','onboarding_guard','--preview-hash',$draftPreviewDocument.previewHash)+$common)
+    if($oldDraftAfterRenewal.Code-ne17-or$oldDraftAfterRenewal.Raw-notmatch'stale'){Fail 'Renewed safety proof did not invalidate the old Preview.'}
 
     $packageBefore = Hash-Tree $packageRoot
     $targetBefore = Hash-Tree $targetRoot

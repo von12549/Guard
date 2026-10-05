@@ -3,7 +3,7 @@
   "$id": "https://ifx.local/v4/web/session.schema.json",
   "type": "object",
   "additionalProperties": false,
-  "required": ["formatVersion", "status", "authority", "csrfToken", "allowedCommand", "allowedStages", "allowedQueries", "allowedApplicationOperations", "allowedProfiles", "activeProjectId", "targetCount", "roots"],
+  "required": ["formatVersion", "status", "authority", "csrfToken", "allowedCommand", "allowedStages", "allowedQueries", "allowedApplicationOperations", "allowedProfiles", "activeProjectId", "targetCount", "roots", "preflight"],
   "properties": {
     "formatVersion": { "const": 1 },
     "status": { "const": "ready" },
@@ -30,6 +30,16 @@
     },
     "activeProjectId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
     "targetCount": { "type": "integer", "minimum": 1 },
+    "preflight": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "path", "sha256", "atUtc"],
+      "properties": {
+        "status": { "enum": ["missing", "invalid", "reported-pass", "reported-fail"] },
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "anyOf": [{ "type": "string", "pattern": "^[a-f0-9]{64}$" }, { "type": "null" }] },
+        "atUtc": { "type": ["string", "null"] }
+      }
+    },
     "roots": {
       "type": "array",
       "minItems": 4,

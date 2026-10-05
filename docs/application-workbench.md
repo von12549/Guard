@@ -4,7 +4,7 @@ The M3 Workbench expands the existing separately packaged Web Companion. It rema
 presentation and orchestration surface over the V4 Host; it is not a second setup engine, policy judge
 or remote control plane.
 
-Version 1.2.1 includes a typed First onboarding stepper. Preview or confirmation evidence does not mean
+Version 1.2.2 source repairs the typed First onboarding stepper. Preview or confirmation evidence does not mean
 Target adoption, CI activation, remote enablement or human acceptance.
 
 ## Host operation
@@ -30,8 +30,11 @@ User/Machine environment state, Process PATH and all four PowerShell profile loc
 is a host-safety incident and no later step is counted as complete.
 
 Every setup action is typed and preview-first. Apply must present the exact preview identity binding the
-operation, project, form choices, Target snapshot and package authority; drift returns exit 17
-`state-conflict` (HTTP 409). The only permitted writes are new artifacts below StateRoot.
+operation, project, form choices, Target snapshot, package authority and current safety-proof bytes.
+An expired proof returns exit 17 `proof-expired`; a changed binding returns `proof-binding-mismatch`;
+actual environment or Profile drift returns a host safety incident. Explicit renewal archives the old
+proof and requires a new Preview. The only permitted writes are non-authoritative artifacts below
+StateRoot. Host progress exposes capture and expiry time and the current recovery step.
 
 The launcher fixes every root before the browser connects. Browser requests contain only one
 startup-registered project ID and one of the four operation IDs. There is no raw Host argument,

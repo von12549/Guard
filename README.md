@@ -1,11 +1,11 @@
 # V4 Guards
 
 V4 Guards is a self-contained, profile-driven guard package for inspecting repositories through four
-independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.2.1` includes the repaired
-M1–M5 local foundations and the installed onboarding flow; earlier releases remain immutable.
+independently runnable stages: Bootstrap, Analysis, Pre and Post. Current source is the `1.2.2`
+P04 repair candidate; the published `1.2.1` release and earlier releases remain immutable.
 The stable V4 1.0 command API and local, non-authoritative Web Companion are preserved.
 
-Version **1.2.1** repairs installed onboarding and adds typed Profile configuration and review-template
+Version **1.2.1** repaired installed onboarding and added typed Profile configuration and review-template
 steps. Its exact source commit, certification and assets are governed by the
 [1.2.1 release Plan](docs/plans/20261005-v4-guards-1-2-1-release.md). The 1.2.0 release remains
 available at its immutable tag `v4-guards-v1.2.0`.
@@ -185,9 +185,37 @@ pwsh -NoProfile -File <install>\package\guard-web.ps1 `
   --target-root <repository> --state-root <state> --evidence-root <evidence> --plan-root plans
 ```
 
+Omitting `--port` selects an available loopback port. The ready report prints the actual address and
+the four fixed roots. The installed public `guard-web.ps1` accepts the same command from another working
+directory and when paths contain spaces.
+
+Before installation, run the verified `core/distribution/Invoke-V4Preflight.ps1` from the extracted
+package with an explicit absolute, already existing RunRoot, expected version and published package
+hash. For a fresh external run directory (replace these three absolute paths and the published hash):
+
+```powershell
+$runRoot = 'C:\guard-runs\first-run'
+$packageRoot = 'C:\downloads\v4-guards-1.2.2-win-x64\package'
+$targetRoot = 'C:\projects\my-project'
+pwsh -NoProfile -File (Join-Path $packageRoot 'core\distribution\Invoke-V4Preflight.ps1') `
+  -Mode Prepare -RunRoot $runRoot -PackageRoot $packageRoot -TargetRoot $targetRoot `
+  -StateRoot 'state' -EvidenceRoot 'evidence' -ReceiptPath 'receipts\install.json' `
+  -ReportPath 'evidence\preflight-report.json' -ExpectedVersion '1.2.2' `
+  -ExpectedPackageHash '<published package SHA-256>'
+```
+
+`Preview` validates package identity and topology without preparing directories; `Prepare` creates
+only fresh StateRoot, EvidenceRoot and receipt parent and writes the report. The package and Target
+must be outside RunRoot's mutable State/Evidence directories and pairwise disjoint.
+Run `Checkpoint` with that baseline report after installation, every operation that may invoke dotnet,
+and cleanup. Every invocation uses a new report path, records explicit booleans and hashes only, and
+stops on host or Target drift. The UI displays the report's location and hash separately from its current
+Host safety proof. See [1.2.2 repair notes](docs/1.2.2-release-notes.md).
+
 The **First onboarding** stepper verifies installation, then captures a current hash-only
 User/Machine-environment, Process-PATH and PowerShell-profile proof bound to the package, project and
-Target before roots/discovery may pass. It creates a Draft, validates a separate candidate, and writes
+Target before roots/discovery may pass. The proof has a visible ten-minute expiry; renewal is an explicit
+action that archives the old bytes and requires a new Preview. It creates a Draft, validates a separate candidate, and writes
 an intentionally incomplete human-review template below StateRoot. Project-reference checks require
 an explicit non-empty forbidden-reference policy; graph-completeness checks require resolved project
 references, and target-framework checks require an explicit framework policy. The browser cannot

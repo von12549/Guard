@@ -13,7 +13,7 @@ $hostProject = Join-Path $packageRoot 'core/host/V4.Guards.Host/V4.Guards.Host.c
 $companionProject = Join-Path $packageRoot 'integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj'
 $builder = Join-Path $packageRoot 'core/distribution/New-V4Distribution.ps1'
 $installer = Join-Path $packageRoot 'core/distribution/Install-V4Distribution.ps1'
-$runRoot = Join-Path $workRoot 'p9e'
+$runRoot = Join-Path $workRoot 'p9e with spaces'
 $hostOutput = Join-Path $runRoot 'host'
 $companionA = Join-Path $runRoot 'companion-a'
 $companionB = Join-Path $runRoot 'companion-b'
@@ -56,25 +56,41 @@ function Build-Project([string] $Project, [string] $Output, [string] $Artifacts)
         if ($LASTEXITCODE) { throw "Build failed for $Project" }
     } finally { Pop-Location }
 }
-function New-LauncherStart([string[]] $Arguments) {
+function New-LauncherStart([string[]] $Arguments, [switch] $CallOperator) {
     $start = [Diagnostics.ProcessStartInfo]::new((Get-Command pwsh -ErrorAction Stop).Source)
     $start.UseShellExecute = $false; $start.RedirectStandardOutput = $true; $start.RedirectStandardError = $true; $start.CreateNoWindow = $true
     $start.WorkingDirectory = $hostile
-    foreach ($argument in @('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $installRoot 'package/core/distribution/Invoke-V4InstalledWebCompanion.ps1'),
-        '-PackageRoot',(Join-Path $installRoot 'package'),'-Profile','synthetic_profile','-PrerequisiteReportPath',(Join-Path $evidenceRoot 'companion-prerequisites.json'),
-        '-CompanionArgumentsJson',($Arguments | ConvertTo-Json -Compress))) { [void]$start.ArgumentList.Add($argument) }
+    $scriptPath = Join-Path $installRoot 'package/guard-web.ps1'
+    $scriptArguments = @('-Profile','synthetic_profile','-PrerequisiteReportPath',(Join-Path $evidenceRoot 'companion-prerequisites.json')) + $Arguments
+    foreach ($argument in @('-NoLogo','-NoProfile','-NonInteractive')) { [void]$start.ArgumentList.Add($argument) }
+    if ($CallOperator) {
+        $tokens = [Collections.Generic.List[string]]::new()
+        $tokens.Add("'" + $scriptPath.Replace("'","''") + "'")
+        for ($i=0; $i -lt $scriptArguments.Count; $i+=2) {
+            $tokens.Add($scriptArguments[$i])
+            $tokens.Add("'" + $scriptArguments[$i+1].Replace("'","''") + "'")
+        }
+        $command = '& ' + ($tokens -join ' ')
+        [void]$start.ArgumentList.Add('-EncodedCommand')
+        [void]$start.ArgumentList.Add([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command)))
+    } else {
+        [void]$start.ArgumentList.Add('-File')
+        [void]$start.ArgumentList.Add($scriptPath)
+        foreach ($argument in $scriptArguments) { [void]$start.ArgumentList.Add($argument) }
+    }
     $start
 }
-function Start-InstalledCompanion() {
-    $arguments = @('--target-root',$targetRoot,'--state-root',$stateRoot,'--evidence-root',$evidenceRoot,'--plan-root','plans','--port','0')
-    $process = [Diagnostics.Process]::new(); $process.StartInfo = New-LauncherStart $arguments
+function Start-InstalledCompanion([switch] $CallOperator) {
+    # Deliberately omit --port: the installed first-run path must bind an ephemeral loopback port.
+    $arguments = @('--target-root',$targetRoot,'--state-root',$stateRoot,'--evidence-root',$evidenceRoot,'--plan-root','plans')
+    $process = [Diagnostics.Process]::new(); $process.StartInfo = New-LauncherStart $arguments -CallOperator:$CallOperator
     if (-not $process.Start()) { throw 'Installed Web Companion did not start.' }
     $readyTask = $process.StandardOutput.ReadLineAsync()
     if (-not $readyTask.Wait([TimeSpan]::FromSeconds(45))) { try { $process.Kill($true) } catch { }; throw 'Installed Web Companion readiness timed out.' }
     $line = $readyTask.Result
     try { $ready = $line | ConvertFrom-Json }
     catch { $errorText=$process.StandardError.ReadToEnd(); try{$process.Kill($true)}catch{}; throw "Installed readiness was not JSON: $line $errorText" }
-    if ($ready.status -cne 'ready' -or $ready.address -notmatch '^http://127\.0\.0\.1:[0-9]+$') { try{$process.Kill($true)}catch{}; throw "Installed readiness was invalid: $line" }
+    if ($ready.status -cne 'ready' -or $ready.address -notmatch '^http://127\.0\.0\.1:[0-9]+$' -or ([Uri]$ready.address).Port -le 0) { try{$process.Kill($true)}catch{}; throw "Installed readiness was invalid: $line" }
     [pscustomobject]@{ Process=$process; Address=[string]$ready.address }
 }
 
@@ -123,6 +139,17 @@ try {
 
     try { $companion.Process.Kill($true); [void]$companion.Process.WaitForExit(10000) } catch { }
     $companion.Process.Dispose(); $companion=$null; $client.Dispose();$client=$null
+
+    $companion = Start-InstalledCompanion -CallOperator
+    $callSession = [Net.Http.HttpClient]::new()
+    try {
+        $callResult = $callSession.GetStringAsync("$($companion.Address)/api/v1/session").GetAwaiter().GetResult() | ConvertFrom-Json
+        if ($callResult.authority -cne 'v4-host') { Fail 'Call-operator public launcher did not reach Host authority.' }
+    } finally {
+        $callSession.Dispose()
+        try { $companion.Process.Kill($true); [void]$companion.Process.WaitForExit(10000) } catch { }
+        $companion.Process.Dispose(); $companion=$null
+    }
 
     $override = Run-Script (Join-Path $installRoot 'package/core/distribution/Invoke-V4InstalledWebCompanion.ps1') @('-PackageRoot',(Join-Path $installRoot 'package'),'-Profile','synthetic_profile','-PrerequisiteReportPath',(Join-Path $evidenceRoot 'override.json'),'-CompanionArgumentsJson',(@('--host','attacker.dll','--target-root',$targetRoot) | ConvertTo-Json -Compress)) $hostile
     if ($override.Code -ne 10 -or $override.Output -notmatch 'refuses Companion option' -or (Test-Path (Join-Path $hostile 'attacker.dll'))) { Fail 'Installed launcher did not refuse a Host override without shell effects.' }

@@ -1,0 +1,67 @@
+{
+  "formatVersion": 1,
+  "id": "20261006-v4-guards-p04-onboarding-safety-repair",
+  "title": "Repair P04 onboarding, proof state and host safety",
+  "goal": "Implement the IFX P04 acceptance plan in Guard, retain host and Target safety, and prepare a separately certified 1.2.2 release.",
+  "acceptanceCriteria": [
+    "Expired proof produces a precise Host reason and recovery; failed Apply removes old UI success and step pass without writing a candidate.",
+    "Explicit proof renewal archives the old proof and requires a new Preview; exact expiry and changed bindings are fail closed under an injectable clock.",
+    "First onboarding presents step specific inputs and actual four root paths and outputs without requiring raw JSON or claiming protection.",
+    "A preflight entry captures independent baseline evidence before dotnet and installation, handles failures in finally, and rejects unsafe or ambiguous root topology.",
+    "Unrelated IDE processes do not block while Target writes are still detected and preserved.",
+    "The installed public Companion launcher starts with omitted port, alternate cwd and paths containing spaces.",
+    "Required Guard, Windows, package and PATH/Profile safety regressions pass before a new immutable patch release."
+  ],
+  "plannedPaths": [
+    "README.md",
+    "core/application/contracts/application-service-contract.json",
+    "core/application/contracts/setup-action-response.schema.json",
+    "core/application/contracts/setup-progress.schema.json",
+    "core/application/validation/Test-V4ApplicationBoundary.ps1",
+    "core/certification/compatibility-baseline.json",
+    "core/distribution/Invoke-V4Preflight.ps1",
+    "core/distribution/validation/Test-V4Preflight.ps1",
+    "core/host/V4.Guards.Host/ApplicationRuntime.cs",
+    "core/host/V4.Guards.Host/V4.Guards.Host.csproj",
+    "docs/application-workbench.md",
+    "docs/1.2.2-release-notes.md",
+    "docs/plans/20261006-v4-guards-p04-onboarding-safety-repair.md",
+    "docs/plans/20261006-v4-guards-p04-onboarding-safety-repair.plan.json",
+    "docs/plans/authorizations/20261006-v4-guards-p04-trust-record.json",
+    "docs/plans/README.md",
+    "integrations/web/README.md",
+    "integrations/web/V4.Guards.WebCompanion/Program.cs",
+    "integrations/web/V4.Guards.WebCompanion/V4.Guards.WebCompanion.csproj",
+    "integrations/web/V4.Guards.WebCompanion/contracts/setup-action-response.schema.json",
+    "integrations/web/V4.Guards.WebCompanion/contracts/setup-progress.schema.json",
+    "integrations/web/V4.Guards.WebCompanion/contracts/session.schema.json",
+    "integrations/web/V4.Guards.WebCompanion/wwwroot/app.js",
+    "integrations/web/V4.Guards.WebCompanion/wwwroot/index.html",
+    "integrations/web/V4.Guards.WebCompanion/wwwroot/styles.css",
+    "plugin.json",
+    "tests/p9/Test-V4OfflineWebDistribution.ps1"
+  ],
+  "areas": ["application", "distribution", "documentation", "host", "security", "tests", "web-companion"],
+  "risks": [
+    "A stale browser response could display success after a current Host refusal.",
+    "A preflight report that omits a safety comparison could falsely permit installation.",
+    "An isolated dotnet process could register a global tool in the User PATH if its guard variable is missing."
+  ],
+  "decisions": [
+    "Reserve 1.2.2 and certify the exact release commit before publishing new immutable assets.",
+    "Renewal is an explicit human action and cannot change the independent external test baseline.",
+    "The Host remains authority for proof validity and all StateRoot writes.",
+    "IFX P03 remains failed; IFX adoption and human retesting require separate evidence."
+  ],
+  "validationCommands": [
+    "pwsh -NoProfile -File core/application/validation/Test-V4ApplicationBoundary.ps1",
+    "pwsh -NoProfile -File core/distribution/validation/Test-V4Preflight.ps1",
+    "pwsh -NoProfile -File tests/p9/Test-V4WebCompanionSpike.ps1",
+    "pwsh -NoProfile -File tests/p9/Test-V4OfflineWebDistribution.ps1",
+    "pwsh -NoProfile -File tests/p7/Test-V4Distribution.ps1",
+    "pwsh -NoProfile -File tests/p1/Test-V4Package.ps1",
+    "Windows full and required CI at the frozen release source"
+  ],
+  "dependencies": [],
+  "boundaries": ["engine-change", "trust-change"]
+}
