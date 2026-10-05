@@ -1,6 +1,6 @@
 # V4 Guards 1.2.x onboarding, Profile authoring and UI-first repair
 
-Status: `INSTALL ROOT IDENTITY P1 FIXED — 11/12 PLAN GATES PASS; CLEAN-COMMIT DISTRIBUTION PENDING 2026-10-05`
+Status: `IMPLEMENTATION COMPLETE — 12/12 PLAN GATES PASS; READY FOR HUMAN RETEST 2026-10-05`
 
 Formal Plan ID: `20261004-v4-guards-1-2-x-onboarding-repair`.
 
@@ -214,8 +214,8 @@ extraction; it does not relax layout verification or add a new installation mode
   mismatch leaves no InstallRoot, receipt or temporary extraction directory.
 - Correct-root install, `pwsh -File` and literal call-operator version, structured same-process stderr and
   verified uninstall pass with unchanged segmented environment/profile hashes.
-- The focused regressions and 11 source-checkout validation commands pass. The independent distribution
-  command is intentionally pending until the installer repair bytes exist in a clean commit.
+- The focused regressions and all 12 formal validation commands pass, including the clean-commit
+  independent distribution build. This is ready for human retest, not IFX acceptance or release authority.
 
 ## Recovery and stop conditions
 
