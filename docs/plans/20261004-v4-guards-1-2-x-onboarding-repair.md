@@ -1,8 +1,8 @@
 # V4 Guards 1.2.x onboarding, Profile authoring and UI-first repair
 
-Status: `IMPLEMENTATION IN PROGRESS — REMOTE MAIN PLAN RECONCILIATION 2026-10-05`
+Status: `IMPLEMENTATION IN PROGRESS — AUTHORIZED TRUST-CHANGE CONSUMPTION 2026-10-05`
 
-Formal Plan ID: `20261004-v4-guards-1-2-x-onboarding-repair`.
+Formal Plan ID: `20261004-v4-guards-1-2-x-onboarding-repair-v2`.
 
 Source acceptance plan: `D:\IFX-10-Root\docs\plans\20261004-guard-ifx-p02-onboarding-repair.md`.
 That external path is evidence and acceptance context only; it is not package input and this Plan does
@@ -185,8 +185,18 @@ Nine build/validation source paths that are exercised but byte-identical to that
 from `plannedPaths`; validation commands remain unchanged. Root `AGENTS.md` remains preserved on untouched
 local main `da81855cfe0278e35a58904c992fbcf269304548`, but a compensating repair-branch deletion keeps that
 trusted-base-disallowed path out of the PR candidate. The task's repository safety instructions remain
-binding. The branch already descends from remote main, so no synthetic merge commit or history rewrite is
-required.
+binding. The branch already descended from that remote main without a synthetic merge commit or history
+rewrite.
+
+Plan-path amendment (corrected authorized trust-change consumption):
+`integrations/github/ci-contract.json` and
+`docs/plans/authorizations/20261005-v4-guards-1-2-x-onboarding-repair-record-r2.json` are included after
+corrective authorization PR #53 merged to trusted `main` at `17ec862`. PR #52's earlier record remains
+unchanged and unconsumed because its CI-contract target hash was incorrect. The repair root Plan now uses
+the distinct authorized ID `20261004-v4-guards-1-2-x-onboarding-repair-v2`, imports the r2 record through
+an ordinary merge, changes only the five approved-test hashes in the CI contract to their authorized
+candidate values, and deletes only the r2 record in the same diff. Boundary `trust-change` is added
+without `authorization`; test selection, required contexts and candidate Host authority remain unchanged.
 
 ## Acceptance gates
 
