@@ -1,0 +1,48 @@
+{
+  "formatVersion": 1,
+  "id": "20261005-v4-guards-1-2-x-onboarding-repair-record-r3",
+  "planId": "20261004-v4-guards-1-2-x-onboarding-repair-v3",
+  "reason": "Complete authorization derived from the trusted base policy and the full repair diff. It covers the compatibility baseline certification component, the rebound CI contract verdict component, and all five changed approved tests. Earlier records remain unconsumed because they did not cover this exact protected set.",
+  "entries": [
+    {
+      "path": "core/certification/compatibility-baseline.json",
+      "baseSha256": "66f824cb3546c0aecc0d6262e424fc278f1d19f2531d0fe213300e3709615dbe",
+      "headSha256": "4203305832b60f634e9481bf1b56277c08abd0d5d454303efdc7bd6c92b00943"
+    },
+    {
+      "path": "integrations/github/ci-contract.json",
+      "baseSha256": "98b6de508a56ae9a9cfc47252baead65e60b0c3d3bfb40b9db8f7dd0644c4674",
+      "headSha256": "db369b79dd6fb4e6d07d3dc0efe63a83db5e333653c49e4ebbeb27d9c9168adf"
+    },
+    {
+      "path": "tests/p4/Test-V4ArchitectureAuthority.ps1",
+      "baseSha256": "e16fcea37d63486dd3a1b17c98706e2a725d7129ceeb02b2cefa22052cca0276",
+      "headSha256": "7f65b78d475f51bf78e154fab0be560e978ce2a4d2e352412a3c0595684a8d6a"
+    },
+    {
+      "path": "tests/p4/Test-V4BuildEvidence.ps1",
+      "baseSha256": "1df5432c6308aaad88d5d16c7c4b3e6d133ec8d1a4cdaebd9b2d8dc91a808e5f",
+      "headSha256": "33f045eba754154848a6d6c7a17b25170ab41ecaf96fb242cf9580822f46af38"
+    },
+    {
+      "path": "tests/p4/Test-V4ProjectModel.ps1",
+      "baseSha256": "9b981d0d9817ab085e50ae6f03d54b76b3ecde85ceb2215764b258e479dc2d5a",
+      "headSha256": "7ed79b66fe8fd1d970627dc901b7db824e00a71d65f01afca33a09a6fc87cac0"
+    },
+    {
+      "path": "tests/p7/Test-V4Distribution.ps1",
+      "baseSha256": "3d5fb570a2b0e603baf3e10a1e5c682378de74655ebc92e89fbccfe4e4012fc2",
+      "headSha256": "9a6e362a74b8850b56eed6ba03501315e7622d6408dd775e0d2118fda6df617f"
+    },
+    {
+      "path": "tests/p9/Test-V4WebCompanionSpike.ps1",
+      "baseSha256": "c80cfea180c53926c70abb92b3e28561a4b06936ecd69fd92c23c2cc20f49435",
+      "headSha256": "9097219b3260d0bb4ba8863db79d291c058189b01440eb4e4a7683570708c82a"
+    }
+  ],
+  "acceptedBy": {
+    "kind": "human-review",
+    "authority": "operator (von12549) — independent trust-change authorization and subsequent CI-contract rebinding explicitly approved 2026-10-05",
+    "candidateHostVerdictAllowed": false
+  }
+}
