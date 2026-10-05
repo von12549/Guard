@@ -523,7 +523,7 @@ internal static class ApplicationRuntime
             return new ProfileSafetyState(item.Scope, exists, file ? HashFile(item.Path) : null);
         }).ToArray();
         return new HostSafetySnapshot(HashEnvironment(EnvironmentVariableTarget.User), HashEnvironment(EnvironmentVariableTarget.Machine),
-            HashText(Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Process) ?? string.Empty), profiles);
+            HashText(ProcessPath()), profiles);
     }
 
     private static string HashEnvironment(EnvironmentVariableTarget target)
@@ -564,7 +564,7 @@ internal static class ApplicationRuntime
     private static IReadOnlyList<(string Scope, string Path)> ResolvePowerShellProfilePaths()
     {
         var executable = OperatingSystem.IsWindows() ? "pwsh.exe" : "pwsh";
-        var pwshPath = (Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Process) ?? string.Empty)
+        var pwshPath = ProcessPath()
             .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Select(directory => Path.Combine(directory.Trim('"'), executable)).FirstOrDefault(File.Exists)
             ?? throw Prerequisite("PowerShell profile locations cannot be resolved because pwsh is unavailable.");
@@ -589,6 +589,9 @@ internal static class ApplicationRuntime
             ("current-user-current-host", Path.Combine(currentUser, "Microsoft.PowerShell_profile.ps1"))
         ];
     }
+
+    private static string ProcessPath() =>
+        Environment.GetEnvironmentVariable(OperatingSystem.IsWindows() ? "Path" : "PATH", EnvironmentVariableTarget.Process) ?? string.Empty;
 
     private static bool SafetySnapshotsEqual(HostSafetySnapshot left, HostSafetySnapshot right) =>
         left.UserEnvironmentSha256 == right.UserEnvironmentSha256 && left.MachineEnvironmentSha256 == right.MachineEnvironmentSha256 &&
