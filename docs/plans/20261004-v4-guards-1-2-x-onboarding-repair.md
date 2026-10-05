@@ -238,18 +238,22 @@ without `authorization`; test selection, required contexts and candidate Host au
 - The earlier focused regressions passed. After complete r3 authorization consumption, all 12 formal
   validation commands passed again; the distribution, documentation and package tail was rerun from a
   clean detached checkout so generated ignored `obj` state could not enter package authority.
+- The first post-r3 remote Linux run exposed that installed `reset` was incorrectly classified as a
+  Profile-dependent Host operation even though the stable reset CLI has no `--profile` argument. The
+  installed runner now skips Profile-module prerequisite selection for reset only; the exact failing P7
+  lifecycle test and the full installed-launcher suite both pass after the repair.
 
 ## Final local candidate evidence
 
 - Trusted base is merged `main` commit `5a912e718d1a3a4e6a51e020b6e91f4642dcfd79` from authorization
   PR #54. The base-owned CI contract passed against implementation/trust-consumption commit
-  `acea85b22f500ffed9194429e366795d5fe017b3`, reported `trustChange.status = authorized`, and bound all
+  `bf4aca6c1c237bc82dbead4df6e7d56f1b589a7b`, reported `trustChange.status = authorized`, and bound all
   seven protected paths to the consumed r3 authorization record.
 - Exact Plan-path accounting passed with 59 planned paths and 59 actual paths.
 - The source-bound self-contained candidate is version `1.2.1`, RID `win-x64`, built from
-  `acea85b22f500ffed9194429e366795d5fe017b3`. Its archive is
+  `bf4aca6c1c237bc82dbead4df6e7d56f1b589a7b`. Its archive is
   `v4-guards-1.2.1-win-x64.zip` with SHA-256
-  `28ab48c50d267bba41c4b315e519ab0476cad821d00c9385bf0470501e8c83b0`.
+  `d33de646ad4baf87d58eadb91d59cba4850c03314ef1b805905d3ec922a7ddd1`.
 - Fresh candidate installation, installed `package/guard.ps1` version through both `pwsh -File` and
   literal call-operator invocation, receipted uninstall and InstallRoot removal all passed. User and
   Machine environment hashes, process PATH hash and the four PowerShell profile-state hashes remained
