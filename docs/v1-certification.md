@@ -3,14 +3,16 @@
 The V4 certification pipeline certifies a local candidate; it does not publish a release or activate
 repository controls.
 
-Source version `1.2.0` adds the repaired M1–M5 local foundations to the completed P9 Web Companion,
-hash-bound root project README, P10.1 local composition contract and opt-in Host workspace evidence while preserving
-stable API version `1.0`. V4 declares and certifies
+Source version `1.2.1` includes the repaired M1–M5 local foundations, installed onboarding, the P9 Web
+Companion, hash-bound root project README, P10.1 local composition contract and opt-in Host workspace
+evidence while preserving stable API version `1.0`. V4 declares and certifies
 `linux-x64` and `win-x64` only; macOS support is not declared.
 
-The 1.2.0 release matrix is self-contained `linux-x64` and `win-x64`; portable and arm64 assets are not
-published. Exact commit `cf8a9cb631e120309568f18ac965540e381f8027` completed this pipeline and
-was published as annotated tag `v4-guards-v1.2.0` on 2026-10-02 (Australia/Sydney).
+The 1.2.1 release matrix is self-contained `linux-x64` and `win-x64`; portable and arm64 assets are not
+published. Certification and publication bind the final release commit as specified in the
+[1.2.1 release Plan](plans/20261005-v4-guards-1-2-1-release.md). The previous 1.2.0 release was
+published from exact commit `cf8a9cb631e120309568f18ac965540e381f8027` as annotated tag
+`v4-guards-v1.2.0` on 2026-10-02 (Australia/Sydney).
 
 The certification boundary requires:
 

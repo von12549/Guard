@@ -1,0 +1,47 @@
+{
+  "formatVersion": 1,
+  "id": "20261005-v4-guards-1-2-1-release",
+  "title": "Certify and publish V4 Guards 1.2.1",
+  "goal": "Certify the repaired installed onboarding source at the final release commit, build two reproducible self-contained assets, publish an immutable 1.2.1 release, and independently verify both downloads.",
+  "acceptanceCriteria": [
+    "The release-prep PR changes documentation only and passes all base-owned required checks before merge.",
+    "Full Guardrails and native Linux-complete and Windows-full Certification pass at the same final main merge commit with matching source packageHash.",
+    "Two independent clean checkouts produce byte-identical linux-x64 and win-x64 archives, each with a matching SHA-256 sidecar and sole v4-guards-1.2.1 root.",
+    "Candidate/recovery certification passes before the annotated tag v4-guards-v1.2.1 and non-draft, non-prerelease Release are created with exactly four assets.",
+    "Freshly downloaded assets pass hash, installed CLI and Companion smoke, and verified-uninstall checks on Windows and isolated Linux; a records PR captures the evidence."
+  ],
+  "plannedPaths": [
+    "README.md",
+    "docs/1.2.0-release-notes.md",
+    "docs/1.2.1-release-notes.md",
+    "docs/application-workbench.md",
+    "docs/plans/20261005-v4-guards-1-2-1-release.md",
+    "docs/plans/20261005-v4-guards-1-2-1-release.plan.json",
+    "docs/plans/README.md",
+    "docs/profile-authority.md",
+    "docs/v1-certification.md",
+    "integrations/web/README.md"
+  ],
+  "areas": ["GuardDocs"],
+  "risks": [
+    "Packaged documentation changes the source packageHash, so certification and assets must use the final merged commit.",
+    "A mismatched RID, archive, sidecar or tag target would make the immutable publication ambiguous."
+  ],
+  "decisions": [
+    "The 1.2.1 matrix contains only self-contained linux-x64 and win-x64 ZIPs and their SHA-256 sidecars.",
+    "The release-prep PR contains no protected trust changes or version metadata edits.",
+    "The exact release commit and publication evidence are added in a later records PR to avoid a circular package hash."
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-windows",
+    "v4-required",
+    "full Guardrails and exact-commit V4 Certification",
+    "two-clean-checkout RID reproducibility and candidate/recovery certification",
+    "fresh-download Windows and isolated Linux install/run/uninstall"
+  ],
+  "dependencies": ["20261004-v4-guards-1-2-x-onboarding-repair"],
+  "boundaries": []
+}
