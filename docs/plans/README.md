@@ -30,3 +30,9 @@ Migration provenance (path dispositions, commit map, release inventory and recei
 - [V4 Guards 1.2.0 release Plan](20261001-v4-guards-1-2-0-release.md): consumes the separately merged
   baseline authorization and fixes the `linux-x64`/`win-x64` self-contained asset matrix. It reached
   `G-RELEASE = GO` and published annotated tag `v4-guards-v1.2.0`.
+
+## 1.2.1 release program
+
+- [V4 Guards 1.2.1 release Plan](20261005-v4-guards-1-2-1-release.md): certifies the repaired installed
+  onboarding source on the final merge commit, builds reproducible `linux-x64` and `win-x64` assets,
+  publishes an immutable release after all gates pass, and records independent verification.

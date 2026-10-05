@@ -1,8 +1,7 @@
 # V4 Web Companion
 
-The Web Companion is a local presentation and manual-control integration over the V4 Host. The latest
-formal asset is 1.2.0; source version 1.2.1 is an unpublished local candidate containing the repaired
-typed onboarding flow described below.
+The Web Companion is a local presentation and manual-control integration over the V4 Host. Version 1.2.1
+contains the repaired typed onboarding flow described below.
 It is not a guard engine, policy authority or verdict producer.
 
 ## Primary onboarding flow

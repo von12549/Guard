@@ -1,15 +1,14 @@
 # V4 Guards
 
 V4 Guards is a self-contained, profile-driven guard package for inspecting repositories through four
-independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.2.0` is the formal release
-for the repaired M1–M5 local foundations; earlier releases remain immutable.
+independently runnable stages: Bootstrap, Analysis, Pre and Post. Version `1.2.1` includes the repaired
+M1–M5 local foundations and the installed onboarding flow; earlier releases remain immutable.
 The stable V4 1.0 command API and local, non-authoritative Web Companion are preserved.
 
-The latest formal release is **1.2.0**, published from exact commit
-`cf8a9cb631e120309568f18ac965540e381f8027` as annotated tag `v4-guards-v1.2.0`.
-This branch prepares the unpublished local **1.2.1 candidate** that repairs installed onboarding and
-adds typed Profile configuration/review-template steps. It is not a tag, Release, consumer adoption or
-authorization to start IFX P03.
+Version **1.2.1** repairs installed onboarding and adds typed Profile configuration and review-template
+steps. Its exact source commit, certification and assets are governed by the
+[1.2.1 release Plan](docs/plans/20261005-v4-guards-1-2-1-release.md). The 1.2.0 release remains
+available at its immutable tag `v4-guards-v1.2.0`.
 Local success or a promotion candidate is still not consumer adoption, trusted CI enablement or remote
 activation. See the [completed remediation and release program](docs/plans/20261001-m1-m5-remediation-and-1-2-0-release.md)
 and [final release report](docs/plans/20261002-v4-guards-1-2-0-release-report.md).
@@ -51,9 +50,9 @@ untouched.
 
 ## Distribution and prerequisites
 
-The 1.2.0 release uses two self-contained asset names,
-`v4-guards-1.2.0-linux-x64.zip` and `v4-guards-1.2.0-win-x64.zip`. Each contains three hash-bound
-payloads below the common root `v4-guards-1.2.0/`:
+The 1.2.1 release uses two self-contained asset names,
+`v4-guards-1.2.1-linux-x64.zip` and `v4-guards-1.2.1-win-x64.zip`. Each contains three hash-bound
+payloads below the common root `v4-guards-1.2.1/`:
 
 - `package/`: immutable V4 authorities and this README;
 - `host/`: the `v4-guards` .NET Host; and
@@ -63,7 +62,8 @@ The certified release targets are `linux-x64` and `win-x64`; portable and arm64 
 The self-contained Host/Companion need PowerShell 7.4 or newer but no shared .NET runtime; selected modules
 may add declared prerequisites. Installation and verified uninstall use
 `core/distribution/Install-V4Distribution.ps1` plus an external receipt.
-See [1.2.0 release notes](docs/1.2.0-release-notes.md),
+See [1.2.1 release notes](docs/1.2.1-release-notes.md),
+[1.2.0 release notes](docs/1.2.0-release-notes.md),
 [1.1.6 release notes](docs/1.1.6-release-notes.md),
 [1.1.5 release notes](docs/1.1.5-release-notes.md),
 [1.1.4 release notes](docs/1.1.4-release-notes.md),
@@ -122,9 +122,8 @@ Use [commands.md](docs/commands.md) for stable syntax and [queries.md](docs/quer
 experimental read-only query surface. A Stage can run directly; dependency execution occurs only when
 explicitly requested and is reported in order.
 
-The `profile` and `application` entries are experimental M2/M3 surfaces. The 1.2.1 candidate adds the
-typed onboarding operations while retaining the 1.2.0 authority boundaries. Use the exact
-Profile syntax in
+The `profile` and `application` entries are experimental M2/M3 surfaces. Version 1.2.1 adds the
+typed onboarding operations while retaining the 1.2.0 authority boundaries. Use the exact Profile syntax in
 [Profile discovery and reviewed promotion](docs/profile-authority.md) and the typed preview syntax in
 [Local application Workbench](docs/application-workbench.md). Neither surface applies Target changes,
 selects a composition or activates CI/remote policy.
@@ -143,8 +142,9 @@ It writes candidates only below EvidenceRoot and never applies a Target or remot
 
 Profiles are declarative configuration. They select registered, hash-bound modules and may not provide
 arbitrary executable paths or shell commands. The package ships `default` and `synthetic_profile`;
-`ifx_profile` is not included in the 1.2.0 release or any earlier release. Module capabilities declare readable/writable roots, permitted
-processes, network use and timeouts. See [configuration.md](docs/configuration.md).
+`ifx_profile` is not included in the 1.2.1 release or any earlier release. Module capabilities declare
+readable/writable roots, permitted processes, network use and timeouts. See
+[configuration.md](docs/configuration.md).
 
 Version 1.1.4 defines an optional `workspaceEvidence` Profile capability.
 When present, the Host performs one bounded, ordinal and link-safe TargetRoot projection per run,

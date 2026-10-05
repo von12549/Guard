@@ -4,9 +4,8 @@ The M3 Workbench expands the existing separately packaged Web Companion. It rema
 presentation and orchestration surface over the V4 Host; it is not a second setup engine, policy judge
 or remote control plane.
 
-The latest formal release is 1.2.0. The unpublished 1.2.1 local candidate adds a typed First onboarding
-stepper. Preview or confirmation evidence does not mean Target adoption, CI activation, remote
-enablement, publication or human acceptance.
+Version 1.2.1 includes a typed First onboarding stepper. Preview or confirmation evidence does not mean
+Target adoption, CI activation, remote enablement or human acceptance.
 
 ## Host operation
 
