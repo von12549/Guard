@@ -1,8 +1,8 @@
 # V4 Guards 1.2.x onboarding, Profile authoring and UI-first repair
 
-Status: `IMPLEMENTATION IN PROGRESS — REMOTE MAIN PLAN RECONCILIATION 2026-10-05`
+Status: `IMPLEMENTATION IN PROGRESS — COMPLETE AUTHORIZED TRUST-CHANGE CONSUMPTION 2026-10-05`
 
-Formal Plan ID: `20261004-v4-guards-1-2-x-onboarding-repair`.
+Formal Plan ID: `20261004-v4-guards-1-2-x-onboarding-repair-v3`.
 
 Source acceptance plan: `D:\IFX-10-Root\docs\plans\20261004-guard-ifx-p02-onboarding-repair.md`.
 That external path is evidence and acceptance context only; it is not package input and this Plan does
@@ -185,8 +185,19 @@ Nine build/validation source paths that are exercised but byte-identical to that
 from `plannedPaths`; validation commands remain unchanged. Root `AGENTS.md` remains preserved on untouched
 local main `da81855cfe0278e35a58904c992fbcf269304548`, but a compensating repair-branch deletion keeps that
 trusted-base-disallowed path out of the PR candidate. The task's repository safety instructions remain
-binding. The branch already descends from remote main, so no synthetic merge commit or history rewrite is
-required.
+binding. The branch already descended from that remote main without a synthetic merge commit or history
+rewrite.
+
+Plan-path amendment (complete authorized trust-change consumption):
+`integrations/github/ci-contract.json` and
+`docs/plans/authorizations/20261005-v4-guards-1-2-x-onboarding-repair-record-r3.json` are included after
+complete authorization PR #54 merged to trusted `main` at `5a912e7`. Earlier incomplete records remain
+unchanged and unconsumed. The repair root Plan uses the distinct authorized ID
+`20261004-v4-guards-1-2-x-onboarding-repair-v3`, imports the r3 record through an ordinary merge, changes
+only the five approved-test hashes in the CI contract, and deletes only the r3 record in the same diff.
+The r3 authorization also binds the already planned `core/certification/compatibility-baseline.json`
+candidate bytes, giving exact coverage for all seven protected changes. Boundary `trust-change` is added
+without `authorization`; test selection, required contexts and candidate Host authority remain unchanged.
 
 ## Acceptance gates
 
