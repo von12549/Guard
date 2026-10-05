@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "id": "20261004-v4-guards-1-2-x-onboarding-repair-v2",
+  "id": "20261004-v4-guards-1-2-x-onboarding-repair",
   "title": "V4 Guards 1.2.x onboarding Profile authoring and UI-first repair",
   "goal": "Repair installed onboarding, add supported non-authoritative Profile candidate authoring and a UI-first human flow, correctly interpret simple inherited .NET frameworks, and prove zero persistent environment mutation while retaining Host and human authority boundaries.",
   "acceptanceCriteria": [
@@ -48,9 +48,7 @@
     "docs/commands.md",
     "docs/plans/20261004-v4-guards-1-2-x-onboarding-repair.md",
     "docs/plans/20261004-v4-guards-1-2-x-onboarding-repair.plan.json",
-    "docs/plans/authorizations/20261005-v4-guards-1-2-x-onboarding-repair-record-r2.json",
     "docs/profile-authority.md",
-    "integrations/github/ci-contract.json",
     "integrations/web/README.md",
     "integrations/web/V4.Guards.WebCompanion/contracts/setup-action-request.schema.json",
     "integrations/web/V4.Guards.WebCompanion/contracts/setup-action-response.schema.json",
@@ -103,7 +101,6 @@
     "Keep CLI and Web Companion on the same Host contracts, with Web Companion as the primary human onboarding path.",
     "Interpret only simple unconditional literal central target-framework declarations and classify all richer MSBuild forms as unsupported coverage.",
     "Treat persisted environment data and PowerShell profiles as immutable host-owned state and stop on any drift.",
-    "Consume only the base-held r2 authorization under the corrected v2 Plan ID and bind the five changed approved tests in ci-contract.json to their exact authorized hashes.",
     "Target the 1.2.x patch line, resolve one unused exact patch version before candidate creation and require a separate Plan for publication or IFX retesting."
   ],
   "validationCommands": [
@@ -122,7 +119,6 @@
   ],
   "dependencies": [],
   "boundaries": [
-    "engine-change",
-    "trust-change"
+    "engine-change"
   ]
 }
