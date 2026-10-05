@@ -1,6 +1,6 @@
 # V4 Guards 1.2.x onboarding, Profile authoring and UI-first repair
 
-Status: `IMPLEMENTATION IN PROGRESS — COMPLETE AUTHORIZED TRUST-CHANGE CONSUMPTION 2026-10-05`
+Status: `LOCAL CANDIDATE VALIDATED — READY FOR PR CI 2026-10-05`
 
 Formal Plan ID: `20261004-v4-guards-1-2-x-onboarding-repair-v3`.
 
@@ -235,9 +235,27 @@ without `authorization`; test selection, required contexts and candidate Host au
   mismatch leaves no InstallRoot, receipt or temporary extraction directory.
 - Correct-root install, `pwsh -File` and literal call-operator version, structured same-process stderr and
   verified uninstall pass with unchanged segmented environment/profile hashes.
-- The focused regressions and all 12 formal validation commands passed before remote delivery. PR CI then
-  exposed a trusted-base Plan-set mismatch after remote main coordination. Human retest is paused until
-  the exact-diff contract, full gates, final source-bound candidate and required PR checks pass again.
+- The earlier focused regressions passed. After complete r3 authorization consumption, all 12 formal
+  validation commands passed again; the distribution, documentation and package tail was rerun from a
+  clean detached checkout so generated ignored `obj` state could not enter package authority.
+
+## Final local candidate evidence
+
+- Trusted base is merged `main` commit `5a912e718d1a3a4e6a51e020b6e91f4642dcfd79` from authorization
+  PR #54. The base-owned CI contract passed against implementation/trust-consumption commit
+  `acea85b22f500ffed9194429e366795d5fe017b3`, reported `trustChange.status = authorized`, and bound all
+  seven protected paths to the consumed r3 authorization record.
+- Exact Plan-path accounting passed with 59 planned paths and 59 actual paths.
+- The source-bound self-contained candidate is version `1.2.1`, RID `win-x64`, built from
+  `acea85b22f500ffed9194429e366795d5fe017b3`. Its archive is
+  `v4-guards-1.2.1-win-x64.zip` with SHA-256
+  `28ab48c50d267bba41c4b315e519ab0476cad821d00c9385bf0470501e8c83b0`.
+- Fresh candidate installation, installed `package/guard.ps1` version through both `pwsh -File` and
+  literal call-operator invocation, receipted uninstall and InstallRoot removal all passed. User and
+  Machine environment hashes, process PATH hash and the four PowerShell profile-state hashes remained
+  equal before and after. Evidence contains equality results and hashes only, never environment values.
+- This evidence authorizes PR delivery and required CI only. It does not publish a release, modify IFX,
+  claim consumer protection, or authorize merging the repair PR.
 
 ## Recovery and stop conditions
 
