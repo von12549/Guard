@@ -42,13 +42,14 @@ try {
         throw 'The host --profile argument must occur at most once and have a value.'
     }
     $hostProfile = if ($profileIndexes.Count -eq 1) { [string]$arguments[$profileIndexes[0] + 1] } else { '' }
-    if (-not [string]::IsNullOrWhiteSpace($Profile) -and $Profile -cne $hostProfile) {
-        throw 'The declared prerequisite Profile must match the host --profile argument.'
-    }
 } catch { Write-InstalledError 10 'invalid-input' "Invalid HostArgumentsJson: $($_.Exception.Message)" }
 
 $skipProfile = $arguments[0] -ceq 'version' -or
+    $arguments[0] -ceq 'reset' -or
     ($arguments.Count -ge 2 -and $arguments[0] -ceq 'profile' -and $arguments[1] -in @('discover','draft','configure','review-template'))
+if (-not $skipProfile -and -not [string]::IsNullOrWhiteSpace($Profile) -and $Profile -cne $hostProfile) {
+    Write-InstalledError 10 'invalid-input' 'Invalid HostArgumentsJson: The declared prerequisite Profile must match the host --profile argument.'
+}
 if (-not $skipProfile -and [string]::IsNullOrWhiteSpace($hostProfile)) {
     Write-InstalledError 10 'invalid-input' 'This Host operation requires exactly one --profile argument for prerequisite selection.'
 }
