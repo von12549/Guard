@@ -1,0 +1,28 @@
+{
+  "formatVersion": 1,
+  "id": "20261006-v4-guards-p04-trust-authorization",
+  "title": "Authorize exact P04 compatibility baseline rebind",
+  "goal": "Place a single-use trusted-base record for the 1.2.2 plugin hash rebind required by the P04 repair.",
+  "acceptanceCriteria": [
+    "Only this Plan pair and its single-use authorization record change in the authorization PR.",
+    "The record binds the current base and reviewed candidate SHA-256 bytes of the compatibility baseline.",
+    "The base-owned Contract classifies this PR as authorization-added and required checks pass."
+  ],
+  "plannedPaths": [
+    "docs/plans/20261006-v4-guards-p04-trust-authorization.md",
+    "docs/plans/20261006-v4-guards-p04-trust-authorization.plan.json",
+    "docs/plans/authorizations/20261006-v4-guards-p04-trust-record.json"
+  ],
+  "areas": ["GuardDocs"],
+  "risks": ["A wrong candidate hash would fail closed and require a new authorization record."],
+  "decisions": [
+    "Authorize only the exact compatibility baseline rebind for plugin.json version 1.2.2.",
+    "The authorization PR does not change protected files or publish a release."
+  ],
+  "validationCommands": [
+    "pwsh -NoProfile -File integrations/github/Invoke-V4TrustedBase.ps1",
+    "v4-contract and v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": ["authorization"]
+}
