@@ -1,0 +1,40 @@
+{
+  "formatVersion": 1,
+  "id": "20261005-v4-guards-1-2-x-onboarding-repair-authorization-r2",
+  "title": "纠正 V4 Guards 1.2.x onboarding 修复的 CI 契约授权哈希",
+  "goal": "以新的 consuming Plan ID 增加一次性、base-held 的纠正授权，绑定真实的 CI 契约候选字节。",
+  "acceptanceCriteria": [
+    "受信任 base runner 将本 PR 判定为 authorization-added，且 required checks 全部通过。",
+    "纠正记录仅绑定 integrations/github/ci-contract.json 与五个受保护测试从 main 基线到修复候选的精确字节变更。",
+    "ci-contract.json 的 authorized head SHA-256 由 base blob 替换五个既有测试哈希后直接计算并复核为 db369b79…。",
+    "记录指向新的 consuming Plan 20261004-v4-guards-1-2-x-onboarding-repair-v2，并禁止 candidate Host 自我裁决。",
+    "本 PR 不修改或删除旧授权记录，也不修改测试、CI 契约、产品实现、版本、baseline 或发布状态。"
+  ],
+  "plannedPaths": [
+    "docs/plans/20261005-v4-guards-1-2-x-onboarding-repair-authorization-r2.md",
+    "docs/plans/20261005-v4-guards-1-2-x-onboarding-repair-authorization-r2.plan.json",
+    "docs/plans/authorizations/20261005-v4-guards-1-2-x-onboarding-repair-record-r2.json"
+  ],
+  "areas": [
+    "GuardDocs"
+  ],
+  "risks": [
+    "任何候选字节变化都会使纠正授权哈希失配；consuming PR 必须失败关闭并重新授权。",
+    "旧记录仍留在 main 且不得消费；后续 candidate 必须使用新的 Plan ID 和 r2 记录。"
+  ],
+  "decisions": [
+    "不修改已合并的旧授权记录；信任规则只允许新增授权或由匹配的 trust-change 单次消费。",
+    "使用新的 consuming Plan ID，避免与旧记录的 planId 唯一性约束冲突。",
+    "仅纠正 ci-contract.json 的 authorized head SHA-256；五个测试的授权哈希保持不变。"
+  ],
+  "validationCommands": [
+    "v4-contract",
+    "v4-linux",
+    "v4-package",
+    "v4-required"
+  ],
+  "dependencies": [],
+  "boundaries": [
+    "authorization"
+  ]
+}
